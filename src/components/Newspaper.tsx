@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { posts } from "@/lib/posts";
+import { PortableText } from "@portabletext/react";
+import type { SanityPost } from "@/lib/sanity";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
@@ -12,12 +13,19 @@ function timeAgo(index: number) {
   return units[index] ?? "1d";
 }
 
+function portableToPlainText(blocks: SanityPost["body"]): string {
+  return blocks
+    .filter(b => b._type === "block")
+    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
+    .join(" ");
+}
+
 function truncate(text: string, max = 280) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
 }
 
-function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
+function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(index < 2);
   const [liked, setLiked] = useState(false);
@@ -43,9 +51,8 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
     return () => obs.disconnect();
   }, [visible]);
 
-  const tweetText = post.section === "Micro-Memoir"
-    ? post.body.join(" ")
-    : truncate(post.body.join(" "));
+  const plainText = portableToPlainText(post.body);
+  const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
 
   return (
     <div
@@ -61,7 +68,7 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
         <span style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-          {post.kicker}
+          {post.section}
         </span>
         <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem", color: "#657786" }}>
           {timeAgo(index)}
@@ -77,7 +84,7 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       </p>
 
       <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-        {tweetText}
+        {displayText}
       </p>
 
       {post.section === "Narratives" && (
@@ -87,7 +94,7 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       )}
 
       <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {post.date}
+        {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
       </div>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
@@ -117,7 +124,7 @@ function AboutPage() {
         Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.
       </p>
       <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
-        We publish two kinds of work: <strong>Micro-Memoirs</strong>, which are short personal meditations of five hundred words or fewer, and <strong>Narratives</strong>, which are longer reported pieces and essays that take their time.
+        We publish two kinds of work: <strong>Micro-Memoirs</strong>, short personal meditations, and <strong>Narratives</strong>, longer essays that take their time.
       </p>
       <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
         The name comes from the Latin <em>ephemera</em> — things that exist for only a day. We think that&apos;s most things, and that most things deserve to be written down.
@@ -126,7 +133,7 @@ function AboutPage() {
   );
 }
 
-export default function Feed() {
+export default function Feed({ posts }: { posts: SanityPost[] }) {
   const [activeTab, setActiveTab] = useState<Tab>("Home");
 
   const visiblePosts = activeTab === "Home"
@@ -139,7 +146,6 @@ export default function Feed() {
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      {/* Single sticky bar: masthead left, nav right */}
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.png" alt="efemera" style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block" }} />
@@ -152,10 +158,14 @@ export default function Feed() {
 
       {activeTab === "About" ? (
         <AboutPage />
+      ) : visiblePosts.length === 0 ? (
+        <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Bodoni Moda', serif", color: "#657786", fontSize: "1rem" }}>
+          No posts yet.
+        </div>
       ) : (
         <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
           {visiblePosts.map((post, i) => (
-            <TweetCard key={post.slug} post={post} index={i} />
+            <TweetCard key={post._id} post={post} index={i} />
           ))}
         </div>
       )}

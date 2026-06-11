@@ -1,29 +1,36 @@
-import { posts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { PortableText } from "@portabletext/react";
+import { getAllSlugs, getPost, urlFor } from "@/lib/sanity";
 import CommentSection from "@/components/CommentSection";
 import SiteFooter from "@/components/SiteFooter";
 
-export function generateStaticParams() {
-  return posts.map(p => ({ slug: p.slug }));
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const slugs = await getAllSlugs();
+    return slugs.map(slug => ({ slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = posts.find(p => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) return {};
   return { title: `${post.headline} — Efemera`, description: post.subheadline };
 }
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = posts.find(p => p.slug === slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      {/* Single sticky bar: masthead left, nav right */}
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -38,10 +45,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </nav>
       </header>
 
-      {/* Article */}
       <article style={{ maxWidth: 600, margin: "2rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
         <div style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
-          {post.kicker}
+          {post.section}
         </div>
 
         <h1 style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
@@ -53,44 +59,44 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </p>
 
         <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {post.date}
+          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
         </div>
 
-        {/* Hero photo — only for Narratives when an image is provided */}
-        {post.section === "Narratives" && post.image && (
+        {post.section === "Narratives" && post.image?.asset && (
           <div style={{ margin: "0 -2rem 1.8rem", overflow: "hidden" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={post.image}
-              alt={post.imageCaption ?? ""}
+              src={urlFor(post.image.asset).width(800).auto("format").url()}
+              alt={post.image.caption ?? ""}
               style={{ width: "100%", display: "block", maxHeight: 420, objectFit: "cover" }}
             />
-            {post.imageCaption && (
+            {post.image.caption && (
               <p style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.4rem 2rem 0", lineHeight: 1.4 }}>
-                {post.imageCaption}
+                {post.image.caption}
               </p>
             )}
           </div>
         )}
 
         <div style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
-          {post.body.map((p, i) => (
-            <p key={i} style={{ margin: i === 0 ? 0 : "1.2rem 0 0" }}>{p}</p>
-          ))}
+          <PortableText
+            value={post.body}
+            components={{
+              block: {
+                normal: ({ children }) => (
+                  <p style={{ margin: "1.2rem 0 0" }}>{children}</p>
+                ),
+              },
+            }}
+          />
         </div>
 
-        {/* Kicker image at end of article */}
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/Flying Mayfly Kicker.png"
-            alt=""
-            style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }}
-          />
+          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }} />
         </div>
       </article>
 
-      {/* Comments */}
       <div style={{ maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem" }}>
         <CommentSection slug={slug} />
       </div>
