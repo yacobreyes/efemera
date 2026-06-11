@@ -83,7 +83,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
       </div>
 
       <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={`/stories/${post.slug}`} style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+        <Link href={`/stories/${post.slug}`} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
         </Link>
       </h2>

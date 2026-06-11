@@ -12,6 +12,8 @@
 
 * { box-sizing: border-box; }
 
+.card-headline:hover { color: #8B0000 !important; transition: color 0.15s; }
+
 body {
   background: var(--ink);
   margin: 0;
