@@ -37,7 +37,11 @@ export async function uploadImage(formData: FormData) {
       body: buf,
     }
   );
-  if (!res.ok) throw new Error(`Upload error: ${await res.text()}`);
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("Sanity upload failed", res.status, body);
+    throw new Error(`Upload failed (${res.status}): ${body}`);
+  }
   const data = await res.json();
   return { assetId: data.document._id as string };
 }
