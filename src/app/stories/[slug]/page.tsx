@@ -2,6 +2,7 @@ import { posts } from "@/lib/posts";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
+import CommentSection from "@/components/CommentSection";
 
 export function generateStaticParams() {
   return posts.map(p => ({ slug: p.slug }));
@@ -37,7 +38,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       </header>
 
       {/* Article */}
-      <article style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
+      <article style={{ maxWidth: 600, margin: "2rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
         <div style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
           {post.kicker}
         </div>
@@ -70,6 +71,11 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           />
         </div>
       </article>
+
+      {/* Comments */}
+      <div style={{ maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem" }}>
+        <CommentSection slug={slug} />
+      </div>
     </div>
   );
 }
