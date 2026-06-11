@@ -94,9 +94,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           <LikeButton slug={slug} />
         </div>
 
-        <div style={{ margin: "1.5rem 0 0", display: "flex", justifyContent: "center" }}>
+        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: 36, height: "auto", opacity: 0.45 }} />
+          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }} />
         </div>
       </article>
 
