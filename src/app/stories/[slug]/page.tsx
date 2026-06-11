@@ -73,7 +73,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </div>
 
         {post.image?.asset && (
-          <div style={{ margin: "0 -2rem 1.8rem" }}>
+          <div style={{ marginBottom: "1.8rem" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={urlFor(post.image.asset).width(800).height(450).fit("crop").auto("format").url()}
@@ -81,7 +81,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
               style={{ width: "100%", aspectRatio: "16/9", display: "block", objectFit: "cover" }}
             />
             {post.image.caption && (
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.5rem 2rem 0", lineHeight: 1.5 }}>
+              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.5rem 0 0", lineHeight: 1.5 }}>
                 {post.image.caption}
               </p>
             )}
