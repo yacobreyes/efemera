@@ -25,7 +25,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center", borderBottom: "3px solid rgba(255,255,255,0.15)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }} />
+          <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
         </Link>
       </div>
 
@@ -39,7 +39,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
       {/* Article */}
       <article style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
-        <div style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
+        <div style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
           {post.kicker}
         </div>
 

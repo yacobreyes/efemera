@@ -49,7 +49,7 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+        <span style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           {post.kicker}
         </span>
         <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem", color: "#657786" }}>
@@ -70,7 +70,7 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       </p>
 
       <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
-        Read more →
+        Read more
       </Link>
 
       <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
@@ -103,7 +103,7 @@ export default function Feed() {
       {/* Masthead banner */}
       <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center", borderBottom: "3px solid rgba(255,255,255,0.15)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }} />
+        <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
       </div>
 
       {/* Sticky nav */}
