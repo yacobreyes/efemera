@@ -30,7 +30,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   if (!post) notFound();
 
   return (
-    <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
+    <div style={{ background: "#f5f8fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}

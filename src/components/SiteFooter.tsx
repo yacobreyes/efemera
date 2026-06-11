@@ -2,7 +2,7 @@ export default function SiteFooter() {
   return (
     <footer style={{
       background: "#8B0000",
-      marginTop: "3rem",
+      marginTop: "auto",
       padding: "2.5rem 1.5rem 2rem",
       display: "flex",
       flexDirection: "column",
