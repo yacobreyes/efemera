@@ -11,19 +11,9 @@ import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
 
-function timeAgo(dateStr: string) {
+function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
-  const diff = Date.now() - d.getTime();
-  const mins = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  if (mins < 60) return `${mins}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  if (weeks < 5) return `${weeks}w ago`;
-  return `${months}mo ago`;
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 function portableToPlainText(blocks: SanityPost["body"]): string {
@@ -88,7 +78,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           {post.section}
         </span>
         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-          {timeAgo(post.date)}
+          {formatDate(post.date)}
         </span>
       </div>
 
