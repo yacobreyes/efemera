@@ -8,12 +8,26 @@ const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ss
 const Feed = dynamic(() => import("@/components/Newspaper"), { ssr: false });
 
 export default function HomeClient({ posts }: { posts: SanityPost[] }) {
-  const [entered, setEntered] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const visited = localStorage.getItem("efemera_entered") === "1";
+    setShowAnimation(!visited);
+    setReady(true);
+  }, []);
+
+  function handleEnter() {
+    localStorage.setItem("efemera_entered", "1");
+    setShowAnimation(false);
+  }
+
+  if (!ready) return null;
 
   return (
     <>
-      {!entered && <IntroAnimation onEnter={() => setEntered(true)} />}
-      {entered && <Feed posts={posts} onMastheadClick={() => setEntered(false)} />}
+      {showAnimation && <IntroAnimation onEnter={handleEnter} />}
+      {!showAnimation && <Feed posts={posts} onMastheadClick={() => setShowAnimation(true)} />}
     </>
   );
 }
