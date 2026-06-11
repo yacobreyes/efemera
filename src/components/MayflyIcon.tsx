@@ -1,40 +1,52 @@
 "use client";
 
-interface MayflyIconProps {
+interface Props {
   size?: number;
   color?: string;
   className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function MayflyIcon({ size = 40, color = "white", className = "" }: MayflyIconProps) {
+export default function MayflyIcon({ size = 40, color = "white", className = "", style }: Props) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="0 0 200 200"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      style={style}
     >
-      {/* Body */}
-      <ellipse cx="50" cy="55" rx="5" ry="22" fill={color} />
+      {/* Left wing — large oval, swept back */}
+      <ellipse cx="62" cy="80" rx="58" ry="28" fill={color}
+        transform="rotate(-18 62 80)" />
+      {/* Right wing — large oval, swept back */}
+      <ellipse cx="138" cy="80" rx="58" ry="28" fill={color}
+        transform="rotate(18 138 80)" />
+
+      {/* Thorax / body join */}
+      <circle cx="100" cy="82" r="10" fill={color} />
       {/* Head */}
-      <circle cx="50" cy="31" r="6" fill={color} />
-      {/* Left wing */}
-      <ellipse cx="28" cy="36" rx="22" ry="10" fill={color} opacity="0.9" transform="rotate(-15 28 36)" />
-      {/* Right wing */}
-      <ellipse cx="72" cy="36" rx="22" ry="10" fill={color} opacity="0.9" transform="rotate(15 72 36)" />
-      {/* Antennae */}
-      <line x1="47" y1="26" x2="37" y2="12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-      <line x1="53" y1="26" x2="63" y2="12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-      {/* Legs */}
-      <line x1="46" y1="46" x2="32" y2="52" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="46" y1="50" x2="30" y2="58" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="54" y1="46" x2="68" y2="52" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="54" y1="50" x2="70" y2="58" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
-      {/* Tails */}
-      <line x1="47" y1="77" x2="42" y2="93" stroke={color} strokeWidth="1" strokeLinecap="round" />
-      <line x1="53" y1="77" x2="58" y2="93" stroke={color} strokeWidth="1" strokeLinecap="round" />
+      <circle cx="100" cy="68" r="8" fill={color} />
+
+      {/* Abdomen — elongated teardrop */}
+      <ellipse cx="100" cy="128" rx="10" ry="38" fill={color} />
+      {/* Abdomen tip taper */}
+      <ellipse cx="100" cy="158" rx="5" ry="10" fill={color} />
+
+      {/* Left antenna */}
+      <line x1="95" y1="62" x2="78" y2="38" stroke={color} strokeWidth="3" strokeLinecap="round" />
+      {/* Right antenna */}
+      <line x1="105" y1="62" x2="122" y2="38" stroke={color} strokeWidth="3" strokeLinecap="round" />
+
+      {/* Legs — 3 pairs radiating from thorax */}
+      <line x1="91"  y1="86" x2="64"  y2="102" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="89"  y1="90" x2="58"  y2="112" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="90"  y1="95" x2="62"  y2="120" stroke={color} strokeWidth="2"   strokeLinecap="round" />
+      <line x1="109" y1="86" x2="136" y2="102" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="111" y1="90" x2="142" y2="112" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
+      <line x1="110" y1="95" x2="138" y2="120" stroke={color} strokeWidth="2"   strokeLinecap="round" />
     </svg>
   );
 }
