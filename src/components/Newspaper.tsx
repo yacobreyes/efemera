@@ -130,7 +130,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
 }
 
 function AboutPage() {
-  const [paragraphs, setParagraphs] = useState<string[]>([]);
+  const [paragraphs, setParagraphs] = useState<string[] | null>(null);
   useEffect(() => {
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
@@ -139,28 +139,28 @@ function AboutPage() {
           .map((b: any) => b.children.map((c: any) => c.text).join(""))
           .filter(Boolean);
         setParagraphs(texts);
+      } else {
+        setParagraphs([]);
       }
-    }).catch(() => {});
+    }).catch(() => setParagraphs([]));
   }, []);
+
+  const DEFAULT = [
+    "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
+    "We are, each of us, mere blips: a fragment of time before we breathe our last and recede into memory. What remains is ephemera — from the Greek ephēmeros, lasting only a day — what Maurice Rickards called \"the minor transient documents of everyday life.\"",
+    "This is where I keep mine.",
+  ];
+
+  const content = paragraphs === null ? null : paragraphs.length > 0 ? paragraphs : DEFAULT;
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
       <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
-      {paragraphs.length > 0
-        ? paragraphs.map((p, i) => (
-            <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < paragraphs.length - 1 ? "0 0 1rem" : "0" }}>{p}</p>
+      {content === null
+        ? null
+        : content.map((p, i) => (
+            <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{p}</p>
           ))
-        : <>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
-              Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.
-            </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
-              We publish two kinds of work: <strong>Micro-Memoirs</strong>, short personal meditations, and <strong>Narratives</strong>, longer essays that take their time.
-            </p>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: 0 }}>
-              The name comes from the Latin <em>ephemera</em> — things that exist for only a day. We think that&apos;s most things, and that most things deserve to be written down.
-            </p>
-          </>
       }
     </div>
   );
