@@ -88,9 +88,11 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         </Link>
       </h2>
 
-      <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
-        {post.subheadline}
-      </p>
+      {post.subheadline && (
+        <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+          {post.subheadline}
+        </p>
+      )}
 
       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
         {displayText}

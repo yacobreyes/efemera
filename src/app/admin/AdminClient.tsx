@@ -170,7 +170,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
               </div>
               <div>
                 <label style={LABEL}>Subheadline</label>
-                <input style={INPUT} value={form.subheadline} onChange={e => setForm(f => ({ ...f, subheadline: e.target.value }))} required />
+                <input style={INPUT} value={form.subheadline} onChange={e => setForm(f => ({ ...f, subheadline: e.target.value }))} />
               </div>
 
               <div>
