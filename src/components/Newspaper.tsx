@@ -129,8 +129,14 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   );
 }
 
+const ABOUT_DEFAULT = [
+  "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
+  "We are, each of us, mere blips: a fragment of time before we breathe our last and recede into memory. What remains is ephemera — from the Greek ephēmeros, lasting only a day — what Maurice Rickards called \"the minor transient documents of everyday life.\"",
+  "This is where I keep mine.",
+];
+
 function AboutPage() {
-  const [paragraphs, setParagraphs] = useState<string[] | null>(null);
+  const [paragraphs, setParagraphs] = useState<string[]>(ABOUT_DEFAULT);
   useEffect(() => {
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
@@ -138,20 +144,12 @@ function AboutPage() {
           .filter((b: any) => b._type === "block")
           .map((b: any) => b.children.map((c: any) => c.text).join(""))
           .filter(Boolean);
-        setParagraphs(texts);
-      } else {
-        setParagraphs([]);
+        if (texts.length > 0) setParagraphs(texts);
       }
-    }).catch(() => setParagraphs([]));
+    }).catch(() => {});
   }, []);
 
-  const DEFAULT = [
-    "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
-    "We are, each of us, mere blips: a fragment of time before we breathe our last and recede into memory. What remains is ephemera — from the Greek ephēmeros, lasting only a day — what Maurice Rickards called \"the minor transient documents of everyday life.\"",
-    "This is where I keep mine.",
-  ];
-
-  const content = paragraphs === null ? null : paragraphs.length > 0 ? paragraphs : DEFAULT;
+  const content = paragraphs;
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
