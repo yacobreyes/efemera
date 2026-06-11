@@ -287,7 +287,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setForm(f);
     setSavedForm(f);
     setIsDirty(false);
-    setImageAssetId("");
+    setImageAssetId(post.image?.asset?._ref ?? "");
     setImagePreview(post.image?.asset ? "existing" : "");
     setImageCaption(post.image?.caption ?? "");
     setImageFile(null);
