@@ -31,7 +31,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/wordmark.png" alt="efemera" style={{ width: "clamp(260px, 55vw, 600px)", height: "auto", display: "block" }} />
+          <img src="/wordmark.png" alt="efemera" style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }} />
         </Link>
       </div>
 

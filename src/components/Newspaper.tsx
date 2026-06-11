@@ -148,7 +148,7 @@ export default function Feed() {
         <img
           src="/wordmark.png"
           alt="efemera"
-          style={{ width: "clamp(260px, 55vw, 600px)", height: "auto", display: "block" }}
+          style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }}
         />
       </div>
 
