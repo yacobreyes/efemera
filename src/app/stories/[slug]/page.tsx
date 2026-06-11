@@ -5,7 +5,16 @@ import { PortableText } from "@portabletext/react";
 import { getAllSlugs, getPost, urlFor } from "@/lib/sanity";
 import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
+import ShareButton from "@/components/ShareButton";
 import SiteFooter from "@/components/SiteFooter";
+
+function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
+  const words = blocks
+    .filter(b => b._type === "block")
+    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
+    .join(" ").trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
 
 export const dynamicParams = true;
 
@@ -58,7 +67,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </p>
 
         <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} min read
         </div>
 
         {post.section === "Narratives" && post.image?.asset && (
@@ -90,8 +99,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           />
         </div>
 
-        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem" }}>
+        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem", alignItems: "center" }}>
           <LikeButton slug={slug} />
+          <ShareButton slug={slug} headline={post.headline} />
         </div>
 
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>

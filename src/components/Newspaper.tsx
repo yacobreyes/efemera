@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
+import ShareButton from "@/components/ShareButton";
 import { PortableText } from "@portabletext/react";
 import type { SanityPost } from "@/lib/sanity";
 import SiteFooter from "@/components/SiteFooter";
@@ -26,6 +27,12 @@ function truncate(text: string, max = 280) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
 }
+
+function readingTime(text: string) {
+  const words = text.trim().split(/\s+/).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
 
 function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -94,7 +101,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
       )}
 
       <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+        {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(plainText)} min read
       </div>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
@@ -105,6 +112,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
         </Link>
         <LikeButton slug={post.slug} />
+        <ShareButton slug={post.slug} headline={post.headline} />
       </div>
     </div>
   );
