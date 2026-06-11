@@ -22,7 +22,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
       {/* Masthead banner */}
-      <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center", borderBottom: "3px solid rgba(255,255,255,0.15)" }}>
+      <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center",  }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
@@ -30,10 +30,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       </div>
 
       {/* Sticky nav */}
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-        <Link href="/" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>← Feed</Link>
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+        <Link href="/" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none" }}>← Feed</Link>
         {["Home", "About", "Micro-Memoirs", "Narratives"].map(s => (
-          <a key={s} href="#" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
+          <a key={s} href="#" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
         ))}
       </header>
 
