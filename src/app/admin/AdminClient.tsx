@@ -97,11 +97,83 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
   const [aboutBody, setAboutBody] = useState("");
 
+  // Undo / redo stacks for body text
+  const undoStack = useRef<string[]>([]);
+  const redoStack = useRef<string[]>([]);
+  const [undoLen, setUndoLen] = useState(0);
+  const [redoLen, setRedoLen] = useState(0);
+  const bodyBeforeTyping = useRef<string | null>(null);
+  const undoDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Draft history snapshots
+  const LS_HISTORY = "efemera_admin_history";
+  type DraftSnapshot = { ts: number; label: string; form: FormState };
+  const [draftHistory, setDraftHistory] = useState<DraftSnapshot[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autosaveFade = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [showPreview, setShowPreview] = useState(false);
+
+  // Load draft history from localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LS_HISTORY);
+      if (raw) setDraftHistory(JSON.parse(raw));
+    } catch {}
+  }, []);
+
+  function addDraftSnapshot(f: FormState) {
+    try {
+      const raw = localStorage.getItem(LS_HISTORY);
+      const existing: DraftSnapshot[] = raw ? JSON.parse(raw) : [];
+      const ts = Date.now();
+      const label = f.headline ? `${f.headline.slice(0, 30)} — ${new Date(ts).toLocaleTimeString()}` : `Untitled — ${new Date(ts).toLocaleTimeString()}`;
+      const updated = [{ ts, label, form: f }, ...existing].slice(0, 15);
+      localStorage.setItem(LS_HISTORY, JSON.stringify(updated));
+      setDraftHistory(updated);
+    } catch {}
+  }
+
+  // Undo/redo helpers
+  function pushUndo(snapshot: string) {
+    undoStack.current.push(snapshot);
+    redoStack.current = [];
+    setUndoLen(undoStack.current.length);
+    setRedoLen(0);
+  }
+
+  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    if (bodyBeforeTyping.current === null) bodyBeforeTyping.current = form.body;
+    if (undoDebounce.current) clearTimeout(undoDebounce.current);
+    undoDebounce.current = setTimeout(() => {
+      if (bodyBeforeTyping.current !== null) {
+        pushUndo(bodyBeforeTyping.current);
+        bodyBeforeTyping.current = null;
+      }
+    }, 800);
+    updateForm({ body: e.target.value });
+  }
+
+  function handleUndo() {
+    if (!undoStack.current.length) return;
+    redoStack.current.push(form.body);
+    const prev = undoStack.current.pop()!;
+    updateForm({ body: prev });
+    setUndoLen(undoStack.current.length);
+    setRedoLen(redoStack.current.length);
+  }
+
+  function handleRedo() {
+    if (!redoStack.current.length) return;
+    undoStack.current.push(form.body);
+    const next = redoStack.current.pop()!;
+    updateForm({ body: next });
+    setUndoLen(undoStack.current.length);
+    setRedoLen(redoStack.current.length);
+  }
 
   // Load posts from admin API
   function refreshPosts() {
@@ -122,6 +194,10 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
             .map((b: any) => b.children.map((c: any) => c.text).join(""))
             .join("\n\n");
           setAboutBody(plain);
+        } else {
+          setAboutBody(
+            "Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.\n\nWe publish two kinds of work: Micro-Memoirs, short personal meditations, and Narratives, longer essays that take their time.\n\nThe name comes from the Latin ephemera — things that exist for only a day. We think that's most things, and that most things deserve to be written down."
+          );
         }
       })
       .catch(() => {});
@@ -154,6 +230,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
       autosaveTimer.current = setTimeout(() => {
         try {
           localStorage.setItem(LS_KEY, JSON.stringify(form));
+          addDraftSnapshot(form);
           setAutosaveLabel("Draft saved");
           if (autosaveFade.current) clearTimeout(autosaveFade.current);
           autosaveFade.current = setTimeout(() => setAutosaveLabel(""), 2000);
@@ -262,6 +339,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     const start = ta.selectionStart;
     const end = ta.selectionEnd;
     const val = ta.value;
+    pushUndo(val);
     const selected = val.slice(start, end);
     const newVal = val.slice(0, start) + before + selected + after + val.slice(end);
     updateForm({ body: newVal });
@@ -570,7 +648,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                 <div>
                   <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
                   {/* Toolbar */}
-                  <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.35rem" }}>
+                  <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
                     {[
                       { label: "B", title: "Bold (Cmd+B)", action: () => wrapSelection("**", "**"), style: { fontWeight: 700 } },
                       { label: "I", title: "Italic (Cmd+I)", action: () => wrapSelection("_", "_"), style: { fontStyle: "italic" } },
@@ -579,18 +657,73 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                         key={btn.label}
                         type="button"
                         title={btn.title}
+                        onMouseDown={e => e.preventDefault()}
                         onClick={btn.action}
                         style={{ ...btn.style, background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK, lineHeight: 1.4 }}
                       >
                         {btn.label}
                       </button>
                     ))}
+                    <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.1rem" }} />
+                    <button
+                      type="button"
+                      title="Undo (Cmd+Z)"
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={handleUndo}
+                      disabled={undoLen === 0}
+                      style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: undoLen ? "pointer" : "default", color: undoLen ? TEXT_DARK : "#aaa", lineHeight: 1.4 }}
+                    >↩</button>
+                    <button
+                      type="button"
+                      title="Redo"
+                      onMouseDown={e => e.preventDefault()}
+                      onClick={handleRedo}
+                      disabled={redoLen === 0}
+                      style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: redoLen ? "pointer" : "default", color: redoLen ? TEXT_DARK : "#aaa", lineHeight: 1.4 }}
+                    >↪</button>
+                    {draftHistory.length > 0 && (
+                      <>
+                        <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.1rem" }} />
+                        <button
+                          type="button"
+                          onMouseDown={e => e.preventDefault()}
+                          onClick={() => setShowHistory(h => !h)}
+                          style={{ background: showHistory ? "#f5f8fa" : "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.65rem", fontFamily: FONT, fontSize: "0.75rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1.4 }}
+                        >
+                          History {showHistory ? "▲" : "▼"}
+                        </button>
+                      </>
+                    )}
                   </div>
+                  {/* Draft history panel */}
+                  {showHistory && draftHistory.length > 0 && (
+                    <div style={{ border: `1px solid ${BORDER}`, borderRadius: 4, background: "#f9fbfc", marginBottom: "0.5rem", maxHeight: 200, overflowY: "auto" }}>
+                      {draftHistory.map((snap, i) => (
+                        <div
+                          key={snap.ts}
+                          style={{ padding: "0.45rem 0.75rem", borderBottom: i < draftHistory.length - 1 ? `1px solid ${BORDER}` : "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}
+                        >
+                          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{snap.label}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm("Restore this draft? Current body text will be replaced.")) {
+                                pushUndo(form.body);
+                                updateForm({ body: snap.form.body });
+                                setShowHistory(false);
+                              }
+                            }}
+                            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.15rem 0.5rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap", flexShrink: 0 }}
+                          >Restore</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <textarea
                     ref={bodyRef}
                     style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }}
                     value={form.body}
-                    onChange={e => updateForm({ body: e.target.value })}
+                    onChange={handleBodyChange}
                     onKeyDown={handleBodyKeyDown}
                     required
                   />
@@ -618,7 +751,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                           textTransform: "capitalize",
                         }}
                       >
-                        {s === "draft" ? "Draft" : "Publish"}
+                        {s === "draft" ? "Draft" : "Published"}
                       </button>
                     ))}
                   </div>
