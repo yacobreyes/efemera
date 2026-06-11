@@ -194,10 +194,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
             .map((b: any) => b.children.map((c: any) => c.text).join(""))
             .join("\n\n");
           setAboutBody(plain);
-        } else {
-          setAboutBody(
-            "Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.\n\nWe publish two kinds of work: Micro-Memoirs, short personal meditations, and Narratives, longer essays that take their time.\n\nThe name comes from the Latin ephemera — things that exist for only a day. We think that's most things, and that most things deserve to be written down."
-          );
         }
       })
       .catch(() => {});

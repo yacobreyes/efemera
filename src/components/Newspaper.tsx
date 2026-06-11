@@ -129,14 +129,8 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   );
 }
 
-const ABOUT_DEFAULT = [
-  "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
-  "We are, each of us, passersby, mere blips in time before we breathe our last and recede into memory. What we leave behind is ephemera, what Maurice Rickards called \"the minor transient documents of everyday life.\" Journal entries, photographs, and ticket stubs. A paper trail that, pieced together, tells the story of a life.",
-  "This blog is where I keep mine.",
-];
-
 function AboutPage() {
-  const [paragraphs, setParagraphs] = useState<string[]>(ABOUT_DEFAULT);
+  const [paragraphs, setParagraphs] = useState<string[] | null>(null);
   useEffect(() => {
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
@@ -144,9 +138,11 @@ function AboutPage() {
           .filter((b: any) => b._type === "block")
           .map((b: any) => b.children.map((c: any) => c.text).join(""))
           .filter(Boolean);
-        if (texts.length > 0) setParagraphs(texts);
+        setParagraphs(texts);
+      } else {
+        setParagraphs([]);
       }
-    }).catch(() => {});
+    }).catch(() => setParagraphs([]));
   }, []);
 
   const content = paragraphs;
@@ -154,9 +150,7 @@ function AboutPage() {
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
       <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
-      {content === null
-        ? null
-        : content.map((p, i) => (
+      {content !== null && content.map((p, i) => (
             <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{p}</p>
           ))
       }
