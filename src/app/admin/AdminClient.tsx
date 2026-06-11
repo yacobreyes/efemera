@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { savePost, deletePost } from "./actions";
 import type { SanityPost } from "@/lib/sanity";
 
@@ -31,10 +31,15 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-export default function AdminClient({ posts }: { posts: SanityPost[] }) {
+export default function AdminClient({ posts: initialPosts }: { posts: SanityPost[] }) {
   const password = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
   const [auth, setAuth] = useState(!password);
   const [pw, setPw] = useState("");
+  const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
+
+  useEffect(() => {
+    fetch("/api/posts").then(r => r.json()).then(data => { if (Array.isArray(data)) setPosts(data); }).catch(() => {});
+  }, []);
   const [editing, setEditing] = useState<SanityPost | null>(null);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
