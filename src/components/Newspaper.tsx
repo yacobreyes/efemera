@@ -98,7 +98,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
 
 
       <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(plainText)} min read
+        {post.byline} · {readingTime(plainText)} min read
       </div>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
