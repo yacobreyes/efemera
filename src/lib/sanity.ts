@@ -3,11 +3,18 @@ import imageUrlBuilder from "@sanity/image-url";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SanityImageSource = any;
 
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+
+// The Vercel-Sanity integration sets SANITY_API_READ_TOKEN for server-side reads
+const token = process.env.SANITY_API_READ_TOKEN;
+
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production",
+  projectId,
+  dataset,
   apiVersion: "2024-01-01",
-  useCdn: true,
+  useCdn: !token,
+  token,
 });
 
 const builder = imageUrlBuilder(client);
@@ -41,17 +48,20 @@ const POST_FIELDS = `
 
 export async function getAllPosts(): Promise<SanityPost[]> {
   return client.fetch(
-    `*[_type == "post"] | order(date desc) { ${POST_FIELDS} }`
+    `*[_type == "post"] | order(date desc) { ${POST_FIELDS} }`,
+    {},
+    { cache: "no-store" }
   );
 }
 
 export async function getPost(slug: string): Promise<SanityPost | null> {
   return client.fetch(
     `*[_type == "post" && slug.current == $slug][0] { ${POST_FIELDS} }`,
-    { slug }
+    { slug },
+    { cache: "no-store" }
   );
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  return client.fetch(`*[_type == "post"].slug.current`);
+  return client.fetch(`*[_type == "post"].slug.current`, {}, { cache: "no-store" });
 }

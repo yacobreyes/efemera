@@ -1,11 +1,11 @@
 "use server";
 
 export async function savePost(formData: FormData) {
-  const token = process.env.SANITY_WRITE_TOKEN;
+  const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
 
-  if (!token || !projectId) throw new Error("Missing Sanity config");
+  if (!token || !projectId) throw new Error("Missing Sanity config — add SANITY_API_WRITE_TOKEN in Vercel env vars");
 
   const id = formData.get("id") as string;
   const headline = formData.get("headline") as string;
@@ -59,7 +59,7 @@ export async function savePost(formData: FormData) {
 }
 
 export async function deletePost(id: string) {
-  const token = process.env.SANITY_WRITE_TOKEN;
+  const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
 
