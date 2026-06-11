@@ -1,120 +1,123 @@
 "use client";
 
-import MayflyIcon from "./MayflyIcon";
-import { posts, Post } from "@/lib/posts";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { posts } from "@/lib/posts";
 
-function ArticleLead({ post }: { post: Post }) {
+function timeAgo(index: number) {
+  const units = ["2m", "14m", "1h", "3h", "6h", "12h"];
+  return units[index] ?? "1d";
+}
+
+function truncate(text: string, max = 280) {
+  if (text.length <= max) return text;
+  return text.slice(0, max).trimEnd() + "…";
+}
+
+function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(index < 2);
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+  const [replied, setReplied] = useState(false);
+  const [replyCount, setReplyCount] = useState(0);
+
+  useEffect(() => {
+    if (visible) return;
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.08 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [visible]);
+
+  const tweetText = truncate(post.body.join(" "));
+
   return (
-    <div className="article-lead">
-      <div>
-        <div className="article-kicker">{post.kicker}</div>
-        <h1 className={`article-headline large`}>{post.headline}</h1>
-        {post.subheadline && (
-          <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "1rem", color: "var(--ink)", marginBottom: "0.6rem", lineHeight: 1.4 }}>
-            {post.subheadline}
-          </p>
-        )}
-        <div className="article-byline">By {post.byline} &bull; {post.date}</div>
-        <div className="article-body">
-          <p>{post.body[0]}</p>
-        </div>
+    <div
+      ref={ref}
+      style={{
+        padding: "1.1rem 1rem",
+        background: "white",
+        borderBottom: "1px solid #e1e8ed",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(20px)",
+        transition: "opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+        <span style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+          {post.kicker}
+        </span>
+        <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+          {timeAgo(index)}
+        </span>
       </div>
-      <div>
-        {post.pullQuote && <div className="pull-quote">{post.pullQuote}</div>}
-        <div className="article-body">
-          {post.body.slice(1).map((p, i) => <p key={i} style={{ marginTop: "0.8rem" }}>{p}</p>)}
-        </div>
+
+      <h2 style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.25rem", letterSpacing: "-0.01em" }}>
+        {post.headline}
+      </h2>
+
+      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+        {post.subheadline}
+      </p>
+
+      <p style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+        {tweetText}
+      </p>
+
+      <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
+        Read more
+      </Link>
+
+      <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+        {post.byline} · {post.date}
+      </div>
+
+      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
+        <button onClick={() => { setReplied(r => !r); setReplyCount(c => replied ? c - 1 : c + 1); }}
+          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: replied ? "#8B0000" : "#657786" }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{replyCount}</span>
+        </button>
+        <button onClick={() => { setLiked(l => !l); setLikeCount(c => liked ? c - 1 : c + 1); }}
+          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: liked ? "#e0245e" : "#657786" }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          </svg>
+          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{likeCount}</span>
+        </button>
       </div>
     </div>
   );
 }
 
-function ArticleCard({ post }: { post: Post }) {
+export default function Feed() {
   return (
-    <div className="article-card">
-      <div className="article-kicker">{post.kicker}</div>
-      <h2 className={`article-headline ${post.size}`}>{post.headline}</h2>
-      <div className="article-byline">By {post.byline} &bull; {post.date}</div>
-      <div className="article-body">
-        {post.body.map((p, i) => <p key={i} style={{ marginTop: i > 0 ? "0.6rem" : 0 }}>{p}</p>)}
+    <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
+      {/* Masthead banner */}
+      <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center",  }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
       </div>
-    </div>
-  );
-}
 
-export default function Newspaper() {
-  const leadPost = posts.find(p => p.lead);
-  const columnPosts = posts.filter(p => !p.lead);
-
-  const today = new Date();
-  const dateStr = today.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-
-  return (
-    <div className="newspaper-bg page-enter">
-      {/* Nav */}
-      <nav className="nav-bar">
-        {["Essays", "Memory", "Nature", "Place", "Photography", "Urban Life"].map(s => (
-          <a key={s} href="#">{s}</a>
+      {/* Sticky nav */}
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+        {["Home", "About", "Micro-Memoirs", "Narratives"].map(s => (
+          <a key={s} href="#" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
         ))}
-      </nav>
-
-      {/* Masthead */}
-      <header className="newspaper-header">
-        <div style={{ position: "relative", display: "inline-block" }}>
-          <div style={{ position: "absolute", top: "-1.4rem", left: "50%", transform: "translateX(-50%)" }}>
-            <MayflyIcon size={24} color="var(--crimson)" />
-          </div>
-          <div className="newspaper-masthead">efemera</div>
-        </div>
-        <div className="newspaper-tagline">Life, in Brief.</div>
-        <div className="newspaper-meta">
-          <span>Vol. I &nbsp;&bull;&nbsp; No. 1</span>
-          <span>{dateStr}</span>
-          <span>Est. 2026</span>
-        </div>
       </header>
 
-      {/* Section label */}
-      <div style={{ paddingTop: "1rem" }}>
-        <div className="section-rule" />
-        <span className="section-label">Today&rsquo;s Edition</span>
-      </div>
-
-      {/* Lead article */}
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "1.5rem 2rem 0" }}>
-        {leadPost && <ArticleLead post={leadPost} />}
-      </div>
-
-      {/* Section label */}
-      <div>
-        <div className="section-rule" />
-        <span className="section-label">Further Reading</span>
-      </div>
-
-      {/* Columns */}
-      <div className={`newspaper-columns col-divider`}>
-        {columnPosts.map(post => (
-          <ArticleCard key={post.slug} post={post} />
+      <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+        {posts.map((post, i) => (
+          <TweetCard key={post.slug} post={post} index={i} />
         ))}
       </div>
-
-      {/* Footer */}
-      <footer style={{
-        borderTop: "3px double var(--rule)",
-        padding: "1.5rem 2rem",
-        textAlign: "center",
-        background: "var(--cream)",
-        fontFamily: "'Libre Baskerville', serif",
-        fontSize: "0.65rem",
-        letterSpacing: "0.15em",
-        color: "var(--rule)",
-      }}>
-        <MayflyIcon size={16} color="var(--crimson)" />
-        <div style={{ marginTop: "0.5rem" }}>EFEMERA &mdash; LIFE, IN BRIEF. &mdash; EST. 2026</div>
-        <div style={{ marginTop: "0.25rem", opacity: 0.6 }}>
-          &ldquo;Everything passes. Everything perishes. Everything palls.&rdquo; &mdash; André Gide
-        </div>
-      </footer>
     </div>
   );
 }
