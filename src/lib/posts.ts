@@ -1,6 +1,7 @@
 export interface Post {
   slug: string;
   kicker: string;
+  section: "Micro-Memoir" | "Narratives";
   headline: string;
   subheadline: string;
   byline: string;
@@ -12,7 +13,8 @@ export interface Post {
 export const posts: Post[] = [
   {
     slug: "on-mayfly-wings",
-    kicker: "Nature",
+    section: "Micro-Memoir",
+    kicker: "Micro-Memoir",
     headline: "The Mayfly Lives One Day and Dies Having Never Known Winter",
     subheadline: "A meditation on brevity, and what it means to live completely in a single afternoon",
     byline: "Staff Writer",
@@ -31,7 +33,8 @@ export const posts: Post[] = [
   },
   {
     slug: "grandmother-recipe",
-    kicker: "Memory",
+    section: "Micro-Memoir",
+    kicker: "Micro-Memoir",
     headline: "The Recipe She Never Wrote Down",
     subheadline: "On inheritance, sofrito, and the things we learn too late to ask about",
     byline: "Contributing Editor",
@@ -49,7 +52,8 @@ export const posts: Post[] = [
   },
   {
     slug: "last-film-roll",
-    kicker: "Photography",
+    section: "Narratives",
+    kicker: "Narratives",
     headline: "The Last Roll of Film From a Camera Found at a Flea Market",
     subheadline: "Seven exposures from a stranger's life, and two frames left deliberately blank",
     byline: "Photography Desk",
@@ -67,7 +71,8 @@ export const posts: Post[] = [
   },
   {
     slug: "corner-table",
-    kicker: "Place",
+    section: "Narratives",
+    kicker: "Narratives",
     headline: "The Corner Table at the Café That Closed",
     subheadline: "Eleven years of a single seat, and what it means when a place that held your life disappears",
     byline: "Urban Correspondent",
@@ -84,7 +89,8 @@ export const posts: Post[] = [
   },
   {
     slug: "transit-strangers",
-    kicker: "Urban Life",
+    section: "Narratives",
+    kicker: "Narratives",
     headline: "A Census of the People I See Every Morning and Will Never Know",
     subheadline: "On the intimacy of strangers, and the particular grief of a broken routine",
     byline: "Commuter's Column",
@@ -102,7 +108,8 @@ export const posts: Post[] = [
   },
   {
     slug: "holding-pattern",
-    kicker: "Travel",
+    section: "Micro-Memoir",
+    kicker: "Micro-Memoir",
     headline: "Forty Minutes in a Holding Pattern Over the City Where I Was Born",
     subheadline: "Suspended above your own history, circling what you can't quite land in",
     byline: "Travel Desk",

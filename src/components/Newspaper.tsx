@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { posts } from "@/lib/posts";
 
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
+
 function timeAgo(index: number) {
   const units = ["2m", "14m", "1h", "3h", "6h", "12h"];
   return units[index] ?? "1d";
@@ -69,9 +71,11 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
         {tweetText}
       </p>
 
-      <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
-        Read more
-      </Link>
+      {post.section === "Narratives" && (
+        <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
+          Read more
+        </Link>
+      )}
 
       <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
         {post.byline} · {post.date}
@@ -97,27 +101,62 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
   );
 }
 
+function AboutPage() {
+  return (
+    <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
+      <h1 style={{ fontFamily: "'Bodoni Moda', serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1rem" }}>About Efemera</h1>
+      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
+        Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.
+      </p>
+      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
+        We publish two kinds of work: <strong>Micro-Memoirs</strong>, which are short personal meditations of five hundred words or fewer, and <strong>Narratives</strong>, which are longer reported pieces and essays that take their time.
+      </p>
+      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
+        The name comes from the Latin <em>ephemera</em> — things that exist for only a day. We think that&apos;s most things, and that most things deserve to be written down.
+      </p>
+    </div>
+  );
+}
+
 export default function Feed() {
+  const [activeTab, setActiveTab] = useState<Tab>("Home");
+
+  const visiblePosts = activeTab === "Home"
+    ? posts
+    : activeTab === "Micro-Memoirs"
+    ? posts.filter(p => p.section === "Micro-Memoir")
+    : activeTab === "Narratives"
+    ? posts.filter(p => p.section === "Narratives")
+    : [];
+
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      {/* Masthead banner */}
-      <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center",  }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
+      {/* Masthead + nav wrapped together to eliminate any gap */}
+      <div style={{ background: "#8B0000" }}>
+        <div style={{ padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
+        </div>
+
+        {/* Sticky nav */}
+        <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+          {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
+            s === "Home"
+              ? <Link key={s} href="/" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7 }}>{s}</Link>
+              : <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+          ))}
+        </header>
       </div>
 
-      {/* Sticky nav */}
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
-        {["Home", "About", "Micro-Memoirs", "Narratives"].map(s => (
-          <a key={s} href="#" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
-        ))}
-      </header>
-
-      <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-        {posts.map((post, i) => (
-          <TweetCard key={post.slug} post={post} index={i} />
-        ))}
-      </div>
+      {activeTab === "About" ? (
+        <AboutPage />
+      ) : (
+        <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+          {visiblePosts.map((post, i) => (
+            <TweetCard key={post.slug} post={post} index={i} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
