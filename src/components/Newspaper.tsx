@@ -36,7 +36,9 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
     return () => obs.disconnect();
   }, [visible]);
 
-  const tweetText = truncate(post.body.join(" "));
+  const tweetText = post.section === "Micro-Memoir"
+    ? post.body.join(" ")
+    : truncate(post.body.join(" "));
 
   return (
     <div
@@ -141,9 +143,7 @@ export default function Feed() {
         {/* Sticky nav */}
         <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
-            s === "Home"
-              ? <Link key={s} href="/" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7 }}>{s}</Link>
-              : <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+            <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
         </header>
       </div>

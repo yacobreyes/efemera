@@ -21,14 +21,8 @@ export const posts: Post[] = [
     date: "June 11, 2026",
     size: "large",
     body: [
-      "The mayfly emerges at dusk. It has spent years as a nymph in cold river sediment, breathing through feathery gills, waiting for a trigger it cannot name. Then, on one particular evening in early June, something shifts — water temperature, barometric pressure, some alchemical signal — and it splits its skin and flies.",
-      "By morning, it is dead. In those hours it has mated, danced in columns above the river, and fulfilled the only purpose it was given. It has never seen frost. It does not know what November smells like. And yet it seems to us — watching from the bank — that it lacks nothing.",
-      "We are not mayflies. We carry the weight of seasons, the slow accumulation of decembers. But there is something the mayfly understands that we forget by Tuesday: that a moment completely inhabited needs no sequel.",
-      "I have been thinking about this since I watched a hatch last summer on the Delaware River. Thousands of them, all at once, rising in columns that caught the last light. The fishermen were ecstatic — a good hatch means good fishing — but I couldn't cast. I just stood there.",
-      "What struck me was how unhurried they seemed. They had one evening and they spent it dancing. No apparent urgency, no scramble. Just the slow column rising, turning, falling back. The whole thing looked less like a desperate last act and more like a ceremony.",
-      "I think we misread the mayfly. We project onto it our own dread of endings. We call its life tragic because it is short, but shortness is only tragic if you believe length is the measure of a life. The mayfly, if it could speak, might look at our long winters and our long regrets and feel something close to pity.",
-      "There is a word in Japanese — mono no aware — that translates roughly as the pathos of things, a bittersweet awareness of impermanence. It is why cherry blossoms matter more than roses: because they fall. The mayfly is mono no aware made insect.",
-      "The river kept moving after the hatch ended. The mayflies were gone. The fishermen packed up. I stood there a little longer than I needed to, which is, I think, the only appropriate response to something beautiful and brief.",
+      "The mayfly emerges at dusk, splits its skin, and flies. By morning it is dead. In those hours it has mated, danced in columns above the river, and fulfilled the only purpose it was given. It has never seen frost. It does not know what November smells like.",
+      "And yet it seems to us — watching from the bank — that it lacks nothing. A moment completely inhabited needs no sequel.",
     ],
   },
   {
@@ -41,13 +35,8 @@ export const posts: Post[] = [
     date: "June 10, 2026",
     size: "medium",
     body: [
-      "My grandmother made sofrito the way most people breathe — without thinking about it, the motions so encoded they bypassed intention entirely. She never measured anything. The cilantro was a handful. The garlic was enough. When I asked her to teach me, she laughed.",
-      "\"You watch,\" she said. \"You don't write.\"",
-      "She died before I understood what she meant. Now I make sofrito by feel, and sometimes — rarely, briefly — it tastes like hers. In those moments I understand that the recipe was never in the proportions. It was in the watching.",
-      "There is a category of knowledge that cannot survive transcription. It lives in muscle memory, in the angle of a wrist, in the particular rhythm of a knife against a board. My grandmother had it. Her mother had it before her. It moved through bodies, not pages.",
-      "I have been trying to reconstruct it anyway. I call my mother, who calls her cousins. We compare notes across three countries. The cilantro was a lot or a little depending on who you ask. The ají dulce either matters enormously or not at all. We are archaeologists of a kitchen that no longer exists.",
-      "What I am learning is that the recipe was always secondary. What she was teaching, when she said watch, was a way of being in a kitchen: unhurried, confident, responsive to what is in front of you rather than what is written down. The sofrito was the lesson, not the subject.",
-      "My daughter is eight. She stands on a step stool next to me now when I cook. She doesn't write anything down. I'm starting to think my grandmother knew exactly what she was doing.",
+      "My grandmother made sofrito the way most people breathe. She never measured anything. When I asked her to teach me, she laughed. \"You watch,\" she said. \"You don't write.\"",
+      "She died before I understood. Now I make it by feel, and sometimes — rarely, briefly — it tastes like hers. My daughter is eight. She stands on a step stool beside me and doesn't write anything down. I think my grandmother knew exactly what she was doing.",
     ],
   },
   {
@@ -116,13 +105,8 @@ export const posts: Post[] = [
     date: "June 6, 2026",
     size: "small",
     body: [
-      "The pilot announced we'd be circling due to weather. Below, through a thin break in cloud, I could see the grid of streets I grew up on. I pressed my forehead against the oval window and looked for the roof of my parents' house, which I could not find.",
-      "For forty minutes I was suspended above my own history, unable to land in it. This is, I think, what nostalgia actually is: orbiting something you cannot touch.",
-      "From altitude, a city looks like a diagram of itself — the logic of its streets visible in a way it never is from inside them. I could see the curve of the river I used to ride my bike along. I could see, or thought I could see, the park where I broke my arm at ten, the street where my first apartment was, the hospital where both my parents eventually died.",
-      "All of it reduced to geometry. All of it at a distance that made it look, briefly, like it belonged to someone else's story.",
-      "There is something clarifying about this, and also something unbearable. The distance gives you perspective and takes away warmth in the same gesture. You see the whole but lose the texture — the way the river smelled in August, the specific quality of the light on that street in October, the sound of the park at dusk.",
-      "We landed eventually. The city closed around me immediately, became specific and present and mine again in the way that only happens when you're inside something. But I keep thinking about those forty minutes. The view from the holding pattern. The way the whole of a life can look, briefly, like a map — legible and small and complete.",
-      "I never did find the roof of the house. I'm not sure I would have known what to do if I had.",
+      "The pilot announced we'd be circling. Below, through a break in cloud, I could see the streets I grew up on. I pressed my forehead against the window and looked for the roof of my parents' house, which I could not find.",
+      "For forty minutes I was suspended above my own history, unable to land in it. This is what nostalgia actually is: orbiting something you cannot touch. We landed. The city closed around me and became mine again. I never did find the roof.",
     ],
   },
 ];
