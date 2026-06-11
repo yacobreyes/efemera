@@ -8,6 +8,8 @@ export interface Post {
   date: string;
   body: string[];
   size: "large" | "medium" | "small";
+  image?: string;
+  imageCaption?: string;
 }
 
 export const posts: Post[] = [

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 import CommentSection from "@/components/CommentSection";
+import SiteFooter from "@/components/SiteFooter";
 
 export function generateStaticParams() {
   return posts.map(p => ({ slug: p.slug }));
@@ -55,6 +56,23 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           By {post.byline} · {post.date}
         </div>
 
+        {/* Hero photo — only for Narratives when an image is provided */}
+        {post.section === "Narratives" && post.image && (
+          <div style={{ margin: "0 -2rem 1.8rem", overflow: "hidden" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.image}
+              alt={post.imageCaption ?? ""}
+              style={{ width: "100%", display: "block", maxHeight: 420, objectFit: "cover" }}
+            />
+            {post.imageCaption && (
+              <p style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.4rem 2rem 0", lineHeight: 1.4 }}>
+                {post.imageCaption}
+              </p>
+            )}
+          </div>
+        )}
+
         <div style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
           {post.body.map((p, i) => (
             <p key={i} style={{ margin: i === 0 ? 0 : "1.2rem 0 0" }}>{p}</p>
@@ -76,6 +94,8 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <div style={{ maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem" }}>
         <CommentSection slug={slug} />
       </div>
+
+      <SiteFooter />
     </div>
   );
 }

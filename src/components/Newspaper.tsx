@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { posts } from "@/lib/posts";
+import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
 
@@ -158,6 +159,8 @@ export default function Feed() {
           ))}
         </div>
       )}
+
+      <SiteFooter />
     </div>
   );
 }
