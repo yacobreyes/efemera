@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { PortableText } from "@portabletext/react";
 import type { SanityPost } from "@/lib/sanity";
@@ -147,7 +148,9 @@ function AboutPage() {
 }
 
 export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; onMastheadClick?: () => void }) {
-  const [activeTab, setActiveTab] = useState<Tab>("Home");
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
+  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
 
   const visiblePosts = activeTab === "Home"
     ? posts
