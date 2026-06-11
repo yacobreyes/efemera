@@ -83,17 +83,6 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         </span>
       </div>
 
-      {post.image?.asset && (
-        <Link href={`/stories/${post.slug}`} style={{ display: "block", margin: "0 -1rem 0.9rem", overflow: "hidden" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
-            alt={post.image.caption ?? ""}
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
-          />
-        </Link>
-      )}
-
       <h2 style={{ margin: "0 0 0.25rem" }}>
         <Link href={`/stories/${post.slug}`} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
@@ -104,6 +93,17 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
           {post.subheadline}
         </p>
+      )}
+
+      {post.image?.asset && (
+        <Link href={`/stories/${post.slug}`} style={{ display: "block", marginBottom: "0.75rem" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
+            alt={post.image.caption ?? ""}
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
+          />
+        </Link>
       )}
 
       <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
