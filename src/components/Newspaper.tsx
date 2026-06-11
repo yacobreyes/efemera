@@ -142,14 +142,8 @@ export default function Feed() {
         display: "flex", alignItems: "center", justifyContent: "space-between",
         boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mayfly-icon.png" alt="" width={22} height={22} />
-          <span style={{
-            fontFamily: "'Playfair Display', serif",
-            fontWeight: 900, fontSize: "1.3rem", color: "white",
-          }}>efemera</span>
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/wordmark.png" alt="efemera" style={{ height: 36, width: "auto", display: "block" }} />
         <nav style={{ display: "flex", gap: "1.2rem" }}>
           {["Essays", "Memory", "Nature", "Place"].map(s => (
             <a key={s} href="#" style={{
