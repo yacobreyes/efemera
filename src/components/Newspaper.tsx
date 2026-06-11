@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { posts } from "@/lib/posts";
 
 function timeAgo(index: number) {
@@ -88,6 +89,16 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       }}>
         {tweetText}
       </p>
+
+      {/* Read more */}
+      <Link href={`/stories/${post.slug}`} style={{
+        display: "inline-block",
+        fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700,
+        color: "#8B0000", textDecoration: "none",
+        marginBottom: "0.75rem",
+      }}>
+        Read more →
+      </Link>
 
       {/* Byline */}
       <div style={{
