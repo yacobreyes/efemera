@@ -32,6 +32,7 @@ export interface SanityPost {
   date: string;
   body: import("@portabletext/types").PortableTextBlock[];
   image?: { asset: SanityImageSource; caption?: string };
+  status?: "draft" | "published";
 }
 
 const POST_FIELDS = `
@@ -43,10 +44,19 @@ const POST_FIELDS = `
   byline,
   date,
   body,
-  image { asset, caption }
+  image { asset, caption },
+  status
 `;
 
 export async function getAllPosts(): Promise<SanityPost[]> {
+  return client.fetch(
+    `*[_type == "post" && (status == "published" || !defined(status))] | order(date desc) { ${POST_FIELDS} }`,
+    {},
+    { cache: "no-store" }
+  );
+}
+
+export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   return client.fetch(
     `*[_type == "post"] | order(date desc) { ${POST_FIELDS} }`,
     {},

@@ -1,5 +1,7 @@
 "use server";
 
+import { parseBody } from "@/lib/parseBody";
+
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
@@ -44,27 +46,23 @@ export async function savePost(formData: FormData) {
   const id = formData.get("id") as string;
   const headline = formData.get("headline") as string;
   const subheadline = formData.get("subheadline") as string;
+  const byline = (formData.get("byline") as string) || "Yacob Reyes";
   const slug = formData.get("slug") as string;
   const section = formData.get("section") as string;
   const date = formData.get("date") as string;
   const bodyRaw = formData.get("body") as string;
   const imageAssetId = formData.get("imageAssetId") as string | null;
   const imageCaption = formData.get("imageCaption") as string | null;
+  const status = (formData.get("status") as string) || "draft";
 
-  const body = bodyRaw
-    .split(/\n\n+/)
-    .filter(p => p.trim())
-    .map((text, i) => ({
-      _type: "block", _key: `b${i}`, style: "normal", markDefs: [],
-      children: [{ _type: "span", _key: `s${i}`, text: text.trim(), marks: [] }],
-    }));
+  const body = parseBody(bodyRaw);
 
   const doc: Record<string, unknown> = {
     _id: id || `post-${slug}`,
     _type: "post",
     headline, subheadline,
     slug: { _type: "slug", current: slug },
-    section, byline: "Yacob Reyes", date, body,
+    section, byline, date, body, status,
   };
 
   if (imageAssetId) {
@@ -84,13 +82,6 @@ export async function deletePost(id: string) {
 }
 
 export async function saveAbout(formData: FormData) {
-  const body = (formData.get("body") as string)
-    .split(/\n\n+/)
-    .filter(p => p.trim())
-    .map((text, i) => ({
-      _type: "block", _key: `ab${i}`, style: "normal", markDefs: [],
-      children: [{ _type: "span", _key: `as${i}`, text: text.trim(), marks: [] }],
-    }));
-
+  const body = parseBody(formData.get("body") as string);
   await mutate([{ createOrReplace: { _id: "about", _type: "about", body } }]);
 }
