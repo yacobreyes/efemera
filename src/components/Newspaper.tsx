@@ -83,36 +83,32 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         </span>
       </div>
 
-      <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h2 style={{ margin: "0 0 0.25rem" }}>
-            <Link href={`/stories/${post.slug}`} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
-              {post.headline}
-            </Link>
-          </h2>
+      {post.image?.asset && (
+        <Link href={`/stories/${post.slug}`} style={{ display: "block", margin: "0 -1rem 0.9rem", overflow: "hidden" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
+            alt={post.image.caption ?? ""}
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
+          />
+        </Link>
+      )}
 
-          {post.subheadline && (
-            <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
-              {post.subheadline}
-            </p>
-          )}
+      <h2 style={{ margin: "0 0 0.25rem" }}>
+        <Link href={`/stories/${post.slug}`} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+          {post.headline}
+        </Link>
+      </h2>
 
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-            {displayText}
-          </p>
-        </div>
+      {post.subheadline && (
+        <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+          {post.subheadline}
+        </p>
+      )}
 
-        {post.image?.asset && (
-          <Link href={`/stories/${post.slug}`} style={{ flexShrink: 0 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(post.image.asset).width(160).height(100).fit("crop").auto("format").url()}
-              alt={post.image.caption ?? ""}
-              style={{ width: 120, height: 75, objectFit: "cover", borderRadius: 4, display: "block" }}
-            />
-          </Link>
-        )}
-      </div>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+        {displayText}
+      </p>
 
 
       <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
