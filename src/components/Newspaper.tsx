@@ -12,7 +12,8 @@ import SiteFooter from "@/components/SiteFooter";
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
 
 function timeAgo(dateStr: string) {
-  const diff = Date.now() - new Date(dateStr).getTime();
+  const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
+  const diff = Date.now() - d.getTime();
   const mins = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
