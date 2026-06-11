@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { PortableText } from "@portabletext/react";
 import { getAllSlugs, getPost, urlFor } from "@/lib/sanity";
 import CommentSection from "@/components/CommentSection";
+import LikeButton from "@/components/LikeButton";
 import SiteFooter from "@/components/SiteFooter";
 
 export const dynamicParams = true;
@@ -89,13 +90,17 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           />
         </div>
 
+        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem" }}>
+          <LikeButton slug={slug} />
+        </div>
+
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }} />
         </div>
       </article>
 
-      <div style={{ maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem" }}>
+      <div style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
         <CommentSection slug={slug} />
       </div>
 

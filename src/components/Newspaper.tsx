@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import LikeButton from "@/components/LikeButton";
 import { PortableText } from "@portabletext/react";
 import type { SanityPost } from "@/lib/sanity";
 import SiteFooter from "@/components/SiteFooter";
@@ -29,16 +30,10 @@ function truncate(text: string, max = 280) {
 function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(index < 2);
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
     try {
-      const storedLiked = localStorage.getItem(`efemera_liked_${post.slug}`) === "1";
-      const storedCount = parseInt(localStorage.getItem(`efemera_likes_${post.slug}`) ?? "0", 10);
-      setLiked(storedLiked);
-      setLikeCount(storedCount);
       const stored = localStorage.getItem(`efemera_comments_${post.slug}`);
       if (stored) setCommentCount(JSON.parse(stored).length);
     } catch { /* ignore */ }
@@ -109,22 +104,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           </svg>
           <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
         </Link>
-        <button onClick={() => {
-          const newLiked = !liked;
-          const newCount = newLiked ? likeCount + 1 : likeCount - 1;
-          setLiked(newLiked);
-          setLikeCount(newCount);
-          try {
-            localStorage.setItem(`efemera_liked_${post.slug}`, newLiked ? "1" : "0");
-            localStorage.setItem(`efemera_likes_${post.slug}`, String(newCount));
-          } catch { /* ignore */ }
-        }}
-          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: liked ? "#e0245e" : "#657786" }}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-          </svg>
-          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{likeCount}</span>
-        </button>
+        <LikeButton slug={post.slug} />
       </div>
     </div>
   );

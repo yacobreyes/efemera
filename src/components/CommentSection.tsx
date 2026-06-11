@@ -26,7 +26,7 @@ export default function CommentSection({ slug }: { slug: string }) {
   }
 
   return (
-    <section id="comments" style={{ maxWidth: 600, margin: "0 auto 3rem", padding: "0 0", scrollMarginTop: "4rem" }}>
+    <section id="comments" style={{ width: "100%", maxWidth: 600, margin: "0 auto 3rem", padding: "0 0", scrollMarginTop: "4rem" }}>
       <div style={{ borderTop: "2px solid #e1e8ed", paddingTop: "1.5rem", marginTop: "0.5rem" }}>
         <h2 style={{ fontFamily: "'Bodoni Moda', serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "0 0 1.2rem" }}>
           {comments.length === 0 ? "Leave a comment" : `${comments.length} comment${comments.length === 1 ? "" : "s"}`}
