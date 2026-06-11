@@ -1,17 +1,23 @@
 "use client";
 
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { savePost, deletePost, saveAbout, uploadImage } from "./actions";
 import type { SanityPost } from "@/lib/sanity";
 
+const CRIMSON = "#8B0000";
+const BORDER = "#e1e8ed";
+const TEXT_DARK = "#1c2938";
+const TEXT_MUTED = "#526270";
+const FONT = "'Inter', sans-serif";
+
 const INPUT: React.CSSProperties = {
-  fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", padding: "0.5rem 0.7rem",
-  border: "1px solid #e1e8ed", borderRadius: 4, width: "100%",
-  boxSizing: "border-box", color: "#1c2938", outline: "none",
+  fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem",
+  border: `1px solid ${BORDER}`, borderRadius: 4, width: "100%",
+  boxSizing: "border-box", color: TEXT_DARK, outline: "none", background: "white",
 };
 const LABEL: React.CSSProperties = {
-  fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", fontWeight: 700,
-  color: "#526270", letterSpacing: "0.08em", textTransform: "uppercase",
+  fontFamily: FONT, fontSize: "0.75rem", fontWeight: 700,
+  color: TEXT_MUTED, letterSpacing: "0.08em", textTransform: "uppercase",
   display: "block", marginBottom: "0.3rem",
 };
 
@@ -19,56 +25,217 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function ptToMarkdown(body: import("@portabletext/types").PortableTextBlock[]): string {
+  return body
+    .filter((b: any) => b._type === "block")
+    .map((b: any) =>
+      b.children
+        .map((span: any) => {
+          const t: string = span.text ?? "";
+          const marks: string[] = span.marks ?? [];
+          const isStrong = marks.includes("strong");
+          const isEm = marks.includes("em");
+          if (isStrong && isEm) return `**_${t}_**`;
+          if (isStrong) return `**${t}**`;
+          if (isEm) return `_${t}_`;
+          return t;
+        })
+        .join("")
+    )
+    .join("\n\n");
+}
+
+const LS_KEY = "efemera_admin_draft";
+
+type FormState = {
+  headline: string;
+  subheadline: string;
+  byline: string;
+  slug: string;
+  section: string;
+  date: string;
+  body: string;
+  status: "draft" | "published";
+};
+
+const DEFAULT_FORM: FormState = {
+  headline: "",
+  subheadline: "",
+  byline: "Yacob Reyes",
+  slug: "",
+  section: "Narratives",
+  date: new Date().toISOString().slice(0, 10),
+  body: "",
+  status: "draft",
+};
+
 export default function AdminClient({ posts: initialPosts }: { posts: SanityPost[] }) {
   const password = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
   const [auth, setAuth] = useState(!password);
   const [pw, setPw] = useState("");
-  const [tab, setTab] = useState<"posts" | "about">("posts");
+  const [authError, setAuthError] = useState("");
+
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [editing, setEditing] = useState<SanityPost | null>(null);
+  const [activePanel, setActivePanel] = useState<"post" | "about">("post");
+
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageCaption, setImageCaption] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageAssetId, setImageAssetId] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
-  const [form, setForm] = useState({
-    headline: "", subheadline: "", slug: "", section: "Narratives",
-    date: new Date().toISOString().slice(0, 10), body: "",
-  });
+  const [form, setForm] = useState<FormState>(DEFAULT_FORM);
+  const [savedForm, setSavedForm] = useState<FormState>(DEFAULT_FORM);
+  const [isDirty, setIsDirty] = useState(false);
+
   const [aboutBody, setAboutBody] = useState("");
 
+  const [autosaveLabel, setAutosaveLabel] = useState("");
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autosaveFade = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [showPreview, setShowPreview] = useState(false);
+
+  // Load posts from admin API
+  function refreshPosts() {
+    fetch("/api/posts-admin")
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setPosts(data); })
+      .catch(() => {});
+  }
+
   useEffect(() => {
-    fetch("/api/posts").then(r => r.json()).then(data => { if (Array.isArray(data)) setPosts(data); }).catch(() => {});
-    fetch("/api/about").then(r => r.json()).then(data => {
-      if (data?.body) {
-        const plain = data.body.filter((b: any) => b._type === "block")
-          .map((b: any) => b.children.map((c: any) => c.text).join("")).join("\n\n");
-        setAboutBody(plain);
-      }
-    }).catch(() => {});
+    refreshPosts();
+    fetch("/api/about")
+      .then(r => r.json())
+      .then(data => {
+        if (data?.body) {
+          const plain = data.body
+            .filter((b: any) => b._type === "block")
+            .map((b: any) => b.children.map((c: any) => c.text).join(""))
+            .join("\n\n");
+          setAboutBody(plain);
+        }
+      })
+      .catch(() => {});
   }, []);
 
+  // Restore autosave on mount when creating new post
+  useEffect(() => {
+    if (!editing && activePanel === "post") {
+      try {
+        const saved = localStorage.getItem(LS_KEY);
+        if (saved) {
+          const parsed: FormState = JSON.parse(saved);
+          setForm(parsed);
+        }
+      } catch {}
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Track dirty state
+  useEffect(() => {
+    const dirty = JSON.stringify(form) !== JSON.stringify(savedForm);
+    setIsDirty(dirty);
+  }, [form, savedForm]);
+
+  // Autosave to localStorage
+  useEffect(() => {
+    if (!editing && activePanel === "post") {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+      autosaveTimer.current = setTimeout(() => {
+        try {
+          localStorage.setItem(LS_KEY, JSON.stringify(form));
+          setAutosaveLabel("Draft saved");
+          if (autosaveFade.current) clearTimeout(autosaveFade.current);
+          autosaveFade.current = setTimeout(() => setAutosaveLabel(""), 2000);
+        } catch {}
+      }, 800);
+    }
+    return () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    };
+  }, [form, editing, activePanel]);
+
+  // Unsaved changes warning
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "You have unsaved changes";
+      }
+    };
+    if (isDirty) window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  function trySelectPost(post: SanityPost) {
+    if (isDirty && !confirm("Discard unsaved changes?")) return;
+    startEdit(post);
+  }
+
+  function trySelectAbout() {
+    if (isDirty && !confirm("Discard unsaved changes?")) return;
+    setActivePanel("about");
+    setEditing(null);
+    setIsDirty(false);
+  }
+
+  function tryStartNew() {
+    if (isDirty && !confirm("Discard unsaved changes?")) return;
+    startNew();
+  }
+
   function startEdit(post: SanityPost) {
-    const plain = post.body.filter((b: any) => b._type === "block")
-      .map((b: any) => b.children.map((c: any) => c.text).join("")).join("\n\n");
+    const bodyMd = ptToMarkdown(post.body);
+    const f: FormState = {
+      headline: post.headline,
+      subheadline: post.subheadline ?? "",
+      byline: post.byline ?? "Yacob Reyes",
+      slug: post.slug,
+      section: post.section,
+      date: post.date,
+      body: bodyMd,
+      status: post.status ?? "published",
+    };
     setEditing(post);
-    setForm({ headline: post.headline, subheadline: post.subheadline, slug: post.slug, section: post.section, date: post.date, body: plain });
+    setForm(f);
+    setSavedForm(f);
+    setIsDirty(false);
     setImageAssetId("");
     setImagePreview(post.image?.asset ? "existing" : "");
     setImageCaption(post.image?.caption ?? "");
     setImageFile(null);
-    window.scrollTo(0, 0);
+    setActivePanel("post");
+    setSuccess("");
+    setError("");
   }
 
   function startNew() {
+    const f = { ...DEFAULT_FORM, date: new Date().toISOString().slice(0, 10) };
     setEditing(null);
-    setForm({ headline: "", subheadline: "", slug: "", section: "Narratives", date: new Date().toISOString().slice(0, 10), body: "" });
-    setImageAssetId(""); setImagePreview(""); setImageCaption(""); setImageFile(null);
+    setForm(f);
+    setSavedForm(f);
+    setIsDirty(false);
+    setImageAssetId("");
+    setImagePreview("");
+    setImageCaption("");
+    setImageFile(null);
+    setActivePanel("post");
+    setSuccess("");
+    setError("");
+  }
+
+  function updateForm(patch: Partial<FormState>) {
+    setForm(prev => ({ ...prev, ...patch }));
   }
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -89,11 +256,39 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     }
   }
 
+  function wrapSelection(before: string, after: string) {
+    const ta = bodyRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const val = ta.value;
+    const selected = val.slice(start, end);
+    const newVal = val.slice(0, start) + before + selected + after + val.slice(end);
+    updateForm({ body: newVal });
+    // restore selection after state update
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(start + before.length, end + before.length);
+    });
+  }
+
+  function handleBodyKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "b") {
+      e.preventDefault();
+      wrapSelection("**", "**");
+    }
+    if ((e.metaKey || e.ctrlKey) && e.key === "i") {
+      e.preventDefault();
+      wrapSelection("_", "_");
+    }
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(""); setSuccess("");
+    setError("");
+    setSuccess("");
     const fd = new FormData();
-    Object.entries(form).forEach(([k, v]) => fd.set(k, v));
+    (Object.entries(form) as [string, string][]).forEach(([k, v]) => fd.set(k, v));
     if (editing) fd.set("id", editing._id);
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
     if (imageCaption) fd.set("imageCaption", imageCaption);
@@ -101,149 +296,376 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
       try {
         const { slug } = await savePost(fd);
         setSuccess(`Saved! /stories/${slug}`);
-        fetch("/api/posts").then(r => r.json()).then(data => { if (Array.isArray(data)) setPosts(data); });
-        startNew();
-      } catch (err: any) { setError(err.message); }
+        refreshPosts();
+        setSavedForm({ ...form });
+        setIsDirty(false);
+        try { localStorage.removeItem(LS_KEY); } catch {}
+      } catch (err: any) {
+        setError(err.message);
+      }
     });
   }
 
   function handleAboutSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(""); setSuccess("");
+    setError("");
+    setSuccess("");
     const fd = new FormData();
     fd.set("body", aboutBody);
     startTransition(async () => {
       try {
         await saveAbout(fd);
         setSuccess("About page saved!");
-      } catch (err: any) { setError(err.message); }
+      } catch (err: any) {
+        setError(err.message);
+      }
     });
   }
-
-  const BTN: React.CSSProperties = { background: "#8B0000", color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: "'Inter', sans-serif", fontSize: "1rem", cursor: isPending ? "wait" : "pointer", alignSelf: "flex-start", opacity: isPending ? 0.7 : 1 };
 
   if (!auth) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
-        <form onSubmit={e => { e.preventDefault(); if (pw === password) setAuth(true); else setError("Wrong password"); }} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem", width: 300, display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.4rem", color: "#1c2938", margin: 0 }}>Admin</h1>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            if (pw === password) setAuth(true);
+            else setAuthError("Wrong password");
+          }}
+          style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "2rem", width: 300, display: "flex", flexDirection: "column", gap: "1rem" }}
+        >
+          <h1 style={{ fontFamily: FONT, fontSize: "1.4rem", color: TEXT_DARK, margin: 0 }}>Admin</h1>
           <input type="password" placeholder="Password" value={pw} onChange={e => setPw(e.target.value)} style={INPUT} />
-          {error && <p style={{ color: "#e0245e", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
-          <button type="submit" style={{ ...BTN, alignSelf: "stretch" }}>Enter</button>
+          {authError && <p style={{ color: "#e0245e", fontFamily: FONT, fontSize: "0.8rem", margin: 0 }}>{authError}</p>}
+          <button type="submit" style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: "pointer" }}>Enter</button>
         </form>
       </div>
     );
   }
 
-  return (
-    <div style={{ background: "#f5f8fa", minHeight: "100vh", padding: "2rem 1rem" }}>
-      <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+  const submitLabel = isPending
+    ? "Saving…"
+    : form.status === "published"
+    ? "Publish"
+    : "Save draft";
 
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          {(["posts", "about"] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, background: "none", border: "none", cursor: "pointer", color: tab === t ? "#8B0000" : "#526270", borderBottom: tab === t ? "2px solid #8B0000" : "2px solid transparent", paddingBottom: "0.2rem", textTransform: "capitalize" }}>{t === "posts" ? "Posts" : "About Page"}</button>
-          ))}
+  return (
+    <>
+      {/* Responsive grid styles */}
+      <style>{`
+        .admin-grid {
+          display: grid;
+          grid-template-columns: 280px 1fr;
+          min-height: 100vh;
+          font-family: ${FONT};
+        }
+        @media (max-width: 700px) {
+          .admin-grid {
+            grid-template-columns: 1fr;
+          }
+          .admin-left-panel {
+            height: auto !important;
+            position: relative !important;
+          }
+        }
+        .admin-post-item:hover {
+          background: rgba(255,255,255,0.1) !important;
+          cursor: pointer;
+        }
+        .admin-post-item.active {
+          background: white !important;
+          color: ${TEXT_DARK} !important;
+        }
+        .admin-post-item.active * {
+          color: ${TEXT_DARK} !important;
+        }
+      `}</style>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }}
+          onClick={e => { if (e.target === e.currentTarget) setShowPreview(false); }}
+        >
+          <div style={{ background: "white", borderRadius: 6, maxWidth: 680, width: "100%", padding: "2.5rem", position: "relative" }}>
+            <button
+              onClick={() => setShowPreview(false)}
+              style={{ position: "absolute", top: "1rem", right: "1rem", background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}
+              aria-label="Close preview"
+            >×</button>
+            <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 0.5rem" }}>{form.section}</p>
+            <h1 style={{ fontFamily: FONT, fontSize: "1.8rem", color: TEXT_DARK, margin: "0 0 0.5rem", lineHeight: 1.25 }}>{form.headline || <em style={{ color: TEXT_MUTED }}>No headline</em>}</h1>
+            {form.subheadline && <p style={{ fontFamily: FONT, fontSize: "1.05rem", color: TEXT_MUTED, margin: "0 0 1rem" }}>{form.subheadline}</p>}
+            <p style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, margin: "0 0 1.5rem" }}>{form.byline} · {form.date}</p>
+            <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "0 0 1.5rem" }} />
+            {form.body.split(/\n\n+/).filter(Boolean).map((para, i) => (
+              <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{para}</p>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="admin-grid">
+        {/* LEFT PANEL */}
+        <div
+          className="admin-left-panel"
+          style={{ background: CRIMSON, color: "white", display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, overflowY: "hidden" }}
+        >
+          <div style={{ padding: "1.25rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.15)", flexShrink: 0 }}>
+            <button
+              onClick={tryStartNew}
+              style={{ width: "100%", background: "none", border: "1px solid white", borderRadius: 4, color: "white", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.5rem", cursor: "pointer" }}
+            >+ New post</button>
+          </div>
+
+          <div style={{ overflowY: "auto", flex: 1 }}>
+            {posts.map(p => {
+              const isActive = activePanel === "post" && editing?._id === p._id;
+              return (
+                <div
+                  key={p._id}
+                  className={`admin-post-item${isActive ? " active" : ""}`}
+                  onClick={() => trySelectPost(p)}
+                  style={{ padding: "0.75rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.1)", color: "white" }}
+                >
+                  <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, margin: "0 0 0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "inherit" }}>
+                    {p.headline}
+                  </p>
+                  <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                    <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(255,255,255,0.2)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>{p.section}</span>
+                    {p.status === "draft" && (
+                      <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(255,200,100,0.3)", border: "1px solid rgba(255,200,100,0.5)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>draft</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* About Page item */}
+            <div
+              className={`admin-post-item${activePanel === "about" ? " active" : ""}`}
+              onClick={trySelectAbout}
+              style={{ padding: "0.75rem 1rem", color: "white", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "auto" }}
+            >
+              <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, margin: 0, color: "inherit" }}>About Page</p>
+            </div>
+          </div>
         </div>
 
-        {success && <p style={{ background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#1a6b3a", margin: 0 }}>{success}</p>}
-        {error && <p style={{ background: "#fde8e8", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#8B0000", margin: 0 }}>{error}</p>}
-
-        {tab === "about" && (
-          <form onSubmit={handleAboutSubmit} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-            <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#526270", margin: 0 }}>Separate paragraphs with a blank line.</p>
-            <textarea style={{ ...INPUT, minHeight: 240, resize: "vertical", lineHeight: 1.7 }} value={aboutBody} onChange={e => setAboutBody(e.target.value)} required />
-            <button type="submit" disabled={isPending} style={BTN}>{isPending ? "Saving…" : "Save About Page"}</button>
-          </form>
-        )}
-
-        {tab === "posts" && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.4rem", color: "#1c2938", margin: 0 }}>{editing ? "Edit post" : "New post"}</h1>
-              {editing && <button onClick={startNew} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.3rem 0.8rem", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", cursor: "pointer", color: "#526270" }}>+ New post</button>}
+        {/* RIGHT PANEL */}
+        <div style={{ background: "#f5f8fa", overflowY: "auto", padding: "2rem" }}>
+          {/* Banners */}
+          {success && (
+            <div style={{ background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: "#1a6b3a", marginBottom: "1rem" }}>
+              {success}
             </div>
+          )}
+          {error && (
+            <div style={{ background: "#fde8e8", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, marginBottom: "1rem" }}>
+              {error}
+            </div>
+          )}
 
-            <form onSubmit={handleSubmit} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-              <div>
-                <label style={LABEL}>Headline</label>
-                <input style={INPUT} value={form.headline} onChange={e => setForm(f => ({ ...f, headline: e.target.value, slug: editing ? f.slug : slugify(e.target.value) }))} required />
-              </div>
-              <div>
-                <label style={LABEL}>Subheadline</label>
-                <input style={INPUT} value={form.subheadline} onChange={e => setForm(f => ({ ...f, subheadline: e.target.value }))} />
-              </div>
-
-              <div>
-                <label style={LABEL}>Photo {uploadingImage && <span style={{ color: "#657786", fontWeight: 400 }}>— uploading…</span>}</label>
-                <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-                  <button type="button" onClick={() => fileRef.current?.click()} style={{ padding: "0.45rem 1rem", border: "1px solid #e1e8ed", borderRadius: 4, background: "white", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", cursor: "pointer", color: "#526270", whiteSpace: "nowrap" }}>
-                    {imagePreview ? "Change photo" : "Add photo"}
-                  </button>
-                  {imagePreview && imagePreview !== "existing" && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={imagePreview} alt="" style={{ height: 64, width: "auto", borderRadius: 4, objectFit: "cover" }} />
-                  )}
-                  {imagePreview === "existing" && <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786", alignSelf: "center" }}>Existing photo</span>}
-                  {imagePreview && <button type="button" onClick={() => { setImagePreview(""); setImageAssetId(""); setImageFile(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#657786", fontSize: "0.8rem", alignSelf: "center" }}>Remove</button>}
-                </div>
-                {imagePreview && (
-                  <div style={{ marginTop: "0.6rem" }}>
-                    <label style={{ ...LABEL, marginTop: "0.4rem" }}>Caption (optional)</label>
-                    <input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} placeholder="Describe the photo…" />
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <div>
-                  <label style={LABEL}>Slug</label>
-                  <input style={INPUT} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} required />
-                </div>
-                <div>
-                  <label style={LABEL}>Section</label>
-                  <select style={INPUT} value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))}>
-                    <option>Micro-Memoir</option>
-                    <option>Narratives</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={LABEL}>Date</label>
-                  <input type="date" style={INPUT} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
-                </div>
-              </div>
-              <div>
-                <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
-                <textarea style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} required />
-              </div>
-
-              <button type="submit" disabled={isPending || uploadingImage} style={BTN}>
-                {isPending ? "Saving…" : editing ? "Update post" : "Publish post"}
+          {/* ABOUT EDITOR */}
+          {activePanel === "about" && (
+            <form onSubmit={handleAboutSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem", maxWidth: 720 }}>
+              <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
+              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>Separate paragraphs with a blank line.</p>
+              <textarea
+                style={{ ...INPUT, minHeight: 240, resize: "vertical", lineHeight: 1.7 }}
+                value={aboutBody}
+                onChange={e => setAboutBody(e.target.value)}
+                required
+              />
+              <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: isPending ? "wait" : "pointer", alignSelf: "flex-start", opacity: isPending ? 0.7 : 1 }}>
+                {isPending ? "Saving…" : "Save About Page"}
               </button>
             </form>
+          )}
 
-            {posts.length > 0 && (
-              <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #e1e8ed" }}>
-                  <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", color: "#1c2938", margin: 0 }}>All posts</h2>
+          {/* POST EDITOR */}
+          {activePanel === "post" && (
+            <div style={{ maxWidth: 720 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem" }}>
+                <h1 style={{ fontFamily: FONT, fontSize: "1.4rem", color: TEXT_DARK, margin: 0 }}>
+                  {editing ? "Edit post" : "New post"}
+                </h1>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  {autosaveLabel && (
+                    <span style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED }}>{autosaveLabel}</span>
+                  )}
                 </div>
-                {posts.map(p => (
-                  <div key={p._id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.9rem 1.5rem", borderBottom: "1px solid #f0f3f4" }}>
-                    <div>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", color: "#1c2938", margin: "0 0 0.15rem" }}>{p.headline}</p>
-                      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{p.section} · {p.date}</p>
-                    </div>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button onClick={() => startEdit(p)} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#526270" }}>Edit</button>
-                      <button onClick={() => { if (confirm("Delete this post?")) startTransition(async () => { await deletePost(p._id); location.reload(); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#8B0000" }}>Delete</button>
-                    </div>
-                  </div>
-                ))}
               </div>
-            )}
-          </>
-        )}
+
+              <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                {/* 1. Headline */}
+                <div>
+                  <label style={LABEL}>Headline *</label>
+                  <input
+                    style={INPUT}
+                    value={form.headline}
+                    onChange={e => updateForm({ headline: e.target.value, ...(!editing ? { slug: slugify(e.target.value) } : {}) })}
+                    required
+                  />
+                </div>
+
+                {/* 2. Subheadline */}
+                <div>
+                  <label style={LABEL}>Subheadline</label>
+                  <input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} />
+                </div>
+
+                {/* 3. Byline */}
+                <div>
+                  <label style={LABEL}>Byline</label>
+                  <input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} placeholder="Yacob Reyes" />
+                </div>
+
+                {/* 4. Photo */}
+                <div>
+                  <label style={LABEL}>Photo {uploadingImage && <span style={{ color: "#657786", fontWeight: 400 }}>— uploading…</span>}</label>
+                  <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
+                  <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                    <button type="button" onClick={() => fileRef.current?.click()} style={{ padding: "0.45rem 1rem", border: `1px solid ${BORDER}`, borderRadius: 4, background: "white", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap" }}>
+                      {imagePreview ? "Change photo" : "Add photo"}
+                    </button>
+                    {imagePreview && imagePreview !== "existing" && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imagePreview} alt="" style={{ height: 64, width: "auto", borderRadius: 4, objectFit: "cover" }} />
+                    )}
+                    {imagePreview === "existing" && <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: "#657786", alignSelf: "center" }}>Existing photo</span>}
+                    {imagePreview && (
+                      <button type="button" onClick={() => { setImagePreview(""); setImageAssetId(""); setImageFile(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#657786", fontSize: "0.8rem", alignSelf: "center" }}>
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  {imagePreview && (
+                    <div style={{ marginTop: "0.6rem" }}>
+                      <label style={{ ...LABEL, marginTop: "0.4rem" }}>Caption (optional)</label>
+                      <input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} placeholder="Describe the photo…" />
+                    </div>
+                  )}
+                </div>
+
+                {/* 5. Slug / Section / Date */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                  <div>
+                    <label style={LABEL}>Slug</label>
+                    <input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required />
+                  </div>
+                  <div>
+                    <label style={LABEL}>Section</label>
+                    <select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}>
+                      <option>Micro-Memoir</option>
+                      <option>Narratives</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={LABEL}>Date</label>
+                    <input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required />
+                  </div>
+                </div>
+
+                {/* 6. Body with toolbar */}
+                <div>
+                  <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
+                  {/* Toolbar */}
+                  <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.35rem" }}>
+                    {[
+                      { label: "B", title: "Bold (Cmd+B)", action: () => wrapSelection("**", "**"), style: { fontWeight: 700 } },
+                      { label: "I", title: "Italic (Cmd+I)", action: () => wrapSelection("_", "_"), style: { fontStyle: "italic" } },
+                    ].map(btn => (
+                      <button
+                        key={btn.label}
+                        type="button"
+                        title={btn.title}
+                        onClick={btn.action}
+                        style={{ ...btn.style, background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK, lineHeight: 1.4 }}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    ref={bodyRef}
+                    style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }}
+                    value={form.body}
+                    onChange={e => updateForm({ body: e.target.value })}
+                    onKeyDown={handleBodyKeyDown}
+                    required
+                  />
+                </div>
+
+                {/* Status toggle */}
+                <div>
+                  <label style={LABEL}>Status</label>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    {(["draft", "published"] as const).map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => updateForm({ status: s })}
+                        style={{
+                          fontFamily: FONT,
+                          fontSize: "0.85rem",
+                          padding: "0.4rem 1rem",
+                          borderRadius: 4,
+                          cursor: "pointer",
+                          border: `1px solid ${CRIMSON}`,
+                          background: form.status === s ? CRIMSON : "white",
+                          color: form.status === s ? "white" : CRIMSON,
+                          fontWeight: 600,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {s === "draft" ? "Draft" : "Publish"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+                  <button
+                    type="submit"
+                    disabled={isPending || uploadingImage}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: isPending || uploadingImage ? "wait" : "pointer", opacity: isPending || uploadingImage ? 0.7 : 1 }}
+                  >
+                    {submitLabel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "1rem", cursor: "pointer", color: TEXT_MUTED }}
+                  >
+                    Preview
+                  </button>
+                  {editing && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm("Delete this post?")) {
+                          startTransition(async () => {
+                            await deletePost(editing._id);
+                            refreshPosts();
+                            startNew();
+                          });
+                        }
+                      }}
+                      style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                  {autosaveLabel && (
+                    <span style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED }}>{autosaveLabel}</span>
+                  )}
+                </div>
+              </form>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
