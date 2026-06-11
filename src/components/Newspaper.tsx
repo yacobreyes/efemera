@@ -82,8 +82,10 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         </span>
       </div>
 
-      <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.25rem", letterSpacing: "-0.01em" }}>
-        {post.headline}
+      <h2 style={{ margin: "0 0 0.25rem" }}>
+        <Link href={`/stories/${post.slug}`} style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+          {post.headline}
+        </Link>
       </h2>
 
       <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
@@ -94,11 +96,6 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         {displayText}
       </p>
 
-      {post.section === "Narratives" && (
-        <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
-          Read more
-        </Link>
-      )}
 
       <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
         {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(plainText)} min read
