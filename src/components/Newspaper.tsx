@@ -129,8 +129,14 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   );
 }
 
+const ABOUT_DEFAULT = [
+  "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
+  "We are, each of us, passersby, mere blips in time before we breathe our last and recede into memory. What we leave behind is ephemera, what Maurice Rickards called “the minor transient documents of everyday life.” Journal entries, photographs, and ticket stubs. A paper trail that, pieced together, tells the story of a life.",
+  "This blog is where I keep mine.",
+];
+
 function AboutPage() {
-  const [paragraphs, setParagraphs] = useState<string[] | null>(null);
+  const [paragraphs, setParagraphs] = useState<string[]>(ABOUT_DEFAULT);
   useEffect(() => {
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
@@ -138,11 +144,9 @@ function AboutPage() {
           .filter((b: any) => b._type === "block")
           .map((b: any) => b.children.map((c: any) => c.text).join(""))
           .filter(Boolean);
-        setParagraphs(texts);
-      } else {
-        setParagraphs([]);
+        if (texts.length > 0) setParagraphs(texts);
       }
-    }).catch(() => setParagraphs([]));
+    }).catch(() => {});
   }, []);
 
   const content = paragraphs;
