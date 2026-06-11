@@ -12,7 +12,7 @@ export default function SiteFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/wordmark.png" alt="efemera" style={{ width: "clamp(100px, 18vw, 180px)", height: "auto", opacity: 0.9 }} />
 
-      <p style={{ fontFamily: "Arial, sans-serif", fontSize: "0.7rem", color: "rgba(255,255,255,0.35)", margin: 0, letterSpacing: "0.05em" }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.7rem", color: "rgba(255,255,255,0.35)", margin: 0, letterSpacing: "0.05em" }}>
         © {new Date().getFullYear()} Efemera · Yacob Reyes
       </p>
     </footer>

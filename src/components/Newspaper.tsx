@@ -67,33 +67,33 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           {post.section}
         </span>
-        <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
           {timeAgo(index)}
         </span>
       </div>
 
-      <h2 style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.25rem", letterSpacing: "-0.01em" }}>
+      <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.25rem", letterSpacing: "-0.01em" }}>
         {post.headline}
       </h2>
 
-      <p style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
         {post.subheadline}
       </p>
 
-      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
         {displayText}
       </p>
 
       {post.section === "Narratives" && (
-        <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
+        <Link href={`/stories/${post.slug}`} style={{ display: "inline-block", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 700, color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
           Read more
         </Link>
       )}
 
-      <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
         {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
       </div>
 
@@ -102,7 +102,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
-          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
         </Link>
         <LikeButton slug={post.slug} />
       </div>
@@ -113,14 +113,14 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
 function AboutPage() {
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "'Bodoni Moda', serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1rem" }}>About Efemera</h1>
-      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
+      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1rem" }}>About Efemera</h1>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
         Efemera is a literary publication devoted to the brief and the overlooked — the moments that pass without fanfare and stay with you anyway.
       </p>
-      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: "0 0 1rem" }}>
         We publish two kinds of work: <strong>Micro-Memoirs</strong>, short personal meditations, and <strong>Narratives</strong>, longer essays that take their time.
       </p>
-      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
         The name comes from the Latin <em>ephemera</em> — things that exist for only a day. We think that&apos;s most things, and that most things deserve to be written down.
       </p>
     </div>
@@ -147,7 +147,7 @@ export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; 
         <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
-            <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+            <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
         </nav>
       </header>
@@ -155,7 +155,7 @@ export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; 
       {activeTab === "About" ? (
         <AboutPage />
       ) : visiblePosts.length === 0 ? (
-        <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Bodoni Moda', serif", color: "#657786", fontSize: "1rem" }}>
+        <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
           No posts yet.
         </div>
       ) : (

@@ -5,7 +5,7 @@ import { savePost, deletePost } from "./actions";
 import type { SanityPost } from "@/lib/sanity";
 
 const INPUT = {
-  fontFamily: "Arial, sans-serif",
+  fontFamily: "'Inter', sans-serif",
   fontSize: "0.9rem",
   padding: "0.5rem 0.7rem",
   border: "1px solid #e1e8ed",
@@ -17,7 +17,7 @@ const INPUT = {
 };
 
 const LABEL = {
-  fontFamily: "Arial, sans-serif",
+  fontFamily: "'Inter', sans-serif",
   fontSize: "0.75rem",
   fontWeight: 700,
   color: "#526270",
@@ -85,10 +85,10 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
         <form onSubmit={e => { e.preventDefault(); if (pw === password) setAuth(true); else setError("Wrong password"); }} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem", width: 300, display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h1 style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "1.4rem", color: "#1c2938", margin: 0 }}>Admin</h1>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.4rem", color: "#1c2938", margin: 0 }}>Admin</h1>
           <input type="password" placeholder="Password" value={pw} onChange={e => setPw(e.target.value)} style={INPUT} />
-          {error && <p style={{ color: "#e0245e", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
-          <button type="submit" style={{ background: "#8B0000", color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: "'Bodoni Moda', serif", fontSize: "0.9rem", cursor: "pointer" }}>Enter</button>
+          {error && <p style={{ color: "#e0245e", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", margin: 0 }}>{error}</p>}
+          <button type="submit" style={{ background: "#8B0000", color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", cursor: "pointer" }}>Enter</button>
         </form>
       </div>
     );
@@ -99,14 +99,14 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
       <div style={{ maxWidth: 720, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <h1 style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "1.6rem", color: "#1c2938", margin: 0 }}>
+          <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.6rem", color: "#1c2938", margin: 0 }}>
             {editing ? "Edit post" : "New post"}
           </h1>
-          {editing && <button onClick={startNew} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.3rem 0.8rem", fontFamily: "Arial, sans-serif", fontSize: "0.8rem", cursor: "pointer", color: "#526270" }}>+ New post</button>}
+          {editing && <button onClick={startNew} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.3rem 0.8rem", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", cursor: "pointer", color: "#526270" }}>+ New post</button>}
         </div>
 
-        {success && <p style={{ background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "Arial, sans-serif", fontSize: "0.85rem", color: "#1a6b3a", margin: 0 }}>{success}</p>}
-        {error && <p style={{ background: "#fde8e8", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "Arial, sans-serif", fontSize: "0.85rem", color: "#8B0000", margin: 0 }}>{error}</p>}
+        {success && <p style={{ background: "#e6f4ea", border: "1px solid #a8d5b5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#1a6b3a", margin: 0 }}>{success}</p>}
+        {error && <p style={{ background: "#fde8e8", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", color: "#8B0000", margin: 0 }}>{error}</p>}
 
         <form onSubmit={handleSubmit} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
           <div>
@@ -138,7 +138,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
             <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
             <textarea style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} required />
           </div>
-          <button type="submit" disabled={isPending} style={{ background: "#8B0000", color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: "'Bodoni Moda', serif", fontSize: "1rem", cursor: isPending ? "wait" : "pointer", alignSelf: "flex-start", opacity: isPending ? 0.7 : 1 }}>
+          <button type="submit" disabled={isPending} style={{ background: "#8B0000", color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: "'Inter', sans-serif", fontSize: "1rem", cursor: isPending ? "wait" : "pointer", alignSelf: "flex-start", opacity: isPending ? 0.7 : 1 }}>
             {isPending ? "Saving…" : editing ? "Update post" : "Publish post"}
           </button>
         </form>
@@ -146,17 +146,17 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
         {posts.length > 0 && (
           <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
             <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #e1e8ed" }}>
-              <h2 style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "1rem", color: "#1c2938", margin: 0 }}>All posts</h2>
+              <h2 style={{ fontFamily: "'Inter', sans-serif", fontSize: "1rem", color: "#1c2938", margin: 0 }}>All posts</h2>
             </div>
             {posts.map(p => (
               <div key={p._id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.9rem 1.5rem", borderBottom: "1px solid #f0f3f4" }}>
                 <div>
-                  <p style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.95rem", color: "#1c2938", margin: "0 0 0.15rem" }}>{p.headline}</p>
-                  <p style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{p.section} · {p.date}</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", color: "#1c2938", margin: "0 0 0.15rem" }}>{p.headline}</p>
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{p.section} · {p.date}</p>
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <button onClick={() => startEdit(p)} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "Arial, sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#526270" }}>Edit</button>
-                  <button onClick={() => { if (confirm("Delete this post?")) startTransition(async () => { await deletePost(p._id); location.reload(); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "Arial, sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#8B0000" }}>Delete</button>
+                  <button onClick={() => startEdit(p)} style={{ background: "none", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#526270" }}>Edit</button>
+                  <button onClick={() => { if (confirm("Delete this post?")) startTransition(async () => { await deletePost(p._id); location.reload(); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.25rem 0.7rem", fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", cursor: "pointer", color: "#8B0000" }}>Delete</button>
                 </div>
               </div>
             ))}
