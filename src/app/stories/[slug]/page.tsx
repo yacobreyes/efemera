@@ -44,11 +44,11 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           {post.kicker}
         </div>
 
-        <h1 style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
+        <h1 style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
           {post.headline}
         </h1>
 
-        <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 400, fontSize: "1.15rem", color: "#526270", lineHeight: 1.35, margin: "0 0 1.2rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e1e8ed" }}>
+        <p style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontWeight: 400, fontSize: "1.15rem", color: "#526270", lineHeight: 1.35, margin: "0 0 1.2rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e1e8ed" }}>
           {post.subheadline}
         </p>
 
@@ -56,7 +56,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           By {post.byline} · {post.date}
         </div>
 
-        <div style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
+        <div style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
           {post.body.map((p, i) => (
             <p key={i} style={{ margin: i === 0 ? 0 : "1.2rem 0 0" }}>{p}</p>
           ))}
