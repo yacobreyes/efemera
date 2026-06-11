@@ -11,9 +11,18 @@ import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
 
-function timeAgo(index: number) {
-  const units = ["2m", "14m", "1h", "3h", "6h", "12h"];
-  return units[index] ?? "1d";
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  if (mins < 60) return `${mins}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  if (weeks < 5) return `${weeks}w ago`;
+  return `${months}mo ago`;
 }
 
 function portableToPlainText(blocks: SanityPost["body"]): string {
@@ -78,7 +87,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           {post.section}
         </span>
         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-          {timeAgo(index)}
+          {timeAgo(post.date)}
         </span>
       </div>
 
@@ -136,14 +145,24 @@ export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; 
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
+  const [query, setQuery] = useState("");
 
-  const visiblePosts = activeTab === "Home"
+  const tabFiltered = activeTab === "Home"
     ? posts
     : activeTab === "Micro-Memoirs"
     ? posts.filter(p => p.section === "Micro-Memoir")
     : activeTab === "Narratives"
     ? posts.filter(p => p.section === "Narratives")
     : [];
+
+  const visiblePosts = query.trim()
+    ? tabFiltered.filter(p => {
+        const q = query.toLowerCase();
+        const plain = p.body.filter(b => b._type === "block")
+          .map(b => (b.children as { text: string }[]).map(c => c.text).join("")).join(" ");
+        return p.headline.toLowerCase().includes(q) || p.subheadline.toLowerCase().includes(q) || plain.toLowerCase().includes(q);
+      })
+    : tabFiltered;
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -152,23 +171,41 @@ export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; 
         <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
-            <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+            <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
         </nav>
       </header>
 
       {activeTab === "About" ? (
         <AboutPage />
-      ) : visiblePosts.length === 0 ? (
-        <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
-          No posts yet.
-        </div>
       ) : (
-        <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-          {visiblePosts.map((post, i) => (
-            <TweetCard key={post._id} post={post} index={i} />
-          ))}
-        </div>
+        <>
+          <div style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0 0" }}>
+            <div style={{ position: "relative" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search posts…"
+                style={{ width: "100%", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
+              />
+            </div>
+          </div>
+
+          {visiblePosts.length === 0 ? (
+            <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
+              {query ? `No results for "${query}"` : "No posts yet."}
+            </div>
+          ) : (
+            <div style={{ maxWidth: 600, margin: "0.75rem auto 0", width: "100%", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+              {visiblePosts.map((post, i) => (
+                <TweetCard key={post._id} post={post} index={i} />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <SiteFooter />
