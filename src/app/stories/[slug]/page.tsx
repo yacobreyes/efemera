@@ -21,90 +21,54 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      {/* Header */}
       {/* Masthead banner */}
-      <div style={{
-        background: "#8B0000",
-        padding: "2rem 1.2rem 1.5rem",
-        display: "flex", justifyContent: "center",
-        borderBottom: "3px solid rgba(255,255,255,0.15)",
-      }}>
+      <div style={{ background: "#8B0000", padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center", borderBottom: "3px solid rgba(255,255,255,0.15)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/wordmark.png" alt="efemera" style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }} />
+          <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(160px, 30vw, 320px)", height: "auto", display: "block" }} />
         </Link>
       </div>
 
       {/* Sticky nav */}
-      <header style={{
-        position: "sticky", top: 0, zIndex: 10,
-        background: "#8B0000",
-        padding: "0.45rem 1.2rem",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        gap: "2rem",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
-      }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <Link href="/" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>← Feed</Link>
         {["Essays", "Memory", "Nature", "Place", "Photography", "Travel"].map(s => (
-          <a key={s} href="#" style={{
-            fontFamily: "Arial, sans-serif", fontSize: "0.72rem",
-            fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none",
-            letterSpacing: "0.05em",
-          }}>{s}</a>
+          <a key={s} href="#" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
         ))}
       </header>
 
-      {/* Story */}
-      <article style={{
-        maxWidth: 600, margin: "2rem auto",
-        background: "white", border: "1px solid #e1e8ed",
-        borderRadius: 4, padding: "2rem 2rem 2.5rem",
-      }}>
-        {/* Kicker */}
-        <div style={{
-          fontFamily: "Arial, sans-serif", fontWeight: 700,
-          fontSize: "0.68rem", letterSpacing: "0.12em",
-          textTransform: "uppercase", color: "#8B0000",
-          marginBottom: "0.5rem",
-        }}>
+      {/* Article */}
+      <article style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
+        <div style={{ fontFamily: "Arial, sans-serif", fontWeight: 700, fontSize: "0.68rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
           {post.kicker}
         </div>
 
-        {/* Headline */}
-        <h1 style={{
-          fontFamily: "'Playfair Display', serif",
-          fontWeight: 900, fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
-          color: "#1c2938", lineHeight: 1.2,
-          margin: "0 0 0.5rem",
-        }}>
+        <h1 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.5rem" }}>
           {post.headline}
         </h1>
 
-        {/* Subheadline */}
-        <p style={{
-          fontFamily: "'Playfair Display', serif",
-          fontStyle: "italic", fontSize: "1.05rem",
-          color: "#526270", lineHeight: 1.45,
-          margin: "0 0 1.2rem",
-          paddingBottom: "1.2rem",
-          borderBottom: "1px solid #e1e8ed",
-        }}>
+        <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "1.05rem", color: "#526270", lineHeight: 1.45, margin: "0 0 1.2rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e1e8ed" }}>
           {post.subheadline}
         </p>
 
-        {/* Byline */}
-        <div style={{
-          fontFamily: "Arial, sans-serif", fontSize: "0.75rem",
-          color: "#657786", marginBottom: "1.5rem", fontStyle: "italic",
-        }}>
+        <div style={{ fontFamily: "Arial, sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
           By {post.byline} · {post.date}
         </div>
 
-        {/* Body */}
         <div style={{ fontFamily: "Georgia, serif", fontSize: "1.05rem", lineHeight: 1.8, color: "#2d2d2d" }}>
           {post.body.map((p, i) => (
             <p key={i} style={{ margin: i === 0 ? 0 : "1.2rem 0 0" }}>{p}</p>
           ))}
+        </div>
+
+        {/* Kicker image at end of article */}
+        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/Flying Mayfly Kicker.png"
+            alt=""
+            style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }}
+          />
         </div>
       </article>
     </div>

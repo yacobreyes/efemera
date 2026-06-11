@@ -21,10 +21,9 @@ function randomBetween(a: number, b: number) {
 function createFly(id: number, stagger = false): Fly {
   return {
     id,
-    // stagger=true on init so flies are spread across the screen from the start
     x: stagger ? randomBetween(-30, 100) : randomBetween(-30, -5),
     y: randomBetween(3, 92),
-    size: randomBetween(32, 80),
+    size: randomBetween(32, 72),
     speed: randomBetween(0.35, 0.8),
     wobblePhase: randomBetween(0, Math.PI * 2),
     wobbleAmp: randomBetween(0.06, 0.2),
@@ -70,7 +69,6 @@ export default function IntroAnimation({ onEnter }: Props) {
 
   return (
     <div className="intro-overlay">
-      {/* Swarm moving left → right */}
       <div style={{
         position: "absolute", inset: 0,
         transition: "opacity 1.4s ease-out",
@@ -80,29 +78,20 @@ export default function IntroAnimation({ onEnter }: Props) {
         {flies.map(f => (
           <div key={f.id} style={{
             position: "absolute",
-            left: `${f.x}%`,
-            top:  `${f.y}%`,
+            left: `${f.x}%`, top: `${f.y}%`,
             opacity: f.opacity,
-            /* rotate 90° CW so the mayfly faces right */
-            transform: `rotate(90deg)`,
+            transform: "rotate(90deg)",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/mayfly-icon.png"
-              alt=""
-              width={f.size}
-              height={f.size}
-              style={{ display: "block" }}
-            />
+            <img src="/mayfly-icon.png" alt="" width={f.size} height={f.size} style={{ display: "block" }} />
           </div>
         ))}
       </div>
 
-      {/* Wordmark fades in after swarm passes */}
       <div
         className="wordmark-container"
         style={{
-          opacity:   wordmarkVisible ? 1 : 0,
+          opacity: wordmarkVisible ? 1 : 0,
           transform: wordmarkVisible ? "scale(1)" : "scale(0.94)",
           transition: "opacity 1s ease-out, transform 1s cubic-bezier(0.16,1,0.3,1)",
         }}
