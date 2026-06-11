@@ -57,15 +57,15 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
         </span>
       </div>
 
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 900, fontSize: "1.25rem", color: "#1c2938", lineHeight: 1.25, margin: "0 0 0.25rem" }}>
+      <h2 style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, margin: "0 0 0.25rem", letterSpacing: "-0.01em" }}>
         {post.headline}
       </h2>
 
-      <p style={{ fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: "0.92rem", color: "#526270", lineHeight: 1.4, margin: "0 0 0.75rem" }}>
+      <p style={{ fontFamily: "'Barlow Condensed', 'Helvetica Neue', Arial, sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
         {post.subheadline}
       </p>
 
-      <p style={{ fontFamily: "Georgia, serif", fontSize: "0.95rem", lineHeight: 1.65, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+      <p style={{ fontFamily: "'Bodoni Moda', 'Bodoni MT', 'Didot', serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
         {tweetText}
       </p>
 
