@@ -1,23 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import MayflyIcon from "./MayflyIcon";
+import Image from "next/image";
 
 interface Fly {
   id: number;
-  x: number;
-  y: number;
+  x: number;       // % across screen
+  y: number;       // % down screen
   size: number;
-  rotation: number;
+  dir: 1 | -1;     // 1 = left→right, -1 = right→left
   speedX: number;
-  speedY: number;
-  wobble: number;
+  wobbleY: number; // vertical sine offset
+  wobblePhase: number;
   wobbleSpeed: number;
   opacity: number;
-}
-
-interface Props {
-  onEnter: () => void;
 }
 
 function randomBetween(a: number, b: number) {
@@ -25,21 +21,26 @@ function randomBetween(a: number, b: number) {
 }
 
 function createFly(id: number): Fly {
+  const dir = Math.random() > 0.5 ? 1 : -1 as 1 | -1;
   return {
     id,
-    x: randomBetween(10, 90),
-    y: randomBetween(110, 140),
-    size: randomBetween(18, 42),
-    rotation: randomBetween(-40, 40),
-    speedX: randomBetween(-0.12, 0.12),
-    speedY: randomBetween(-0.18, -0.08),
-    wobble: randomBetween(0, Math.PI * 2),
-    wobbleSpeed: randomBetween(0.025, 0.06),
-    opacity: randomBetween(0.55, 0.95),
+    x: dir === 1 ? randomBetween(-20, -5) : randomBetween(105, 120),
+    y: randomBetween(5, 95),
+    size: randomBetween(24, 56),
+    dir,
+    speedX: randomBetween(0.08, 0.2),
+    wobbleY: 0,
+    wobblePhase: randomBetween(0, Math.PI * 2),
+    wobbleSpeed: randomBetween(0.03, 0.07),
+    opacity: randomBetween(0.5, 0.92),
   };
 }
 
-const FLY_COUNT = 22;
+const FLY_COUNT = 28;
+
+interface Props {
+  onEnter: () => void;
+}
 
 export default function IntroAnimation({ onEnter }: Props) {
   const [flies, setFlies] = useState<Fly[]>(() =>
@@ -49,40 +50,26 @@ export default function IntroAnimation({ onEnter }: Props) {
   const [wordmarkVisible, setWordmarkVisible] = useState(false);
   const [hinting, setHinting] = useState(false);
   const frameRef = useRef<number>(0);
-  const startRef = useRef<number>(0);
 
   useEffect(() => {
-    // Flies rise for 2.2s, then dissolve into wordmark
-    const dissolveTimer = setTimeout(() => setPhase("dissolve"), 2200);
-    const wordmarkTimer = setTimeout(() => {
-      setPhase("wordmark");
-      setWordmarkVisible(true);
-    }, 3400);
-    const hintTimer = setTimeout(() => setHinting(true), 4000);
-
-    return () => {
-      clearTimeout(dissolveTimer);
-      clearTimeout(wordmarkTimer);
-      clearTimeout(hintTimer);
-    };
+    const dissolveTimer = setTimeout(() => setPhase("dissolve"), 3000);
+    const wordmarkTimer = setTimeout(() => { setPhase("wordmark"); setWordmarkVisible(true); }, 4200);
+    const hintTimer    = setTimeout(() => setHinting(true), 5000);
+    return () => { clearTimeout(dissolveTimer); clearTimeout(wordmarkTimer); clearTimeout(hintTimer); };
   }, []);
 
   useEffect(() => {
-    function animate(ts: number) {
-      if (!startRef.current) startRef.current = ts;
+    function animate() {
       setFlies(prev =>
         prev.map(f => {
-          let nx = f.x + f.speedX + Math.sin(f.wobble) * 0.06;
-          let ny = f.y + f.speedY;
-          const nw = f.wobble + f.wobbleSpeed;
-          // wrap horizontally
-          if (nx < -5) nx = 105;
-          if (nx > 105) nx = -5;
-          // recycle flies that fly off top
-          if (ny < -10) {
+          const nx = f.x + f.speedX * f.dir;
+          const nPhase = f.wobblePhase + f.wobbleSpeed;
+          const ny = f.y + Math.sin(nPhase) * 0.15;
+          // recycle when off-screen
+          if ((f.dir === 1 && nx > 115) || (f.dir === -1 && nx < -15)) {
             return createFly(f.id);
           }
-          return { ...f, x: nx, y: ny, wobble: nw, rotation: f.rotation + Math.sin(nw) * 0.8 };
+          return { ...f, x: nx, y: ny, wobblePhase: nPhase };
         })
       );
       frameRef.current = requestAnimationFrame(animate);
@@ -91,19 +78,15 @@ export default function IntroAnimation({ onEnter }: Props) {
     return () => cancelAnimationFrame(frameRef.current);
   }, []);
 
-  const fliesOpacity =
-    phase === "flies" ? 1 :
-    phase === "dissolve" ? 0 :
-    0;
+  const fliesOpacity = phase === "flies" ? 1 : 0;
 
   return (
-    <div className="intro-overlay" style={{ cursor: "default" }}>
-      {/* Flying mayflies */}
+    <div className="intro-overlay">
+      {/* Flies crossing the screen */}
       <div
         style={{
-          position: "absolute",
-          inset: 0,
-          transition: "opacity 1.1s ease-out",
+          position: "absolute", inset: 0,
+          transition: "opacity 1.2s ease-out",
           opacity: fliesOpacity,
           pointerEvents: "none",
         }}
@@ -111,15 +94,22 @@ export default function IntroAnimation({ onEnter }: Props) {
         {flies.map(f => (
           <div
             key={f.id}
-            className="mayfly"
             style={{
+              position: "absolute",
               left: `${f.x}%`,
               top: `${f.y}%`,
               opacity: f.opacity,
-              transform: `rotate(${f.rotation}deg)`,
+              transform: `scaleX(${f.dir}) rotate(${f.dir === 1 ? -15 : 15}deg)`,
             }}
           >
-            <MayflyIcon size={f.size} color="rgba(255,255,255,0.85)" />
+            <Image
+              src="/mayfly-icon.png"
+              alt=""
+              width={f.size}
+              height={f.size}
+              style={{ display: "block" }}
+              priority
+            />
           </div>
         ))}
       </div>
@@ -129,8 +119,8 @@ export default function IntroAnimation({ onEnter }: Props) {
         className="wordmark-container"
         style={{
           opacity: wordmarkVisible ? 1 : 0,
-          transform: wordmarkVisible ? "scale(1)" : "scale(0.92)",
-          transition: "opacity 0.9s ease-out, transform 0.9s cubic-bezier(0.16,1,0.3,1)",
+          transform: wordmarkVisible ? "scale(1)" : "scale(0.94)",
+          transition: "opacity 1s ease-out, transform 1s cubic-bezier(0.16,1,0.3,1)",
         }}
         onClick={wordmarkVisible ? onEnter : undefined}
         role={wordmarkVisible ? "button" : undefined}
@@ -138,16 +128,15 @@ export default function IntroAnimation({ onEnter }: Props) {
         tabIndex={wordmarkVisible ? 0 : -1}
         onKeyDown={e => { if (wordmarkVisible && (e.key === "Enter" || e.key === " ")) onEnter(); }}
       >
-        <div style={{ position: "relative" }}>
-          <div className="wordmark-bug" style={{ position: "absolute", top: "-2rem", left: "50%", transform: "translateX(-50%)" }}>
-            <MayflyIcon size={30} color="white" />
-          </div>
-          <div className="wordmark-title">efemera</div>
-        </div>
-        <div className="wordmark-subtitle">Life, in Brief.</div>
-        {hinting && (
-          <div className="enter-hint">Click to enter</div>
-        )}
+        <Image
+          src="/wordmark.png"
+          alt="efemera — Life, in Brief."
+          width={800}
+          height={400}
+          style={{ width: "clamp(280px, 60vw, 800px)", height: "auto" }}
+          priority
+        />
+        {hinting && <div className="enter-hint">Click to enter</div>}
       </div>
     </div>
   );
