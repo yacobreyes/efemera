@@ -9,18 +9,10 @@ const Feed = dynamic(() => import("@/components/Newspaper"), { ssr: false });
 
 export default function HomeClient({ posts }: { posts: SanityPost[] }) {
   const [entered, setEntered] = useState(false);
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem("efemera_entered") === "1") setEntered(true);
-    setChecked(true);
-  }, []);
-
-  if (!checked) return null;
 
   return (
     <>
-      {!entered && <IntroAnimation onEnter={() => { localStorage.setItem("efemera_entered", "1"); setEntered(true); }} />}
+      {!entered && <IntroAnimation onEnter={() => setEntered(true)} />}
       {entered && <Feed posts={posts} />}
     </>
   );
