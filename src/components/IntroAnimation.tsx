@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import MayflyIcon from "./MayflyIcon";
 
 interface Fly {
   id: number;
@@ -25,7 +24,7 @@ function createFly(id: number): Fly {
     id,
     x: dir === 1 ? randomBetween(-18, -4) : randomBetween(104, 118),
     y: randomBetween(4, 93),
-    size: randomBetween(28, 64),
+    size: randomBetween(28, 72),
     dir,
     speedX: randomBetween(0.07, 0.18),
     wobblePhase: randomBetween(0, Math.PI * 2),
@@ -71,7 +70,7 @@ export default function IntroAnimation({ onEnter }: Props) {
 
   return (
     <div className="intro-overlay">
-      {/* Flies crossing the screen */}
+      {/* Flies crossing the screen using the real brand asset */}
       <div style={{
         position: "absolute", inset: 0,
         transition: "opacity 1.4s ease-out",
@@ -84,15 +83,21 @@ export default function IntroAnimation({ onEnter }: Props) {
             left: `${f.x}%`,
             top:  `${f.y}%`,
             opacity: f.opacity,
-            /* rotate 90° so bug faces direction of travel */
-            transform: `rotate(${f.dir === 1 ? 90 : -90}deg)`,
+            transform: `scaleX(${f.dir})`,
           }}>
-            <MayflyIcon size={f.size} color="rgba(255,255,255,0.88)" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/mayfly-icon.png"
+              alt=""
+              width={f.size}
+              height={f.size}
+              style={{ display: "block" }}
+            />
           </div>
         ))}
       </div>
 
-      {/* Wordmark — CSS text matching brand exactly */}
+      {/* Wordmark — real brand asset, clickable to enter */}
       <div
         className="wordmark-container"
         style={{
@@ -106,19 +111,12 @@ export default function IntroAnimation({ onEnter }: Props) {
         tabIndex={wordmarkVisible ? 0 : -1}
         onKeyDown={e => { if (wordmarkVisible && (e.key === "Enter" || e.key === " ")) onEnter(); }}
       >
-        <div style={{ position: "relative", textAlign: "center" }}>
-          {/* Small bug above the é */}
-          <div style={{
-            position: "absolute",
-            top: "-1.8rem",
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}>
-            <MayflyIcon size={28} color="white" />
-          </div>
-          <div className="wordmark-title">efemera</div>
-        </div>
-        <div className="wordmark-subtitle">Life, in Brief.</div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/wordmark.png"
+          alt="efemera — Life, in Brief."
+          style={{ width: "clamp(280px, 55vw, 780px)", height: "auto", display: "block" }}
+        />
         {hinting && <div className="enter-hint">Click to enter</div>}
       </div>
     </div>
