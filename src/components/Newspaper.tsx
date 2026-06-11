@@ -131,8 +131,8 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
 
 const ABOUT_DEFAULT = [
   "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
-  "We are, each of us, mere blips: a fragment of time before we breathe our last and recede into memory. What remains is ephemera — from the Greek ephēmeros, lasting only a day — what Maurice Rickards called \"the minor transient documents of everyday life.\"",
-  "This is where I keep mine.",
+  "We are, each of us, passersby, mere blips in time before we breathe our last and recede into memory. What we leave behind is ephemera, what Maurice Rickards called \"the minor transient documents of everyday life.\" Journal entries, photographs, and ticket stubs. A paper trail that, pieced together, tells the story of a life.",
+  "This blog is where I keep mine.",
 ];
 
 function AboutPage() {
