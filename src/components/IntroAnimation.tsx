@@ -7,9 +7,9 @@ interface Fly {
   x: number;
   y: number;
   size: number;
-  dir: 1 | -1;
-  speedX: number;
+  speed: number;
   wobblePhase: number;
+  wobbleAmp: number;
   wobbleSpeed: number;
   opacity: number;
 }
@@ -19,21 +19,20 @@ function randomBetween(a: number, b: number) {
 }
 
 function createFly(id: number): Fly {
-  const dir = (Math.random() > 0.5 ? 1 : -1) as 1 | -1;
   return {
     id,
-    x: dir === 1 ? randomBetween(-18, -4) : randomBetween(104, 118),
-    y: randomBetween(4, 93),
-    size: randomBetween(28, 72),
-    dir,
-    speedX: randomBetween(0.07, 0.18),
+    x: randomBetween(-25, -5),
+    y: randomBetween(5, 92),
+    size: randomBetween(32, 80),
+    speed: randomBetween(0.06, 0.2),
     wobblePhase: randomBetween(0, Math.PI * 2),
-    wobbleSpeed: randomBetween(0.03, 0.07),
-    opacity: randomBetween(0.45, 0.9),
+    wobbleAmp: randomBetween(0.08, 0.25),
+    wobbleSpeed: randomBetween(0.02, 0.06),
+    opacity: randomBetween(0.45, 0.95),
   };
 }
 
-const FLY_COUNT = 30;
+const FLY_COUNT = 35;
 
 interface Props { onEnter: () => void; }
 
@@ -41,25 +40,25 @@ export default function IntroAnimation({ onEnter }: Props) {
   const [flies, setFlies] = useState<Fly[]>(() =>
     Array.from({ length: FLY_COUNT }, (_, i) => createFly(i))
   );
-  const [phase, setPhase]               = useState<"flies" | "dissolve" | "wordmark">("flies");
+  const [phase, setPhase] = useState<"flies" | "dissolve" | "wordmark">("flies");
   const [wordmarkVisible, setWordmarkVisible] = useState(false);
-  const [hinting, setHinting]           = useState(false);
+  const [hinting, setHinting] = useState(false);
   const frameRef = useRef<number>(0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("dissolve"), 3000);
-    const t2 = setTimeout(() => { setPhase("wordmark"); setWordmarkVisible(true); }, 4200);
-    const t3 = setTimeout(() => setHinting(true), 5200);
+    const t1 = setTimeout(() => setPhase("dissolve"), 3200);
+    const t2 = setTimeout(() => { setPhase("wordmark"); setWordmarkVisible(true); }, 4400);
+    const t3 = setTimeout(() => setHinting(true), 5400);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
   useEffect(() => {
     function tick() {
       setFlies(prev => prev.map(f => {
-        const nx     = f.x + f.speedX * f.dir;
+        const nx     = f.x + f.speed;
         const nPhase = f.wobblePhase + f.wobbleSpeed;
-        const ny     = f.y + Math.sin(nPhase) * 0.12;
-        if ((f.dir === 1 && nx > 112) || (f.dir === -1 && nx < -12)) return createFly(f.id);
+        const ny     = f.y + Math.sin(nPhase) * f.wobbleAmp;
+        if (nx > 112) return createFly(f.id);
         return { ...f, x: nx, y: ny, wobblePhase: nPhase };
       }));
       frameRef.current = requestAnimationFrame(tick);
@@ -70,7 +69,7 @@ export default function IntroAnimation({ onEnter }: Props) {
 
   return (
     <div className="intro-overlay">
-      {/* Flies crossing the screen using the real brand asset */}
+      {/* Swarm moving left → right */}
       <div style={{
         position: "absolute", inset: 0,
         transition: "opacity 1.4s ease-out",
@@ -83,7 +82,8 @@ export default function IntroAnimation({ onEnter }: Props) {
             left: `${f.x}%`,
             top:  `${f.y}%`,
             opacity: f.opacity,
-            transform: `scaleX(${f.dir})`,
+            /* rotate 90° CW so the mayfly faces right */
+            transform: `rotate(90deg)`,
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -97,7 +97,7 @@ export default function IntroAnimation({ onEnter }: Props) {
         ))}
       </div>
 
-      {/* Wordmark — real brand asset, clickable to enter */}
+      {/* Wordmark fades in after swarm passes */}
       <div
         className="wordmark-container"
         style={{
