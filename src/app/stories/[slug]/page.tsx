@@ -32,7 +32,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       {/* Sticky nav */}
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
         <Link href="/" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none" }}>← Feed</Link>
-        {["Essays", "Memory", "Nature", "Place", "Photography", "Travel"].map(s => (
+        {["Home", "About", "Micro-Memoirs", "Narratives"].map(s => (
           <a key={s} href="#" style={{ fontFamily: "Arial, sans-serif", fontSize: "0.72rem", fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
         ))}
       </header>
