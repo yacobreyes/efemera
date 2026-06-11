@@ -21,24 +21,20 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      {/* Masthead + nav in one block to eliminate gap */}
-      <div style={{ background: "#8B0000" }}>
-        <div style={{ padding: "1.5rem 1.2rem", display: "flex", justifyContent: "center" }}>
-          <Link href="/">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.png" alt="efemera" style={{ width: "clamp(220px, 45vw, 480px)", height: "auto", display: "block" }} />
-          </Link>
-        </div>
-
-        {/* Sticky nav */}
-        <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.45rem 1.2rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "2rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+      {/* Single sticky bar: masthead left, nav right */}
+      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+        <Link href="/">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Masthead.png" alt="efemera" style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block" }} />
+        </Link>
+        <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
           {["Home", "About", "Micro-Memoirs", "Narratives"].map(s => (
             s === "Home"
               ? <Link key={s} href="/" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
               : <a key={s} href="#" style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</a>
           ))}
-        </header>
-      </div>
+        </nav>
+      </header>
 
       {/* Article */}
       <article style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
