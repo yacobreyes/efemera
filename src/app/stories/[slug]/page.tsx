@@ -70,7 +70,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} min read
         </div>
 
-        {post.section === "Narratives" && post.image?.asset && (
+        {post.image?.asset && (
           <div style={{ margin: "0 -2rem 1.8rem", overflow: "hidden" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

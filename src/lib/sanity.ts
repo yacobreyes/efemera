@@ -65,3 +65,11 @@ export async function getPost(slug: string): Promise<SanityPost | null> {
 export async function getAllSlugs(): Promise<string[]> {
   return client.fetch(`*[_type == "post"].slug.current`, {}, { cache: "no-store" });
 }
+
+export interface SanityAbout {
+  body: import("@portabletext/types").PortableTextBlock[];
+}
+
+export async function getAboutPage(): Promise<SanityAbout | null> {
+  return client.fetch(`*[_type == "about" && _id == "about"][0] { body }`, {}, { cache: "no-store" });
+}
