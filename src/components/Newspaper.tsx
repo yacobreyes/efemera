@@ -137,27 +137,38 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
 export default function Feed() {
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
-      <header style={{
-        position: "sticky", top: 0, zIndex: 10,
+      {/* Masthead banner */}
+      <div style={{
         background: "#8B0000",
-        padding: "0.5rem 1.2rem",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.25)",
+        padding: "2rem 1.2rem 1.5rem",
+        display: "flex", justifyContent: "center",
+        borderBottom: "3px solid rgba(255,255,255,0.15)",
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/wordmark.png"
           alt="efemera"
-          style={{ height: 40, width: "auto", display: "block" }}
+          style={{ width: "clamp(260px, 55vw, 600px)", height: "auto", display: "block" }}
         />
-        <nav style={{ display: "flex", gap: "1.2rem" }}>
-          {["Essays", "Memory", "Nature", "Place"].map(s => (
-            <a key={s} href="#" style={{
-              fontFamily: "Arial, sans-serif", fontSize: "0.75rem",
-              fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none",
-            }}>{s}</a>
-          ))}
-        </nav>
+      </div>
+
+      {/* Sticky nav bar */}
+      <header style={{
+        position: "sticky", top: 0, zIndex: 10,
+        background: "#8B0000",
+        padding: "0.45rem 1.2rem",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        gap: "2rem",
+        boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+      }}>
+        {["Essays", "Memory", "Nature", "Place", "Photography", "Travel"].map(s => (
+          <a key={s} href="#" style={{
+            fontFamily: "Arial, sans-serif", fontSize: "0.72rem",
+            fontWeight: 700, color: "rgba(255,255,255,0.85)", textDecoration: "none",
+            letterSpacing: "0.05em",
+          }}>{s}</a>
+        ))}
       </header>
 
       <div style={{ maxWidth: 600, margin: "1rem auto", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
