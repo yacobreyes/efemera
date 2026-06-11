@@ -172,27 +172,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                 <label style={LABEL}>Subheadline</label>
                 <input style={INPUT} value={form.subheadline} onChange={e => setForm(f => ({ ...f, subheadline: e.target.value }))} required />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <div>
-                  <label style={LABEL}>Slug</label>
-                  <input style={INPUT} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} required />
-                </div>
-                <div>
-                  <label style={LABEL}>Section</label>
-                  <select style={INPUT} value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))}>
-                    <option>Micro-Memoir</option>
-                    <option>Narratives</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={LABEL}>Date</label>
-                  <input type="date" style={INPUT} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
-                </div>
-              </div>
-              <div>
-                <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
-                <textarea style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} required />
-              </div>
 
               <div>
                 <label style={LABEL}>Photo {uploadingImage && <span style={{ color: "#657786", fontWeight: 400 }}>— uploading…</span>}</label>
@@ -214,6 +193,28 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                     <input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} placeholder="Describe the photo…" />
                   </div>
                 )}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label style={LABEL}>Slug</label>
+                  <input style={INPUT} value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} required />
+                </div>
+                <div>
+                  <label style={LABEL}>Section</label>
+                  <select style={INPUT} value={form.section} onChange={e => setForm(f => ({ ...f, section: e.target.value }))}>
+                    <option>Micro-Memoir</option>
+                    <option>Narratives</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={LABEL}>Date</label>
+                  <input type="date" style={INPUT} value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
+                </div>
+              </div>
+              <div>
+                <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
+                <textarea style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} required />
               </div>
 
               <button type="submit" disabled={isPending || uploadingImage} style={BTN}>
