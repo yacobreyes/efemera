@@ -13,7 +13,7 @@ export default function HomeClient({ posts }: { posts: SanityPost[] }) {
   return (
     <>
       {!entered && <IntroAnimation onEnter={() => setEntered(true)} />}
-      {entered && <Feed posts={posts} />}
+      {entered && <Feed posts={posts} onMastheadClick={() => setEntered(false)} />}
     </>
   );
 }

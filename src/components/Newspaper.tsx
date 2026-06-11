@@ -146,7 +146,7 @@ function AboutPage() {
   );
 }
 
-export default function Feed({ posts }: { posts: SanityPost[] }) {
+export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; onMastheadClick?: () => void }) {
   const [activeTab, setActiveTab] = useState<Tab>("Home");
 
   const visiblePosts = activeTab === "Home"
@@ -161,7 +161,7 @@ export default function Feed({ posts }: { posts: SanityPost[] }) {
     <div style={{ background: "#f5f8fa", minHeight: "100vh" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.png" alt="efemera" style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block" }} />
+        <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
             <button key={s} onClick={() => setActiveTab(s)} style={{ fontFamily: "'Bodoni Moda', serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
