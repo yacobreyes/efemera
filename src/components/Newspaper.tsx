@@ -16,13 +16,21 @@ function truncate(text: string, max = 280) {
   return text.slice(0, max).trimEnd() + "…";
 }
 
+interface Comment { id: number; text: string; }
+
 function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(index < 2);
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
-  const [replied, setReplied] = useState(false);
-  const [replyCount, setReplyCount] = useState(0);
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (commentOpen) inputRef.current?.focus();
+  }, [commentOpen]);
 
   useEffect(() => {
     if (visible) return;
@@ -84,12 +92,12 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
       </div>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
-        <button onClick={() => { setReplied(r => !r); setReplyCount(c => replied ? c - 1 : c + 1); }}
-          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: replied ? "#8B0000" : "#657786" }}>
+        <button onClick={() => setCommentOpen(o => !o)}
+          style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: commentOpen || comments.length > 0 ? "#8B0000" : "#657786" }}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
-          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{replyCount}</span>
+          <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{comments.length}</span>
         </button>
         <button onClick={() => { setLiked(l => !l); setLikeCount(c => liked ? c - 1 : c + 1); }}
           style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: liked ? "#e0245e" : "#657786" }}>
@@ -99,6 +107,54 @@ function TweetCard({ post, index }: { post: typeof posts[0]; index: number }) {
           <span style={{ fontFamily: "Arial, sans-serif", fontSize: "0.8rem" }}>{likeCount}</span>
         </button>
       </div>
+
+      {/* Comment thread */}
+      {comments.length > 0 && (
+        <div style={{ marginTop: "0.75rem", borderTop: "1px solid #f0f3f4", paddingTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {comments.map(c => (
+            <div key={c.id} style={{ fontFamily: "'Barlow Condensed', sans-serif", fontSize: "0.9rem", color: "#2d2d2d", lineHeight: 1.5, padding: "0.5rem 0.6rem", background: "#f5f8fa", borderRadius: 4 }}>
+              {c.text}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {commentOpen && (
+        <div style={{ marginTop: "0.75rem" }}>
+          <textarea
+            ref={inputRef}
+            value={commentText}
+            onChange={e => setCommentText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === "Enter" && !e.shiftKey && commentText.trim()) {
+                e.preventDefault();
+                setComments(cs => [...cs, { id: Date.now(), text: commentText.trim() }]);
+                setCommentText("");
+                setCommentOpen(false);
+              }
+            }}
+            placeholder="Write a comment… (Enter to post)"
+            rows={2}
+            style={{ width: "100%", fontFamily: "'Barlow Condensed', sans-serif", fontSize: "0.9rem", padding: "0.5rem 0.6rem", border: "1px solid #e1e8ed", borderRadius: 4, resize: "none", outline: "none", boxSizing: "border-box", color: "#2d2d2d" }}
+          />
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.35rem" }}>
+            <button onClick={() => { setCommentOpen(false); setCommentText(""); }}
+              style={{ fontFamily: "Arial, sans-serif", fontSize: "0.75rem", color: "#657786", background: "none", border: "none", cursor: "pointer", padding: "0.2rem 0.5rem" }}>
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                if (!commentText.trim()) return;
+                setComments(cs => [...cs, { id: Date.now(), text: commentText.trim() }]);
+                setCommentText("");
+                setCommentOpen(false);
+              }}
+              style={{ fontFamily: "Arial, sans-serif", fontSize: "0.75rem", fontWeight: 700, color: "white", background: "#8B0000", border: "none", borderRadius: 3, cursor: "pointer", padding: "0.2rem 0.6rem" }}>
+              Post
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

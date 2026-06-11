@@ -17,7 +17,7 @@ export const posts: Post[] = [
     kicker: "Micro-Memoir",
     headline: "The Mayfly Lives One Day and Dies Having Never Known Winter",
     subheadline: "A meditation on brevity, and what it means to live completely in a single afternoon",
-    byline: "Staff Writer",
+    byline: "Yacob Reyes",
     date: "June 11, 2026",
     size: "large",
     body: [
@@ -31,7 +31,7 @@ export const posts: Post[] = [
     kicker: "Micro-Memoir",
     headline: "The Recipe She Never Wrote Down",
     subheadline: "On inheritance, sofrito, and the things we learn too late to ask about",
-    byline: "Contributing Editor",
+    byline: "Yacob Reyes",
     date: "June 10, 2026",
     size: "medium",
     body: [
@@ -45,7 +45,7 @@ export const posts: Post[] = [
     kicker: "Narratives",
     headline: "The Last Roll of Film From a Camera Found at a Flea Market",
     subheadline: "Seven exposures from a stranger's life, and two frames left deliberately blank",
-    byline: "Photography Desk",
+    byline: "Yacob Reyes",
     date: "June 9, 2026",
     size: "medium",
     body: [
@@ -64,7 +64,7 @@ export const posts: Post[] = [
     kicker: "Narratives",
     headline: "The Corner Table at the Café That Closed",
     subheadline: "Eleven years of a single seat, and what it means when a place that held your life disappears",
-    byline: "Urban Correspondent",
+    byline: "Yacob Reyes",
     date: "June 8, 2026",
     size: "medium",
     body: [
@@ -82,7 +82,7 @@ export const posts: Post[] = [
     kicker: "Narratives",
     headline: "A Census of the People I See Every Morning and Will Never Know",
     subheadline: "On the intimacy of strangers, and the particular grief of a broken routine",
-    byline: "Commuter's Column",
+    byline: "Yacob Reyes",
     date: "June 7, 2026",
     size: "small",
     body: [
@@ -101,7 +101,7 @@ export const posts: Post[] = [
     kicker: "Micro-Memoir",
     headline: "Forty Minutes in a Holding Pattern Over the City Where I Was Born",
     subheadline: "Suspended above your own history, circling what you can't quite land in",
-    byline: "Travel Desk",
+    byline: "Yacob Reyes",
     date: "June 6, 2026",
     size: "small",
     body: [
