@@ -1,5 +1,4 @@
 import type { SanityLately } from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
 
 const FONT = "'Inter', sans-serif";
 const BORDER = "#e1e8ed";
@@ -17,7 +16,7 @@ const ROW_VALUE: React.CSSProperties = {
 };
 
 export default function Lately({ data }: { data: SanityLately | null }) {
-  if (!data || (!data.reading && !data.listening && !data.watching && !data.photo?.asset)) return null;
+  if (!data || (!data.reading && !data.listening && !data.watching)) return null;
 
   return (
     <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
@@ -29,7 +28,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
         {data.reading && (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Reading</span>
-            <span style={ROW_VALUE}><em>{data.reading}</em>{data.readingAuthor ? ` — ${data.readingAuthor}` : ""}</span>
+            <span style={ROW_VALUE}>{data.reading}</span>
           </div>
         )}
 
@@ -44,22 +43,6 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Watching</span>
             <span style={ROW_VALUE}>{data.watching}</span>
-          </div>
-        )}
-
-        {data.photo?.asset && (
-          <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(data.photo.asset).width(400).auto("format").url()}
-              alt={data.photo.caption ?? ""}
-              style={{ width: "100%", display: "block", borderRadius: 4, maxHeight: 260, objectFit: "cover" }}
-            />
-            {data.photo.caption && (
-              <p style={{ fontFamily: FONT, fontSize: "0.7rem", color: TEXT_MUTED, fontStyle: "italic", margin: "0.35rem 0 0", lineHeight: 1.4 }}>
-                {data.photo.caption}
-              </p>
-            )}
           </div>
         )}
       </div>

@@ -80,14 +80,8 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
   const [activePanel, setActivePanel] = useState<"post" | "about" | "lately">("post");
 
   const [latelyReading, setLatelyReading] = useState("");
-  const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
   const [latelyListening, setLatelyListening] = useState("");
   const [latelyWatching, setLatelyWatching] = useState("");
-  const [latelyPhotoAssetId, setLatelyPhotoAssetId] = useState("");
-  const [latelyPhotoCaption, setLatelyPhotoCaption] = useState("");
-  const [latelyPhotoPreview, setLatelyPhotoPreview] = useState("");
-  const [uploadingLatelyPhoto, setUploadingLatelyPhoto] = useState(false);
-  const latelyPhotoRef = useRef<HTMLInputElement>(null);
 
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -397,34 +391,14 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     });
   }
 
-  async function handleLatelyPhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setLatelyPhotoPreview(URL.createObjectURL(file));
-    setUploadingLatelyPhoto(true);
-    try {
-      const fd = new FormData();
-      fd.set("file", file);
-      const { assetId } = await uploadImage(fd);
-      setLatelyPhotoAssetId(assetId);
-    } catch (err: any) {
-      setError(`Photo upload failed: ${err.message}`);
-    } finally {
-      setUploadingLatelyPhoto(false);
-    }
-  }
-
   function handleLatelySubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setSuccess("");
     const fd = new FormData();
     fd.set("reading", latelyReading);
-    fd.set("readingAuthor", latelyReadingAuthor);
     fd.set("listening", latelyListening);
     fd.set("watching", latelyWatching);
-    if (latelyPhotoAssetId) fd.set("photoAssetId", latelyPhotoAssetId);
-    if (latelyPhotoCaption) fd.set("photoCaption", latelyPhotoCaption);
     startTransition(async () => {
       try {
         await saveLately(fd);
@@ -628,11 +602,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
               <div>
                 <label style={LABEL}>Currently Reading</label>
-                <input style={INPUT} placeholder="Book title" value={latelyReading} onChange={e => setLatelyReading(e.target.value)} />
-              </div>
-              <div>
-                <label style={LABEL}>Author</label>
-                <input style={INPUT} placeholder="Author name" value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} />
+                <input style={INPUT} placeholder="e.g. Beloved, Toni Morrison" value={latelyReading} onChange={e => setLatelyReading(e.target.value)} />
               </div>
               <div>
                 <label style={LABEL}>Currently Listening To</label>
@@ -641,23 +611,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
               <div>
                 <label style={LABEL}>Currently Watching</label>
                 <input style={INPUT} placeholder="Show, film, director…" value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} />
-              </div>
-              <div>
-                <label style={LABEL}>From the Camera Roll</label>
-                {latelyPhotoPreview && (
-                  <img src={latelyPhotoPreview} alt="" style={{ width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 4, marginBottom: "0.5rem", display: "block" }} />
-                )}
-                {uploadingLatelyPhoto && <p style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>Uploading…</p>}
-                <input type="file" accept="image/*" ref={latelyPhotoRef} style={{ display: "none" }} onChange={handleLatelyPhotoChange} />
-                <button type="button" onClick={() => latelyPhotoRef.current?.click()} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK }}>
-                  {latelyPhotoPreview ? "Change photo" : "Upload photo"}
-                </button>
-                {latelyPhotoAssetId && (
-                  <div style={{ marginTop: "0.5rem" }}>
-                    <label style={LABEL}>Caption</label>
-                    <input style={INPUT} placeholder="Optional caption" value={latelyPhotoCaption} onChange={e => setLatelyPhotoCaption(e.target.value)} />
-                  </div>
-                )}
               </div>
 
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: isPending ? "wait" : "pointer", alignSelf: "flex-start", opacity: isPending ? 0.7 : 1 }}>
