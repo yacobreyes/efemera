@@ -178,12 +178,18 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       <style>{`
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
+        .feed-layout { display: grid; grid-template-columns: 600px 220px; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
+        .feed-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+        @media (max-width: 860px) {
+          .feed-layout { grid-template-columns: 1fr; max-width: 600px; }
+          .feed-sidebar { order: -1; }
+        }
         @media (max-width: 600px) {
           body { overflow-x: hidden; }
           .feed-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
           .feed-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
           .feed-nav button { font-size: 0.78rem; }
-          .feed-content { padding: 0 0.75rem !important; }
+          .feed-layout { padding: 0 0.75rem; }
         }
       `}</style>
       <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
@@ -199,9 +205,10 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       {activeTab === "About" ? (
         <AboutPage paragraphs={aboutParagraphs} />
       ) : (
-        <>
-          <div style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0", boxSizing: "border-box" }}>
-            <div style={{ position: "relative" }}>
+        <div className="feed-layout">
+          {/* Main column */}
+          <div>
+            <div style={{ position: "relative", marginBottom: "0.75rem" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
               </svg>
@@ -212,22 +219,25 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
                 style={{ width: "100%", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
               />
             </div>
+
+            {visiblePosts.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
+                {query ? `No results for "${query}"` : "No posts yet."}
+              </div>
+            ) : (
+              <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+                {visiblePosts.map((post, i) => (
+                  <TweetCard key={post._id} post={post} index={i} />
+                ))}
+              </div>
+            )}
           </div>
 
-          <Lately data={lately ?? null} />
-
-          {visiblePosts.length === 0 ? (
-            <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
-              {query ? `No results for "${query}"` : "No posts yet."}
-            </div>
-          ) : (
-            <div className="feed-content" style={{ maxWidth: 600, margin: "0.75rem auto 0", width: "100%", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden", boxSizing: "border-box" }}>
-              {visiblePosts.map((post, i) => (
-                <TweetCard key={post._id} post={post} index={i} />
-              ))}
-            </div>
-          )}
-        </>
+          {/* Sidebar */}
+          <div className="feed-sidebar">
+            <Lately data={lately ?? null} />
+          </div>
+        </div>
       )}
 
       <SiteFooter />

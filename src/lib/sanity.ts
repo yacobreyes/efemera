@@ -88,13 +88,14 @@ export interface SanityLately {
   reading?: string;
   readingAuthor?: string;
   listening?: string;
+  watching?: string;
   obsessed?: string;
   photo?: { asset: SanityImageSource; caption?: string };
 }
 
 export async function getLately(): Promise<SanityLately | null> {
   return client.fetch(
-    `*[_type == "lately" && _id == "lately"][0] { reading, readingAuthor, listening, obsessed, photo { asset, caption } }`,
+    `*[_type == "lately" && _id == "lately"][0] { reading, readingAuthor, listening, watching, obsessed, photo { asset, caption } }`,
     {}, { cache: "no-store" }
   );
 }
