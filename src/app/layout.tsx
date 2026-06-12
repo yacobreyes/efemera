@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Efemera — Life, in Brief.",
   description: "A literary blog about the ephemeral moments that make a life.",
+  icons: { icon: "/mayfly-icon.png" },
 };
 
 export default function RootLayout({
