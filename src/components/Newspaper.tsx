@@ -179,11 +179,13 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       <style>{`
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
-        .feed-layout { display: grid; grid-template-columns: 600px 220px; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
-        .feed-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+        .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
+        .feed-main { grid-column: 1; grid-row: 1 / span 2; }
+        .sidebar-lately { grid-column: 2; grid-row: 1; }
+        .sidebar-choopy { grid-column: 2; grid-row: 2; }
         @media (max-width: 860px) {
-          .feed-layout { grid-template-columns: 1fr; max-width: 600px; }
-          .feed-sidebar { order: -1; }
+          .feed-layout { display: flex; flex-direction: column; max-width: 600px; }
+          .sidebar-lately { order: -1; }
         }
         @media (max-width: 600px) {
           body { overflow-x: hidden; }
@@ -208,7 +210,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       ) : (
         <div className="feed-layout">
           {/* Main column */}
-          <div>
+          <div className="feed-main">
             <div style={{ position: "relative", marginBottom: "0.75rem" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -235,8 +237,10 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
           </div>
 
           {/* Sidebar */}
-          <div className="feed-sidebar">
+          <div className="sidebar-lately">
             <Lately data={lately ?? null} />
+          </div>
+          <div className="sidebar-choopy">
             <Choopy />
           </div>
         </div>
