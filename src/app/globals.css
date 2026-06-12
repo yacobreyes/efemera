@@ -11,6 +11,7 @@
 }
 
 * { box-sizing: border-box; }
+html, body { overflow-x: hidden; max-width: 100vw; }
 
 .card-headline:hover { color: #8B0000 !important; transition: color 0.15s; }
 

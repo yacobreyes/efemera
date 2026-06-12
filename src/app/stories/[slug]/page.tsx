@@ -45,8 +45,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         .story-header { display: flex; align-items: center; justify-content: space-between; }
         .story-nav { display: flex; gap: 2rem; align-items: center; }
         @media (max-width: 600px) {
-          .story-header { flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 1rem !important; }
-          .story-nav { gap: 1rem; flex-wrap: wrap; }
+          body { overflow-x: hidden; }
+          .story-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
+          .story-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
           .story-nav a { font-size: 0.78rem !important; }
           .story-article { margin: 0.75rem 0.75rem 0 !important; padding: 1.25rem 1.25rem 2rem !important; }
           .story-comments { margin: 1rem 0.75rem 0 !important; padding: 1.25rem !important; }

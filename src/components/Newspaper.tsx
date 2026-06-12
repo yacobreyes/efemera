@@ -178,8 +178,9 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
         @media (max-width: 600px) {
-          .feed-header { flex-direction: column; align-items: flex-start !important; gap: 0.6rem; padding: 0.6rem 1rem !important; }
-          .feed-nav { gap: 1rem; flex-wrap: wrap; }
+          body { overflow-x: hidden; }
+          .feed-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
+          .feed-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
           .feed-nav button { font-size: 0.78rem; }
           .feed-content { padding: 0 0.75rem !important; }
         }
