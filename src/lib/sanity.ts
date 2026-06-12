@@ -83,3 +83,17 @@ export interface SanityAbout {
 export async function getAboutPage(): Promise<SanityAbout | null> {
   return client.fetch(`*[_type == "about" && _id == "about"][0] { body }`, {}, { cache: "no-store" });
 }
+
+export interface SanityLately {
+  reading?: string;
+  readingAuthor?: string;
+  obsessed?: string;
+  photo?: { asset: SanityImageSource; caption?: string };
+}
+
+export async function getLately(): Promise<SanityLately | null> {
+  return client.fetch(
+    `*[_type == "lately" && _id == "lately"][0] { reading, readingAuthor, obsessed, photo { asset, caption } }`,
+    {}, { cache: "no-store" }
+  );
+}

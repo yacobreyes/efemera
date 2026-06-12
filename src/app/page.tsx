@@ -1,5 +1,5 @@
 import HomeClient from "@/components/HomeClient";
-import { getAllPosts, getAboutPage } from "@/lib/sanity";
+import { getAllPosts, getAboutPage, getLately, type SanityLately } from "@/lib/sanity";
 
 export default async function Home() {
   let posts: import("@/lib/sanity").SanityPost[] = [];
@@ -17,5 +17,7 @@ export default async function Home() {
       if (texts.length > 0) aboutParagraphs = texts;
     }
   } catch { /* ignore */ }
-  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} />;
+  let lately: SanityLately | null = null;
+  try { lately = await getLately(); } catch { /* ignore */ }
+  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} />;
 }
