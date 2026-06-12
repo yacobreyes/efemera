@@ -174,12 +174,22 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+      <style>{`
+        .feed-nav { display: flex; gap: 2rem; align-items: center; }
+        .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
+        @media (max-width: 600px) {
+          .feed-header { flex-direction: column; align-items: flex-start !important; gap: 0.6rem; padding: 0.6rem 1rem !important; }
+          .feed-nav { gap: 1rem; flex-wrap: wrap; }
+          .feed-nav button { font-size: 0.78rem; }
+          .feed-content { padding: 0 0.75rem !important; }
+        }
+      `}</style>
+      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
-        <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        <nav className="feed-nav">
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
-            <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", background: "none", border: "none", cursor: "pointer", padding: 0, letterSpacing: "0.05em", opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+            <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
         </nav>
       </header>
@@ -188,7 +198,7 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
         <AboutPage paragraphs={aboutParagraphs} />
       ) : (
         <>
-          <div style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0 0" }}>
+          <div className="feed-content" style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0 0.75rem", boxSizing: "border-box" }}>
             <div style={{ position: "relative" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -207,7 +217,7 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
               {query ? `No results for "${query}"` : "No posts yet."}
             </div>
           ) : (
-            <div style={{ maxWidth: 600, margin: "0.75rem auto 0", width: "100%", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+            <div className="feed-content" style={{ maxWidth: 600, margin: "0.75rem auto 0", width: "100%", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden", boxSizing: "border-box" }}>
               {visiblePosts.map((post, i) => (
                 <TweetCard key={post._id} post={post} index={i} />
               ))}

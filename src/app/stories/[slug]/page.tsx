@@ -41,19 +41,30 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
   return (
     <div style={{ background: "#f5f8fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+      <style>{`
+        .story-header { display: flex; align-items: center; justify-content: space-between; }
+        .story-nav { display: flex; gap: 2rem; align-items: center; }
+        @media (max-width: 600px) {
+          .story-header { flex-direction: column; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 1rem !important; }
+          .story-nav { gap: 1rem; flex-wrap: wrap; }
+          .story-nav a { font-size: 0.78rem !important; }
+          .story-article { margin: 0.75rem 0.75rem 0 !important; padding: 1.25rem 1.25rem 2rem !important; }
+          .story-comments { margin: 1rem 0.75rem 0 !important; padding: 1.25rem !important; }
+        }
+      `}</style>
+      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Masthead.png" alt="efemera" style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block" }} />
         </Link>
-        <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+        <nav className="story-nav">
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
             <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
           ))}
         </nav>
       </header>
 
-      <article style={{ maxWidth: 600, margin: "2rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
+      <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
         <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
           {post.section}
         </div>
@@ -112,7 +123,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         </div>
       </article>
 
-      <div style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
+      <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
         <CommentSection slug={slug} />
       </div>
 
