@@ -17,7 +17,7 @@ const ROW_VALUE: React.CSSProperties = {
 };
 
 export default function Lately({ data }: { data: SanityLately | null }) {
-  if (!data || (!data.reading && !data.listening && !data.watching && !data.obsessed && !data.photo?.asset)) return null;
+  if (!data || (!data.reading && !data.listening && !data.watching && !data.photo?.asset)) return null;
 
   return (
     <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
@@ -44,13 +44,6 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Watching</span>
             <span style={ROW_VALUE}>{data.watching}</span>
-          </div>
-        )}
-
-        {data.obsessed && (
-          <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
-            <span style={ROW_LABEL}>Obsessed</span>
-            <span style={ROW_VALUE}>{data.obsessed}</span>
           </div>
         )}
 

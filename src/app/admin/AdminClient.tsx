@@ -83,7 +83,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
   const [latelyListening, setLatelyListening] = useState("");
   const [latelyWatching, setLatelyWatching] = useState("");
-  const [latelyObsessed, setLatelyObsessed] = useState("");
   const [latelyPhotoAssetId, setLatelyPhotoAssetId] = useState("");
   const [latelyPhotoCaption, setLatelyPhotoCaption] = useState("");
   const [latelyPhotoPreview, setLatelyPhotoPreview] = useState("");
@@ -424,7 +423,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     fd.set("readingAuthor", latelyReadingAuthor);
     fd.set("listening", latelyListening);
     fd.set("watching", latelyWatching);
-    fd.set("obsessed", latelyObsessed);
     if (latelyPhotoAssetId) fd.set("photoAssetId", latelyPhotoAssetId);
     if (latelyPhotoCaption) fd.set("photoCaption", latelyPhotoCaption);
     startTransition(async () => {
@@ -644,11 +642,6 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                 <label style={LABEL}>Currently Watching</label>
                 <input style={INPUT} placeholder="Show, film, director…" value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} />
               </div>
-              <div>
-                <label style={LABEL}>Currently Obsessed With</label>
-                <input style={INPUT} placeholder="Anything" value={latelyObsessed} onChange={e => setLatelyObsessed(e.target.value)} />
-              </div>
-
               <div>
                 <label style={LABEL}>From the Camera Roll</label>
                 {latelyPhotoPreview && (
