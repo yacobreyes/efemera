@@ -106,8 +106,8 @@ export default function IntroAnimation({ onEnter }: Props) {
           alt="efemera — Life, in Brief."
           style={{ width: "clamp(280px, 55vw, 780px)", height: "auto", display: "block" }}
         />
+        {hinting && <div className="enter-hint">Click to enter</div>}
       </div>
-      {hinting && <div className="enter-hint">Click to enter</div>}
     </div>
   );
 }
