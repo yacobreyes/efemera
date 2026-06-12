@@ -44,7 +44,7 @@ export default function Choopy() {
           style={{ width: "70%", maxWidth: 140, height: "auto", display: "block", imageRendering: "pixelated" }}
         />
         <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: TEXT_MUTED }}>
-          click to feed choopy
+          Click to feed Choopy
         </span>
       </div>
     </div>
