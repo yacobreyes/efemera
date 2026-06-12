@@ -7,7 +7,7 @@ import type { SanityPost } from "@/lib/sanity";
 const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ssr: false });
 const Feed = dynamic(() => import("@/components/Newspaper"), { ssr: false });
 
-export default function HomeClient({ posts }: { posts: SanityPost[] }) {
+export default function HomeClient({ posts, aboutParagraphs }: { posts: SanityPost[]; aboutParagraphs: string[] }) {
   const [showAnimation, setShowAnimation] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -27,7 +27,7 @@ export default function HomeClient({ posts }: { posts: SanityPost[] }) {
   return (
     <>
       {showAnimation && <IntroAnimation onEnter={handleEnter} />}
-      {!showAnimation && <Feed posts={posts} onMastheadClick={() => setShowAnimation(true)} />}
+      {!showAnimation && <Feed posts={posts} aboutParagraphs={aboutParagraphs} onMastheadClick={() => setShowAnimation(true)} />}
     </>
   );
 }

@@ -132,29 +132,16 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
 const ABOUT_DEFAULT = [
   "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
   "We are, each of us, passersby, mere blips in time before we breathe our last and recede into memory. What we leave behind is ephemera, what Maurice Rickards called \"the minor transient documents of everyday life.\" Journal entries, photographs, and ticket stubs. A paper trail that, pieced together, tells the story of a life.",
-  'This blog is where I keep mine.',
+  "This blog is where I keep mine.",
 ];
 
-function AboutPage() {
-  const [paragraphs, setParagraphs] = useState<string[]>(ABOUT_DEFAULT);
-  useEffect(() => {
-    fetch("/api/about").then(r => r.json()).then(data => {
-      if (data?.body) {
-        const texts = data.body
-          .filter((b: any) => b._type === "block")
-          .map((b: any) => b.children.map((c: any) => c.text).join(""))
-          .filter(Boolean);
-        if (texts.length > 0) setParagraphs(texts);
-      }
-    }).catch(() => {});
-  }, []);
-
-  const content = paragraphs;
+function AboutPage({ paragraphs }: { paragraphs: string[] }) {
+  const content = paragraphs.length > 0 ? paragraphs : ABOUT_DEFAULT;
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
       <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
-      {content !== null && content.map((p, i) => (
+      {content.map((p, i) => (
             <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{p}</p>
           ))
       }
@@ -162,7 +149,7 @@ function AboutPage() {
   );
 }
 
-export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; onMastheadClick?: () => void }) {
+export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; onMastheadClick?: () => void }) {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
@@ -198,7 +185,7 @@ export default function Feed({ posts, onMastheadClick }: { posts: SanityPost[]; 
       </header>
 
       {activeTab === "About" ? (
-        <AboutPage />
+        <AboutPage paragraphs={aboutParagraphs} />
       ) : (
         <>
           <div style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0 0" }}>
