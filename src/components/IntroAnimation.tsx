@@ -92,8 +92,7 @@ export default function IntroAnimation({ onEnter }: Props) {
         className="wordmark-container"
         style={{
           opacity: wordmarkVisible ? 1 : 0,
-          transform: wordmarkVisible ? "scale(1)" : "scale(0.94)",
-          transition: "opacity 1s ease-out, transform 1s cubic-bezier(0.16,1,0.3,1)",
+          transition: "opacity 1s ease-out",
         }}
         onClick={wordmarkVisible ? onEnter : undefined}
         role={wordmarkVisible ? "button" : undefined}
