@@ -203,6 +203,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
             <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
+          <Link href="/archive" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em", opacity: 0.7, whiteSpace: "nowrap" }}>Archive</Link>
         </nav>
       </header>
 

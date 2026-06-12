@@ -63,6 +63,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
             <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
           ))}
+          <Link href="/archive" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>Archive</Link>
         </nav>
       </header>
 
