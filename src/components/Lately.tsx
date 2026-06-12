@@ -29,7 +29,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Reading</span>
             <span style={ROW_VALUE}>
-              &ldquo;{data.reading}&rdquo;{data.readingAuthor ? `, ${data.readingAuthor}` : ""}
+              &quot;{data.reading}{data.readingAuthor ? "," : ""}&quot;{data.readingAuthor ? ` ${data.readingAuthor}` : ""}
             </span>
           </div>
         )}
