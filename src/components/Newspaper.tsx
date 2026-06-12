@@ -6,8 +6,9 @@ import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import { PortableText } from "@portabletext/react";
-import type { SanityPost } from "@/lib/sanity";
+import type { SanityPost, SanityLately } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
+import Lately from "@/components/Lately";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
@@ -149,7 +150,7 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
   );
 }
 
-export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; onMastheadClick?: () => void }) {
+export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; onMastheadClick?: () => void }) {
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
@@ -212,6 +213,8 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
               />
             </div>
           </div>
+
+          <Lately data={lately ?? null} />
 
           {visiblePosts.length === 0 ? (
             <div style={{ maxWidth: 600, margin: "3rem auto", textAlign: "center", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
