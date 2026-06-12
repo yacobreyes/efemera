@@ -173,7 +173,7 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
     : tabFiltered;
 
   return (
-    <div style={{ background: "#f5f8fa", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <style>{`
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
