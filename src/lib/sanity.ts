@@ -86,13 +86,14 @@ export async function getAboutPage(): Promise<SanityAbout | null> {
 
 export interface SanityLately {
   reading?: string;
+  readingAuthor?: string;
   listening?: string;
   watching?: string;
 }
 
 export async function getLately(): Promise<SanityLately | null> {
   return client.fetch(
-    `*[_type == "lately" && _id == "lately"][0] { reading, listening, watching }`,
+    `*[_type == "lately" && _id == "lately"][0] { reading, readingAuthor, listening, watching }`,
     {}, { cache: "no-store" }
   );
 }

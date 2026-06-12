@@ -80,6 +80,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
   const [activePanel, setActivePanel] = useState<"post" | "about" | "lately">("post");
 
   const [latelyReading, setLatelyReading] = useState("");
+  const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
   const [latelyListening, setLatelyListening] = useState("");
   const [latelyWatching, setLatelyWatching] = useState("");
 
@@ -397,6 +398,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setSuccess("");
     const fd = new FormData();
     fd.set("reading", latelyReading);
+    fd.set("readingAuthor", latelyReadingAuthor);
     fd.set("listening", latelyListening);
     fd.set("watching", latelyWatching);
     startTransition(async () => {
@@ -602,7 +604,11 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
               <div>
                 <label style={LABEL}>Currently Reading</label>
-                <input style={INPUT} placeholder="e.g. Beloved, Toni Morrison" value={latelyReading} onChange={e => setLatelyReading(e.target.value)} />
+                <input style={INPUT} placeholder="Title" value={latelyReading} onChange={e => setLatelyReading(e.target.value)} />
+              </div>
+              <div>
+                <label style={LABEL}>Author</label>
+                <input style={INPUT} placeholder="Author" value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} />
               </div>
               <div>
                 <label style={LABEL}>Currently Listening To</label>

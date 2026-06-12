@@ -92,11 +92,12 @@ export async function saveAbout(formData: FormData) {
 
 export async function saveLately(formData: FormData) {
   const reading = formData.get("reading") as string;
+  const readingAuthor = formData.get("readingAuthor") as string;
   const listening = formData.get("listening") as string;
   const watching = formData.get("watching") as string;
   const doc: Record<string, unknown> = {
     _id: "lately", _type: "lately",
-    reading, listening, watching,
+    reading, readingAuthor, listening, watching,
   };
 
   await mutate([{ createOrReplace: doc }]);
