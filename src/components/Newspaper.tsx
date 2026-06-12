@@ -186,6 +186,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         @media (max-width: 860px) {
           .feed-layout { display: flex; flex-direction: column; max-width: 600px; }
           .sidebar-lately { order: -1; }
+          .sidebar-choopy { width: 220px; align-self: center; }
         }
         @media (max-width: 600px) {
           body { overflow-x: hidden; }
