@@ -184,7 +184,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         .sidebar-lately { grid-column: 2; grid-row: 1; }
         .sidebar-choopy { grid-column: 2; grid-row: 2; }
         @media (max-width: 860px) {
-          .feed-layout { display: flex; flex-direction: column; max-width: 600px; }
+          .feed-layout { display: flex; flex-direction: column; align-items: stretch; max-width: 600px; }
           .sidebar-lately { order: -1; }
           .sidebar-choopy { width: 220px; align-self: center; }
         }
