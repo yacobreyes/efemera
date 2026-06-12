@@ -56,10 +56,10 @@ export default function Choopy() {
           className={`choopy-img${dancing ? " choopy-dancing" : ""}`}
           style={{ width: "70%", maxWidth: 140, height: "auto", display: "block", imageRendering: "pixelated" }}
         />
-        <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: "#8B0000" }}>
+        <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: TEXT_MUTED }}>
           Click to feed Choopy
         </span>
-        <span style={{ fontFamily: "monospace", fontSize: "0.62rem", color: TEXT_MUTED, opacity: fedCount === null ? 0 : 0.8, transition: "opacity 0.4s ease" }}>
+        <span style={{ fontFamily: FONT, fontSize: "0.68rem", color: "#8B0000", opacity: fedCount === null ? 0 : 1, transition: "opacity 0.4s ease" }}>
           Choopy has been fed {(fedCount ?? 0).toLocaleString()} time{fedCount === 1 ? "" : "s"}
         </span>
       </div>
