@@ -81,6 +81,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
   const [latelyReading, setLatelyReading] = useState("");
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
+  const [latelyListening, setLatelyListening] = useState("");
   const [latelyObsessed, setLatelyObsessed] = useState("");
   const [latelyPhotoAssetId, setLatelyPhotoAssetId] = useState("");
   const [latelyPhotoCaption, setLatelyPhotoCaption] = useState("");
@@ -420,6 +421,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     const fd = new FormData();
     fd.set("reading", latelyReading);
     fd.set("readingAuthor", latelyReadingAuthor);
+    fd.set("listening", latelyListening);
     fd.set("obsessed", latelyObsessed);
     if (latelyPhotoAssetId) fd.set("photoAssetId", latelyPhotoAssetId);
     if (latelyPhotoCaption) fd.set("photoCaption", latelyPhotoCaption);
@@ -631,6 +633,10 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
               <div>
                 <label style={LABEL}>Author</label>
                 <input style={INPUT} placeholder="Author name" value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} />
+              </div>
+              <div>
+                <label style={LABEL}>Currently Listening To</label>
+                <input style={INPUT} placeholder="Song, album, artist, podcast…" value={latelyListening} onChange={e => setLatelyListening(e.target.value)} />
               </div>
               <div>
                 <label style={LABEL}>Currently Obsessed With</label>

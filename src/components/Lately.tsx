@@ -8,7 +8,7 @@ const TEXT_DARK = "#1c2938";
 const TEXT_MUTED = "#526270";
 
 export default function Lately({ data }: { data: SanityLately | null }) {
-  if (!data || (!data.reading && !data.obsessed && !data.photo?.asset)) return null;
+  if (!data || (!data.reading && !data.listening && !data.obsessed && !data.photo?.asset)) return null;
 
   return (
     <div style={{ maxWidth: 600, margin: "0.75rem auto 0", width: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
@@ -23,6 +23,13 @@ export default function Lately({ data }: { data: SanityLately | null }) {
             <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, lineHeight: 1.4 }}>
               <em>{data.reading}</em>{data.readingAuthor ? ` — ${data.readingAuthor}` : ""}
             </span>
+          </div>
+        )}
+
+        {data.listening && (
+          <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+            <span style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, paddingTop: "0.15rem", minWidth: 80 }}>Listening</span>
+            <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, lineHeight: 1.4 }}>{data.listening}</span>
           </div>
         )}
 

@@ -93,13 +93,14 @@ export async function saveAbout(formData: FormData) {
 export async function saveLately(formData: FormData) {
   const reading = formData.get("reading") as string;
   const readingAuthor = formData.get("readingAuthor") as string;
+  const listening = formData.get("listening") as string;
   const obsessed = formData.get("obsessed") as string;
   const photoAssetId = formData.get("photoAssetId") as string | null;
   const photoCaption = formData.get("photoCaption") as string | null;
 
   const doc: Record<string, unknown> = {
     _id: "lately", _type: "lately",
-    reading, readingAuthor, obsessed,
+    reading, readingAuthor, listening, obsessed,
   };
 
   if (photoAssetId) {
