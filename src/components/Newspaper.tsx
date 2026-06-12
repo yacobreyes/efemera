@@ -199,7 +199,7 @@ export default function Feed({ posts, aboutParagraphs, onMastheadClick }: { post
         <AboutPage paragraphs={aboutParagraphs} />
       ) : (
         <>
-          <div className="feed-content" style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0 0.75rem", boxSizing: "border-box" }}>
+          <div style={{ maxWidth: 600, margin: "1rem auto 0", width: "100%", padding: "0", boxSizing: "border-box" }}>
             <div style={{ position: "relative" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
                 <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
