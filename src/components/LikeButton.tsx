@@ -7,21 +7,28 @@ export default function LikeButton({ slug }: { slug: string }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    try {
-      setLiked(localStorage.getItem(`efemera_liked_${slug}`) === "1");
-      setCount(parseInt(localStorage.getItem(`efemera_likes_${slug}`) ?? "0", 10));
-    } catch { /* ignore */ }
+    setLiked(localStorage.getItem(`efemera_liked_${slug}`) === "1");
+    fetch(`/api/likes?slug=${encodeURIComponent(slug)}`)
+      .then(r => r.json())
+      .then(d => setCount(d.count ?? 0))
+      .catch(() => {});
   }, [slug]);
 
-  function toggle() {
+  async function toggle() {
     const newLiked = !liked;
-    const newCount = newLiked ? count + 1 : count - 1;
+    const delta = newLiked ? 1 : -1;
     setLiked(newLiked);
-    setCount(newCount);
+    setCount(c => c + delta);
+    try { localStorage.setItem(`efemera_liked_${slug}`, newLiked ? "1" : "0"); } catch {}
     try {
-      localStorage.setItem(`efemera_liked_${slug}`, newLiked ? "1" : "0");
-      localStorage.setItem(`efemera_likes_${slug}`, String(newCount));
-    } catch { /* ignore */ }
+      const res = await fetch("/api/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, delta }),
+      });
+      const d = await res.json();
+      if (d.count !== undefined) setCount(d.count);
+    } catch {}
   }
 
   return (
