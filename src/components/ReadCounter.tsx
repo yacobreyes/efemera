@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 
 export default function ReadCounter({ slug }: { slug: string }) {
-  const [count, setCount] = useState<number | null>(null);
+  const [count, setCount] = useState<number>(0);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     fetch("/api/reads", {
@@ -12,19 +13,17 @@ export default function ReadCounter({ slug }: { slug: string }) {
       body: JSON.stringify({ slug }),
     })
       .then(r => r.json())
-      .then(d => setCount(d.count ?? null))
-      .catch(() => {});
+      .then(d => { setCount(d.count ?? 0); setReady(true); })
+      .catch(() => setReady(true));
   }, [slug]);
 
-  if (count === null) return null;
-
-  const formatted = count.toLocaleString("en-US").padStart(6, "0").replace(/^0+(?=\d{6})/, s => s.replace(/0/g, "0"));
+  const digits = ready ? count.toLocaleString("en-US").padStart(5, "0") : "00000";
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontFamily: "'Courier New', Courier, monospace" }}>
       <span style={{ fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", fontWeight: 700 }}>Reads</span>
-      <span style={{ display: "inline-flex" }}>
-        {count.toLocaleString("en-US").padStart(5, "0").split("").map((ch, i) => (
+      <span style={{ display: "inline-flex", opacity: ready ? 1 : 0.3, transition: "opacity 0.4s ease" }}>
+        {digits.split("").map((ch, i) => (
           <span key={i} style={{
             display: "inline-block",
             width: "1.15em",
