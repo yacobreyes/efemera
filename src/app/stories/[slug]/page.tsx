@@ -49,8 +49,8 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           .story-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
           .story-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
           .story-nav a { font-size: 0.78rem !important; }
-          .story-article { margin: 0.75rem 0.75rem 0 !important; padding: 1.25rem 1.25rem 2rem !important; }
-          .story-comments { margin: 1rem 0.75rem 0 !important; padding: 1.25rem !important; }
+          .story-article { margin: 0.75rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem 1.25rem 2rem !important; }
+          .story-comments { margin: 1rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem !important; }
         }
       `}</style>
       <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
@@ -120,7 +120,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(80px, 20vw, 160px)", height: "auto", opacity: 0.85 }} />
+          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto", opacity: 0.85 }} />
         </div>
       </article>
 
