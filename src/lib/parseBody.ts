@@ -13,11 +13,21 @@ interface PTBlock {
   children: PTSpan[];
 }
 
+function blockStyle(paragraph: string): { style: string; text: string } {
+  if (paragraph.startsWith("### ")) return { style: "h3", text: paragraph.slice(4) };
+  if (paragraph.startsWith("## ")) return { style: "h2", text: paragraph.slice(3) };
+  if (paragraph.startsWith("> ")) {
+    return { style: "blockquote", text: paragraph.split("\n").map(l => l.replace(/^> ?/, "")).join("\n") };
+  }
+  return { style: "normal", text: paragraph };
+}
+
 export function parseBody(bodyRaw: string): PTBlock[] {
   return bodyRaw
     .split(/\n\n+/)
     .filter(p => p.trim())
-    .map((paragraph, blockIndex) => {
+    .map((rawParagraph, blockIndex) => {
+      const { style, text: paragraph } = blockStyle(rawParagraph);
       const children: PTSpan[] = [];
       const regex = /(\*\*_(.+?)_\*\*|\*\*(.+?)\*\*|_(.+?)_)/g;
       let lastIndex = 0;
@@ -46,20 +56,27 @@ export function parseBody(bodyRaw: string): PTBlock[] {
         children.push({ _type: "span", _key: `b${blockIndex}s0`, text: paragraph.trim(), marks: [] });
       }
 
-      return { _type: "block" as const, _key: `b${blockIndex}`, style: "normal", markDefs: [], children };
+      return { _type: "block" as const, _key: `b${blockIndex}`, style, markDefs: [], children };
     });
 }
 
 export function ptToMarkdown(blocks: import("@portabletext/types").PortableTextBlock[]): string {
   return blocks
     .filter(b => b._type === "block")
-    .map(b => (b.children as { text: string; marks?: string[] }[]).map(span => {
-      const text = span.text || "";
-      const marks = span.marks ?? [];
-      if (marks.includes("strong") && marks.includes("em")) return `**_${text}_**`;
-      if (marks.includes("strong")) return `**${text}**`;
-      if (marks.includes("em")) return `_${text}_`;
+    .map(b => {
+      const text = (b.children as { text: string; marks?: string[] }[]).map(span => {
+        const t = span.text || "";
+        const marks = span.marks ?? [];
+        if (marks.includes("strong") && marks.includes("em")) return `**_${t}_**`;
+        if (marks.includes("strong")) return `**${t}**`;
+        if (marks.includes("em")) return `_${t}_`;
+        return t;
+      }).join("");
+      const style = (b as { style?: string }).style ?? "normal";
+      if (style === "h2") return `## ${text}`;
+      if (style === "h3") return `### ${text}`;
+      if (style === "blockquote") return text.split("\n").map(l => `> ${l}`).join("\n");
       return text;
-    }).join(""))
+    })
     .join("\n\n");
 }

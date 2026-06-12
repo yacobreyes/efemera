@@ -1,6 +1,8 @@
 "use server";
 
 import { parseBody } from "@/lib/parseBody";
+import { requireAuth } from "@/lib/adminAuth";
+import { client } from "@/lib/sanity";
 
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
@@ -25,6 +27,7 @@ async function mutate(mutations: unknown[]) {
 }
 
 export async function uploadImage(formData: FormData) {
+  await requireAuth();
   const { token, projectId, dataset } = sanityConfig();
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file provided");
@@ -47,6 +50,7 @@ export async function uploadImage(formData: FormData) {
 }
 
 export async function savePost(formData: FormData) {
+  await requireAuth();
   const id = formData.get("id") as string;
   const headline = formData.get("headline") as string;
   const subheadline = formData.get("subheadline") as string;
@@ -57,7 +61,9 @@ export async function savePost(formData: FormData) {
   const bodyRaw = formData.get("body") as string;
   const imageAssetId = formData.get("imageAssetId") as string | null;
   const imageCaption = formData.get("imageCaption") as string | null;
+  const imageAlt = formData.get("imageAlt") as string | null;
   const status = (formData.get("status") as string) || "draft";
+  const pinned = formData.get("pinned") === "true";
 
   const body = parseBody(bodyRaw);
 
@@ -66,7 +72,7 @@ export async function savePost(formData: FormData) {
     _type: "post",
     headline, subheadline,
     slug: { _type: "slug", current: slug },
-    section, byline, date, body, status,
+    section, byline, date, body, status, pinned,
   };
 
   if (imageAssetId) {
@@ -74,6 +80,7 @@ export async function savePost(formData: FormData) {
       _type: "image",
       asset: { _type: "reference", _ref: imageAssetId },
       ...(imageCaption ? { caption: imageCaption } : {}),
+      ...(imageAlt ? { alt: imageAlt } : {}),
     };
   }
 
@@ -82,15 +89,50 @@ export async function savePost(formData: FormData) {
 }
 
 export async function deletePost(id: string) {
+  await requireAuth();
   await mutate([{ delete: { id } }]);
 }
 
+export async function trashPost(id: string) {
+  await requireAuth();
+  await mutate([{ patch: { id, set: { status: "trashed" } } }]);
+}
+
+export async function restorePost(id: string) {
+  await requireAuth();
+  await mutate([{ patch: { id, set: { status: "draft" } } }]);
+}
+
 export async function saveAbout(formData: FormData) {
+  await requireAuth();
   const body = parseBody(formData.get("body") as string);
   await mutate([{ createOrReplace: { _id: "about", _type: "about", body } }]);
 }
 
+const CLOUD_DRAFT_ID = "admin-autosave";
+
+export async function saveDraftToCloud(data: string) {
+  await requireAuth();
+  await mutate([{ createOrReplace: { _id: CLOUD_DRAFT_ID, _type: "adminDraft", data, ts: Date.now() } }]);
+}
+
+export async function loadDraftFromCloud(): Promise<{ data: string; ts: number } | null> {
+  await requireAuth();
+  const doc = await client.fetch(
+    `*[_id == $id][0]{ data, ts }`,
+    { id: CLOUD_DRAFT_ID },
+    { cache: "no-store" }
+  );
+  return doc?.data ? { data: doc.data, ts: doc.ts ?? 0 } : null;
+}
+
+export async function clearCloudDraft() {
+  await requireAuth();
+  await mutate([{ delete: { id: CLOUD_DRAFT_ID } }]);
+}
+
 export async function saveLately(formData: FormData) {
+  await requireAuth();
   const reading = formData.get("reading") as string;
   const readingAuthor = formData.get("readingAuthor") as string;
   const listening = formData.get("listening") as string;

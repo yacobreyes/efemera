@@ -78,7 +78,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
         <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-          {post.section}
+          {post.section}{post.pinned ? " · 📌 Pinned" : ""}
         </span>
         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
           {formatDate(post.date)}
@@ -102,7 +102,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
-            alt={post.image.caption ?? ""}
+            alt={post.image.alt ?? post.image.caption ?? ""}
             style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
           />
         </Link>

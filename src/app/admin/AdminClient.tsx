@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
-import { savePost, deletePost, saveAbout, saveLately, uploadImage } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft } from "./actions";
+import { login } from "./auth";
+import { ptToMarkdown } from "@/lib/parseBody";
 import type { SanityPost } from "@/lib/sanity";
 
 const CRIMSON = "#8B0000";
@@ -25,25 +27,6 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function ptToMarkdown(body: import("@portabletext/types").PortableTextBlock[]): string {
-  return body
-    .filter((b: any) => b._type === "block")
-    .map((b: any) =>
-      b.children
-        .map((span: any) => {
-          const t: string = span.text ?? "";
-          const marks: string[] = span.marks ?? [];
-          const isStrong = marks.includes("strong");
-          const isEm = marks.includes("em");
-          if (isStrong && isEm) return `**_${t}_**`;
-          if (isStrong) return `**${t}**`;
-          if (isEm) return `_${t}_`;
-          return t;
-        })
-        .join("")
-    )
-    .join("\n\n");
-}
 
 const LS_KEY = "efemera_admin_draft";
 
@@ -56,6 +39,7 @@ type FormState = {
   date: string;
   body: string;
   status: "draft" | "published";
+  pinned: boolean;
 };
 
 const DEFAULT_FORM: FormState = {
@@ -67,13 +51,14 @@ const DEFAULT_FORM: FormState = {
   date: new Date().toISOString().slice(0, 10),
   body: "",
   status: "draft",
+  pinned: false,
 };
 
-export default function AdminClient({ posts: initialPosts }: { posts: SanityPost[] }) {
-  const password = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-  const [auth, setAuth] = useState(!password);
+export default function AdminClient({ posts: initialPosts, initialAuth = false }: { posts: SanityPost[]; initialAuth?: boolean }) {
+  const [auth, setAuth] = useState(initialAuth);
   const [pw, setPw] = useState("");
   const [authError, setAuthError] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [editing, setEditing] = useState<SanityPost | null>(null);
@@ -90,6 +75,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageCaption, setImageCaption] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageAssetId, setImageAssetId] = useState("");
@@ -119,6 +105,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autosaveFade = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cloudTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -204,19 +191,31 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
       .catch(() => {});
   }, []);
 
-  // Restore autosave on mount when creating new post
+  // Restore autosave on mount when creating new post — newest of localStorage vs Sanity cloud draft
   useEffect(() => {
-    if (!editing && activePanel === "post") {
-      try {
-        const saved = localStorage.getItem(LS_KEY);
-        if (saved) {
-          const parsed: FormState = JSON.parse(saved);
-          setForm(parsed);
+    if (!auth || editing || activePanel !== "post") return;
+    let local: { ts: number; form: FormState } | null = null;
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // older format stored the FormState directly
+        local = parsed?.form ? parsed : { ts: 0, form: parsed };
+      }
+    } catch {}
+    if (local) setForm({ ...DEFAULT_FORM, ...local.form });
+
+    loadDraftFromCloud()
+      .then(cloud => {
+        if (!cloud) return;
+        const parsed = JSON.parse(cloud.data) as { ts: number; form: FormState };
+        if (parsed?.form && (!local || (parsed.ts ?? 0) > local.ts)) {
+          setForm({ ...DEFAULT_FORM, ...parsed.form });
         }
-      } catch {}
-    }
+      })
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [auth]);
 
   // Track dirty state
   useEffect(() => {
@@ -224,22 +223,31 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setIsDirty(dirty);
   }, [form, savedForm]);
 
-  // Autosave to localStorage
+  // Autosave to localStorage (fast) and Sanity (slower, cross-device)
   useEffect(() => {
     if (!editing && activePanel === "post") {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
       autosaveTimer.current = setTimeout(() => {
+        const snapshot = { ts: Date.now(), form };
         try {
-          localStorage.setItem(LS_KEY, JSON.stringify(form));
+          localStorage.setItem(LS_KEY, JSON.stringify(snapshot));
           addDraftSnapshot(form);
           setAutosaveLabel("Draft saved");
           if (autosaveFade.current) clearTimeout(autosaveFade.current);
           autosaveFade.current = setTimeout(() => setAutosaveLabel(""), 2000);
         } catch {}
       }, 800);
+      if (cloudTimer.current) clearTimeout(cloudTimer.current);
+      cloudTimer.current = setTimeout(() => {
+        const hasContent = form.headline.trim() || form.body.trim();
+        if (hasContent) {
+          saveDraftToCloud(JSON.stringify({ ts: Date.now(), form })).catch(() => {});
+        }
+      }, 4000);
     }
     return () => {
       if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+      if (cloudTimer.current) clearTimeout(cloudTimer.current);
     };
   }, [form, editing, activePanel]);
 
@@ -299,7 +307,8 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
       section: post.section,
       date: post.date,
       body: bodyMd,
-      status: post.status ?? "published",
+      status: post.status === "published" || !post.status ? "published" : "draft",
+      pinned: post.pinned ?? false,
     };
     setEditing(post);
     setForm(f);
@@ -308,6 +317,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setImageAssetId(post.image?.asset?._ref ?? "");
     setImagePreview(post.image?.asset ? "existing" : "");
     setImageCaption(post.image?.caption ?? "");
+    setImageAlt(post.image?.alt ?? "");
     setImageFile(null);
     setActivePanel("post");
     setSuccess("");
@@ -323,6 +333,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setImageAssetId("");
     setImagePreview("");
     setImageCaption("");
+    setImageAlt("");
     setImageFile(null);
     setActivePanel("post");
     setSuccess("");
@@ -384,10 +395,11 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setError("");
     setSuccess("");
     const fd = new FormData();
-    (Object.entries(form) as [string, string][]).forEach(([k, v]) => fd.set(k, v));
+    Object.entries(form).forEach(([k, v]) => fd.set(k, String(v)));
     if (editing) fd.set("id", editing._id);
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
     if (imageCaption) fd.set("imageCaption", imageCaption);
+    if (imageAlt) fd.set("imageAlt", imageAlt);
     startTransition(async () => {
       try {
         const { slug } = await savePost(fd);
@@ -396,6 +408,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
         setSavedForm({ ...form });
         setIsDirty(false);
         try { localStorage.removeItem(LS_KEY); } catch {}
+        if (!editing) clearCloudDraft().catch(() => {});
       } catch (err: any) {
         setError(err.message);
       }
@@ -441,17 +454,26 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
         <form
-          onSubmit={e => {
+          onSubmit={async e => {
             e.preventDefault();
-            if (pw === password) setAuth(true);
-            else setAuthError("Wrong password");
+            setAuthError("");
+            setLoggingIn(true);
+            try {
+              const { ok } = await login(pw);
+              if (ok) setAuth(true);
+              else setAuthError("Wrong password");
+            } catch {
+              setAuthError("Login failed — try again");
+            } finally {
+              setLoggingIn(false);
+            }
           }}
           style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "2rem", width: 300, display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           <h1 style={{ fontFamily: FONT, fontSize: "1.4rem", color: TEXT_DARK, margin: 0 }}>Admin</h1>
           <input type="password" placeholder="Password" value={pw} onChange={e => setPw(e.target.value)} style={INPUT} />
           {authError && <p style={{ color: "#e0245e", fontFamily: FONT, fontSize: "0.8rem", margin: 0 }}>{authError}</p>}
-          <button type="submit" style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: "pointer" }}>Enter</button>
+          <button type="submit" disabled={loggingIn} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: loggingIn ? "wait" : "pointer", opacity: loggingIn ? 0.7 : 1 }}>{loggingIn ? "…" : "Enter"}</button>
         </form>
       </div>
     );
@@ -549,6 +571,12 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                     <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(255,255,255,0.2)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>{p.section}</span>
                     {p.status === "draft" && (
                       <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(255,200,100,0.3)", border: "1px solid rgba(255,200,100,0.5)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>draft</span>
+                    )}
+                    {p.status === "trashed" && (
+                      <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>trash</span>
+                    )}
+                    {p.pinned && (
+                      <span style={{ fontFamily: FONT, fontSize: "0.65rem", background: "rgba(255,255,255,0.25)", borderRadius: 3, padding: "0.1rem 0.4rem", color: "inherit" }}>📌</span>
                     )}
                   </div>
                 </div>
@@ -693,9 +721,15 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                     )}
                   </div>
                   {imagePreview && (
-                    <div style={{ marginTop: "0.6rem" }}>
-                      <label style={{ ...LABEL, marginTop: "0.4rem" }}>Caption (optional)</label>
-                      <input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} placeholder="Describe the photo…" />
+                    <div style={{ marginTop: "0.6rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                      <div>
+                        <label style={{ ...LABEL, marginTop: "0.4rem" }}>Caption (optional)</label>
+                        <input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} placeholder="Shown under the photo" />
+                      </div>
+                      <div>
+                        <label style={{ ...LABEL, marginTop: "0.4rem" }}>Alt text (optional)</label>
+                        <input style={INPUT} value={imageAlt} onChange={e => setImageAlt(e.target.value)} placeholder="For screen readers & SEO" />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -721,7 +755,7 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
 
                 {/* 6. Body with toolbar */}
                 <div>
-                  <label style={LABEL}>Body (separate paragraphs with a blank line)</label>
+                  <label style={LABEL}>Body — blank line between paragraphs · **bold** · _italic_ · ## heading · {">"} quote</label>
                   {/* Toolbar */}
                   <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
                     {[
@@ -805,7 +839,8 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                 </div>
 
                 {/* Status toggle */}
-                <div>
+                <div style={{ display: "flex", gap: "2rem", alignItems: "flex-end", flexWrap: "wrap" }}>
+                  <div>
                   <label style={LABEL}>Status</label>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     {(["draft", "published"] as const).map(s => (
@@ -830,6 +865,11 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                       </button>
                     ))}
                   </div>
+                  </div>
+                  <label style={{ display: "flex", gap: "0.45rem", alignItems: "center", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer", paddingBottom: "0.45rem" }}>
+                    <input type="checkbox" checked={form.pinned} onChange={e => updateForm({ pinned: e.target.checked })} style={{ accentColor: CRIMSON }} />
+                    📌 Pin to top of feed
+                  </label>
                 </div>
 
                 {/* Actions */}
@@ -848,13 +888,13 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                   >
                     Preview
                   </button>
-                  {editing && (
+                  {editing && editing.status !== "trashed" && (
                     <button
                       type="button"
                       onClick={() => {
-                        if (confirm("Delete this post?")) {
+                        if (confirm("Move this post to trash? You can restore it later.")) {
                           startTransition(async () => {
-                            await deletePost(editing._id);
+                            await trashPost(editing._id);
                             refreshPosts();
                             startNew();
                           });
@@ -862,8 +902,40 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
                       }}
                       style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}
                     >
-                      Delete
+                      Move to trash
                     </button>
+                  )}
+                  {editing && editing.status === "trashed" && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          startTransition(async () => {
+                            await restorePost(editing._id);
+                            refreshPosts();
+                            startNew();
+                          });
+                        }}
+                        style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK }}
+                      >
+                        Restore from trash
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm("Delete this post FOREVER? This cannot be undone.")) {
+                            startTransition(async () => {
+                              await deletePost(editing._id);
+                              refreshPosts();
+                              startNew();
+                            });
+                          }
+                        }}
+                        style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}
+                      >
+                        Delete forever
+                      </button>
+                    </>
                   )}
                   {autosaveLabel && (
                     <span style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED }}>{autosaveLabel}</span>

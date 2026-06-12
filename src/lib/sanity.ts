@@ -31,8 +31,9 @@ export interface SanityPost {
   byline: string;
   date: string;
   body: import("@portabletext/types").PortableTextBlock[];
-  image?: { asset: SanityImageSource; caption?: string };
-  status?: "draft" | "published";
+  image?: { asset: SanityImageSource; caption?: string; alt?: string };
+  status?: "draft" | "published" | "trashed";
+  pinned?: boolean;
 }
 
 const POST_FIELDS = `
@@ -44,13 +45,14 @@ const POST_FIELDS = `
   byline,
   date,
   body,
-  image { asset, caption },
-  status
+  image { asset, caption, alt },
+  status,
+  pinned
 `;
 
 export async function getAllPosts(): Promise<SanityPost[]> {
   return client.fetch(
-    `*[_type == "post" && (status == "published" || !defined(status))] | order(date desc) { ${POST_FIELDS} }`,
+    `*[_type == "post" && (status == "published" || !defined(status))] | order(coalesce(pinned, false) desc, date desc) { ${POST_FIELDS} }`,
     {},
     { cache: "no-store" }
   );
