@@ -246,7 +246,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
               </p>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#526270", margin: "0.35rem 0 0", lineHeight: 1.5 }}>
                 This is a collection of micro-memoirs and short narratives I&apos;ve written.{" "}
-                <button onClick={() => { setActiveTab("About"); setQuery(""); }} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "#8B0000", cursor: "pointer", textDecoration: "underline" }}>Click here to learn more.</button>
+                <button onClick={() => { setActiveTab("About"); setQuery(""); }} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "#8B0000", cursor: "pointer", textDecoration: "underline" }}>Learn more.</button>
               </p>
             </div>
             <Lately data={lately ?? null} />
