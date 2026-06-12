@@ -8,6 +8,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
 import SiteFooter from "@/components/SiteFooter";
+import PixelCat from "@/components/PixelCat";
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
   const words = blocks
@@ -122,7 +123,8 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
 
-        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
+        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center", alignItems: "flex-end", gap: "1.5rem" }}>
+          <PixelCat />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto", opacity: 0.85 }} />
         </div>
