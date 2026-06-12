@@ -65,7 +65,7 @@ export default async function ArchivePage() {
                   {post.headline}
                 </span>
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  {post.section === "Micro-Memoir" ? "Memoir" : post.section}
+                  {post.section}
                 </span>
               </Link>
             ))}

@@ -56,7 +56,7 @@ export default function Choopy() {
           className={`choopy-img${dancing ? " choopy-dancing" : ""}`}
           style={{ width: "70%", maxWidth: 140, height: "auto", display: "block", imageRendering: "pixelated" }}
         />
-        <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: TEXT_MUTED }}>
+        <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: "#8B0000" }}>
           Click to feed Choopy
         </span>
         <span style={{ fontFamily: "monospace", fontSize: "0.62rem", color: TEXT_MUTED, opacity: fedCount === null ? 0 : 0.8, transition: "opacity 0.4s ease" }}>
