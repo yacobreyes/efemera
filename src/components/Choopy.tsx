@@ -59,7 +59,7 @@ export default function Choopy() {
         <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontStyle: "italic", color: TEXT_MUTED }}>
           Click to feed Choopy
         </span>
-        <span style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#1c2938", lineHeight: 1.4, opacity: fedCount === null ? 0 : 1, transition: "opacity 0.4s ease" }}>
+        <span style={{ fontFamily: FONT, fontSize: "0.75rem", color: "#1c2938", lineHeight: 1.4, whiteSpace: "nowrap", opacity: fedCount === null ? 0 : 1, transition: "opacity 0.4s ease" }}>
           Choopy has been fed {(fedCount ?? 0).toLocaleString()} time{fedCount === 1 ? "" : "s"}
         </span>
       </div>
