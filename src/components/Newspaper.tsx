@@ -9,6 +9,7 @@ import { PortableText } from "@portabletext/react";
 import type { SanityPost, SanityLately } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import Lately from "@/components/Lately";
+import Choopy from "@/components/Choopy";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
@@ -236,6 +237,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
           {/* Sidebar */}
           <div className="feed-sidebar">
             <Lately data={lately ?? null} />
+            <Choopy />
           </div>
         </div>
       )}
