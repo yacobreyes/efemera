@@ -272,6 +272,16 @@ export default function AdminClient({ posts: initialPosts }: { posts: SanityPost
     setActivePanel("lately");
     setEditing(null);
     setIsDirty(false);
+    fetch("/api/lately")
+      .then(r => r.json())
+      .then(data => {
+        if (!data) return;
+        setLatelyReading(data.reading ?? "");
+        setLatelyReadingAuthor(data.readingAuthor ?? "");
+        setLatelyListening(data.listening ?? "");
+        setLatelyWatching(data.watching ?? "");
+      })
+      .catch(() => {});
   }
 
   function tryStartNew() {
