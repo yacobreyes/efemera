@@ -97,6 +97,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; post: SanityPost } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
@@ -468,7 +469,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                     ) : (
                       <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginTop: "0.25rem" }}>
                         {filtered.map(post => (
-                          <div key={post._id} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
+                          <div key={post._id}
+                            onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }}
+                            onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, post }); }}
+                            style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
                             onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
                             onMouseLeave={e => (e.currentTarget.style.background = "white")}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
@@ -678,6 +682,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         </div>
         </div>{/* end admin-right */}
       </div>{/* end admin-layout */}
+
+      {/* Right-click context menu */}
+      {contextMenu && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 500 }} onClick={() => setContextMenu(null)} onContextMenu={e => { e.preventDefault(); setContextMenu(null); }}>
+          <div style={{ position: "fixed", top: contextMenu.y, left: contextMenu.x, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.14)", minWidth: 180, overflow: "hidden", zIndex: 501 }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => { setContextMenu(null); router.push(`/admin/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
+            <div style={{ borderTop: `1px solid ${BORDER}` }} />
+            <button onClick={() => { const p = contextMenu.post; setContextMenu(null); if (confirm(`Move "${p.headline || "this post"}" to trash?`)) startTransition(async () => { await trashPost(p._id); refreshPosts(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Move to trash</button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
