@@ -44,7 +44,7 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media";
+type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments";
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false }: { posts: SanityPost[]; initialAuth?: boolean }) {
   const router = useRouter();
@@ -99,6 +99,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [inspectAltText, setInspectAltText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  type AdminComment = { _id: string; name: string; text: string; slug: string; _createdAt: string };
+  const [adminComments, setAdminComments] = useState<AdminComment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; post: SanityPost } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
@@ -169,8 +172,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       }).catch(() => {});
     }
     if (panel === "media") {
-      // already prefetched on mount; refresh silently in background
       fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
+    }
+    if (panel === "comments") {
+      setCommentsLoading(true);
+      fetch("/api/comments/all").then(r => r.json()).then(data => { if (Array.isArray(data)) setAdminComments(data); }).catch(() => {}).finally(() => setCommentsLoading(false));
     }
   }
 
@@ -371,6 +377,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>],
               ["lately", "Lately", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>],
               ["media", "Media", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
+              ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
             ] as [Panel, string, React.ReactNode][]).map(([panel, label, icon]) => (
               <button key={panel} onClick={() => tryNav(panel)} className={`admin-nav-btn${activePanel === panel ? " active" : ""}`} title={!sidebarOpen ? label : undefined}>
                 <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{icon}</span>
@@ -611,6 +618,37 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                           <button type="button" onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(asset._id).then(() => setMediaAssets(prev => prev.filter(a => a._id !== asset._id))).catch(() => {}); }} style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 3, padding: "0.3rem 0.4rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: CRIMSON }}>✕</button>
                         </div>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* COMMENTS */}
+          {activePanel === "comments" && (
+            <div style={{ maxWidth: 700 }}>
+              <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: "0 0 1.25rem" }}>Comments</h2>
+              {commentsLoading ? (
+                <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p>
+              ) : adminComments.length === 0 ? (
+                <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No comments yet.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  {adminComments.map(c => (
+                    <div key={c._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.85rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: "flex", gap: "0.75rem", alignItems: "baseline", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: "0.78rem", color: CRIMSON, textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.name}</span>
+                          <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED }}>on <a href={`/stories/${c.slug}`} target="_blank" rel="noreferrer" style={{ color: TEXT_MUTED }}>{c.slug}</a></span>
+                          <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED }}>{new Date(c._createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                        </div>
+                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: "#2d2d2d", margin: 0, lineHeight: 1.6 }}>{c.text}</p>
+                      </div>
+                      <button
+                        onClick={() => { if (!confirm("Delete this comment?")) return; startTransition(async () => { await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c._id }) }); setAdminComments(prev => prev.filter(x => x._id !== c._id)); }); }}
+                        style={{ flexShrink: 0, background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.3rem 0.6rem", fontFamily: FONT, fontSize: "0.78rem", color: CRIMSON, cursor: "pointer" }}
+                      >Delete</button>
                     </div>
                   ))}
                 </div>
