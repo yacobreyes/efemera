@@ -21,15 +21,21 @@ export default function Choopy() {
   function meow() {
     try {
       const ctx = new AudioContext();
-      // 8-bit chiptune take on the Meow Mix jingle, kept short
-      // "meow meow meow meow, meow meow meow meow"
-      const N = { C5: 523, D5: 587, E5: 659, G5: 784 };
-      const beat = 0.14;
-      const melody = [N.E5, N.C5, N.C5, N.E5, N.C5, N.C5, N.D5, N.E5];
-      const last = melody.length - 1;
-      melody.forEach((freq, i) => {
-        const t = ctx.currentTime + i * beat;
-        const dur = i === last ? beat * 2 : beat * 0.85;
+      // 8-bit chiptune of the jingle, melody transcribed from reference audio:
+      // descending C5 B4 A4 G4 phrase, A held a touch longer, played twice
+      const notes = [
+        { freq: 523, start: 0.0,  dur: 0.18 }, // C5
+        { freq: 494, start: 0.20, dur: 0.18 }, // B4
+        { freq: 440, start: 0.40, dur: 0.26 }, // A4 (held)
+        { freq: 392, start: 0.70, dur: 0.24 }, // G4
+        { freq: 523, start: 0.98, dur: 0.18 }, // C5
+        { freq: 494, start: 1.18, dur: 0.18 }, // B4
+        { freq: 440, start: 1.38, dur: 0.26 }, // A4
+        { freq: 392, start: 1.68, dur: 0.4 },  // G4 (final, long)
+      ];
+      const last = notes.length - 1;
+      notes.forEach(({ freq, start, dur }, i) => {
+        const t = ctx.currentTime + start;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
