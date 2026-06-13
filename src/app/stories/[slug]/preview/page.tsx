@@ -4,6 +4,11 @@ import { client, urlFor } from "@/lib/sanity";
 import type { SanityPost } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
 import Link from "next/link";
+import CommentSection from "@/components/CommentSection";
+import LikeButton from "@/components/LikeButton";
+import ShareButton from "@/components/ShareButton";
+import ReadCounter from "@/components/ReadCounter";
+import SiteFooter from "@/components/SiteFooter";
 
 export const dynamic = "force-dynamic";
 
@@ -31,21 +36,35 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f8fa" }}>
       <style>{`
+        .story-header { display: flex; align-items: center; justify-content: space-between; }
+        .story-nav { display: flex; gap: 2rem; align-items: center; }
         @media (max-width: 600px) {
+          body { overflow-x: hidden; }
+          .story-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
+          .story-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+          .story-nav a { font-size: 0.78rem !important; }
           .story-article { margin: 0.75rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem 1.25rem 2rem !important; }
+          .story-comments { margin: 1rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem !important; }
         }
       `}</style>
 
       {/* Draft banner */}
       <div style={{ background: "#1c2938", color: "white", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 600, textAlign: "center", padding: "0.5rem 1rem", letterSpacing: "0.06em" }}>
-        DRAFT PREVIEW — <Link href={`/admin/posts/${slug}`} style={{ color: "#f0c040", textDecoration: "none" }}>Back to editor</Link>
+        DRAFT PREVIEW —{" "}
+        <Link href={`/admin/posts/${slug}`} style={{ color: "#f0c040", textDecoration: "none" }}>Back to editor</Link>
       </div>
 
-      <header style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Masthead.png" alt="efemera" style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
         </Link>
+        <nav className="story-nav">
+          {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
+            <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
+          ))}
+          <Link href="/archive" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>Archive</Link>
+        </nav>
       </header>
 
       <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
@@ -54,7 +73,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         </div>
 
         <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
-          {post.headline || <em style={{ opacity: 0.4 }}>No headline</em>}
+          {post.headline}
         </h1>
 
         {post.subheadline && (
@@ -100,7 +119,26 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
             }}
           />
         </div>
+
+        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem", alignItems: "center", flexWrap: "wrap" }}>
+          <LikeButton slug={slug} />
+          <ShareButton slug={slug} headline={post.headline} />
+          <div style={{ marginLeft: "auto" }}>
+            <ReadCounter slug={slug} />
+          </div>
+        </div>
+
+        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto" }} />
+        </div>
       </article>
+
+      <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
+        <CommentSection slug={slug} />
+      </div>
+
+      <SiteFooter />
     </div>
   );
 }
