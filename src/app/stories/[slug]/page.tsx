@@ -32,7 +32,39 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return {};
-  return { title: `${post.headline} — Efemera`, description: post.subheadline };
+
+  const description = post.subheadline ||
+    post.body.filter(b => b._type === "block")
+      .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
+      .join(" ").slice(0, 160).trim();
+
+  const imageUrl = post.image?.asset
+    ? urlFor(post.image.asset).width(1200).height(630).fit("crop").auto("format").url()
+    : null;
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+  const postUrl = `${siteUrl}/stories/${slug}`;
+
+  return {
+    title: `${post.headline} — Efemera`,
+    description,
+    openGraph: {
+      type: "article",
+      url: postUrl,
+      title: post.headline,
+      description,
+      siteName: "Efemera",
+      publishedTime: post.date,
+      authors: [post.byline],
+      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630, alt: post.headline }] } : {}),
+    },
+    twitter: {
+      card: imageUrl ? "summary_large_image" : "summary",
+      title: post.headline,
+      description,
+      ...(imageUrl ? { images: [imageUrl] } : {}),
+    },
+  };
 }
 
 export default async function StoryPage({ params }: { params: Promise<{ slug: string }> }) {

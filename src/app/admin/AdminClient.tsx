@@ -35,7 +35,7 @@ const LS_KEY = "efemera_admin_draft";
 type FormState = {
   headline: string; subheadline: string; byline: string; slug: string;
   section: string; date: string; body: JSONContent;
-  status: "draft" | "published"; pinned: boolean;
+  status: "draft" | "published" | "scheduled"; pinned: boolean;
 };
 const DEFAULT_FORM: FormState = {
   headline: "", subheadline: "", byline: "Yacob Reyes", slug: "",
@@ -53,7 +53,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [activePanel, setActivePanel] = useState<Panel>("dashboard");
-  const [postTab, setPostTab] = useState<"drafts" | "published">("drafts");
+  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   const [editing, setEditing] = useState<SanityPost | null>(null);
 
   const [welcomeHeadline, setWelcomeHeadline] = useState("👋 Hey, Yacob here.");
@@ -69,7 +69,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<FormState>(DEFAULT_FORM);
   const [isDirty, setIsDirty] = useState(false);
-  const submitStatusRef = useRef<"draft" | "published">("draft");
+  const submitStatusRef = useRef<"draft" | "published" | "scheduled">("draft");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [showScheduler, setShowScheduler] = useState(false);
 
   const [imageCaption, setImageCaption] = useState("");
   const [imageAlt, setImageAlt] = useState("");
@@ -141,7 +143,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       headline: post.headline, subheadline: post.subheadline ?? "",
       byline: post.byline ?? "Yacob Reyes", slug: post.slug, section: post.section,
       date: post.date, body: portableTextToTiptap(post.body),
-      status: post.status === "published" || !post.status ? "published" : "draft",
+      status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
       pinned: post.pinned ?? false,
     };
     submitStatusRef.current = f.status;
@@ -201,6 +203,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
     if (imageCaption) fd.set("imageCaption", imageCaption);
     if (imageAlt) fd.set("imageAlt", imageAlt);
+    if (submitStatusRef.current === "scheduled" && scheduledAt) fd.set("scheduledAt", new Date(scheduledAt).toISOString());
     startTransition(async () => {
       try {
         const { slug } = await savePost(fd);
@@ -237,6 +240,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   }
 
   const drafts = posts.filter(p => p.status === "draft");
+  const scheduled = posts.filter(p => p.status === "scheduled");
   const published = posts.filter(p => p.status === "published" || !p.status);
 
   return (
@@ -351,9 +355,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           {activePanel === "dashboard" && (
             <div style={{ maxWidth: 720 }}>
               <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", alignItems: "center" }}>
-                {(["drafts", "published"] as const).map(tab => (
+                {(["drafts", "scheduled", "published"] as const).map(tab => (
                   <button key={tab} onClick={() => setPostTab(tab)} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.4rem 1.1rem", borderRadius: 4, border: `1px solid ${postTab === tab ? CRIMSON : BORDER}`, background: postTab === tab ? CRIMSON : "white", color: postTab === tab ? "white" : TEXT_MUTED, cursor: "pointer" }}>
-                    {tab === "drafts" ? `Drafts (${drafts.length})` : `Published (${published.length})`}
+                    {tab === "drafts" ? `Drafts (${drafts.length})` : tab === "scheduled" ? `Scheduled (${scheduled.length})` : `Published (${published.length})`}
                   </button>
                 ))}
                 <button onClick={startNew} style={{ marginLeft: "auto", background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>+ New post</button>
@@ -367,6 +371,18 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                 ) : (
                   <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
                     {drafts.map(post => <PostRow key={post._id} post={post} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} />)}
+                  </div>
+                )
+              )}
+
+              {postTab === "scheduled" && (
+                scheduled.length === 0 ? (
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
+                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No scheduled posts.</p>
+                  </div>
+                ) : (
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                    {scheduled.map(post => <PostRow key={post._id} post={post} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} />)}
                   </div>
                 )
               )}
@@ -466,10 +482,20 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                 {/* Top bar */}
                 <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, background: "#fafbfc" }}>
-                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, border: `1px solid ${form.status === "published" ? "#2e7d32" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : "#666" }}>
-                    {form.status === "published" ? "● Live" : "○ Draft"}
+                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, border: `1px solid ${form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : form.status === "scheduled" ? "#e3f2fd" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#666" }}>
+                    {form.status === "published" ? "● Live" : form.status === "scheduled" ? "⏱ Scheduled" : "○ Draft"}
                   </span>
-                  <button type="submit" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "published"; }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, cursor: "pointer" }}>Publish</button>
+                  <button type="submit" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "published"; setShowScheduler(false); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, cursor: "pointer" }}>Publish</button>
+                  <div style={{ position: "relative" }}>
+                    <button type="button" onClick={() => setShowScheduler(s => !s)} style={{ background: "white", border: `1px solid ${showScheduler ? CRIMSON : BORDER}`, borderRadius: 4, padding: "0.45rem 0.9rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", color: showScheduler ? CRIMSON : TEXT_MUTED }}>⏱ Schedule</button>
+                    {showScheduler && (
+                      <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", left: 0, zIndex: 20, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.75rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", minWidth: 240 }}>
+                        <label style={{ ...LABEL, marginBottom: "0.4rem" }}>Publish at</label>
+                        <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.5rem" }} />
+                        <button type="submit" disabled={!scheduledAt || isPending} onClick={() => { submitStatusRef.current = "scheduled"; setShowScheduler(false); }} style={{ width: "100%", background: "#1565c0", color: "white", border: "none", borderRadius: 4, padding: "0.45rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Confirm schedule</button>
+                      </div>
+                    )}
+                  </div>
                   <button type="button" onClick={() => updateForm({ pinned: !form.pinned })} style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.45rem 1rem", borderRadius: 4, cursor: "pointer", border: `1px solid ${form.pinned ? CRIMSON : BORDER}`, background: form.pinned ? "#fff0f0" : "white", color: form.pinned ? CRIMSON : TEXT_MUTED }}>📌 Pin to top of feed</button>
                   <button type="submit" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "draft"; }} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.45rem 0.9rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", color: TEXT_MUTED }}>{isPending ? "Saving…" : "Save draft"}</button>
                   <button type="button" onClick={() => setShowPreview(true)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.45rem 0.9rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", color: TEXT_MUTED }}>Preview</button>

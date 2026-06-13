@@ -64,6 +64,7 @@ export async function savePost(formData: FormData) {
   const imageAlt = formData.get("imageAlt") as string | null;
   const status = (formData.get("status") as string) || "draft";
   const pinned = formData.get("pinned") === "true";
+  const scheduledAt = (formData.get("scheduledAt") as string) || null;
 
   let body: unknown;
   try {
@@ -80,6 +81,7 @@ export async function savePost(formData: FormData) {
     headline, subheadline,
     slug: { _type: "slug", current: slug },
     section, byline, date, body, status, pinned,
+    ...(scheduledAt ? { scheduledAt } : {}),
   };
 
   if (imageAssetId) {
