@@ -85,6 +85,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageAssetId, setImageAssetId] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const submitStatusRef = useRef<"draft" | "published">("draft");
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<FormState>(DEFAULT_FORM);
@@ -241,6 +242,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       status: post.status === "published" || !post.status ? "published" : "draft",
       pinned: post.pinned ?? false,
     };
+    submitStatusRef.current = f.status;
     setEditing(post);
     setForm(f);
     setSavedForm(f);
@@ -299,7 +301,8 @@ function handleSubmit(e: React.FormEvent) {
     setSuccess("");
     const fd = new FormData();
     const { body, ...rest } = form;
-    Object.entries(rest).forEach(([k, v]) => fd.set(k, String(v)));
+    const effectiveStatus = submitStatusRef.current;
+    Object.entries({ ...rest, status: effectiveStatus }).forEach(([k, v]) => fd.set(k, String(v)));
     fd.set("body", JSON.stringify(tiptapToPortableText(body)));
     if (editing) fd.set("id", editing._id);
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
@@ -310,7 +313,9 @@ function handleSubmit(e: React.FormEvent) {
         const { slug } = await savePost(fd);
         setSuccess(`Saved! /stories/${slug}`);
         refreshPosts();
-        setSavedForm({ ...form });
+        const savedStatus = submitStatusRef.current;
+        setForm(f => ({ ...f, status: savedStatus }));
+        setSavedForm({ ...form, status: savedStatus });
         setIsDirty(false);
         try { localStorage.removeItem(LS_KEY); } catch {}
         if (!editing) clearCloudDraft().catch(() => {});
@@ -580,29 +585,39 @@ function handleSubmit(e: React.FormEvent) {
               <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                 {/* Top action bar */}
                 <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, background: "#fafbfc" }}>
-                  {/* Status pill — click to toggle */}
-                  <button
-                    type="button"
-                    onClick={() => updateForm({ status: form.status === "draft" ? "published" : "draft" })}
-                    style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, cursor: "pointer", border: `1px solid ${form.status === "published" ? "#2e7d32" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : "#666", whiteSpace: "nowrap" }}
-                  >
-                    {form.status === "published" ? "● Live" : "○ Draft"} — click to {form.status === "published" ? "unpublish" : "go live"}
-                  </button>
+                  {/* Status label */}
+                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, border: `1px solid ${form.status === "published" ? "#2e7d32" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : "#666", whiteSpace: "nowrap" }}>
+                    {form.status === "published" ? "● Live" : "○ Draft"}
+                  </span>
 
-                  {/* Publish / Save draft button */}
+                  {/* Publish */}
                   <button
                     type="submit"
                     disabled={isPending || uploadingImage}
+                    onClick={() => { submitStatusRef.current = "published"; }}
                     style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, cursor: isPending || uploadingImage ? "wait" : "pointer", opacity: isPending || uploadingImage ? 0.7 : 1, whiteSpace: "nowrap" }}
                   >
-                    {isPending ? "Saving…" : form.status === "published" ? "Publish" : "Save draft"}
+                    Publish
                   </button>
 
-                  {/* Pin */}
-                  <label style={{ display: "flex", gap: "0.35rem", alignItems: "center", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK, cursor: "pointer", whiteSpace: "nowrap" }}>
-                    <input type="checkbox" checked={form.pinned} onChange={e => updateForm({ pinned: e.target.checked })} style={{ accentColor: CRIMSON }} />
-                    📌 Pin to top
-                  </label>
+                  {/* Pin toggle */}
+                  <button
+                    type="button"
+                    onClick={() => updateForm({ pinned: !form.pinned })}
+                    style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.45rem 1rem", borderRadius: 4, cursor: "pointer", border: `1px solid ${form.pinned ? CRIMSON : BORDER}`, background: form.pinned ? "#fff0f0" : "white", color: form.pinned ? CRIMSON : TEXT_MUTED, whiteSpace: "nowrap" }}
+                  >
+                    📌 Pin to top of feed
+                  </button>
+
+                  {/* Save draft */}
+                  <button
+                    type="submit"
+                    disabled={isPending || uploadingImage}
+                    onClick={() => { submitStatusRef.current = "draft"; }}
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.45rem 0.9rem", fontFamily: FONT, fontSize: "0.9rem", cursor: isPending || uploadingImage ? "wait" : "pointer", color: TEXT_MUTED, whiteSpace: "nowrap", opacity: isPending || uploadingImage ? 0.7 : 1 }}
+                  >
+                    {isPending ? "Saving…" : "Save draft"}
+                  </button>
 
                   {/* Preview */}
                   <button
