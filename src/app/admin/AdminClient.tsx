@@ -97,6 +97,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
@@ -338,31 +339,44 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
       {/* Top bar */}
       <div className="admin-mobile-bar">
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        {/* Left: hamburger + wordmark */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", minWidth: 0 }}>
           <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: TEXT_DARK, cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center" }} aria-label="Menu">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
+          <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
         </div>
+        {/* Center: tabs */}
         {activePanel === "dashboard" && (
-          <>
-            <div style={{ position: "relative", width: 220 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input placeholder="Search…" value={query} onChange={e => setQuery(e.target.value)} style={{ ...INPUT, paddingLeft: "2rem", fontSize: "0.82rem", padding: "0.35rem 0.7rem 0.35rem 2rem" }} />
-            </div>
-            <div style={{ flex: 1, display: "flex", justifyContent: "center", borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
-              {(["drafts", "scheduled", "published"] as const).map(tab => (
-                <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
-                  {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
-                </button>
-              ))}
-            </div>
-          </>
+          <div style={{ flex: 1, display: "flex", justifyContent: "center", borderBottom: `2px solid ${BORDER}`, marginBottom: -1, alignSelf: "stretch", alignItems: "flex-end" }}>
+            {(["drafts", "scheduled", "published"] as const).map(tab => (
+              <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
+                {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+              </button>
+            ))}
+          </div>
         )}
-        <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
-          style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-          + Create new
-        </button>
+        {/* Right: search icon + Create new */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          {activePanel === "dashboard" && (
+            <div style={{ position: "relative" }}>
+              {searchOpen ? (
+                <div style={{ position: "relative" }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.6rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input autoFocus placeholder="Search…" value={query} onChange={e => setQuery(e.target.value)} onBlur={() => { if (!query) setSearchOpen(false); }} style={{ ...INPUT, paddingLeft: "2rem", fontSize: "0.82rem", padding: "0.35rem 0.7rem 0.35rem 2rem", width: 180 }} />
+                </div>
+              ) : (
+                <button onClick={() => setSearchOpen(true)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, display: "flex", alignItems: "center", padding: "0.25rem" }}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </button>
+              )}
+            </div>
+          )}
+          <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
+            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+            + Create new
+          </button>
+        </div>
       </div>
 
       {/* Mobile drawer */}
