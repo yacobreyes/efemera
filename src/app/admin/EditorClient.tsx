@@ -43,7 +43,8 @@ type FormState = {
   status: "draft" | "published" | "scheduled";
 };
 
-type VersionEntry = { savedAt: string; type: "autosave" | "publish"; wordCount?: number };
+type VersionSnapshot = { headline: string; subheadline: string; body: JSONContent };
+type VersionEntry = { savedAt: string; type: "autosave" | "publish"; wordCount?: number; snapshot?: VersionSnapshot };
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
 
 function versionsKey(slug: string) { return `efemera_versions_${slug}`; }
@@ -142,7 +143,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       try {
         await savePost(fd);
         const wc = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
-        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave", wordCount: wc };
+        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave", wordCount: wc, snapshot: { headline: form.headline, subheadline: form.subheadline, body: form.body } };
         appendVersion(post.slug, entry);
         setVersions(loadVersions(post.slug));
         setLastSaved({ ...form, status, date: saveDate });
@@ -169,6 +170,14 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       alert("Failed to revert: " + String(err));
     }
   }, [post._id]);
+
+  const revertToVersion = useCallback((i: number) => {
+    const snap = versions[i]?.snapshot;
+    if (!snap) { alert("This save point has no stored content to restore."); return; }
+    if (!confirm("Restore this version? Your current text will be replaced.")) return;
+    setForm(f => ({ ...f, headline: snap.headline, subheadline: snap.subheadline, body: snap.body }));
+    if (editor) editor.commands.setContent(snap.body);
+  }, [versions, editor]);
 
   // Auto-save every 5s when dirty
   useEffect(() => {
@@ -482,7 +491,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 {form.status === "published" && (
                   <button type="button" onClick={revertToDraft}
                     style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>
-                    Revert to draft
+                    Unpublish
                   </button>
                 )}
               </div>
@@ -511,10 +520,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                           <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 140, overflow: "hidden" }}>
                             <button
                               type="button"
-                              onClick={() => { setVersionMenu(null); revertToDraft(); }}
+                              onClick={() => { setVersionMenu(null); revertToVersion(i); }}
                               style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}
                             >
-                              Revert to draft
+                              Restore this version
                             </button>
                           </div>
                         )}
