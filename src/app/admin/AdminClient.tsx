@@ -95,7 +95,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
-  const [generatingAlt, setGeneratingAlt] = useState(false);
   const [inspectAltText, setInspectAltText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
@@ -317,34 +316,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               <div><label style={LABEL}>Description</label><textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} /></div>
               <div>
                 <label style={LABEL}>Alt text</label>
-                <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
-                  <textarea
-                    style={{ ...INPUT, minHeight: 52, resize: "vertical", flex: 1 }}
-                    value={inspectAltText}
-                    onChange={e => setInspectAltText(e.target.value)}
-                    onBlur={() => updateMediaAsset(inspectAsset._id, { altText: inspectAltText }).catch(() => {})}
-                    placeholder="Describe this image for screen readers"
-                  />
-                  <button
-                    type="button"
-                    disabled={generatingAlt}
-                    onClick={async () => {
-                      setGeneratingAlt(true);
-                      try {
-                        const res = await fetch("/api/generate-alt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageUrl: inspectAsset.url }) });
-                        const data = await res.json();
-                        if (data.altText) {
-                          setInspectAltText(data.altText);
-                          await updateMediaAsset(inspectAsset._id, { altText: data.altText });
-                        }
-                      } catch {}
-                      setGeneratingAlt(false);
-                    }}
-                    style={{ background: generatingAlt ? "#f5f8fa" : CRIMSON, color: generatingAlt ? TEXT_MUTED : "white", border: "none", borderRadius: 4, padding: "0.4rem 0.65rem", fontFamily: FONT, fontSize: "0.72rem", cursor: generatingAlt ? "default" : "pointer", whiteSpace: "nowrap", marginTop: 1 }}
-                  >
-                    {generatingAlt ? "Generating…" : "Auto-generate"}
-                  </button>
-                </div>
+                <textarea
+                  style={{ ...INPUT, minHeight: 52, resize: "vertical" }}
+                  value={inspectAltText}
+                  onChange={e => setInspectAltText(e.target.value)}
+                  onBlur={() => updateMediaAsset(inspectAsset._id, { altText: inspectAltText }).catch(() => {})}
+                  placeholder="Describe this image for screen readers"
+                />
               </div>
               <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: "#aaa", margin: 0 }}>{inspectAsset.metadata?.dimensions?.width} × {inspectAsset.metadata?.dimensions?.height}</p>
               <div style={{ display: "flex", gap: "0.5rem" }}>
