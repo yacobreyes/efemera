@@ -258,7 +258,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       `}</style>
       <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
+        <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
           {(["Home", "About", "Micro-Memoirs", "Narratives", "Archive"] as Tab[]).map(s => (
             <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
