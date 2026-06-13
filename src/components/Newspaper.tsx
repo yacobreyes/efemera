@@ -191,7 +191,7 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
   );
 }
 
-export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; onMastheadClick?: () => void }) {
+export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; welcome?: { headline: string; body: string } | null; onMastheadClick?: () => void }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
@@ -212,11 +212,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
     setQuery("");
     router.replace(TAB_PATHS[tab], { scroll: false });
   }
-  const [welcome, setWelcome] = useState<{ headline: string; body: string } | null>(null);
-
-  useEffect(() => {
-    fetch("/api/welcome").then(r => r.json()).then(d => { if (d) setWelcome(d); }).catch(() => {});
-  }, []);
+  const welcome = welcomeProp ?? null;
 
   const tabFiltered = activeTab === "Home"
     ? posts

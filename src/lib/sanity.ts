@@ -105,3 +105,12 @@ export async function getLately(): Promise<SanityLately | null> {
     {}, { cache: "no-store" }
   );
 }
+
+export interface SanityWelcome { headline: string; body: string; }
+
+export async function getWelcome(): Promise<SanityWelcome | null> {
+  return client.fetch(
+    `*[_type == "welcome" && _id == "welcome"][0]{ headline, body }`,
+    {}, { next: { revalidate: 60 } }
+  );
+}

@@ -17,6 +17,7 @@ function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) 
   return Math.max(1, Math.round(words / 200));
 }
 
+export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {

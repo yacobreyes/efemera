@@ -1,12 +1,13 @@
 import HomeClient from "@/components/HomeClient";
-import { getAllPosts, getAboutPage, getLately, type SanityLately } from "@/lib/sanity";
+import { getAllPosts, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
+
+export const revalidate = 60;
 
 export default async function Home() {
   let posts: import("@/lib/sanity").SanityPost[] = [];
   let aboutParagraphs: string[] = [];
-  try {
-    posts = await getAllPosts();
-  } catch { /* no Sanity project yet */ }
+  let welcome: SanityWelcome | null = null;
+  try { posts = await getAllPosts(); } catch {}
   try {
     const about = await getAboutPage();
     if (about?.body) {
@@ -16,8 +17,9 @@ export default async function Home() {
         .filter(Boolean) as string[];
       if (texts.length > 0) aboutParagraphs = texts;
     }
-  } catch { /* ignore */ }
+  } catch {}
   let lately: SanityLately | null = null;
-  try { lately = await getLately(); } catch { /* ignore */ }
-  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} />;
+  try { lately = await getLately(); } catch {}
+  try { welcome = await getWelcome(); } catch {}
+  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} />;
 }
