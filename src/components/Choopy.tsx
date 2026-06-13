@@ -45,8 +45,8 @@ export default function Choopy() {
         osc.frequency.linearRampToValueAtTime(freq * 0.88, t + dur);
 
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.12, t + 0.01);
-        gain.gain.setValueAtTime(0.12, t + dur * 0.7);
+        gain.gain.linearRampToValueAtTime(0.05, t + 0.01);
+        gain.gain.setValueAtTime(0.05, t + dur * 0.7);
         gain.gain.linearRampToValueAtTime(0, t + dur);
 
         osc.start(t);
