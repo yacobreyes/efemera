@@ -10,7 +10,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app"
 export const metadata: Metadata = {
   title: "Efemera - Life, in Brief.",
   description: "A literary blog about the ephemeral moments that make a life.",
-  icons: { icon: "/Favicon.jpg" },
+  icons: { icon: "/favicon.png" },
   metadataBase: new URL(siteUrl),
   alternates: {
     types: { "application/rss+xml": `${siteUrl}/feed.xml` },
@@ -35,6 +35,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${bodoni.variable}`}>
+      <head>
+        <link rel="preload" as="image" href="/Masthead.webp" />
+      </head>
       <body>{children}</body>
     </html>
   );
