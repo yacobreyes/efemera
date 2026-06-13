@@ -48,12 +48,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         }
       `}</style>
 
-      {/* Draft banner */}
-      <div style={{ background: "#1c2938", color: "white", fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", fontWeight: 600, textAlign: "center", padding: "0.5rem 1rem", letterSpacing: "0.06em" }}>
-        DRAFT PREVIEW —{" "}
-        <Link href={`/admin/posts/${slug}`} style={{ color: "#f0c040", textDecoration: "none" }}>Back to editor</Link>
-      </div>
-
       <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
