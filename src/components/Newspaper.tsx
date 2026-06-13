@@ -203,7 +203,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
     "About": "/about",
     "Micro-Memoirs": "/micro-memoirs",
     "Narratives": "/narratives",
-    "Archive": "/archive-tab",
+    "Archive": "/archive",
   };
 
   function switchTab(tab: Tab) {
