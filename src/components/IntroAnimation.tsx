@@ -83,7 +83,7 @@ export default function IntroAnimation({ onEnter }: Props) {
             transform: "rotate(90deg)",
           }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/mayfly-icon.png" alt="" width={f.size} height={f.size} style={{ display: "block" }} />
+            <img src="/mayfly-icon.webp" alt="" width={f.size} height={f.size} style={{ display: "block" }} />
           </div>
         ))}
       </div>
@@ -102,7 +102,7 @@ export default function IntroAnimation({ onEnter }: Props) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/wordmark.png"
+          src="/wordmark.webp"
           alt="efemera — Life, in Brief."
           style={{ width: "clamp(280px, 55vw, 780px)", height: "auto", display: "block" }}
         />

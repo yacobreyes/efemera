@@ -93,7 +93,7 @@ export default function Choopy() {
       <div style={{ padding: "0.85rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={dancing ? "/Choopy Dance.png" : "/Choopy sit.png"}
+          src={dancing ? "/Choopy Dance.webp" : "/Choopy sit.webp"}
           alt="Choopy the cat"
           onClick={feed}
           className={`choopy-img${dancing ? " choopy-dancing" : ""}`}
