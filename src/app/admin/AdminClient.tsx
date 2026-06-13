@@ -256,48 +256,18 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   return (
     <>
       <style>{`
-        .admin-grid { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-        .admin-sidebar { height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; }
-        .admin-mobile-bar { display: none; }
-        .admin-drawer { display: none; }
+        .admin-grid { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
+        .admin-sidebar { display: none; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.75rem 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; }
-        .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.75); cursor: pointer; border-radius: 4; }
-        .admin-nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
-        .admin-nav-btn.active { background: white; color: ${TEXT_DARK}; }
-        .mobile-tab-bar { display: none; }
-        .desktop-tab-row { display: flex; }
-        .mobile-editor-bar { display: none; }
-        .mobile-editor-tabs { display: none; }
-        .mobile-only-fields { display: none; }
-        .desktop-editor-bar { display: flex; }
-        .desktop-editor-fields { display: flex; }
+        .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.9rem; font-weight: 600; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6; }
+        .admin-nav-btn:hover { background: #f5f0f0; color: ${CRIMSON}; }
+        .admin-nav-btn.active { background: #f5f0f0; color: ${CRIMSON}; }
         .post-row { padding: 0.85rem 1.25rem; border-bottom: 1px solid ${BORDER}; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
         .post-row:hover { background: #f5f8fa; }
         .post-row:last-child { border-bottom: none; }
-        .editor-topbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid ${BORDER}; background: #fafbfc; }
         @media (max-width: 700px) {
-          .admin-grid { grid-template-columns: 1fr; }
-          .admin-sidebar { display: none; }
-          .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.75rem 1rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-          .admin-main { padding: 1rem; background: #f5f8fa; }
-          .editor-topbar { gap: 0.35rem; padding: 0.5rem 0.75rem; }
-          .editor-topbar button, .editor-topbar span { font-size: 0.78rem !important; padding: 0.3rem 0.5rem !important; }
-          .mobile-tab-bar { display: flex; border-bottom: 1px solid ${BORDER}; margin-bottom: 1rem; background: white; }
-          .mobile-tab-btn { flex: 1; background: none; border: none; padding: 0.75rem 0.5rem; font-family: ${FONT}; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: ${TEXT_MUTED}; cursor: pointer; border-bottom: 2px solid transparent; }
-          .mobile-tab-btn.active { color: ${CRIMSON}; border-bottom-color: ${CRIMSON}; }
-          .mobile-tab-bar { display: flex; }
-          .desktop-tab-row { display: none; }
-          .mobile-editor-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: white; border-bottom: 1px solid ${BORDER}; position: sticky; top: 0; z-index: 10; }
-          .mobile-editor-tabs { display: flex; background: white; border-bottom: 1px solid ${BORDER}; }
-          .mobile-editor-tab { flex: 1; background: none; border: none; padding: 0.7rem 0; font-family: ${FONT}; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: ${TEXT_MUTED}; cursor: pointer; border-bottom: 2px solid transparent; }
-          .mobile-editor-tab.active { color: ${CRIMSON}; border-bottom-color: ${CRIMSON}; }
-          .desktop-editor-bar { display: flex; }
-          .desktop-editor-fields { display: block; }
-          .mobile-editor-bar { display: flex; }
-          .mobile-editor-tabs { display: flex; }
-          .mobile-only-fields { display: flex; }
-          .desktop-editor-bar { display: none; }
-          .desktop-editor-fields { display: none; }
+          .admin-main { padding: 1rem; }
         }
       `}</style>
 
@@ -408,33 +378,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       )}
 
       <div className="admin-grid">
-        {/* LEFT SIDEBAR */}
-        <div className="admin-sidebar" style={{ background: CRIMSON, color: "white", flexDirection: "column" }}>
-          <div className="admin-sidebar-section" style={{ padding: "1.25rem 1rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
-            <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", margin: "0 0 0.75rem" }}>Efemera</p>
-          </div>
-
-          <div className="admin-sidebar-nav" style={{ padding: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
-            <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-              style={{ width: "100%", background: "white", border: "none", borderRadius: 4, color: CRIMSON, fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, padding: "0.55rem", cursor: "pointer", marginBottom: "0.25rem" }}>
-              + New post
-            </button>
-            <button className={`admin-nav-btn${activePanel === "dashboard" ? " active" : ""}`} onClick={() => tryNav("dashboard")}>Posts</button>
-          </div>
-
-          <div className="admin-sidebar-nav" style={{ padding: "0.5rem", flex: 1 }}>
-            <p className="admin-sidebar-section" style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", margin: "0.5rem 0.75rem 0.35rem" }}>Site</p>
-            <button className={`admin-nav-btn${activePanel === "welcome" ? " active" : ""}`} onClick={() => tryNav("welcome")}>Welcome Note</button>
-            <button className={`admin-nav-btn${activePanel === "about" ? " active" : ""}`} onClick={() => tryNav("about")}>About</button>
-            <button className={`admin-nav-btn${activePanel === "lately" ? " active" : ""}`} onClick={() => tryNav("lately")}>Lately</button>
-            <button className={`admin-nav-btn${activePanel === "media" ? " active" : ""}`} onClick={() => tryNav("media")}>Media</button>
-          </div>
-
-          <div className="admin-sidebar-section" style={{ padding: "0.75rem 1rem", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
-            <button onClick={async () => { await logout(); setAuth(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", cursor: "pointer", padding: 0 }}>Sign out</button>
-          </div>
-        </div>
-
         {/* RIGHT PANEL */}
         <div className="admin-main">
 
