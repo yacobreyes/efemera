@@ -21,22 +21,15 @@ export default function Choopy() {
   function meow() {
     try {
       const ctx = new AudioContext();
-      // 8-bit chiptune jingle (C5 B4 A4 G4 phrase from the reference audio),
-      // two rounds plus a resolving tail, timed to Choopy's 4s dance
-      const notes = [
-        { freq: 523, start: 0.0,  dur: 0.22 }, // C5
-        { freq: 494, start: 0.26, dur: 0.22 }, // B4
-        { freq: 440, start: 0.52, dur: 0.32 }, // A4 (held)
-        { freq: 392, start: 0.9,  dur: 0.3 },  // G4
-        { freq: 523, start: 1.26, dur: 0.22 }, // C5
-        { freq: 494, start: 1.52, dur: 0.22 }, // B4
-        { freq: 440, start: 1.78, dur: 0.32 }, // A4
-        { freq: 392, start: 2.16, dur: 0.3 },  // G4
-        // resolving tail: walk back up and land home on C
-        { freq: 440, start: 2.56, dur: 0.22 }, // A4
-        { freq: 494, start: 2.82, dur: 0.22 }, // B4
-        { freq: 523, start: 3.08, dur: 0.7 },  // C5 (final, long)
-      ];
+      // 8-bit chiptune jingle, transcribed from the sheet music:
+      // C-B-A-G twice, chromatic rise C-C#, D-B-A-G answer,
+      // then the E-C-A-G tail resolving up through A-B to a held C.
+      // Fits Choopy's 4s dance.
+      const C5 = 523, Cs5 = 554, D5 = 587, E5 = 659, B4 = 494, A4 = 440, G4 = 392;
+      const melody = [C5, B4, A4, G4, C5, B4, A4, G4, C5, B4, C5, Cs5, D5, B4, A4, G4, E5, C5, A4, G4, A4, B4];
+      const beat = 0.16;
+      const notes = melody.map((freq, i) => ({ freq, start: i * beat, dur: beat * 0.92 }));
+      notes.push({ freq: C5, start: melody.length * beat, dur: 0.55 }); // final C, held
       const last = notes.length - 1;
       notes.forEach(({ freq, start, dur }, i) => {
         const t = ctx.currentTime + start;
