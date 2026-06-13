@@ -1,15 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getAllPosts } from "@/lib/sanity";
+import { getAllPostsCached } from "@/lib/sanity";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = { title: "Archive — Efemera" };
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function ArchivePage() {
-  let posts: Awaited<ReturnType<typeof getAllPosts>> = [];
+  let posts: Awaited<ReturnType<typeof getAllPostsCached>> = [];
   try {
-    posts = await getAllPosts();
+    posts = await getAllPostsCached();
   } catch { /* no Sanity yet */ }
 
   const groups = new Map<string, typeof posts>();

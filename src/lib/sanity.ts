@@ -50,12 +50,14 @@ const POST_FIELDS = `
   pinned
 `;
 
+const POSTS_QUERY = `*[_type == "post" && (status == "published" || !defined(status))] | order(coalesce(pinned, false) desc, date desc) { ${POST_FIELDS} }`;
+
 export async function getAllPosts(): Promise<SanityPost[]> {
-  return client.fetch(
-    `*[_type == "post" && (status == "published" || !defined(status))] | order(coalesce(pinned, false) desc, date desc) { ${POST_FIELDS} }`,
-    {},
-    { cache: "no-store" }
-  );
+  return client.fetch(POSTS_QUERY, {}, { cache: "no-store" });
+}
+
+export async function getAllPostsCached(): Promise<SanityPost[]> {
+  return client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
 }
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
