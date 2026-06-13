@@ -623,20 +623,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                 {editorTab === "content" && (
                   <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
                     <div><label style={LABEL}>Headline *</label><input style={INPUT} value={form.headline} onChange={e => updateForm({ headline: e.target.value, ...(!editing ? { slug: slugify(e.target.value) } : {}) })} required /></div>
-                    <div><label style={LABEL}>Body</label><RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} /></div>
-                  </div>
-                )}
-
-                {/* Metadata tab */}
-                {editorTab === "metadata" && (
-                  <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                    <div><label style={LABEL}>Subheadline</label><input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} /></div>
-                    <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                      <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
-                      <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option>Micro-Memoir</option><option>Narratives</option></select></div>
-                      <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
-                    </div>
                     <div>
                       <label style={LABEL}>Photo {uploadingImage && <span style={{ fontWeight: 400, color: "#657786" }}>— uploading…</span>}</label>
                       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -652,6 +638,20 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                           <div><label style={LABEL}>Alt text</label><input style={INPUT} value={imageAlt} onChange={e => setImageAlt(e.target.value)} /></div>
                         </div>
                       )}
+                    </div>
+                    <div><label style={LABEL}>Body</label><RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} /></div>
+                  </div>
+                )}
+
+                {/* Metadata tab */}
+                {editorTab === "metadata" && (
+                  <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                    <div><label style={LABEL}>Subheadline</label><input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} /></div>
+                    <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                      <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
+                      <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option>Micro-Memoir</option><option>Narratives</option></select></div>
+                      <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
                     </div>
                   </div>
                 )}
