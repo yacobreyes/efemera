@@ -1,9 +1,13 @@
 import HomeClient from "@/components/HomeClient";
 import { getAllPosts, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
+import { cookies } from "next/headers";
 
 export const revalidate = 60;
 
 export default async function Home() {
+  const cookieStore = await cookies();
+  const firstVisit = cookieStore.get("efemera_entered")?.value !== "1";
+
   let posts: import("@/lib/sanity").SanityPost[] = [];
   let aboutParagraphs: string[] = [];
   let welcome: SanityWelcome | null = null;
@@ -21,5 +25,5 @@ export default async function Home() {
   let lately: SanityLately | null = null;
   try { lately = await getLately(); } catch {}
   try { welcome = await getWelcome(); } catch {}
-  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} />;
+  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} firstVisit={firstVisit} />;
 }

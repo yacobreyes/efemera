@@ -1,24 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 
 const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ssr: false });
 const Feed = dynamic(() => import("@/components/Newspaper"), { ssr: false });
 
-export default function HomeClient({ posts, aboutParagraphs, lately, welcome }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null }) {
-  const [showAnimation, setShowAnimation] = useState(false);
+export default function HomeClient({ posts, aboutParagraphs, lately, welcome, firstVisit }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; firstVisit: boolean }) {
+  const [showAnimation, setShowAnimation] = useState(firstVisit);
   const [fadingOut, setFadingOut] = useState(false);
 
-  useEffect(() => {
-    if (localStorage.getItem("efemera_entered") !== "1") {
-      setShowAnimation(true);
-    }
-  }, []);
-
   function handleEnter() {
-    localStorage.setItem("efemera_entered", "1");
+    document.cookie = "efemera_entered=1; max-age=31536000; path=/; SameSite=Lax";
     setFadingOut(true);
     setTimeout(() => {
       setShowAnimation(false);
