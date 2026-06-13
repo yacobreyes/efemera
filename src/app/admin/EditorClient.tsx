@@ -164,11 +164,14 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         setForm(f => ({ ...f, status: "draft" }));
         setLastSaved(s => ({ ...s, status: "draft" }));
         setSaveStatus("saved");
-      } catch {
+        router.refresh();
+      } catch (err) {
+        console.error("revertToDraft failed", err);
         setSaveStatus("unsaved");
+        alert("Failed to revert: " + String(err));
       }
     });
-  }, [post._id]);
+  }, [post._id, router]);
 
   // Auto-save every 5s when dirty
   useEffect(() => {
