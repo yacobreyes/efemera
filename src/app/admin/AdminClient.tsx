@@ -506,7 +506,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                 return (
                   <>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
+                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, paddingLeft: "1rem" }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
                     </div>
                     {/* Table header */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem" }}>
