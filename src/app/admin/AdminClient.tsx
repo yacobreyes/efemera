@@ -336,7 +336,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         </div>
       )}
 
-      {/* Mobile top bar */}
+      {/* Top bar */}
       <div className="admin-mobile-bar">
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: TEXT_DARK, cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center" }} aria-label="Menu">
@@ -344,8 +344,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           </button>
           <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
         </div>
+        {activePanel === "dashboard" && (
+          <div style={{ display: "flex", alignItems: "center", gap: 0, borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
+            {(["drafts", "scheduled", "published"] as const).map(tab => (
+              <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 0.85rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
+                {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+              </button>
+            ))}
+          </div>
+        )}
         <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
-          style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
+          style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
           + Create new
         </button>
       </div>
@@ -385,18 +394,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           {/* DASHBOARD */}
           {activePanel === "dashboard" && (
             <div style={{ maxWidth: 900 }}>
-              {/* Top bar: search + tabs + create */}
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-                <div style={{ position: "relative", flex: "1 1 200px", maxWidth: 320 }}>
+              {/* Search row */}
+              <div style={{ marginBottom: "1.25rem" }}>
+                <div style={{ position: "relative", maxWidth: 320 }}>
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   <input placeholder="Search stories…" value={query} onChange={e => setQuery(e.target.value)} style={{ ...INPUT, paddingLeft: "2.2rem", fontSize: "0.85rem" }} />
-                </div>
-                <div style={{ display: "flex", borderBottom: `2px solid ${BORDER}`, gap: 0 }}>
-                  {(["drafts", "scheduled", "published"] as const).map(tab => (
-                    <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
-                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
-                    </button>
-                  ))}
                 </div>
               </div>
 
