@@ -162,7 +162,7 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
                 <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
                   {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
                 </span>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 600, color: "#1c2938", lineHeight: 1.4 }}>
+                <span className="archive-title" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
                   {post.headline}
                 </span>
                 <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
@@ -239,6 +239,8 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
       <style>{`
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
+        .archive-title { color: #1c2938; transition: color 0.15s; }
+        .archive-title:hover { color: #8B0000; }
         .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
         .feed-main { grid-column: 1; grid-row: 1 / span 2; }
         .sidebar-lately { grid-column: 2; grid-row: 1; }
