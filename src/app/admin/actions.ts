@@ -148,6 +148,11 @@ export async function clearCloudDraft() {
   try { await mutate([{ delete: { id: CLOUD_DRAFT_ID } }]); } catch {}
 }
 
+export async function saveWelcome(headline: string, body: string) {
+  await requireAuth();
+  await mutate([{ createOrReplace: { _id: "welcome", _type: "welcome", headline, body } }]);
+}
+
 export async function saveLately(formData: FormData) {
   await requireAuth();
   const reading = formData.get("reading") as string;

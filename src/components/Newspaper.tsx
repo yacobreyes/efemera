@@ -156,6 +156,11 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+  const [welcome, setWelcome] = useState<{ headline: string; body: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/welcome").then(r => r.json()).then(d => { if (d) setWelcome(d); }).catch(() => {});
+  }, []);
 
   const tabFiltered = activeTab === "Home"
     ? posts
@@ -242,10 +247,10 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
           <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
-                👋 Hey, Yacob here.
+                {welcome?.headline ?? "👋 Hey, Yacob here."}
               </p>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#526270", margin: "0.35rem 0 0", lineHeight: 1.5 }}>
-                Welcome to my world! I made this space to share some of my more personal writing. Stay tuned.
+                {welcome?.body ?? "Welcome to my world! I made this space to share some of my more personal writing. Stay tuned."}
               </p>
             </div>
             <Lately data={lately ?? null} />
