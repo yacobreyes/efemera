@@ -259,7 +259,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         .admin-grid { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
         .admin-sidebar { display: none; }
         .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.75rem 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; }
+        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; align-items: stretch; }
+        .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.9rem; font-weight: 600; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6; }
         .admin-nav-btn:hover { background: #f5f0f0; color: ${CRIMSON}; }
         .admin-nav-btn.active { background: #f5f0f0; color: ${CRIMSON}; }
@@ -397,7 +398,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                     </button>
                   ))}
                 </div>
-                <button onClick={startNew} style={{ marginLeft: "auto", background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.5rem 1.2rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Create new</button>
               </div>
 
               {/* Count + sort row */}
