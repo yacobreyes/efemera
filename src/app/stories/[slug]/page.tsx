@@ -75,8 +75,23 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const post = await getPost(slug);
   if (!post) notFound();
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.headline,
+    description: post.subheadline ?? "",
+    author: { "@type": "Person", name: post.byline },
+    datePublished: post.date,
+    dateModified: post._updatedAt ?? post.date,
+    publisher: { "@type": "Organization", name: "Efemera", url: siteUrl },
+    url: `${siteUrl}/stories/${slug}`,
+    ...(post.image?.asset ? { image: urlFor(post.image.asset).width(1200).height(630).url() } : {}),
+  };
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f8fa" }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <style>{`
         .story-header { display: flex; align-items: center; justify-content: space-between; }
         .story-nav { display: flex; gap: 2rem; align-items: center; }
