@@ -362,8 +362,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               {postTab === "drafts" && (
                 drafts.length === 0 ? (
                   <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
-                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: "0 0 1rem" }}>No drafts yet.</p>
-                    <button onClick={startNew} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer" }}>+ New post</button>
+                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No drafts yet.</p>
                   </div>
                 ) : (
                   <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
