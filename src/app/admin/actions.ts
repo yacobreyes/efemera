@@ -129,6 +129,11 @@ export async function deletePost(id: string) {
   await mutate([{ delete: { id } }]);
 }
 
+export async function unpublishPost(id: string) {
+  await requireAuth();
+  await mutate([{ patch: { id, set: { status: "draft" } } }]);
+}
+
 export async function trashPost(id: string) {
   await requireAuth();
   await mutate([{ patch: { id, set: { status: "trashed" } } }]);
