@@ -229,6 +229,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
+      <style>{`body { background: white !important; }`}</style>
       <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
 
       {/* Top bar */}

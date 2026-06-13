@@ -246,6 +246,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   return (
     <>
       <style>{`
+        body { background: white !important; }
         .admin-layout { display: flex; min-height: 100vh; }
         .admin-sidebar {
           width: ${sidebarOpen ? "220px" : "60px"};
