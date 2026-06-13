@@ -20,42 +20,9 @@ export default function Choopy() {
 
   function meow() {
     try {
-      const ctx = new AudioContext();
-      // 8-bit chiptune of the jingle, melody transcribed from reference audio:
-      // descending C5 B4 A4 G4 phrase, A held a touch longer, played twice
-      const notes = [
-        { freq: 523, start: 0.0,  dur: 0.18 }, // C5
-        { freq: 494, start: 0.20, dur: 0.18 }, // B4
-        { freq: 440, start: 0.40, dur: 0.26 }, // A4 (held)
-        { freq: 392, start: 0.70, dur: 0.24 }, // G4
-        { freq: 523, start: 0.98, dur: 0.18 }, // C5
-        { freq: 494, start: 1.18, dur: 0.18 }, // B4
-        { freq: 440, start: 1.38, dur: 0.26 }, // A4
-        { freq: 392, start: 1.68, dur: 0.4 },  // G4 (final, long)
-      ];
-      const last = notes.length - 1;
-      notes.forEach(({ freq, start, dur }, i) => {
-        const t = ctx.currentTime + start;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.type = "square"; // classic chiptune voice
-        osc.frequency.setValueAtTime(freq, t);
-        // tiny downward bend at the tail of each note = "meow" inflection
-        osc.frequency.setValueAtTime(freq, t + dur * 0.6);
-        osc.frequency.linearRampToValueAtTime(freq * 0.88, t + dur);
-
-        gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.12, t + 0.01);
-        gain.gain.setValueAtTime(0.12, t + dur * 0.7);
-        gain.gain.linearRampToValueAtTime(0, t + dur);
-
-        osc.start(t);
-        osc.stop(t + dur + 0.02);
-        if (i === last) osc.onended = () => ctx.close();
-      });
+      const audio = new Audio("/choopy-jingle.wav");
+      audio.volume = 0.5;
+      audio.play().catch(() => {});
     } catch { /* audio not available */ }
   }
 
