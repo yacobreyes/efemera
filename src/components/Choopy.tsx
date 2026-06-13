@@ -10,6 +10,7 @@ export default function Choopy() {
   const [dancing, setDancing] = useState(false);
   const [fedCount, setFedCount] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const jingleUntil = useRef(0);
 
   useEffect(() => {
     fetch("/api/choopy")
@@ -19,6 +20,9 @@ export default function Choopy() {
   }, []);
 
   function meow() {
+    // don't stack jingles on rapid clicks
+    if (Date.now() < jingleUntil.current) return;
+    jingleUntil.current = Date.now() + 4200;
     try {
       const ctx = new AudioContext();
       // 8-bit chiptune jingle, transcribed from the sheet music:
