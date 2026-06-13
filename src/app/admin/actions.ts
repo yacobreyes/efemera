@@ -49,6 +49,35 @@ export async function uploadImage(formData: FormData) {
   return { assetId: data.document._id as string };
 }
 
+export async function createDraft(): Promise<{ slug: string }> {
+  await requireAuth();
+  const { token, projectId, dataset } = sanityConfig();
+  const slug = `untitled-${Date.now()}`;
+  const doc = {
+    _id: `post-${slug}`,
+    _type: "post",
+    headline: "",
+    subheadline: "",
+    slug: { _type: "slug", current: slug },
+    section: "Narratives",
+    byline: "Yacob Reyes",
+    date: new Date().toISOString().slice(0, 10),
+    body: [],
+    status: "draft",
+    pinned: false,
+  };
+  const res = await fetch(
+    `https://${projectId}.api.sanity.io/v2024-01-01/data/mutate/${dataset}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ mutations: [{ createOrReplace: doc }] }),
+    }
+  );
+  if (!res.ok) throw new Error(`Sanity error: ${await res.text()}`);
+  return { slug };
+}
+
 export async function savePost(formData: FormData) {
   await requireAuth();
   const id = formData.get("id") as string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, uploadImage } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -37,43 +37,36 @@ type FormState = {
   status: "draft" | "published" | "scheduled"; pinned: boolean;
 };
 
-const DEFAULT_FORM: FormState = {
-  headline: "", subheadline: "", byline: "Yacob Reyes", slug: "",
-  section: "Narratives", date: new Date().toISOString().slice(0, 10),
-  body: EMPTY_DOC, status: "draft", pinned: false,
-};
-
 type MediaAsset = { _id: string; url: string; originalFilename?: string };
 
-export default function EditorClient({ post }: { post?: SanityPost }) {
+export default function EditorClient({ post }: { post: SanityPost }) {
   const router = useRouter();
 
-  const initialForm: FormState = post ? {
-    headline: post.headline,
+  const initialForm: FormState = {
+    headline: post.headline ?? "",
     subheadline: post.subheadline ?? "",
     byline: post.byline ?? "Yacob Reyes",
     slug: post.slug,
-    section: post.section,
-    date: post.date,
-    body: portableTextToTiptap(post.body),
+    section: post.section ?? "Narratives",
+    date: post.date ?? new Date().toISOString().slice(0, 10),
+    body: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
     status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
     pinned: post.pinned ?? false,
-  } : { ...DEFAULT_FORM, date: new Date().toISOString().slice(0, 10) };
+  };
 
   const [form, setForm] = useState<FormState>(initialForm);
-  const [savedForm, setSavedForm] = useState<FormState>(initialForm);
+  const [lastSaved, setLastSaved] = useState<FormState>(initialForm);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
-  const submitStatusRef = useRef<"draft" | "published" | "scheduled">("draft");
-  const [scheduledAt, setScheduledAt] = useState(post?.scheduledAt?.slice(0, 16) ?? "");
+  const [showEllipsis, setShowEllipsis] = useState(false);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
 
-  const [imageCaption, setImageCaption] = useState(post?.image?.caption ?? "");
-  const [imageAlt, setImageAlt] = useState(post?.image?.alt ?? "");
-  const [imagePreview, setImagePreview] = useState(post?.image?.asset ? "existing" : "");
-  const [imageAssetId, setImageAssetId] = useState(post?.image?.asset?._ref ?? "");
+  const [imageCaption, setImageCaption] = useState(post.image?.caption ?? "");
+  const [imageAlt, setImageAlt] = useState(post.image?.alt ?? "");
+  const [imagePreview, setImagePreview] = useState(post.image?.asset ? "existing" : "");
+  const [imageAssetId, setImageAssetId] = useState(post.image?.asset?._ref ?? "");
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -81,14 +74,45 @@ export default function EditorClient({ post }: { post?: SanityPost }) {
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
 
+  const [showPreview, setShowPreview] = useState(false);
+
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
-  const isDirty = JSON.stringify(form) !== JSON.stringify(savedForm);
+  const isDirty = JSON.stringify(form) !== JSON.stringify(lastSaved);
 
-  function goBack() {
-    if (isDirty && !confirm("Discard unsaved changes?")) return;
-    router.push("/admin");
-  }
+  const doSave = useCallback((status: "draft" | "published" | "scheduled", afterSave?: () => void) => {
+    setSaveStatus("saving");
+    const fd = new FormData();
+    const { body, ...rest } = form;
+    Object.entries({ ...rest, status }).forEach(([k, v]) => fd.set(k, String(v)));
+    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
+    fd.set("id", post._id);
+    if (imageAssetId) fd.set("imageAssetId", imageAssetId);
+    if (imageCaption) fd.set("imageCaption", imageCaption);
+    if (imageAlt) fd.set("imageAlt", imageAlt);
+    if (status === "scheduled" && scheduledAt) fd.set("scheduledAt", new Date(scheduledAt).toISOString());
+    startTransition(async () => {
+      try {
+        await savePost(fd);
+        setLastSaved({ ...form, status });
+        setForm(f => ({ ...f, status }));
+        setSaveStatus("saved");
+        afterSave?.();
+      } catch {
+        setSaveStatus("unsaved");
+      }
+    });
+  }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt]);
+
+  // Auto-save draft every 5s when dirty
+  useEffect(() => {
+    if (!isDirty) return;
+    setSaveStatus("unsaved");
+    const timer = setTimeout(() => {
+      doSave(form.status === "published" ? "published" : "draft");
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [form, imageAssetId, imageCaption, imageAlt]);
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
@@ -96,32 +120,11 @@ export default function EditorClient({ post }: { post?: SanityPost }) {
     try {
       const fd = new FormData(); fd.set("file", file);
       const { assetId } = await uploadImage(fd); setImageAssetId(assetId);
-    } catch (err: any) { setError(`Image upload failed: ${err.message}`); }
+    } catch { /* silent */ }
     finally { setUploadingImage(false); }
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault(); setError(""); setSuccess("");
-    const fd = new FormData();
-    const { body, ...rest } = form;
-    Object.entries({ ...rest, status: submitStatusRef.current }).forEach(([k, v]) => fd.set(k, String(v)));
-    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
-    if (post) fd.set("id", post._id);
-    if (imageAssetId) fd.set("imageAssetId", imageAssetId);
-    if (imageCaption) fd.set("imageCaption", imageCaption);
-    if (imageAlt) fd.set("imageAlt", imageAlt);
-    if (submitStatusRef.current === "scheduled" && scheduledAt) fd.set("scheduledAt", new Date(scheduledAt).toISOString());
-    startTransition(async () => {
-      try {
-        const { slug } = await savePost(fd);
-        const s = submitStatusRef.current;
-        setSuccess(`Saved!`);
-        setSavedForm({ ...form, status: s });
-        setForm(f => ({ ...f, status: s }));
-        if (!post) router.replace(`/admin/posts/${slug}`);
-      } catch (err: any) { setError(err.message); }
-    });
-  }
+  const statusLabel = saveStatus === "saving" ? "Saving…" : saveStatus === "unsaved" ? "Unsaved" : "Saved";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
@@ -129,38 +132,79 @@ export default function EditorClient({ post }: { post?: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" onClick={goBack} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>
+        <button type="button" onClick={() => router.push("/admin")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           Go back
         </button>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          {post && post.status !== "trashed" && (
-            <button type="button" onClick={() => { if (confirm("Move to trash?")) startTransition(async () => { await trashPost(post._id); router.push("/admin"); }); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: TEXT_MUTED }}>Trash</button>
-          )}
-          {post && post.status === "trashed" && (
-            <>
-              <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin"); })} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: TEXT_DARK }}>Restore</button>
-              <button type="button" onClick={() => { if (confirm("Delete FOREVER?")) startTransition(async () => { await deletePost(post._id); router.push("/admin"); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: CRIMSON }}>Delete forever</button>
-            </>
-          )}
-          <button type="button" onClick={() => updateForm({ pinned: !form.pinned })} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.3rem 0.75rem", borderRadius: 20, cursor: "pointer", border: `1px solid ${form.pinned ? CRIMSON : BORDER}`, background: form.pinned ? "#fff0f0" : "white", color: form.pinned ? CRIMSON : TEXT_MUTED }}>📌 Pin</button>
+          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{statusLabel}</span>
+          <button
+            type="button"
+            disabled={isPending || uploadingImage}
+            onClick={() => doSave("published")}
+            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
+          >
+            {form.status === "published" ? "Save" : "Save & publish"}
+          </button>
+          {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
-            <button type="button" onClick={() => setShowScheduler(s => !s)} style={{ background: "white", border: `1px solid ${showScheduler ? CRIMSON : BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: showScheduler ? CRIMSON : TEXT_MUTED }}>Schedule</button>
-            {showScheduler && (
-              <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 20, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.75rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", minWidth: 240 }}>
-                <label style={{ ...LABEL, marginBottom: "0.4rem" }}>Publish at</label>
-                <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.5rem" }} />
-                <button type="button" disabled={!scheduledAt || isPending} onClick={() => { submitStatusRef.current = "scheduled"; setShowScheduler(false); document.querySelector("form")?.requestSubmit(); }} style={{ width: "100%", background: "#1565c0", color: "white", border: "none", borderRadius: 4, padding: "0.45rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Confirm schedule</button>
+            <button
+              type="button"
+              onClick={() => setShowEllipsis(v => !v)}
+              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+            </button>
+            {showEllipsis && (
+              <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowEllipsis(false)}>
+                <button type="button" onClick={() => setShowPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                <button type="button" onClick={() => { setShowEllipsis(false); setShowScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                <div style={{ borderTop: `1px solid ${BORDER}` }} />
+                {post.status !== "trashed" ? (
+                  <button type="button" onClick={() => { if (confirm("Move to trash?")) startTransition(async () => { await trashPost(post._id); router.push("/admin"); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Trash</button>
+                ) : (
+                  <>
+                    <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin"); })} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Restore</button>
+                    <button type="button" onClick={() => { if (confirm("Delete forever?")) startTransition(async () => { await deletePost(post._id); router.push("/admin"); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete forever</button>
+                  </>
+                )}
               </div>
             )}
           </div>
-          <button type="button" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "draft"; document.querySelector("form")?.requestSubmit(); }} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.85rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED }}>{isPending ? "Saving…" : "Save draft"}</button>
-          <button type="button" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "published"; document.querySelector("form")?.requestSubmit(); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.3rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Publish</button>
         </div>
       </div>
 
+      {/* Schedule modal */}
+      {showScheduler && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowScheduler(false)}>
+          <div style={{ background: "white", borderRadius: 8, padding: "1.5rem", width: 300, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
+            <p style={{ fontFamily: FONT, fontWeight: 700, margin: "0 0 1rem", color: TEXT_DARK }}>Schedule post</p>
+            <label style={LABEL}>Publish at</label>
+            <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.75rem" }} />
+            <button type="button" disabled={!scheduledAt || isPending} onClick={() => { setShowScheduler(false); doSave("scheduled"); }} style={{ width: "100%", background: CRIMSON, color: "white", border: "none", borderRadius: 6, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Confirm schedule</button>
+          </div>
+        </div>
+      )}
+
+      {/* Preview modal */}
+      {showPreview && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 300, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowPreview(false)}>
+          <div style={{ background: "white", borderRadius: 8, maxWidth: 680, width: "90%", padding: "2.5rem", maxHeight: "85vh", overflowY: "auto", position: "relative" }} onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowPreview(false)} style={{ position: "absolute", top: "1rem", right: "1rem", background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
+            <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 0.5rem" }}>{form.section}</p>
+            <h1 style={{ fontFamily: FONT, fontSize: "1.8rem", color: TEXT_DARK, margin: "0 0 0.5rem", lineHeight: 1.25 }}>{form.headline || <em style={{ color: TEXT_MUTED }}>No headline</em>}</h1>
+            {form.subheadline && <p style={{ fontFamily: FONT, fontSize: "1.05rem", color: TEXT_MUTED, margin: "0 0 1rem" }}>{form.subheadline}</p>}
+            <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "0 0 1.5rem" }} />
+            {(form.body.content ?? []).map((node, i) => {
+              const text = (node.content ?? []).flatMap((n: { type?: string; text?: string }) => n.type === "text" ? [n.text ?? ""] : []).join("");
+              return <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{text}</p>;
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Body */}
-      <form onSubmit={handleSubmit} style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Left section nav */}
         <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, padding: "1.5rem 0", display: "flex", flexDirection: "column", overflowY: "auto" }}>
           <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.5rem 1rem", opacity: 0.7 }}>Required</p>
@@ -170,21 +214,27 @@ export default function EditorClient({ post }: { post?: SanityPost }) {
               {tab === "content" ? "Story content" : "Metadata"}
             </button>
           ))}
-          {success && <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "#2e7d32", margin: "1.5rem 1rem 0", lineHeight: 1.4 }}>{success}</p>}
-          {error && <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: CRIMSON, margin: "1.5rem 1rem 0", lineHeight: 1.4 }}>{error}</p>}
         </div>
 
         {/* Canvas */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem", maxWidth: 800 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem" }} onClick={() => { setShowEllipsis(false); }}>
           {editorTab === "content" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {/* Headline */}
               <input
                 placeholder="Type your headline"
                 style={{ fontFamily: FONT, fontSize: "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2 }}
                 value={form.headline}
-                onChange={e => updateForm({ headline: e.target.value, ...(!post ? { slug: slugify(e.target.value) } : {}) })}
-                required
+                onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
               />
+              {/* Subheadline */}
+              <input
+                placeholder="Type your subheadline"
+                style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4 }}
+                value={form.subheadline}
+                onChange={e => updateForm({ subheadline: e.target.value })}
+              />
+              {/* Photo */}
               {!imagePreview ? (
                 <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button type="button" onClick={() => fileRef.current?.click()} style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer" }}>
@@ -203,23 +253,27 @@ export default function EditorClient({ post }: { post?: SanityPost }) {
                   </div>
                 </div>
               )}
+              {/* Body */}
               <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} />
             </div>
           )}
 
           {editorTab === "metadata" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div><label style={LABEL}>Subheadline</label><input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} /></div>
-              <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-                <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
-                <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option>Micro-Memoir</option><option>Narratives</option></select></div>
-                <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
+            <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div>
+                <label style={LABEL}>Section</label>
+                <select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}>
+                  <option>Micro-Memoir</option>
+                  <option>Narratives</option>
+                </select>
               </div>
+              <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+              <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} /></div>
+              <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} /></div>
             </div>
           )}
         </div>
-      </form>
+      </div>
 
       {/* Photo picker modal */}
       {showPhotoPicker && (

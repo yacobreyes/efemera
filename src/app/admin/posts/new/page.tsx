@@ -1,11 +1,12 @@
 import { isAuthed } from "@/lib/adminAuth";
 import { redirect } from "next/navigation";
-import EditorClient from "../../EditorClient";
+import { createDraft } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewPostPage() {
   const authed = await isAuthed();
   if (!authed) redirect("/admin");
-  return <EditorClient />;
+  const { slug } = await createDraft();
+  redirect(`/admin/posts/${slug}`);
 }
