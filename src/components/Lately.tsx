@@ -37,7 +37,9 @@ export default function Lately({ data }: { data: SanityLately | null }) {
         {data.listening && (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Listening</span>
-            <span style={ROW_VALUE}>{data.listening}</span>
+            <span style={ROW_VALUE}>
+              &quot;{data.listening}{data.listeningArtist ? "," : ""}&quot;{data.listeningArtist ? ` ${data.listeningArtist}` : ""}
+            </span>
           </div>
         )}
 

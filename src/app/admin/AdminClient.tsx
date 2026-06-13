@@ -64,6 +64,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [latelyReading, setLatelyReading] = useState("");
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
   const [latelyListening, setLatelyListening] = useState("");
+  const [latelyListeningArtist, setLatelyListeningArtist] = useState("");
   const [latelyWatching, setLatelyWatching] = useState("");
 
   const [aboutBody, setAboutBody] = useState("");
@@ -164,7 +165,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       fetch("/api/lately").then(r => r.json()).then(data => {
         if (!data) return;
         setLatelyReading(data.reading ?? ""); setLatelyReadingAuthor(data.readingAuthor ?? "");
-        setLatelyListening(data.listening ?? ""); setLatelyWatching(data.watching ?? "");
+        setLatelyListening(data.listening ?? ""); setLatelyListeningArtist(data.listeningArtist ?? ""); setLatelyWatching(data.watching ?? "");
       }).catch(() => {});
     }
     if (panel === "media") {
@@ -573,11 +574,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
           {/* LATELY EDITOR */}
           {activePanel === "lately" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("listening", latelyListening); fd.set("watching", latelyWatching); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("watching", latelyWatching); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
               <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
               <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>
+              <div><label style={LABEL}>Artist</label><input style={INPUT} value={latelyListeningArtist} onChange={e => setLatelyListeningArtist(e.target.value)} /></div>
               <div><label style={LABEL}>Currently Watching</label><input style={INPUT} value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} /></div>
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
