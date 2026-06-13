@@ -272,7 +272,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           z-index: 10;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.6rem 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); min-height: 52px; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
@@ -355,7 +355,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         {/* Collapsible sidebar */}
         <div className="admin-sidebar">
           {/* Logo + toggle */}
-          <div style={{ padding: "1rem 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "space-between" : "center", borderBottom: `1px solid ${BORDER}`, minHeight: 52, boxSizing: "border-box" }}>
+          <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "space-between" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0 }}>
             {sidebarOpen && (
               <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
             )}
