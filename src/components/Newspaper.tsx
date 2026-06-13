@@ -197,6 +197,8 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const TAB_PATHS: Record<Tab, string> = {
     "Home": "/",
@@ -209,6 +211,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
   function switchTab(tab: Tab) {
     setActiveTab(tab);
     setQuery("");
+    setPage(1);
     router.replace(TAB_PATHS[tab], { scroll: false });
   }
   const [welcome, setWelcome] = useState<{ headline: string; body: string } | null>(null);
@@ -225,7 +228,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
     ? posts.filter(p => p.section === "Narratives")
     : [];
 
-  const visiblePosts = query.trim()
+  const filteredPosts = query.trim()
     ? tabFiltered.filter(p => {
         const q = query.toLowerCase();
         const plain = p.body.filter(b => b._type === "block")
@@ -233,6 +236,8 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         return p.headline.toLowerCase().includes(q) || p.subheadline.toLowerCase().includes(q) || plain.toLowerCase().includes(q);
       })
     : tabFiltered;
+  const visiblePosts = filteredPosts.slice(0, page * PAGE_SIZE);
+  const hasMore = visiblePosts.length < filteredPosts.length;
 
   return (
     <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -282,7 +287,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
               </svg>
               <input
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={e => { setQuery(e.target.value); setPage(1); }}
                 placeholder="Search posts…"
                 style={{ width: "100%", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
               />
@@ -293,11 +298,21 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
                 {query ? `No results for "${query}"` : "No posts yet."}
               </div>
             ) : (
-              <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-                {visiblePosts.map((post, i) => (
-                  <TweetCard key={post._id} post={post} index={i} />
-                ))}
-              </div>
+              <>
+                <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+                  {visiblePosts.map((post, i) => (
+                    <TweetCard key={post._id} post={post} index={i} />
+                  ))}
+                </div>
+                {hasMore && (
+                  <button
+                    onClick={() => setPage(p => p + 1)}
+                    style={{ display: "block", width: "100%", marginTop: "0.75rem", padding: "0.7rem", fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "#526270", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, cursor: "pointer" }}
+                  >
+                    Load more
+                  </button>
+                )}
+              </>
             )}
           </div>
 
