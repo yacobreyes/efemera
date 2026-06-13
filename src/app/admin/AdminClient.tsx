@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "./actions";
 import { login, logout } from "./auth";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor from "@/components/RichBodyEditor";
@@ -121,7 +121,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   }
 
   useEffect(() => {
-    refreshPosts();
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
         const plain = data.body.filter((b: any) => b._type === "block")
@@ -147,8 +146,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
-  function startNew() {
-    router.push("/admin/posts/new");
+  async function startNew() {
+    const { slug } = await createDraft();
+    router.push(`/admin/posts/${slug}`);
   }
 
   function startEdit(post: SanityPost) {
