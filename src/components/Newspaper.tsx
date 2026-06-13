@@ -242,11 +242,10 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
           <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
-                👋 Hey, Yacob here.
+                👋 Hey, I&apos;m Yacob.
               </p>
               <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#526270", margin: "0.35rem 0 0", lineHeight: 1.5 }}>
-                This is a collection of micro-memoirs and short narratives I&apos;ve written.{" "}
-                <button onClick={() => { setActiveTab("About"); setQuery(""); }} style={{ background: "none", border: "none", padding: 0, font: "inherit", color: "#8B0000", cursor: "pointer", textDecoration: "underline" }}>Learn more.</button>
+                Welcome to my world! I made this space to share some of my more personal writing. Stay tuned.
               </p>
             </div>
             <Lately data={lately ?? null} />
