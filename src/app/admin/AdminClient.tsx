@@ -36,12 +36,12 @@ const LS_KEY = "efemera_admin_draft";
 type FormState = {
   headline: string; subheadline: string; byline: string; slug: string;
   section: string; date: string; body: JSONContent;
-  status: "draft" | "published" | "scheduled"; pinned: boolean;
+  status: "draft" | "published" | "scheduled";
 };
 const DEFAULT_FORM: FormState = {
   headline: "", subheadline: "", byline: "Yacob Reyes", slug: "",
   section: "Narratives", date: new Date().toISOString().slice(0, 10),
-  body: EMPTY_DOC, status: "draft", pinned: false,
+  body: EMPTY_DOC, status: "draft",
 };
 
 type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media";
@@ -531,7 +531,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                               <div style={{ minWidth: 0 }}>
-                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}{post.pinned ? " 📌" : ""}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}</p>
                                 <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
                               </div>
                             </div>
@@ -637,8 +637,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                     {editing && editing.status !== "trashed" && (
                       <button type="button" onClick={() => { if (confirm("Move to trash?")) startTransition(async () => { await trashPost(editing._id); refreshPosts(); setActivePanel("dashboard"); setEditing(null); }); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: TEXT_MUTED }}>Trash</button>
                     )}
-                    <button type="button" onClick={() => updateForm({ pinned: !form.pinned })} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.3rem 0.75rem", borderRadius: 20, cursor: "pointer", border: `1px solid ${form.pinned ? CRIMSON : BORDER}`, background: form.pinned ? "#fff0f0" : "white", color: form.pinned ? CRIMSON : TEXT_MUTED }}>📌 Pin</button>
-                    <button type="button" onClick={() => setShowPreview(true)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: TEXT_MUTED }}>Preview</button>
+<button type="button" onClick={() => setShowPreview(true)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: TEXT_MUTED }}>Preview</button>
                     <div style={{ position: "relative" }}>
                       <button type="button" onClick={() => setShowScheduler(s => !s)} style={{ background: "white", border: `1px solid ${showScheduler ? CRIMSON : BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: showScheduler ? CRIMSON : TEXT_MUTED }}>Schedule</button>
                       {showScheduler && (
@@ -757,7 +756,6 @@ function PostRow({ post, onClick }: { post: SanityPost; onClick: () => void }) {
         <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline}</p>
         <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{post.section} · {post.date}</p>
       </div>
-      {post.pinned && <span style={{ fontSize: "0.8rem" }}>📌</span>}
     </div>
   );
 }

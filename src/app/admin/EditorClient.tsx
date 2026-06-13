@@ -40,7 +40,7 @@ const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] }
 type FormState = {
   headline: string; subheadline: string; byline: string; slug: string;
   section: string; date: string; body: JSONContent;
-  status: "draft" | "published" | "scheduled"; pinned: boolean;
+  status: "draft" | "published" | "scheduled";
 };
 
 type VersionEntry = { savedAt: string; type: "autosave" | "publish" };
@@ -70,7 +70,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     date: post.date ?? new Date().toISOString().slice(0, 10),
     body: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
     status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
-    pinned: post.pinned ?? false,
   };
 
   const [form, setForm] = useState<FormState>(initialForm);
@@ -99,7 +98,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   const [imageCaption, setImageCaption] = useState(post.image?.caption ?? "");
   const [imageAlt, setImageAlt] = useState(post.image?.alt ?? "");
-  const [imagePreview, setImagePreview] = useState(post.image?.asset ? "existing" : "");
+  const [imagePreview, setImagePreview] = useState(post.image?.url ?? (post.image?.asset ? "existing" : ""));
   const [imageAssetId, setImageAssetId] = useState(post.image?.asset?._ref ?? "");
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -428,7 +427,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </button>
               ) : (
                 <div>
-                  {imagePreview !== "existing" ? <img src={imagePreview} alt="" style={{ width: "100%", maxHeight: 320, objectFit: "cover", borderRadius: 6 }} /> : <div style={{ padding: "0.75rem", background: "#f5f8fa", borderRadius: 6, fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED }}>Existing photo attached</div>}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={imagePreview} alt="" style={{ width: "100%", maxHeight: 320, objectFit: "cover", borderRadius: 6 }} />
                   <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                     <input placeholder="Caption" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageCaption} onChange={e => setImageCaption(e.target.value)} />
                     <input placeholder="Alt text" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageAlt} onChange={e => setImageAlt(e.target.value)} />
@@ -474,15 +474,18 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   {versions.map((v, i) => (
-                    <div key={i} onContextMenu={e => { e.preventDefault(); if (confirm("Revert to draft at this point?")) doSave("draft"); }}
-                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, cursor: "context-menu" }}>
-                      <div>
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, gap: "0.5rem" }}>
+                      <div style={{ minWidth: 0 }}>
                         <p style={{ fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatTime(v.savedAt)}</p>
                         <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: "0.1rem 0 0" }}>{v.type === "publish" ? "Published" : "Auto-saved"}</p>
                       </div>
-                      <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, padding: "0.2rem 0.6rem", borderRadius: 20, background: v.type === "publish" ? "#e8f5e9" : "#f0f4f8", color: v.type === "publish" ? "#2e7d32" : TEXT_MUTED }}>
-                        {v.type === "publish" ? "Published" : "Draft"}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => { if (confirm("Revert to draft at this point?")) doSave("draft"); }}
+                        style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, padding: "0.2rem 0.6rem", borderRadius: 20, background: "#f0f4f8", color: TEXT_MUTED, border: "none", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
+                      >
+                        Revert
+                      </button>
                     </div>
                   ))}
                 </div>

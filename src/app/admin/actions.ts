@@ -64,7 +64,6 @@ export async function createDraft(providedSlug?: string): Promise<{ slug: string
     date: new Date().toISOString().slice(0, 10),
     body: [],
     status: "draft",
-    pinned: false,
   };
   const res = await fetch(
     `https://${projectId}.api.sanity.io/v2024-01-01/data/mutate/${dataset}`,
@@ -92,7 +91,6 @@ export async function savePost(formData: FormData) {
   const imageCaption = formData.get("imageCaption") as string | null;
   const imageAlt = formData.get("imageAlt") as string | null;
   const status = (formData.get("status") as string) || "draft";
-  const pinned = formData.get("pinned") === "true";
   const scheduledAt = (formData.get("scheduledAt") as string) || null;
 
   let body: unknown;
@@ -109,7 +107,7 @@ export async function savePost(formData: FormData) {
     _type: "post",
     headline, subheadline,
     slug: { _type: "slug", current: slug },
-    section, byline, date, body, status, pinned,
+    section, byline, date, body, status,
     ...(scheduledAt ? { scheduledAt } : {}),
   };
 

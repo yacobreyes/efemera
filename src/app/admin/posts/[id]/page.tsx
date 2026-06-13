@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
-  date, body, image { asset, caption, alt }, status, pinned, scheduledAt
+  date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt
 }`;
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,7 +30,6 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
       date: new Date().toISOString().slice(0, 10),
       body: [],
       status: "draft",
-      pinned: false,
     };
     return <EditorClient post={post} />;
   }
