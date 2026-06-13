@@ -384,12 +384,6 @@ function handleSubmit(e: React.FormEvent) {
     );
   }
 
-  const submitLabel = isPending
-    ? "Saving…"
-    : form.status === "published"
-    ? "Publish"
-    : "Save draft";
-
   return (
     <>
       {/* Responsive grid styles */}
@@ -583,7 +577,61 @@ function handleSubmit(e: React.FormEvent) {
                 </div>
               </div>
 
-              <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem 2rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+              <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                {/* Top action bar */}
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, background: "#fafbfc" }}>
+                  {/* Status pill — click to toggle */}
+                  <button
+                    type="button"
+                    onClick={() => updateForm({ status: form.status === "draft" ? "published" : "draft" })}
+                    style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, cursor: "pointer", border: `1px solid ${form.status === "published" ? "#2e7d32" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : "#666", whiteSpace: "nowrap" }}
+                  >
+                    {form.status === "published" ? "● Live" : "○ Draft"} — click to {form.status === "published" ? "unpublish" : "go live"}
+                  </button>
+
+                  {/* Publish / Save draft button */}
+                  <button
+                    type="submit"
+                    disabled={isPending || uploadingImage}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, cursor: isPending || uploadingImage ? "wait" : "pointer", opacity: isPending || uploadingImage ? 0.7 : 1, whiteSpace: "nowrap" }}
+                  >
+                    {isPending ? "Saving…" : form.status === "published" ? "Publish" : "Save draft"}
+                  </button>
+
+                  {/* Pin */}
+                  <label style={{ display: "flex", gap: "0.35rem", alignItems: "center", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    <input type="checkbox" checked={form.pinned} onChange={e => updateForm({ pinned: e.target.checked })} style={{ accentColor: CRIMSON }} />
+                    📌 Pin to top
+                  </label>
+
+                  {/* Preview */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.45rem 0.9rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap" }}
+                  >
+                    Preview
+                  </button>
+
+                  {autosaveLabel && <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED }}>{autosaveLabel}</span>}
+
+                  {/* Trash / restore / delete — pushed to the right */}
+                  <div style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
+                    {editing && editing.status !== "trashed" && (
+                      <button type="button" onClick={() => { if (confirm("Move this post to trash?")) startTransition(async () => { await trashPost(editing._id); refreshPosts(); startNew(); }); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: "#aaa" }}>
+                        Move to trash
+                      </button>
+                    )}
+                    {editing && editing.status === "trashed" && (
+                      <>
+                        <button type="button" onClick={() => startTransition(async () => { await restorePost(editing._id); refreshPosts(); startNew(); })} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.35rem 0.75rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_DARK }}>Restore</button>
+                        <button type="button" onClick={() => { if (confirm("Delete FOREVER? Cannot be undone.")) startTransition(async () => { await deletePost(editing._id); refreshPosts(); startNew(); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.35rem 0.75rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: CRIMSON }}>Delete forever</button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ padding: "0 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                 {/* 1. Headline */}
                 <div>
                   <label style={LABEL}>Headline *</label>
@@ -668,109 +716,7 @@ function handleSubmit(e: React.FormEvent) {
                   />
                 </div>
 
-                {/* Status toggle */}
-                <div style={{ display: "flex", gap: "2rem", alignItems: "flex-end", flexWrap: "wrap" }}>
-                  <div>
-                  <label style={LABEL}>Status</label>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    {(["draft", "published"] as const).map(s => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => updateForm({ status: s })}
-                        style={{
-                          fontFamily: FONT,
-                          fontSize: "0.85rem",
-                          padding: "0.4rem 1rem",
-                          borderRadius: 4,
-                          cursor: "pointer",
-                          border: `1px solid ${CRIMSON}`,
-                          background: form.status === s ? CRIMSON : "white",
-                          color: form.status === s ? "white" : CRIMSON,
-                          fontWeight: 600,
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        {s === "draft" ? "Draft" : "Published"}
-                      </button>
-                    ))}
-                  </div>
-                  </div>
-                  <label style={{ display: "flex", gap: "0.45rem", alignItems: "center", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer", paddingBottom: "0.45rem" }}>
-                    <input type="checkbox" checked={form.pinned} onChange={e => updateForm({ pinned: e.target.checked })} style={{ accentColor: CRIMSON }} />
-                    📌 Pin to top of feed
-                  </label>
-                </div>
-
-                {/* Actions */}
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
-                  <button
-                    type="submit"
-                    disabled={isPending || uploadingImage}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.4rem", fontFamily: FONT, fontSize: "1rem", cursor: isPending || uploadingImage ? "wait" : "pointer", opacity: isPending || uploadingImage ? 0.7 : 1 }}
-                  >
-                    {submitLabel}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowPreview(true)}
-                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "1rem", cursor: "pointer", color: TEXT_MUTED }}
-                  >
-                    Preview
-                  </button>
-                  {editing && editing.status !== "trashed" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (confirm("Move this post to trash? You can restore it later.")) {
-                          startTransition(async () => {
-                            await trashPost(editing._id);
-                            refreshPosts();
-                            startNew();
-                          });
-                        }
-                      }}
-                      style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}
-                    >
-                      Move to trash
-                    </button>
-                  )}
-                  {editing && editing.status === "trashed" && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          startTransition(async () => {
-                            await restorePost(editing._id);
-                            refreshPosts();
-                            startNew();
-                          });
-                        }}
-                        style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK }}
-                      >
-                        Restore from trash
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (confirm("Delete this post FOREVER? This cannot be undone.")) {
-                            startTransition(async () => {
-                              await deletePost(editing._id);
-                              refreshPosts();
-                              startNew();
-                            });
-                          }
-                        }}
-                        style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}
-                      >
-                        Delete forever
-                      </button>
-                    </>
-                  )}
-                  {autosaveLabel && (
-                    <span style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED }}>{autosaveLabel}</span>
-                  )}
-                </div>
+                </div>{/* end inner padding div */}
               </form>
             </div>
           )}
