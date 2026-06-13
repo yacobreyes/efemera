@@ -329,6 +329,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowEllipsis(false)}>
                 <button type="button" onClick={() => { setShowEllipsis(false); doSave(form.status === "published" ? "published" : "draft"); setTimeout(() => window.open(`/stories/${form.slug}`, "_blank"), 800); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <button type="button" onClick={() => { setShowEllipsis(false); setShowScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                {form.status === "published" && (
+                  <button type="button" onClick={() => { setShowEllipsis(false); revertToDraft(); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Unpublish</button>
+                )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 {post.status !== "trashed" ? (
                   <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin"); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
@@ -488,12 +491,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             <div style={{ maxWidth: 480 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
                 <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Previous drafts</h2>
-                {form.status === "published" && (
-                  <button type="button" onClick={revertToDraft}
-                    style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>
-                    Unpublish
-                  </button>
-                )}
               </div>
               {versions.length === 0 ? (
                 <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet.</p>
