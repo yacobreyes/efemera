@@ -103,7 +103,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
 
-  const [pendingDraft, setPendingDraft] = useState<FormState | null>(null);
 
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -136,36 +135,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       .catch(() => {});
   }, []);
 
-  // On login, check for a saved draft and prompt the user
-  useEffect(() => {
-    if (!auth) return;
-    let local: { ts: number; form: FormState } | null = null;
-    try {
-      const saved = localStorage.getItem(LS_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        local = parsed?.form ? parsed : { ts: 0, form: parsed };
-      }
-    } catch {}
-
-    loadDraftFromCloud()
-      .then(cloud => {
-        let best = local;
-        if (cloud) {
-          const parsed = JSON.parse(cloud.data) as { ts: number; form: FormState };
-          if (parsed?.form && (!local || (parsed.ts ?? 0) > local.ts)) best = parsed;
-        }
-        if (best?.form?.headline || best?.form?.body) {
-          setPendingDraft({ ...DEFAULT_FORM, ...best.form });
-        }
-      })
-      .catch(() => {
-        if (local?.form?.headline || local?.form?.body) {
-          setPendingDraft({ ...DEFAULT_FORM, ...local!.form });
-        }
-      });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth]);
 
   // Track dirty state
   useEffect(() => {
@@ -414,7 +383,7 @@ function handleSubmit(e: React.FormEvent) {
             setLoggingIn(true);
             try {
               const { ok } = await login(pw);
-              if (ok) setAuth(true);
+              if (ok) { try { localStorage.removeItem(LS_KEY); } catch {} setAuth(true); }
               else setAuthError("Wrong password");
             } catch {
               setAuthError("Login failed — try again");
@@ -465,16 +434,7 @@ function handleSubmit(e: React.FormEvent) {
         }
       `}</style>
 
-      {/* Pending draft banner */}
-      {pendingDraft && (
-        <div style={{ position: "fixed", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", zIndex: 2000, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: "1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, whiteSpace: "nowrap" }}>
-          <span>📝 You have an unsaved draft{pendingDraft.headline ? `: "${pendingDraft.headline.slice(0, 40)}"` : ""}</span>
-          <button onClick={() => { setForm(pendingDraft); setPendingDraft(null); setActivePanel("post"); setEditing(null); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.35rem 0.9rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Continue</button>
-          <button onClick={() => { setPendingDraft(null); try { localStorage.removeItem(LS_KEY); } catch {} clearCloudDraft().catch(() => {}); }} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.35rem 0.75rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED }}>Discard</button>
-        </div>
-      )}
-
-      {/* Photo picker modal */}
+{/* Photo picker modal */}
       {showPhotoPicker && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1100, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }} onClick={e => { if (e.target === e.currentTarget) setShowPhotoPicker(false); }}>
           <div style={{ background: "white", borderRadius: 6, width: "100%", maxWidth: 720, padding: "1.5rem", position: "relative" }}>
