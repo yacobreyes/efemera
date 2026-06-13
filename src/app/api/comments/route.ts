@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
+import { rateLimit } from "@/lib/rateLimit";
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
@@ -30,6 +31,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!rateLimit(ip, "comments", 5, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many comments. Try again later." }, { status: 429 });
+  }
   const { slug, name, text } = await req.json() as { slug: string; name: string; text: string };
   if (!slug || !name?.trim() || !text?.trim()) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });

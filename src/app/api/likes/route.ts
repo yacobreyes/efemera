@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
+import { rateLimit } from "@/lib/rateLimit";
 
 function likeId(slug: string) {
   return `likes-${slug.replace(/[^a-zA-Z0-9-_]/g, "-")}`;
@@ -21,6 +22,10 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!rateLimit(ip, "likes", 30, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   const { slug, delta } = await req.json() as { slug: string; delta: 1 | -1 };
   if (!slug || (delta !== 1 && delta !== -1)) {
     return NextResponse.json({ error: "invalid" }, { status: 400 });

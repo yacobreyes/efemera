@@ -43,10 +43,10 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(`efemera_comments_${post.slug}`);
-      if (stored) setCommentCount(JSON.parse(stored).length);
-    } catch { /* ignore */ }
+    fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
+      .catch(() => {});
   }, [post.slug]);
 
   useEffect(() => {

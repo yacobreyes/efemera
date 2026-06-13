@@ -7,13 +7,18 @@ export default function ReadCounter({ slug }: { slug: string }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    fetch("/api/reads", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug }),
-    })
+    const key = `efemera_read_${slug}`;
+    const alreadyRead = (() => { try { return !!localStorage.getItem(key); } catch { return false; } })();
+    const method = alreadyRead ? "GET" : "POST";
+    const url = alreadyRead ? `/api/reads?slug=${encodeURIComponent(slug)}` : "/api/reads";
+    const opts = alreadyRead ? undefined : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug }) };
+    fetch(url, opts)
       .then(r => r.json())
-      .then(d => { setCount(d.count ?? 0); setReady(true); })
+      .then(d => {
+        setCount(d.count ?? 0);
+        setReady(true);
+        if (!alreadyRead) { try { localStorage.setItem(key, "1"); } catch {} }
+      })
       .catch(() => setReady(true));
   }, [slug]);
 
