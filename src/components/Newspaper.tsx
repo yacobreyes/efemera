@@ -231,7 +231,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         const q = query.toLowerCase();
         const plain = p.body.filter(b => b._type === "block")
           .map(b => (b.children as { text: string }[]).map(c => c.text).join("")).join(" ");
-        return p.headline.toLowerCase().includes(q) || p.subheadline.toLowerCase().includes(q) || plain.toLowerCase().includes(q);
+        return p.headline.toLowerCase().includes(q) || (p.subheadline ?? "").toLowerCase().includes(q) || plain.toLowerCase().includes(q);
       })
     : tabFiltered;
   const visiblePosts = activeTab === "Home" && !query.trim() ? filteredPosts.slice(0, HOME_LIMIT) : filteredPosts;

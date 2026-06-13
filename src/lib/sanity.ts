@@ -62,9 +62,6 @@ export async function getAllPosts(): Promise<SanityPost[]> {
   return client.fetch(POSTS_QUERY, {}, { cache: "no-store" });
 }
 
-export async function getAllPostsCached(): Promise<SanityPost[]> {
-  return client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
-}
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   return client.fetch(
