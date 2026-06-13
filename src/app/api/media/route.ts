@@ -9,8 +9,8 @@ export async function GET() {
   try {
     const assets = await client.fetch(
       `*[_type == "sanity.imageAsset"] | order(_createdAt desc) {
-        _id, _createdAt, url, originalFilename,
-        metadata { dimensions { width, height } }
+        _id, _createdAt, url, originalFilename, title, description,
+        metadata { dimensions { width, height }, size }
       }`,
       {},
       { cache: "no-store" }

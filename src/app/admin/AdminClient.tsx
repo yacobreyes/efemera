@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
-import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft, deleteMediaAsset } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft, deleteMediaAsset, updateMediaAsset } from "./actions";
 import { login } from "./auth";
 import { parseBody } from "@/lib/parseBody";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -94,11 +94,15 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [aboutBody, setAboutBody] = useState("");
 
 
-  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; metadata?: { dimensions?: { width: number; height: number } } };
+  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number } };
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
   const mediaFileRef = useRef<HTMLInputElement>(null);
+  const [inspectingAsset, setInspectingAsset] = useState<MediaAsset | null>(null);
+  const [inspectTitle, setInspectTitle] = useState("");
+  const [inspectCaption, setInspectCaption] = useState("");
+  const [inspectSaving, setInspectSaving] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
@@ -434,7 +438,54 @@ function handleSubmit(e: React.FormEvent) {
         }
       `}</style>
 
-{/* Photo picker modal */}
+{/* Inspect / edit asset modal */}
+      {inspectingAsset && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: "1rem" }} onClick={e => { if (e.target === e.currentTarget) setInspectingAsset(null); }}>
+          <div style={{ background: "white", borderRadius: 6, width: "100%", maxWidth: 520, padding: "1.5rem", position: "relative" }}>
+            <button onClick={() => setInspectingAsset(null)} style={{ position: "absolute", top: "1rem", right: "1rem", background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`${inspectingAsset.url}?w=480&h=270&fit=crop&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 4, display: "block", marginBottom: "1rem" }} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div>
+                <label style={LABEL}>Name</label>
+                <input style={INPUT} value={inspectTitle} onChange={e => setInspectTitle(e.target.value)} placeholder="Display name" />
+              </div>
+              <div>
+                <label style={LABEL}>Caption (used when added to post)</label>
+                <input style={INPUT} value={inspectCaption} onChange={e => setInspectCaption(e.target.value)} placeholder="Caption shown under photo in article" />
+              </div>
+              {inspectingAsset.metadata?.dimensions && (
+                <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: 0 }}>
+                  {inspectingAsset.metadata.dimensions.width} × {inspectingAsset.metadata.dimensions.height}px
+                  {inspectingAsset.metadata.size ? ` · ${(inspectingAsset.metadata.size / 1024).toFixed(0)} KB` : ""}
+                  {" · "}{new Date(inspectingAsset._createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </p>
+              )}
+              <div style={{ display: "flex", gap: "0.75rem" }}>
+                <button
+                  type="button"
+                  disabled={inspectSaving}
+                  onClick={async () => {
+                    setInspectSaving(true);
+                    try {
+                      await updateMediaAsset(inspectingAsset._id, { title: inspectTitle, description: inspectCaption });
+                      setMediaAssets(prev => prev.map(a => a._id === inspectingAsset._id ? { ...a, title: inspectTitle, description: inspectCaption } : a));
+                      setInspectingAsset(null);
+                    } catch { alert("Save failed"); }
+                    finally { setInspectSaving(false); }
+                  }}
+                  style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, cursor: inspectSaving ? "wait" : "pointer", opacity: inspectSaving ? 0.7 : 1 }}
+                >
+                  {inspectSaving ? "Saving…" : "Save"}
+                </button>
+                <button type="button" onClick={() => setInspectingAsset(null)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", color: TEXT_MUTED }}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo picker modal */}
       {showPhotoPicker && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1100, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }} onClick={e => { if (e.target === e.currentTarget) setShowPhotoPicker(false); }}>
           <div style={{ background: "white", borderRadius: 6, width: "100%", maxWidth: 720, padding: "1.5rem", position: "relative" }}>
@@ -653,58 +704,66 @@ function handleSubmit(e: React.FormEvent) {
               ) : mediaAssets.length === 0 ? (
                 <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>No images yet. Upload one above.</p>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.75rem" }}>
-                  {mediaAssets.map(asset => (
-                    <div key={asset._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={`${asset.url}?w=320&h=200&fit=crop&auto=format`}
-                        alt={asset.originalFilename ?? ""}
-                        style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
-                      />
-                      <div style={{ padding: "0.4rem 0.5rem" }}>
-                        <p style={{ fontFamily: FONT, fontSize: "0.65rem", color: TEXT_MUTED, margin: "0 0 0.35rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                          {asset.originalFilename ?? asset._id.slice(-8)}
-                        </p>
-                        {asset.metadata?.dimensions && (
-                          <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "#aaa", margin: "0 0 0.4rem" }}>
-                            {asset.metadata.dimensions.width} × {asset.metadata.dimensions.height}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "0.75rem" }}>
+                  {mediaAssets.map(asset => {
+                    const displayName = asset.title || asset.originalFilename?.replace(/\.[^.]+$/, "") || asset._id.slice(-8);
+                    return (
+                      <div key={asset._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`${asset.url}?w=360&h=200&fit=crop&auto=format`}
+                          alt={displayName}
+                          style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
+                        />
+                        <div style={{ padding: "0.45rem 0.5rem" }}>
+                          <p style={{ fontFamily: FONT, fontSize: "0.7rem", color: TEXT_DARK, margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 600 }}>
+                            {displayName}
                           </p>
-                        )}
-                        <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const caption = asset.originalFilename
-                                ? asset.originalFilename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ")
-                                : "";
-                              setImageAssetId(asset._id);
-                              setImagePreview("existing");
-                              setImageCaption(caption);
-                              setActivePanel("post");
-                              setSuccess("Image set on post.");
-                            }}
-                            style={{ flex: 1, background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_DARK }}
-                          >
-                            Use in post
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (!confirm("Delete this image permanently?")) return;
-                              deleteMediaAsset(asset._id).then(() => {
-                                setMediaAssets(prev => prev.filter(a => a._id !== asset._id));
-                              }).catch(() => alert("Delete failed"));
-                            }}
-                            style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 3, padding: "0.3rem 0.4rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: CRIMSON }}
-                            title="Delete image"
-                          >
-                            ✕
-                          </button>
+                          {asset.metadata?.dimensions && (
+                            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "#aaa", margin: "0 0 0.45rem" }}>
+                              {asset.metadata.dimensions.width} × {asset.metadata.dimensions.height}
+                              {asset.metadata.size ? ` · ${(asset.metadata.size / 1024).toFixed(0)} KB` : ""}
+                            </p>
+                          )}
+                          <div style={{ display: "flex", gap: "0.35rem" }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const caption = asset.description || asset.title || asset.originalFilename?.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ") || "";
+                                setImageAssetId(asset._id);
+                                setImagePreview("existing");
+                                setImageCaption(caption);
+                                setActivePanel("post");
+                                setSuccess("Image set on post.");
+                              }}
+                              style={{ flex: 1, background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer", color: TEXT_DARK }}
+                            >
+                              Use in post
+                            </button>
+                            <button
+                              type="button"
+                              title="Inspect / edit"
+                              onClick={() => { setInspectingAsset(asset); setInspectTitle(asset.title || asset.originalFilename?.replace(/\.[^.]+$/, "") || ""); setInspectCaption(asset.description || ""); }}
+                              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0.45rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer", color: TEXT_MUTED }}
+                            >
+                              ✎
+                            </button>
+                            <button
+                              type="button"
+                              title="Delete"
+                              onClick={() => {
+                                if (!confirm("Delete this image permanently?")) return;
+                                deleteMediaAsset(asset._id).then(() => setMediaAssets(prev => prev.filter(a => a._id !== asset._id))).catch(() => alert("Delete failed"));
+                              }}
+                              style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 3, padding: "0.3rem 0.4rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer", color: CRIMSON }}
+                            >
+                              ✕
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

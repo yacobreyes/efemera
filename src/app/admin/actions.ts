@@ -112,8 +112,12 @@ export async function restorePost(id: string) {
 
 export async function deleteMediaAsset(assetId: string) {
   await requireAuth();
-  // assetId is the full Sanity document _id, e.g. "image-abc123-800x600-jpg"
   await mutate([{ delete: { id: assetId } }]);
+}
+
+export async function updateMediaAsset(assetId: string, fields: { title?: string; description?: string }) {
+  await requireAuth();
+  await mutate([{ patch: { id: assetId, set: fields } }]);
 }
 
 export async function saveAbout(formData: FormData) {
