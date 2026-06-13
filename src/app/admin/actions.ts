@@ -146,7 +146,7 @@ export async function deleteMediaAsset(assetId: string) {
   await mutate([{ delete: { id: assetId } }]);
 }
 
-export async function updateMediaAsset(assetId: string, fields: { title?: string; description?: string }) {
+export async function updateMediaAsset(assetId: string, fields: { title?: string; description?: string; altText?: string }) {
   await requireAuth();
   await mutate([{ patch: { id: assetId, set: fields } }]);
 }

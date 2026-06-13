@@ -86,7 +86,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number } };
+  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number } };
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
@@ -95,6 +95,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
+  const [generatingAlt, setGeneratingAlt] = useState(false);
+  const [inspectAltText, setInspectAltText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; post: SanityPost } | null>(null);
@@ -313,6 +315,37 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <div><label style={LABEL}>Title</label><input style={INPUT} defaultValue={inspectAsset.title ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { title: e.target.value }).catch(() => {})} /></div>
               <div><label style={LABEL}>Description</label><textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} /></div>
+              <div>
+                <label style={LABEL}>Alt text</label>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
+                  <textarea
+                    style={{ ...INPUT, minHeight: 52, resize: "vertical", flex: 1 }}
+                    value={inspectAltText}
+                    onChange={e => setInspectAltText(e.target.value)}
+                    onBlur={() => updateMediaAsset(inspectAsset._id, { altText: inspectAltText }).catch(() => {})}
+                    placeholder="Describe this image for screen readers"
+                  />
+                  <button
+                    type="button"
+                    disabled={generatingAlt}
+                    onClick={async () => {
+                      setGeneratingAlt(true);
+                      try {
+                        const res = await fetch("/api/generate-alt", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageUrl: inspectAsset.url }) });
+                        const data = await res.json();
+                        if (data.altText) {
+                          setInspectAltText(data.altText);
+                          await updateMediaAsset(inspectAsset._id, { altText: data.altText });
+                        }
+                      } catch {}
+                      setGeneratingAlt(false);
+                    }}
+                    style={{ background: generatingAlt ? "#f5f8fa" : CRIMSON, color: generatingAlt ? TEXT_MUTED : "white", border: "none", borderRadius: 4, padding: "0.4rem 0.65rem", fontFamily: FONT, fontSize: "0.72rem", cursor: generatingAlt ? "default" : "pointer", whiteSpace: "nowrap", marginTop: 1 }}
+                  >
+                    {generatingAlt ? "Generating…" : "Auto-generate"}
+                  </button>
+                </div>
+              </div>
               <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: "#aaa", margin: 0 }}>{inspectAsset.metadata?.dimensions?.width} × {inspectAsset.metadata?.dimensions?.height}</p>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button onClick={() => setInspectAsset(null)} style={{ flex: 1, background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Done</button>
@@ -551,7 +584,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                   {mediaAssets.map(asset => (
                     <div key={asset._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`${asset.url}?w=320&h=200&fit=crop&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", cursor: "pointer" }} onClick={() => setInspectAsset(asset)} />
+                      <img src={`${asset.url}?w=320&h=200&fit=crop&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", cursor: "pointer" }} onClick={() => { setInspectAsset(asset); setInspectAltText(asset.altText ?? ""); }} />
                       <div style={{ padding: "0.4rem 0.5rem" }}>
                         <p style={{ fontFamily: FONT, fontSize: "0.65rem", color: TEXT_MUTED, margin: "0 0 0.35rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{asset.title || asset.originalFilename || asset._id.slice(-8)}</p>
                         <div style={{ display: "flex", gap: "0.35rem" }}>
