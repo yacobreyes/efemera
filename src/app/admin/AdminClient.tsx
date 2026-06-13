@@ -342,10 +342,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
       {/* Mobile top bar */}
       <div className="admin-mobile-bar">
-        <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: TEXT_DARK, cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center" }} aria-label="Menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em" }}>Efemera</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: TEXT_DARK, cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center" }} aria-label="Menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
+        </div>
         <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
           style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
           + Create new
@@ -362,7 +364,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               <button onClick={() => setShowMobileNav(false)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
-              <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK }}>Efemera</span>
+              <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>e</span>femera</span>
             </div>
             {/* Nav items */}
             <div style={{ padding: "0.75rem 0.75rem", flex: 1 }}>
