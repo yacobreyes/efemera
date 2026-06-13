@@ -108,10 +108,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
 
 
-  const [autosaveLabel, setAutosaveLabel] = useState("");
-  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const autosaveFade = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cloudTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autosaveLabel] = useState("");
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -122,6 +119,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       .then(data => { if (Array.isArray(data)) setPosts(data); })
       .catch(() => {});
   }
+
+  // Clear any stale drafts on mount
+  useEffect(() => {
+    try { localStorage.removeItem(LS_KEY); } catch {}
+    clearCloudDraft().catch(() => {});
+  }, []);
 
   useEffect(() => {
     refreshPosts();
@@ -146,32 +149,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     setIsDirty(dirty);
   }, [form, savedForm]);
 
-  // Autosave to localStorage (fast) and Sanity (slower, cross-device)
-  useEffect(() => {
-    if (!editing && activePanel === "post") {
-      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-      autosaveTimer.current = setTimeout(() => {
-        const snapshot = { ts: Date.now(), form };
-        try {
-          localStorage.setItem(LS_KEY, JSON.stringify(snapshot));
-          setAutosaveLabel("Draft saved");
-          if (autosaveFade.current) clearTimeout(autosaveFade.current);
-          autosaveFade.current = setTimeout(() => setAutosaveLabel(""), 2000);
-        } catch {}
-      }, 800);
-      if (cloudTimer.current) clearTimeout(cloudTimer.current);
-      cloudTimer.current = setTimeout(() => {
-        const hasContent = form.headline.trim();
-        if (hasContent) {
-          saveDraftToCloud(JSON.stringify({ ts: Date.now(), form })).catch(() => {});
-        }
-      }, 4000);
-    }
-    return () => {
-      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-      if (cloudTimer.current) clearTimeout(cloudTimer.current);
-    };
-  }, [form, editing, activePanel]);
 
   // Unsaved changes warning
   useEffect(() => {
