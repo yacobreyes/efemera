@@ -132,6 +132,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       if (data?.headline) setWelcomeHeadline(data.headline);
       if (data?.body) setWelcomeBody(data.body);
     }).catch(() => {});
+    // Prefetch media so library opens instantly
+    fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -166,9 +168,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       }).catch(() => {});
     }
     if (panel === "media") {
-      setMediaLoading(true);
-      fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); })
-        .catch(() => {}).finally(() => setMediaLoading(false));
+      // already prefetched on mount; refresh silently in background
+      fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
     }
   }
 

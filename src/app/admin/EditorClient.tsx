@@ -90,6 +90,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {});
+  }, []);
   // Popup for re-publishing: ask whether to update publish date
   const [showPublishTimeModal, setShowPublishTimeModal] = useState(false);
 
@@ -179,8 +183,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     setUploadCaption(imageCaption);
     setUploadAlt(imageAlt);
     setShowImageModal(true);
-    setPhotoPickerLoading(true);
-    fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {}).finally(() => setPhotoPickerLoading(false));
+    // Silently refresh in background; prefetched data already shown
+    fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {});
   }
 
   function handleUploadFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
