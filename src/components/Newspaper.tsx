@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
@@ -193,9 +193,17 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
 
 export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; onMastheadClick?: () => void }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+
+  function switchTab(tab: Tab) {
+    setActiveTab(tab);
+    setQuery("");
+    const url = tab === "Home" ? "/" : `/?tab=${encodeURIComponent(tab)}`;
+    router.replace(url, { scroll: false });
+  }
   const [welcome, setWelcome] = useState<{ headline: string; body: string } | null>(null);
 
   useEffect(() => {
@@ -246,7 +254,7 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
           {(["Home", "About", "Micro-Memoirs", "Narratives", "Archive"] as Tab[]).map(s => (
-            <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+            <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
         </nav>
       </header>
