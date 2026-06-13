@@ -60,7 +60,7 @@ export async function getAllPosts(): Promise<SanityPost[]> {
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   return client.fetch(
-    `*[_type == "post"] | order(date desc) { ${POST_FIELDS} }`,
+    `*[_type == "post" && !(_id in path("drafts.**"))] | order(date desc) { ${POST_FIELDS} }`,
     {},
     { cache: "no-store" }
   );

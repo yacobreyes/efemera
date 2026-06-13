@@ -144,8 +144,8 @@ export async function loadDraftFromCloud(): Promise<{ data: string; ts: number }
 }
 
 export async function clearCloudDraft() {
-  await requireAuth();
-  await mutate([{ delete: { id: CLOUD_DRAFT_ID } }]);
+  // no auth check — safe to call on mount to purge stale data
+  try { await mutate([{ delete: { id: CLOUD_DRAFT_ID } }]); } catch {}
 }
 
 export async function saveLately(formData: FormData) {
