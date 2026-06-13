@@ -247,13 +247,25 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     <>
       <style>{`
         .admin-grid { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-        @media (max-width: 700px) { .admin-grid { grid-template-columns: 1fr; } .admin-sidebar { height: auto !important; position: relative !important; } }
+        .admin-sidebar { height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; }
         .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.75); cursor: pointer; border-radius: 4; }
         .admin-nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
         .admin-nav-btn.active { background: white; color: ${TEXT_DARK}; }
         .post-row { padding: 0.85rem 1.25rem; border-bottom: 1px solid ${BORDER}; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
         .post-row:hover { background: #f5f8fa; }
         .post-row:last-child { border-bottom: none; }
+        .editor-topbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid ${BORDER}; background: #fafbfc; }
+        @media (max-width: 700px) {
+          .admin-grid { grid-template-columns: 1fr; }
+          .admin-sidebar { height: auto; position: relative; flex-direction: row !important; flex-wrap: wrap; padding: 0.5rem !important; gap: 0 !important; }
+          .admin-sidebar-section { display: none; }
+          .admin-sidebar-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; width: 100%; }
+          .admin-nav-btn { width: auto; padding: 0.35rem 0.6rem; font-size: 0.78rem; }
+          .admin-main { padding: 0.75rem; }
+          .editor-topbar { gap: 0.35rem; padding: 0.5rem 0.75rem; }
+          .editor-topbar button, .editor-topbar span { font-size: 0.78rem !important; padding: 0.35rem 0.6rem !important; }
+        }
       `}</style>
 
       {/* Photo picker modal */}
@@ -322,34 +334,34 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
       <div className="admin-grid">
         {/* LEFT SIDEBAR */}
-        <div className="admin-sidebar" style={{ background: CRIMSON, color: "white", display: "flex", flexDirection: "column", height: "100vh", position: "sticky", top: 0, overflowY: "auto" }}>
-          <div style={{ padding: "1.25rem 1rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+        <div className="admin-sidebar" style={{ background: CRIMSON, color: "white", display: "flex", flexDirection: "column" }}>
+          <div className="admin-sidebar-section" style={{ padding: "1.25rem 1rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
             <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", margin: "0 0 0.75rem" }}>Efemera</p>
-            <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-              style={{ width: "100%", background: "white", border: "none", borderRadius: 4, color: CRIMSON, fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, padding: "0.55rem", cursor: "pointer" }}>
-              + New post
-            </button>
           </div>
 
-          <div style={{ padding: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+          <div className="admin-sidebar-nav" style={{ padding: "0.5rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+            <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
+              style={{ width: "100%", background: "white", border: "none", borderRadius: 4, color: CRIMSON, fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, padding: "0.55rem", cursor: "pointer", marginBottom: "0.25rem" }}>
+              + New post
+            </button>
             <button className={`admin-nav-btn${activePanel === "dashboard" ? " active" : ""}`} onClick={() => tryNav("dashboard")}>Posts</button>
           </div>
 
-          <div style={{ padding: "0.5rem", flex: 1 }}>
-            <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", margin: "0.5rem 0.75rem 0.35rem" }}>Site</p>
+          <div className="admin-sidebar-nav" style={{ padding: "0.5rem", flex: 1 }}>
+            <p className="admin-sidebar-section" style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", margin: "0.5rem 0.75rem 0.35rem" }}>Site</p>
             <button className={`admin-nav-btn${activePanel === "welcome" ? " active" : ""}`} onClick={() => tryNav("welcome")}>Welcome Note</button>
-            <button className={`admin-nav-btn${activePanel === "about" ? " active" : ""}`} onClick={() => tryNav("about")}>About Page</button>
+            <button className={`admin-nav-btn${activePanel === "about" ? " active" : ""}`} onClick={() => tryNav("about")}>About</button>
             <button className={`admin-nav-btn${activePanel === "lately" ? " active" : ""}`} onClick={() => tryNav("lately")}>Lately</button>
-            <button className={`admin-nav-btn${activePanel === "media" ? " active" : ""}`} onClick={() => tryNav("media")}>Media Library</button>
+            <button className={`admin-nav-btn${activePanel === "media" ? " active" : ""}`} onClick={() => tryNav("media")}>Media</button>
           </div>
 
-          <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+          <div className="admin-sidebar-section" style={{ padding: "0.75rem 1rem", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
             <button onClick={async () => { await logout(); setAuth(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", cursor: "pointer", padding: 0 }}>Sign out</button>
           </div>
         </div>
 
         {/* RIGHT PANEL */}
-        <div style={{ background: "#f5f8fa", overflowY: "auto", padding: "2rem" }}>
+        <div className="admin-main">
 
           {/* DASHBOARD */}
           {activePanel === "dashboard" && (
@@ -481,7 +493,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
               <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                 {/* Top bar */}
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, background: "#fafbfc" }}>
+                <div className="editor-topbar">
                   <span style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, border: `1px solid ${form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : form.status === "scheduled" ? "#e3f2fd" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#666" }}>
                     {form.status === "published" ? "● Live" : form.status === "scheduled" ? "⏱ Scheduled" : "○ Draft"}
                   </span>
