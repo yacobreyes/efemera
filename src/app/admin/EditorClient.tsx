@@ -221,7 +221,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             onClick={handlePublishClick}
             style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
           >
-            {initialForm.status === "published" ? "Save" : "Save & publish"}
+            Publish
           </button>
           {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
@@ -324,18 +324,20 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem" }}>
           {editorTab === "content" && (
             <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <input
-                placeholder="Type your headline"
-                style={{ fontFamily: FONT, fontSize: "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2 }}
-                value={form.headline}
-                onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
-              />
-              <input
-                placeholder="Type your subheadline"
-                style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4 }}
-                value={form.subheadline}
-                onChange={e => updateForm({ subheadline: e.target.value })}
-              />
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                <input
+                  placeholder="Type your headline"
+                  style={{ fontFamily: FONT, fontSize: "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}
+                  value={form.headline}
+                  onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
+                />
+                <input
+                  placeholder="Type your subheadline"
+                  style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4, padding: 0, margin: 0 }}
+                  value={form.subheadline}
+                  onChange={e => updateForm({ subheadline: e.target.value })}
+                />
+              </div>
               {!imagePreview ? (
                 <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button type="button" onClick={() => fileRef.current?.click()} style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer" }}>
