@@ -104,6 +104,9 @@ export default function RichBodyEditor({ initialContent, onChange, editorRef }: 
         .ProseMirror:focus { outline: none; }
       `}</style>
       <EditorContent editor={editor} />
+      <div style={{ borderTop: `1px solid ${BORDER}`, padding: "0.3rem 0.7rem", background: "#fafbfc", fontFamily: FONT, fontSize: "0.72rem", color: "#aaa", textAlign: "right" }}>
+        {editor.getText().trim() ? editor.getText().trim().split(/\s+/).length : 0} words
+      </div>
     </div>
   );
 }
