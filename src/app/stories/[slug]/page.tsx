@@ -120,6 +120,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
                   <blockquote style={{ margin: "1.4rem 0 0", padding: "0.2rem 0 0.2rem 1.1rem", borderLeft: "3px solid #8B0000", fontStyle: "italic", color: "#526270" }}>{children}</blockquote>
                 ),
               },
+              marks: {
+                strong: ({ children }) => <strong>{children}</strong>,
+                em: ({ children }) => <em>{children}</em>,
+              },
             }}
           />
         </div>
