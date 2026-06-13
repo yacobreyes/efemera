@@ -94,6 +94,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
 
   useEffect(() => {
     try { localStorage.removeItem(LS_KEY); } catch {}
@@ -248,6 +249,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       <style>{`
         .admin-grid { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
         .admin-sidebar { height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+        .admin-mobile-bar { display: none; }
+        .admin-drawer { display: none; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; }
         .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.75); cursor: pointer; border-radius: 4; }
         .admin-nav-btn:hover { background: rgba(255,255,255,0.1); color: white; }
@@ -258,13 +261,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         .editor-topbar { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid ${BORDER}; background: #fafbfc; }
         @media (max-width: 700px) {
           .admin-grid { grid-template-columns: 1fr; }
-          .admin-sidebar { height: auto; position: relative; flex-direction: row !important; flex-wrap: wrap; padding: 0.5rem !important; gap: 0 !important; }
-          .admin-sidebar-section { display: none; }
-          .admin-sidebar-nav { display: flex; flex-wrap: wrap; gap: 0.25rem; width: 100%; }
-          .admin-nav-btn { width: auto; padding: 0.35rem 0.6rem; font-size: 0.78rem; }
-          .admin-main { padding: 0.75rem; }
+          .admin-sidebar { display: none; }
+          .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: ${CRIMSON}; padding: 0.7rem 1rem; position: sticky; top: 0; z-index: 200; }
+          .admin-drawer { display: block; position: fixed; inset: 0; z-index: 300; }
+          .admin-drawer-bg { position: absolute; inset: 0; background: rgba(0,0,0,0.5); }
+          .admin-drawer-panel { position: absolute; top: 0; left: 0; width: 240px; height: 100%; background: ${CRIMSON}; display: flex; flex-direction: column; padding: 1rem 0.75rem; gap: 0.25rem; overflow-y: auto; }
+          .admin-main { padding: 1rem; }
           .editor-topbar { gap: 0.35rem; padding: 0.5rem 0.75rem; }
-          .editor-topbar button, .editor-topbar span { font-size: 0.78rem !important; padding: 0.35rem 0.6rem !important; }
+          .editor-topbar button, .editor-topbar span { font-size: 0.78rem !important; padding: 0.3rem 0.5rem !important; }
         }
       `}</style>
 
@@ -328,6 +332,43 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               const text = (node.content ?? []).flatMap((n: { type?: string; text?: string }) => n.type === "text" ? [n.text ?? ""] : []).join("");
               return <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{text}</p>;
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Mobile top bar */}
+      <div className="admin-mobile-bar">
+        <span style={{ fontFamily: FONT, fontSize: "0.95rem", fontWeight: 700, color: "white", letterSpacing: "0.04em" }}>Efemera CMS</span>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
+            style={{ background: "white", color: CRIMSON, border: "none", borderRadius: 4, padding: "0.4rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
+            + New
+          </button>
+          <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: "white", cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      {showMobileNav && (
+        <div className="admin-drawer" onClick={() => setShowMobileNav(false)}>
+          <div className="admin-drawer-bg" />
+          <div className="admin-drawer-panel" onClick={e => e.stopPropagation()}>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", margin: "0 0 0.75rem 0.25rem" }}>Efemera</p>
+            <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
+              style={{ width: "100%", background: "white", border: "none", borderRadius: 4, color: CRIMSON, fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, padding: "0.55rem", cursor: "pointer", marginBottom: "0.5rem" }}>
+              + New post
+            </button>
+            <button className={`admin-nav-btn${activePanel === "dashboard" ? " active" : ""}`} onClick={() => { tryNav("dashboard"); setShowMobileNav(false); }}>Posts</button>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", margin: "1rem 0.75rem 0.35rem" }}>Site</p>
+            <button className={`admin-nav-btn${activePanel === "welcome" ? " active" : ""}`} onClick={() => { tryNav("welcome"); setShowMobileNav(false); }}>Welcome Note</button>
+            <button className={`admin-nav-btn${activePanel === "about" ? " active" : ""}`} onClick={() => { tryNav("about"); setShowMobileNav(false); }}>About</button>
+            <button className={`admin-nav-btn${activePanel === "lately" ? " active" : ""}`} onClick={() => { tryNav("lately"); setShowMobileNav(false); }}>Lately</button>
+            <button className={`admin-nav-btn${activePanel === "media" ? " active" : ""}`} onClick={() => { tryNav("media"); setShowMobileNav(false); }}>Media</button>
+            <div style={{ marginTop: "auto", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+              <button onClick={async () => { await logout(); setAuth(false); setShowMobileNav(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", cursor: "pointer", padding: 0 }}>Sign out</button>
+            </div>
           </div>
         </div>
       )}
