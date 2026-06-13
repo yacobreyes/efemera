@@ -271,7 +271,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{statusLabel}</span>
-          {wordCount > 0 && <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>· {wordCount} words</span>}
           <button
             type="button"
             disabled={isPending || uploadingImage}
@@ -411,6 +410,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </div>
               )}
               <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} />
+              {wordCount > 0 && (
+                <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: "#aaa", margin: "1rem 0 0", padding: 0 }}>{wordCount} {wordCount === 1 ? "word" : "words"}</p>
+              )}
             </div>
           )}
 
