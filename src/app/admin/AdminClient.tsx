@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset } from "./actions";
 import { login, logout } from "./auth";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -46,6 +47,7 @@ const DEFAULT_FORM: FormState = {
 type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media";
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false }: { posts: SanityPost[]; initialAuth?: boolean }) {
+  const router = useRouter();
   const [auth, setAuth] = useState(initialAuth);
   const [pw, setPw] = useState("");
   const [authError, setAuthError] = useState("");
@@ -144,26 +146,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
   function startNew() {
-    const f = { ...DEFAULT_FORM, date: new Date().toISOString().slice(0, 10) };
-    setEditing(null); setForm(f); setSavedForm(f); setIsDirty(false);
-    setImageAssetId(""); setImagePreview(""); setImageCaption(""); setImageAlt("");
-    setActivePanel("editor"); setSuccess(""); setError("");
+    router.push("/admin/posts/new");
   }
 
   function startEdit(post: SanityPost) {
-    const f: FormState = {
-      headline: post.headline, subheadline: post.subheadline ?? "",
-      byline: post.byline ?? "Yacob Reyes", slug: post.slug, section: post.section,
-      date: post.date, body: portableTextToTiptap(post.body),
-      status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
-      pinned: post.pinned ?? false,
-    };
-    submitStatusRef.current = f.status;
-    setEditing(post); setForm(f); setSavedForm(f); setIsDirty(false);
-    setImageAssetId(post.image?.asset?._ref ?? "");
-    setImagePreview(post.image?.asset ? "existing" : "");
-    setImageCaption(post.image?.caption ?? ""); setImageAlt(post.image?.alt ?? "");
-    setActivePanel("editor"); setSuccess(""); setError("");
+    router.push(`/admin/posts/${post.slug}`);
   }
 
   function tryNav(panel: Panel) {
@@ -575,7 +562,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             </div>
           )}
 
-          {/* POST EDITOR — rendered inside admin-main but styled as full-canvas */}
+          {/* POST EDITOR is now at /admin/posts/[id] and /admin/posts/new */}
           {activePanel === "editor" && (
             <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
