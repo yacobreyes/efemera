@@ -29,6 +29,11 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function formatTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
+}
+
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 
 type FormState = {
@@ -37,7 +42,20 @@ type FormState = {
   status: "draft" | "published" | "scheduled"; pinned: boolean;
 };
 
+type VersionEntry = { savedAt: string; type: "autosave" | "publish" };
 type MediaAsset = { _id: string; url: string; originalFilename?: string };
+
+function versionsKey(slug: string) { return `efemera_versions_${slug}`; }
+function loadVersions(slug: string): VersionEntry[] {
+  try { return JSON.parse(localStorage.getItem(versionsKey(slug)) ?? "[]"); } catch { return []; }
+}
+function appendVersion(slug: string, entry: VersionEntry) {
+  try {
+    const v = loadVersions(slug);
+    v.unshift(entry);
+    localStorage.setItem(versionsKey(slug), JSON.stringify(v.slice(0, 20)));
+  } catch {}
+}
 
 export default function EditorClient({ post }: { post: SanityPost }) {
   const router = useRouter();
@@ -56,12 +74,15 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   const [form, setForm] = useState<FormState>(initialForm);
   const [lastSaved, setLastSaved] = useState<FormState>(initialForm);
-  const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
+  const [editorTab, setEditorTab] = useState<"content" | "metadata" | "versions">("content");
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
   const [showEllipsis, setShowEllipsis] = useState(false);
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
+  const [versions, setVersions] = useState<VersionEntry[]>([]);
+  // Popup for re-publishing: ask whether to update publish date
+  const [showPublishTimeModal, setShowPublishTimeModal] = useState(false);
 
   const [imageCaption, setImageCaption] = useState(post.image?.caption ?? "");
   const [imageAlt, setImageAlt] = useState(post.image?.alt ?? "");
@@ -73,18 +94,22 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
-
   const [showPreview, setShowPreview] = useState(false);
+
+  useEffect(() => {
+    setVersions(loadVersions(post.slug));
+  }, [post.slug]);
 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
   const isDirty = JSON.stringify(form) !== JSON.stringify(lastSaved);
 
-  const doSave = useCallback((status: "draft" | "published" | "scheduled", afterSave?: () => void) => {
+  const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false) => {
     setSaveStatus("saving");
     const fd = new FormData();
     const { body, ...rest } = form;
-    Object.entries({ ...rest, status }).forEach(([k, v]) => fd.set(k, String(v)));
+    const saveDate = (status === "published" && updateDate) ? new Date().toISOString().slice(0, 10) : form.date;
+    Object.entries({ ...rest, status, date: saveDate }).forEach(([k, v]) => fd.set(k, String(v)));
     fd.set("body", JSON.stringify(tiptapToPortableText(body)));
     fd.set("id", post._id);
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
@@ -94,17 +119,19 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     startTransition(async () => {
       try {
         await savePost(fd);
-        setLastSaved({ ...form, status });
-        setForm(f => ({ ...f, status }));
+        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave" };
+        appendVersion(post.slug, entry);
+        setVersions(loadVersions(post.slug));
+        setLastSaved({ ...form, status, date: saveDate });
+        setForm(f => ({ ...f, status, date: saveDate }));
         setSaveStatus("saved");
-        afterSave?.();
       } catch {
         setSaveStatus("unsaved");
       }
     });
   }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt]);
 
-  // Auto-save draft every 5s when dirty
+  // Auto-save every 5s when dirty
   useEffect(() => {
     if (!isDirty) return;
     setSaveStatus("unsaved");
@@ -124,6 +151,15 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     finally { setUploadingImage(false); }
   }
 
+  function handlePublishClick() {
+    // Already published → ask about publish date
+    if (initialForm.status === "published") {
+      setShowPublishTimeModal(true);
+    } else {
+      doSave("published", true);
+    }
+  }
+
   const statusLabel = saveStatus === "saving" ? "Saving…" : saveStatus === "unsaved" ? "Unsaved" : "Saved";
 
   return (
@@ -141,10 +177,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           <button
             type="button"
             disabled={isPending || uploadingImage}
-            onClick={() => doSave("published")}
+            onClick={handlePublishClick}
             style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
           >
-            {form.status === "published" ? "Save" : "Save & publish"}
+            {initialForm.status === "published" ? "Save" : "Save & publish"}
           </button>
           {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
@@ -173,6 +209,24 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           </div>
         </div>
       </div>
+
+      {/* Publish time modal */}
+      {showPublishTimeModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowPublishTimeModal(false)}>
+          <div style={{ background: "white", borderRadius: 10, padding: "1.75rem", width: 340, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
+            <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: "0 0 0.5rem", color: TEXT_DARK }}>Update publish time?</p>
+            <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: "0 0 1.5rem", lineHeight: 1.5 }}>This story was originally published on <strong>{form.date}</strong>. Do you want to update the publish date to today?</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", true); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer" }}>
+                Update to today ({new Date().toISOString().slice(0, 10)})
+              </button>
+              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", false); }} style={{ background: "white", color: TEXT_DARK, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer" }}>
+                Keep original ({form.date})
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Schedule modal */}
       {showScheduler && (
@@ -204,37 +258,43 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       )}
 
       {/* Body */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+      <div style={{ display: "flex", flex: 1, overflow: "hidden" }} onClick={() => setShowEllipsis(false)}>
         {/* Left section nav */}
-        <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, padding: "1.5rem 0", display: "flex", flexDirection: "column", overflowY: "auto" }}>
-          <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.5rem 1rem", opacity: 0.7 }}>Required</p>
-          {(["content", "metadata"] as const).map(tab => (
-            <button key={tab} type="button" onClick={() => setEditorTab(tab)}
-              style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === tab ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === tab ? 600 : 400, color: editorTab === tab ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-              {tab === "content" ? "Story content" : "Metadata"}
+        <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+          <div style={{ padding: "1.25rem 0 0.5rem" }}>
+            <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Required</p>
+            {(["content", "metadata"] as const).map(tab => (
+              <button key={tab} type="button" onClick={() => setEditorTab(tab)}
+                style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === tab ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === tab ? 600 : 400, color: editorTab === tab ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
+                {tab === "content" ? "Story content" : "Metadata"}
+              </button>
+            ))}
+          </div>
+          <div style={{ padding: "1rem 0 0.5rem", borderTop: `1px solid ${BORDER}`, marginTop: "0.75rem" }}>
+            <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>History</p>
+            <button type="button" onClick={() => setEditorTab("versions")}
+              style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === "versions" ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === "versions" ? 600 : 400, color: editorTab === "versions" ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
+              Previous drafts
             </button>
-          ))}
+          </div>
         </div>
 
         {/* Canvas */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem" }} onClick={() => { setShowEllipsis(false); }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem" }}>
           {editorTab === "content" && (
             <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {/* Headline */}
               <input
                 placeholder="Type your headline"
                 style={{ fontFamily: FONT, fontSize: "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2 }}
                 value={form.headline}
                 onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
               />
-              {/* Subheadline */}
               <input
                 placeholder="Type your subheadline"
                 style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4 }}
                 value={form.subheadline}
                 onChange={e => updateForm({ subheadline: e.target.value })}
               />
-              {/* Photo */}
               {!imagePreview ? (
                 <div style={{ display: "flex", gap: "0.5rem" }}>
                   <button type="button" onClick={() => fileRef.current?.click()} style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer" }}>
@@ -253,13 +313,12 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   </div>
                 </div>
               )}
-              {/* Body */}
               <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} />
             </div>
           )}
 
           {editorTab === "metadata" && (
-            <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div>
                 <label style={LABEL}>Section</label>
                 <select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}>
@@ -270,6 +329,29 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
               <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} /></div>
               <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} /></div>
+            </div>
+          )}
+
+          {editorTab === "versions" && (
+            <div style={{ maxWidth: 480 }}>
+              <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: "0 0 1.25rem" }}>Previous drafts</h2>
+              {versions.length === 0 ? (
+                <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet. Changes are auto-saved every 5 seconds.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                  {versions.map((v, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}` }}>
+                      <div>
+                        <p style={{ fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatTime(v.savedAt)}</p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: "0.1rem 0 0" }}>{v.type === "publish" ? "Published" : "Auto-saved"}</p>
+                      </div>
+                      <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, padding: "0.2rem 0.6rem", borderRadius: 20, background: v.type === "publish" ? "#e8f5e9" : "#f0f4f8", color: v.type === "publish" ? "#2e7d32" : TEXT_MUTED }}>
+                        {v.type === "publish" ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
