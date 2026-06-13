@@ -95,6 +95,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
 
   useEffect(() => {
     try { localStorage.removeItem(LS_KEY); } catch {}
@@ -257,6 +258,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         .admin-nav-btn.active { background: white; color: ${TEXT_DARK}; }
         .mobile-tab-bar { display: none; }
         .desktop-tab-row { display: flex; }
+        .mobile-editor-bar { display: none; }
+        .mobile-editor-tabs { display: none; }
+        .mobile-only-fields { display: none; }
+        .desktop-editor-bar { display: flex; }
+        .desktop-editor-fields { display: flex; }
         .post-row { padding: 0.85rem 1.25rem; border-bottom: 1px solid ${BORDER}; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
         .post-row:hover { background: #f5f8fa; }
         .post-row:last-child { border-bottom: none; }
@@ -273,6 +279,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           .mobile-tab-btn.active { color: ${CRIMSON}; border-bottom-color: ${CRIMSON}; }
           .mobile-tab-bar { display: flex; }
           .desktop-tab-row { display: none; }
+          .mobile-editor-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: white; border-bottom: 1px solid ${BORDER}; position: sticky; top: 0; z-index: 10; }
+          .mobile-editor-tabs { display: flex; background: white; border-bottom: 1px solid ${BORDER}; }
+          .mobile-editor-tab { flex: 1; background: none; border: none; padding: 0.7rem 0; font-family: ${FONT}; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: ${TEXT_MUTED}; cursor: pointer; border-bottom: 2px solid transparent; }
+          .mobile-editor-tab.active { color: ${CRIMSON}; border-bottom-color: ${CRIMSON}; }
+          .desktop-editor-bar { display: flex; }
+          .desktop-editor-fields { display: block; }
+          .mobile-editor-bar { display: flex; }
+          .mobile-editor-tabs { display: flex; }
+          .mobile-only-fields { display: flex; }
+          .desktop-editor-bar { display: none; }
+          .desktop-editor-fields { display: none; }
         }
       `}</style>
 
@@ -551,8 +568,26 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
               {error && <div style={{ background: "#fde8e8", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, marginBottom: "1rem" }}>{error}</div>}
 
               <form onSubmit={handleSubmit} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-                {/* Top bar */}
-                <div className="editor-topbar">
+
+                {/* Mobile editor top bar */}
+                <div className="mobile-editor-bar">
+                  <button type="button" onClick={() => { if (!isDirty || confirm("Discard?")) { setActivePanel("dashboard"); setEditing(null); setIsDirty(false); } }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_DARK, cursor: "pointer", padding: 0, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                    ← Save & exit
+                  </button>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button type="submit" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "draft"; }} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.35rem 0.9rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: TEXT_DARK }}>{isPending ? "…" : "Save"}</button>
+                    <button type="submit" disabled={isPending || uploadingImage} onClick={() => { submitStatusRef.current = "published"; setShowScheduler(false); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.9rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Publish</button>
+                  </div>
+                </div>
+
+                {/* Mobile editor tabs */}
+                <div className="mobile-editor-tabs">
+                  <button type="button" className={`mobile-editor-tab${editorTab === "content" ? " active" : ""}`} onClick={() => setEditorTab("content")}>Story content</button>
+                  <button type="button" className={`mobile-editor-tab${editorTab === "metadata" ? " active" : ""}`} onClick={() => setEditorTab("metadata")}>Metadata</button>
+                </div>
+
+                {/* Desktop top bar */}
+                <div className={`editor-topbar desktop-editor-bar`}>
                   <span style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 600, padding: "0.3rem 0.8rem", borderRadius: 20, border: `1px solid ${form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#b0b0b0"}`, background: form.status === "published" ? "#e8f5e9" : form.status === "scheduled" ? "#e3f2fd" : "#f5f5f5", color: form.status === "published" ? "#2e7d32" : form.status === "scheduled" ? "#1565c0" : "#666" }}>
                     {form.status === "published" ? "● Live" : form.status === "scheduled" ? "⏱ Scheduled" : "○ Draft"}
                   </span>
@@ -580,8 +615,52 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                   </div>
                 </div>
 
-                <div style={{ padding: "0 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                {/* Story content — always visible on desktop, tab-gated on mobile */}
+                <div className="desktop-editor-fields" style={{ padding: "0 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                   <div><label style={LABEL}>Headline *</label><input style={INPUT} value={form.headline} onChange={e => updateForm({ headline: e.target.value, ...(!editing ? { slug: slugify(e.target.value) } : {}) })} required /></div>
+                </div>
+
+                {/* Mobile: Story content tab */}
+                {editorTab === "content" && (
+                  <div style={{ padding: "0 1rem 1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }} className="mobile-only-fields">
+                    <div><label style={LABEL}>Headline *</label><input style={INPUT} value={form.headline} onChange={e => updateForm({ headline: e.target.value, ...(!editing ? { slug: slugify(e.target.value) } : {}) })} required /></div>
+                    <div>
+                      <label style={LABEL}>Body</label>
+                      <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile: Metadata tab */}
+                {editorTab === "metadata" && (
+                  <div style={{ padding: "0 1rem 1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }} className="mobile-only-fields">
+                    <div><label style={LABEL}>Subheadline</label><input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} /></div>
+                    <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+                    <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                      <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option>Micro-Memoir</option><option>Narratives</option></select></div>
+                      <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
+                    </div>
+                    <div>
+                      <label style={LABEL}>Photo {uploadingImage && <span style={{ fontWeight: 400, color: "#657786" }}>— uploading…</span>}</label>
+                      <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <button type="button" onClick={() => fileRef.current?.click()} style={{ padding: "0.45rem 1rem", border: `1px solid ${BORDER}`, borderRadius: 4, background: "white", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED }}>{imagePreview ? "Change photo" : "Upload photo"}</button>
+                        <button type="button" onClick={() => { setShowPhotoPicker(true); setPhotoPickerLoading(true); fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {}).finally(() => setPhotoPickerLoading(false)); }} style={{ padding: "0.45rem 1rem", border: `1px solid ${BORDER}`, borderRadius: 4, background: "white", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED }}>Library</button>
+                        {imagePreview && <button type="button" onClick={() => { setImagePreview(""); setImageAssetId(""); }} style={{ background: "none", border: "none", cursor: "pointer", color: "#657786", fontSize: "0.8rem" }}>Remove</button>}
+                      </div>
+                      {imagePreview && (
+                        <div style={{ marginTop: "0.6rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                          <div><label style={LABEL}>Caption</label><input style={INPUT} value={imageCaption} onChange={e => setImageCaption(e.target.value)} /></div>
+                          <div><label style={LABEL}>Alt text</label><input style={INPUT} value={imageAlt} onChange={e => setImageAlt(e.target.value)} /></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Desktop: all fields */}
+                <div className="desktop-editor-fields" style={{ padding: "0 1.5rem 1.5rem", display: "flex", flexDirection: "column", gap: "1.2rem" }}>
                   <div><label style={LABEL}>Subheadline</label><input style={INPUT} value={form.subheadline} onChange={e => updateForm({ subheadline: e.target.value })} /></div>
                   <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
 
