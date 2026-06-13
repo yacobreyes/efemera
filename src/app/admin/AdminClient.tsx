@@ -95,6 +95,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -257,18 +258,31 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   return (
     <>
       <style>{`
-        .admin-grid { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
-        .admin-sidebar { display: none; }
-        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.75rem 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; align-items: stretch; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .admin-sidebar {
+          width: ${sidebarOpen ? "220px" : "60px"};
+          min-width: ${sidebarOpen ? "220px" : "60px"};
+          background: white;
+          border-right: 1px solid ${BORDER};
+          display: flex;
+          flex-direction: column;
+          transition: width 0.2s ease, min-width 0.2s ease;
+          overflow: hidden;
+          position: relative;
+          z-index: 10;
+        }
+        .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0.6rem 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); min-height: 52px; }
+        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
-        .admin-nav-btn { display: block; width: 100%; background: none; border: none; text-align: left; padding: 0.55rem 0.75rem; font-family: ${FONT}; font-size: 0.9rem; font-weight: 600; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6; }
+        .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
         .admin-nav-btn:hover { background: #f5f0f0; color: ${CRIMSON}; }
-        .admin-nav-btn.active { background: #f5f0f0; color: ${CRIMSON}; }
+        .admin-nav-btn.active { background: #f0e8e8; color: ${CRIMSON}; font-weight: 700; border-left: 3px solid ${CRIMSON}; padding-left: calc(0.85rem - 3px); }
         .post-row { padding: 0.85rem 1.25rem; border-bottom: 1px solid ${BORDER}; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
         .post-row:hover { background: #f5f8fa; }
         .post-row:last-child { border-bottom: none; }
         @media (max-width: 700px) {
+          .admin-sidebar { display: none; }
           .admin-main { padding: 1rem; }
         }
       `}</style>
@@ -337,68 +351,99 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         </div>
       )}
 
-      {/* Top bar */}
-      <div className="admin-mobile-bar">
-        {/* Left: hamburger + wordmark + search */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <button onClick={() => setShowMobileNav(v => !v)} style={{ background: "none", border: "none", color: TEXT_DARK, cursor: "pointer", padding: "0.25rem", display: "flex", alignItems: "center" }} aria-label="Menu">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          </button>
-          <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK, letterSpacing: "-0.01em", whiteSpace: "nowrap" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
-          {activePanel === "dashboard" && (
-            <div style={{ position: "relative" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input placeholder="Search for stories…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: 240, boxSizing: "border-box" as const }} />
-            </div>
-          )}
-        </div>
-        {/* Center: tabs */}
-        {activePanel === "dashboard" && (
-          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignSelf: "stretch", alignItems: "flex-end", borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
-            {(["drafts", "scheduled", "published"] as const).map(tab => (
-              <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
-                {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+      <div className="admin-layout">
+        {/* Collapsible sidebar */}
+        <div className="admin-sidebar">
+          {/* Logo + toggle */}
+          <div style={{ padding: "1rem 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "space-between" : "center", borderBottom: `1px solid ${BORDER}`, minHeight: 52, boxSizing: "border-box" }}>
+            {sidebarOpen && (
+              <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
+            )}
+            <button onClick={() => setSidebarOpen(v => !v)} style={{ background: "#f0f4f8", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
+              </svg>
+            </button>
+          </div>
+          {/* Nav items */}
+          <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto" }}>
+            {([
+              ["dashboard", "Posts", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>],
+              ["welcome", "Welcome Note", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
+              ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>],
+              ["lately", "Lately", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>],
+              ["media", "Media", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
+            ] as [Panel, string, React.ReactNode][]).map(([panel, label, icon]) => (
+              <button key={panel} onClick={() => tryNav(panel)} className={`admin-nav-btn${activePanel === panel ? " active" : ""}`} title={!sidebarOpen ? label : undefined}>
+                <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{icon}</span>
+                {sidebarOpen && <span>{label}</span>}
               </button>
             ))}
           </div>
-        )}
-        {/* Right: Create new */}
-        <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
-          style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-          + Create new
-        </button>
-      </div>
-
-      {/* Mobile drawer */}
-      {showMobileNav && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 300 }} onClick={() => setShowMobileNav(false)}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
-          <div style={{ position: "absolute", top: 0, left: 0, width: 260, height: "100%", background: "white", display: "flex", flexDirection: "column", overflowY: "auto", boxSizing: "border-box", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
-            {/* Drawer header */}
-            <div style={{ padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <button onClick={() => setShowMobileNav(false)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
-              <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>e</span>femera</span>
-            </div>
-            {/* Nav items */}
-            <div style={{ padding: "0.75rem 0.75rem", flex: 1 }}>
-              <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0.5rem 0.5rem", opacity: 0.6 }}>Content</p>
-              {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media"]] as [Panel, string][]).map(([panel, label]) => (
-                <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.6rem 0.75rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            <div style={{ padding: "0.75rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
-              <button onClick={async () => { await logout(); setAuth(false); setShowMobileNav(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
-            </div>
+          {/* Sign out */}
+          <div style={{ padding: "0.75rem 0.4rem", borderTop: `1px solid ${BORDER}` }}>
+            <button onClick={async () => { await logout(); setAuth(false); }} className="admin-nav-btn" title={!sidebarOpen ? "Sign out" : undefined}>
+              <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              {sidebarOpen && <span>Sign out</span>}
+            </button>
           </div>
         </div>
-      )}
 
-      <div className="admin-grid">
-        {/* RIGHT PANEL */}
+        {/* Right side: top bar + main content */}
+        <div className="admin-right">
+          {/* Top bar */}
+          <div className="admin-mobile-bar">
+            {/* Left: search */}
+            {activePanel === "dashboard" && (
+              <div style={{ position: "relative" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input placeholder="Search for stories…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: 260, boxSizing: "border-box" as const }} />
+              </div>
+            )}
+            {/* Center: tabs */}
+            {activePanel === "dashboard" && (
+              <div style={{ flex: 1, display: "flex", justifyContent: "center", alignSelf: "stretch", alignItems: "flex-end", borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
+                {(["drafts", "scheduled", "published"] as const).map(tab => (
+                  <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+                  </button>
+                ))}
+              </div>
+            )}
+            {/* Right: Create new */}
+            <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
+              style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+              + Create new
+            </button>
+          </div>
+
+          {/* Mobile drawer (small screens only) */}
+          {showMobileNav && (
+            <div style={{ position: "fixed", inset: 0, zIndex: 300 }} onClick={() => setShowMobileNav(false)}>
+              <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
+              <div style={{ position: "absolute", top: 0, left: 0, width: 260, height: "100%", background: "white", display: "flex", flexDirection: "column", overflowY: "auto", boxSizing: "border-box", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
+                <div style={{ padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <button onClick={() => setShowMobileNav(false)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 800, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>e</span>femera</span>
+                </div>
+                <div style={{ padding: "0.75rem", flex: 1 }}>
+                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media"]] as [Panel, string][]).map(([panel, label]) => (
+                    <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.6rem 0.75rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ padding: "0.75rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
+                  <button onClick={async () => { await logout(); setAuth(false); setShowMobileNav(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
+                </div>
+              </div>
+            </div>
+          )}
+
         <div className="admin-main">
 
           {/* DASHBOARD */}
@@ -614,7 +659,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             </div>
           )}
         </div>
-      </div>
+        </div>{/* end admin-right */}
+      </div>{/* end admin-layout */}
     </>
   );
 }
