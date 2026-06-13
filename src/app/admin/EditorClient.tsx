@@ -146,7 +146,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
       doSave(form.status === "published" ? "published" : "draft");
-    }, 5000);
+    }, 1500);
     return () => clearTimeout(timer);
   }, [form, imageAssetId, imageCaption, imageAlt]);
 
@@ -421,13 +421,22 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
           {editorTab === "versions" && (
             <div style={{ maxWidth: 480 }}>
-              <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: "0 0 1.25rem" }}>Previous drafts</h2>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+                <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Previous drafts</h2>
+                {form.status === "published" && (
+                  <button type="button" onClick={() => { if (confirm("Revert to draft? This will unpublish the story.")) doSave("draft"); }}
+                    style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>
+                    Revert to draft
+                  </button>
+                )}
+              </div>
               {versions.length === 0 ? (
-                <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet. Changes are auto-saved every 5 seconds.</p>
+                <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet.</p>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
                   {versions.map((v, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}` }}>
+                    <div key={i} onContextMenu={e => { e.preventDefault(); if (confirm("Revert to draft at this point?")) doSave("draft"); }}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, cursor: "context-menu" }}>
                       <div>
                         <p style={{ fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatTime(v.savedAt)}</p>
                         <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: "0.1rem 0 0" }}>{v.type === "publish" ? "Published" : "Auto-saved"}</p>
