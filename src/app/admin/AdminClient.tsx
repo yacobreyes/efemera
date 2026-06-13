@@ -270,6 +270,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           overflow: hidden;
           position: relative;
           z-index: 10;
+          overflow: visible;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
         .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
@@ -371,7 +372,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             </button>
           </div>
           {/* Nav items */}
-          <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto" }}>
+          <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto", overflowX: "hidden" }}>
             {([
               ["dashboard", "Posts", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>],
               ["welcome", "Welcome Note", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
