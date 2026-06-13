@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
-import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft, deleteMediaAsset } from "./actions";
 import { login } from "./auth";
 import { parseBody } from "@/lib/parseBody";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -653,19 +653,37 @@ function handleSubmit(e: React.FormEvent) {
                             {asset.metadata.dimensions.width} × {asset.metadata.dimensions.height}
                           </p>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            navigator.clipboard?.writeText(asset._id).catch(() => {});
-                            setImageAssetId(asset._id);
-                            setImagePreview("existing");
-                            setActivePanel("post");
-                            setSuccess(`Image set — fill in a headline and save.`);
-                          }}
-                          style={{ width: "100%", background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_DARK }}
-                        >
-                          Use in post
-                        </button>
+                        <div style={{ display: "flex", gap: "0.35rem" }}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const caption = asset.originalFilename
+                                ? asset.originalFilename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ")
+                                : "";
+                              setImageAssetId(asset._id);
+                              setImagePreview("existing");
+                              setImageCaption(caption);
+                              setActivePanel("post");
+                              setSuccess("Image set on post.");
+                            }}
+                            style={{ flex: 1, background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_DARK }}
+                          >
+                            Use in post
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (!confirm("Delete this image permanently?")) return;
+                              deleteMediaAsset(asset._id).then(() => {
+                                setMediaAssets(prev => prev.filter(a => a._id !== asset._id));
+                              }).catch(() => alert("Delete failed"));
+                            }}
+                            style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 3, padding: "0.3rem 0.4rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: CRIMSON }}
+                            title="Delete image"
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
