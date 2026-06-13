@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
@@ -191,10 +191,8 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
   );
 }
 
-export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; welcome?: { headline: string; body: string } | null; onMastheadClick?: () => void }) {
-  const searchParams = useSearchParams();
+export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, initialTab = "Home", onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; welcome?: { headline: string; body: string } | null; initialTab?: Tab; onMastheadClick?: () => void }) {
   const router = useRouter();
-  const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
   const HOME_LIMIT = 10;

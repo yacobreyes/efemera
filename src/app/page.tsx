@@ -2,9 +2,14 @@ import HomeClient from "@/components/HomeClient";
 import { getAllPosts, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
 import { cookies } from "next/headers";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-export default async function Home() {
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
+
+export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { tab } = await searchParams;
+  const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
+
   const cookieStore = await cookies();
   const firstVisit = cookieStore.get("efemera_entered")?.value !== "1";
 
@@ -25,5 +30,5 @@ export default async function Home() {
   let lately: SanityLately | null = null;
   try { lately = await getLately(); } catch {}
   try { welcome = await getWelcome(); } catch {}
-  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} firstVisit={firstVisit} />;
+  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} firstVisit={firstVisit} initialTab={initialTab} />;
 }
