@@ -356,9 +356,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         <div className="admin-sidebar">
           {/* Logo + toggle */}
           <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "space-between" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0 }}>
-            {sidebarOpen && (
-              <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}><span style={{ color: CRIMSON }}>e</span>femera</span>
-            )}
+            <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em", overflow: "hidden", whiteSpace: "nowrap" }}>
+              <span style={{ color: CRIMSON }}>e</span>{sidebarOpen ? "femera" : ""}
+            </span>
             <button onClick={() => setSidebarOpen(v => !v)} style={{ background: "#f0f4f8", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, flexShrink: 0 }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
