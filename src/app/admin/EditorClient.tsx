@@ -155,23 +155,20 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     });
   }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt]);
 
-  const revertToDraft = useCallback(() => {
+  const revertToDraft = useCallback(async () => {
     if (!confirm("Revert to draft? This will unpublish the story.")) return;
     setSaveStatus("saving");
-    startTransition(async () => {
-      try {
-        await unpublishPost(post._id);
-        setForm(f => ({ ...f, status: "draft" }));
-        setLastSaved(s => ({ ...s, status: "draft" }));
-        setSaveStatus("saved");
-        router.refresh();
-      } catch (err) {
-        console.error("revertToDraft failed", err);
-        setSaveStatus("unsaved");
-        alert("Failed to revert: " + String(err));
-      }
-    });
-  }, [post._id, router]);
+    try {
+      await unpublishPost(post._id);
+      setForm(f => ({ ...f, status: "draft" }));
+      setLastSaved(s => ({ ...s, status: "draft" }));
+      setSaveStatus("saved");
+    } catch (err) {
+      console.error("revertToDraft failed", err);
+      setSaveStatus("unsaved");
+      alert("Failed to revert: " + String(err));
+    }
+  }, [post._id]);
 
   // Auto-save every 5s when dirty
   useEffect(() => {
