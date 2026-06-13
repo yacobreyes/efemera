@@ -484,7 +484,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.5rem" }}>
                         {photoPickerAssets.map(a => (
                           <img key={a._id} src={a.url} alt={a.originalFilename}
-                            onClick={() => { setSelectedAsset(a); setUploadCaption(a.title || (a.originalFilename ? a.originalFilename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ") : "")); setUploadAlt(a.altText ?? ""); }}
+                            onClick={() => { setSelectedAsset(a); setUploadCaption(a.title ?? ""); setUploadAlt(a.altText ?? ""); }}
                             style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 4, cursor: "pointer", border: `2px solid ${selectedAsset?._id === a._id ? CRIMSON : "transparent"}`, boxSizing: "border-box" }} />
                         ))}
                       </div>
