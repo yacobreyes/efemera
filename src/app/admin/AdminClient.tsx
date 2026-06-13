@@ -67,7 +67,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [editing, setEditing] = useState<SanityPost | null>(null);
-  const [activePanel, setActivePanel] = useState<"post" | "about" | "lately">("post");
+  const [activePanel, setActivePanel] = useState<"post" | "about" | "lately" | "media">("post");
 
   const [latelyReading, setLatelyReading] = useState("");
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
@@ -93,6 +93,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   const [aboutBody, setAboutBody] = useState("");
 
+
+  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; metadata?: { dimensions?: { width: number; height: number } } };
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+  const [mediaLoading, setMediaLoading] = useState(false);
+  const [mediaUploading, setMediaUploading] = useState(false);
+  const mediaFileRef = useRef<HTMLInputElement>(null);
 
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -223,6 +229,34 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         setLatelyWatching(data.watching ?? "");
       })
       .catch(() => {});
+  }
+
+  function trySelectMedia() {
+    if (isDirty && !confirm("Discard unsaved changes?")) return;
+    setActivePanel("media");
+    setEditing(null);
+    setIsDirty(false);
+    setMediaLoading(true);
+    fetch("/api/media")
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setMediaAssets(data); })
+      .catch(() => {})
+      .finally(() => setMediaLoading(false));
+  }
+
+  async function handleMediaUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setMediaUploading(true);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      await uploadImage(fd);
+      // refresh library
+      const data = await fetch("/api/media").then(r => r.json());
+      if (Array.isArray(data)) setMediaAssets(data);
+    } catch {}
+    finally { setMediaUploading(false); if (mediaFileRef.current) mediaFileRef.current.value = ""; }
   }
 
   function tryStartNew() {
@@ -505,6 +539,15 @@ function handleSubmit(e: React.FormEvent) {
             >
               <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, margin: 0, color: "inherit" }}>Lately</p>
             </div>
+
+            {/* Media Library item */}
+            <div
+              className={`admin-post-item${activePanel === "media" ? " active" : ""}`}
+              onClick={trySelectMedia}
+              style={{ padding: "0.75rem 1rem", color: "white", borderTop: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, margin: 0, color: "inherit" }}>Media Library</p>
+            </div>
           </div>
         </div>
 
@@ -566,6 +609,69 @@ function handleSubmit(e: React.FormEvent) {
                 {isPending ? "Saving…" : "Save Lately"}
               </button>
             </form>
+          )}
+
+          {/* MEDIA LIBRARY */}
+          {activePanel === "media" && (
+            <div style={{ maxWidth: 860 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+                <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Media Library</h2>
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+                  {mediaUploading && <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>Uploading…</span>}
+                  <input ref={mediaFileRef} type="file" accept="image/*" onChange={handleMediaUpload} style={{ display: "none" }} />
+                  <button
+                    type="button"
+                    onClick={() => mediaFileRef.current?.click()}
+                    disabled={mediaUploading}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: mediaUploading ? "wait" : "pointer", opacity: mediaUploading ? 0.7 : 1 }}
+                  >
+                    + Upload image
+                  </button>
+                </div>
+              </div>
+
+              {mediaLoading ? (
+                <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>Loading…</p>
+              ) : mediaAssets.length === 0 ? (
+                <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>No images yet. Upload one above.</p>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.75rem" }}>
+                  {mediaAssets.map(asset => (
+                    <div key={asset._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`${asset.url}?w=320&h=200&fit=crop&auto=format`}
+                        alt={asset.originalFilename ?? ""}
+                        style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
+                      />
+                      <div style={{ padding: "0.4rem 0.5rem" }}>
+                        <p style={{ fontFamily: FONT, fontSize: "0.65rem", color: TEXT_MUTED, margin: "0 0 0.35rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {asset.originalFilename ?? asset._id.slice(-8)}
+                        </p>
+                        {asset.metadata?.dimensions && (
+                          <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "#aaa", margin: "0 0 0.4rem" }}>
+                            {asset.metadata.dimensions.width} × {asset.metadata.dimensions.height}
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard?.writeText(asset._id).catch(() => {});
+                            setImageAssetId(asset._id);
+                            setImagePreview("existing");
+                            setActivePanel("post");
+                            setSuccess(`Image set — fill in a headline and save.`);
+                          }}
+                          style={{ width: "100%", background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_DARK }}
+                        >
+                          Use in post
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* POST EDITOR */}
