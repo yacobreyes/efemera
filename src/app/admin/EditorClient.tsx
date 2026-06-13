@@ -155,6 +155,29 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     });
   }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt]);
 
+  const revertToDraft = useCallback(() => {
+    if (!confirm("Revert to draft? This will unpublish the story.")) return;
+    setSaveStatus("saving");
+    const fd = new FormData();
+    const { body, ...rest } = form;
+    Object.entries({ ...rest, status: "draft", date: form.date }).forEach(([k, v]) => fd.set(k, String(v)));
+    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
+    fd.set("id", post._id);
+    if (imageAssetId) fd.set("imageAssetId", imageAssetId);
+    if (imageCaption) fd.set("imageCaption", imageCaption);
+    if (imageAlt) fd.set("imageAlt", imageAlt);
+    startTransition(async () => {
+      try {
+        await savePost(fd);
+        setForm(f => ({ ...f, status: "draft" }));
+        setLastSaved(s => ({ ...s, status: "draft" }));
+        setSaveStatus("saved");
+      } catch {
+        setSaveStatus("unsaved");
+      }
+    });
+  }, [form, post._id, imageAssetId, imageCaption, imageAlt]);
+
   // Auto-save every 5s when dirty
   useEffect(() => {
     if (!isDirty) return;
@@ -222,7 +245,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (!imageAssetId) { alert("Add a featured image before publishing."); return; }
     const bodyText = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join("").trim();
     if (!bodyText) { alert("Write something in the body before publishing."); return; }
-    if (initialForm.status === "published") {
+    if (form.status === "published") {
       setShowPublishTimeModal(true);
     } else {
       doSave("published", true);
@@ -465,7 +488,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
                 <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Previous drafts</h2>
                 {form.status === "published" && (
-                  <button type="button" onClick={() => { if (confirm("Revert to draft? This will unpublish the story.")) doSave("draft"); }}
+                  <button type="button" onClick={revertToDraft}
                     style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>
                     Revert to draft
                   </button>
@@ -496,7 +519,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                           <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 140, overflow: "hidden" }}>
                             <button
                               type="button"
-                              onClick={() => { setVersionMenu(null); if (confirm("Revert to draft at this point?")) doSave("draft"); }}
+                              onClick={() => { setVersionMenu(null); revertToDraft(); }}
                               style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}
                             >
                               Revert to draft
