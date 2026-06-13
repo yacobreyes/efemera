@@ -248,7 +248,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     <>
       <style>{`
         .admin-grid { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
-        .admin-sidebar { height: 100vh; position: sticky; top: 0; overflow-y: auto; }
+        .admin-sidebar { height: 100vh; position: sticky; top: 0; overflow-y: auto; display: flex; }
         .admin-mobile-bar { display: none; }
         .admin-drawer { display: none; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; }
@@ -382,7 +382,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
       <div className="admin-grid">
         {/* LEFT SIDEBAR */}
-        <div className="admin-sidebar" style={{ background: CRIMSON, color: "white", display: "flex", flexDirection: "column" }}>
+        <div className="admin-sidebar" style={{ background: CRIMSON, color: "white", flexDirection: "column" }}>
           <div className="admin-sidebar-section" style={{ padding: "1.25rem 1rem 1rem", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
             <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", margin: "0 0 0.75rem" }}>Efemera</p>
           </div>
