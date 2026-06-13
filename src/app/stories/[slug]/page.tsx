@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const postUrl = `${siteUrl}/stories/${slug}`;
   const ogImage = imageUrl
     ? { url: imageUrl, width: 1200, height: 630, alt: post.headline }
-    : { url: "/Masthead.png", width: 1200, height: 630, alt: "Efemera" };
+    : { url: "/og-image.png", width: 1200, height: 630, alt: "Efemera" };
 
   return {
     title: `${post.headline} — Efemera`,
