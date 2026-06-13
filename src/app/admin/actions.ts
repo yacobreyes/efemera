@@ -49,10 +49,10 @@ export async function uploadImage(formData: FormData) {
   return { assetId: data.document._id as string };
 }
 
-export async function createDraft(): Promise<{ slug: string }> {
+export async function createDraft(providedSlug?: string): Promise<{ slug: string }> {
   await requireAuth();
   const { token, projectId, dataset } = sanityConfig();
-  const slug = `untitled-${Date.now()}`;
+  const slug = providedSlug ?? `untitled-${Date.now()}`;
   const doc = {
     _id: `post-${slug}`,
     _type: "post",

@@ -104,7 +104,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [preDraftSlug, setPreDraftSlug] = useState<string | null>(null);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
@@ -115,9 +114,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   useEffect(() => {
     try { localStorage.removeItem(LS_KEY); } catch {}
     clearCloudDraft().catch(() => {});
-    if (initialAuth) {
-      createDraft().then(({ slug }) => setPreDraftSlug(slug)).catch(() => {});
-    }
   }, []);
 
   function refreshPosts() {
@@ -150,16 +146,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
-  async function startNew() {
-    if (preDraftSlug) {
-      const slug = preDraftSlug;
-      setPreDraftSlug(null);
-      router.push(`/admin/posts/${slug}`);
-      createDraft().then(({ slug: next }) => setPreDraftSlug(next)).catch(() => {});
-    } else {
-      const { slug } = await createDraft();
-      router.push(`/admin/posts/${slug}`);
-    }
+  function startNew() {
+    router.push(`/admin/posts/untitled-${Date.now()}`);
   }
 
   function startEdit(post: SanityPost) {
