@@ -24,6 +24,7 @@ export function urlFor(source: SanityImageSource) {
 
 export interface SanityPost {
   _id: string;
+  _updatedAt?: string;
   slug: string;
   section: "Micro-Memoir" | "Narratives";
   headline: string;
@@ -44,6 +45,7 @@ const POST_FIELDS = `
   subheadline,
   byline,
   date,
+  _updatedAt,
   body,
   image { asset, caption, alt },
   status,
@@ -66,7 +68,7 @@ export async function getAllPostsCached(): Promise<SanityPost[]> {
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   return client.fetch(
-    `*[_type == "post" && !(_id in path("drafts.**"))] | order(date desc) { ${POST_FIELDS} }`,
+    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_FIELDS} }`,
     {},
     { cache: "no-store" }
   );
