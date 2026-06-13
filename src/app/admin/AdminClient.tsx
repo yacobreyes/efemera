@@ -509,7 +509,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                       <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
                     </div>
                     {/* Table header */}
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem", borderBottom: `1px solid ${BORDER}` }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem" }}>
                       {["Name", "Section", "Date"].map(h => (
                         <span key={h} style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: TEXT_MUTED }}>{h}</span>
                       ))}
