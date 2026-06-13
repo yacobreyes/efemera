@@ -314,7 +314,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             onClick={handlePublishClick}
             style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
           >
-            Publish
+            {form.status === "published" ? "Update" : "Publish"}
           </button>
           {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
