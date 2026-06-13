@@ -44,7 +44,7 @@ type FormState = {
 };
 
 type VersionEntry = { savedAt: string; type: "autosave" | "publish" };
-type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; altText?: string };
+type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
 
 function versionsKey(slug: string) { return `efemera_versions_${slug}`; }
 function loadVersions(slug: string): VersionEntry[] {
@@ -484,7 +484,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.5rem" }}>
                         {photoPickerAssets.map(a => (
                           <img key={a._id} src={a.url} alt={a.originalFilename}
-                            onClick={() => { setSelectedAsset(a); setUploadCaption(""); setUploadAlt(a.altText ?? ""); }}
+                            onClick={() => { setSelectedAsset(a); setUploadCaption(a.description ?? ""); setUploadAlt(a.altText ?? ""); }}
                             style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 4, cursor: "pointer", border: `2px solid ${selectedAsset?._id === a._id ? CRIMSON : "transparent"}`, boxSizing: "border-box" }} />
                         ))}
                       </div>

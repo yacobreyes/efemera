@@ -313,7 +313,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             <img src={`${inspectAsset.url}?w=800&auto=format`} alt="" style={{ width: "100%", maxHeight: 260, objectFit: "contain", borderRadius: 4, marginBottom: "1rem" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
               <div><label style={LABEL}>Title</label><input style={INPUT} defaultValue={inspectAsset.title ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { title: e.target.value }).catch(() => {})} /></div>
-              <div><label style={LABEL}>Description</label><textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} /></div>
+              <div><label style={LABEL}>Caption</label><textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} /></div>
               <div>
                 <label style={LABEL}>Alt text</label>
                 <textarea
