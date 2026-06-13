@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import Feed from "@/components/Newspaper";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 
 const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ssr: false });
-const Feed = dynamic(() => import("@/components/Newspaper"), { ssr: false });
 
 export default function HomeClient({ posts, aboutParagraphs, lately, welcome, firstVisit }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; firstVisit: boolean }) {
   const [showAnimation, setShowAnimation] = useState(firstVisit);

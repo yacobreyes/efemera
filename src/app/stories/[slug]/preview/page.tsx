@@ -51,7 +51,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
       <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Masthead.webp" alt="efemera" fetchPriority="high" style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
+          <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
         </Link>
         <nav className="story-nav">
           {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
@@ -124,7 +124,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
 
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.webp" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto" }} />
+          <img src="/Flying Mayfly Kicker.webp" alt="" width={2000} height={2000} style={{ width: "clamp(120px, 30vw, 160px)", height: "auto" }} />
         </div>
       </article>
 

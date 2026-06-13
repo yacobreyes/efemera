@@ -104,6 +104,7 @@ export default function IntroAnimation({ onEnter }: Props) {
         <img
           src="/wordmark.webp"
           alt="efemera — Life, in Brief."
+          width={1772} height={1181}
           style={{ width: "clamp(280px, 55vw, 780px)", height: "auto", display: "block" }}
         />
         <div className="enter-hint" style={{ opacity: hinting ? 1 : 0, transition: "opacity 0.6s ease" }}>Click to enter</div>

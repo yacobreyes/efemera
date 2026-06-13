@@ -96,6 +96,7 @@ export default function Choopy() {
           src={dancing ? "/Choopy Dance.webp" : "/Choopy sit.webp"}
           alt="Choopy the cat"
           onClick={feed}
+          width={1086} height={1448}
           className={`choopy-img${dancing ? " choopy-dancing" : ""}`}
           style={{ width: "70%", maxWidth: 140, height: "auto", display: "block", imageRendering: "pixelated" }}
         />
