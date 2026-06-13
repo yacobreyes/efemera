@@ -350,12 +350,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           {/* DASHBOARD */}
           {activePanel === "dashboard" && (
             <div style={{ maxWidth: 720 }}>
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", alignItems: "center" }}>
                 {(["drafts", "published"] as const).map(tab => (
                   <button key={tab} onClick={() => setPostTab(tab)} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.4rem 1.1rem", borderRadius: 4, border: `1px solid ${postTab === tab ? CRIMSON : BORDER}`, background: postTab === tab ? CRIMSON : "white", color: postTab === tab ? "white" : TEXT_MUTED, cursor: "pointer" }}>
                     {tab === "drafts" ? `Drafts (${drafts.length})` : `Published (${published.length})`}
                   </button>
                 ))}
+                <button onClick={startNew} style={{ marginLeft: "auto", background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>+ New post</button>
               </div>
 
               {postTab === "drafts" && (
