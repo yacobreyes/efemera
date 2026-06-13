@@ -43,7 +43,7 @@ type FormState = {
   status: "draft" | "published" | "scheduled";
 };
 
-type VersionEntry = { savedAt: string; type: "autosave" | "publish" };
+type VersionEntry = { savedAt: string; type: "autosave" | "publish"; wordCount?: number };
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
 
 function versionsKey(slug: string) { return `efemera_versions_${slug}`; }
@@ -79,6 +79,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
   const [showEllipsis, setShowEllipsis] = useState(false);
+  const [versionMenu, setVersionMenu] = useState<number | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
   const [versions, setVersions] = useState<VersionEntry[]>([]);
@@ -140,7 +141,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     startTransition(async () => {
       try {
         await savePost(fd);
-        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave" };
+        const wc = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
+        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave", wordCount: wc };
         appendVersion(post.slug, entry);
         setVersions(loadVersions(post.slug));
         setLastSaved({ ...form, status, date: saveDate });
@@ -474,18 +476,34 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   {versions.map((v, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, gap: "0.5rem" }}>
+                    <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatTime(v.savedAt)}</p>
-                        <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: "0.1rem 0 0" }}>{v.type === "publish" ? "Published" : "Auto-saved"}</p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatTime(v.savedAt)}</p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.15rem 0 0" }}>
+                          {v.type === "publish" ? "Published" : "Auto-saved"}
+                          {v.wordCount ? ` · ${v.wordCount} words` : ""}
+                        </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => { if (confirm("Revert to draft at this point?")) doSave("draft"); }}
-                        style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, padding: "0.2rem 0.6rem", borderRadius: 20, background: "#f0f4f8", color: TEXT_MUTED, border: "none", cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}
-                      >
-                        Revert
-                      </button>
+                      <div style={{ position: "relative", flexShrink: 0 }}>
+                        <button
+                          type="button"
+                          onClick={() => setVersionMenu(versionMenu === i ? null : i)}
+                          style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+                        </button>
+                        {versionMenu === i && (
+                          <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 140, overflow: "hidden" }}>
+                            <button
+                              type="button"
+                              onClick={() => { setVersionMenu(null); if (confirm("Revert to draft at this point?")) doSave("draft"); }}
+                              style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}
+                            >
+                              Revert to draft
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
