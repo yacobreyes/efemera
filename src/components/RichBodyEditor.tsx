@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 import type { JSONContent } from "@tiptap/react";
 
 const CRIMSON = "#8B0000";
@@ -17,7 +18,7 @@ interface Props {
 
 export default function RichBodyEditor({ initialContent, onChange, onEditor }: Props) {
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Placeholder.configure({ placeholder: "Type your story" })],
     content: initialContent,
     onUpdate({ editor }) {
       onChange(editor.getJSON());
@@ -57,6 +58,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor }: P
   return (
     <>
       <style>{`
+        .ProseMirror p.is-empty:first-child::before { content: attr(data-placeholder); color: #aaa; pointer-events: none; float: left; height: 0; }
         .ProseMirror p { margin: 0 0 1em; }
         .ProseMirror p:last-child { margin-bottom: 0; }
         .ProseMirror h2 { font-family: ${FONT}; font-size: 1.25rem; font-weight: 700; color: ${TEXT_DARK}; margin: 1.4em 0 0.4em; }
