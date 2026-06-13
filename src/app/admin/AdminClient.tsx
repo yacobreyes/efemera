@@ -357,13 +357,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         <div className="admin-sidebar">
           {/* Logo */}
           <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "flex-start" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0 }}>
-            {sidebarOpen ? (
-              <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
-                <span style={{ color: CRIMSON }}>e</span>femera
-              </span>
-            ) : (
-              <span style={{ fontFamily: FONT, fontSize: "1.4rem", fontWeight: 900, color: CRIMSON, letterSpacing: "-0.02em", lineHeight: 1 }}>e</span>
-            )}
+            <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
+              <span style={{ color: CRIMSON }}>e</span>{sidebarOpen ? "femera" : ""}
+            </span>
           </div>
           {/* Nav items */}
           <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto", overflowX: "hidden" }}>
