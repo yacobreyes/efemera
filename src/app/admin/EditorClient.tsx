@@ -161,7 +161,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
       doSave(form.status === "published" ? "published" : "draft");
-    }, 1500);
+    }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, imageAssetId, imageCaption, imageAlt, doSave]);
