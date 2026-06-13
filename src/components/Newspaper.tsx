@@ -148,7 +148,7 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
 
   return (
     <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.6rem", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
+      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
       {groups.size === 0 && <p style={{ fontFamily: "'Inter', sans-serif", color: "#657786" }}>Nothing here yet.</p>}
       {[...groups.entries()].map(([month, monthPosts]) => (
         <div key={month} style={{ marginBottom: "1.8rem" }}>
