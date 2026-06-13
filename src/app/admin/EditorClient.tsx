@@ -415,10 +415,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
-              <div>
-                <label style={LABEL}>Date</label>
-                <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED, margin: 0, padding: "0.5rem 0" }}>{form.date} — set automatically on publish</p>
-              </div>
               <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" /></div>
             </div>
           )}
