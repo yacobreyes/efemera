@@ -138,7 +138,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
         <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto", opacity: 0.85 }} />
+          <img src="/Flying Mayfly Kicker.png" alt="" style={{ width: "clamp(120px, 30vw, 160px)", height: "auto", }} />
         </div>
       </article>
 
