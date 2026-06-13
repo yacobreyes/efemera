@@ -165,8 +165,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     setSelectedAsset(null);
     setUploadFile(null);
     setUploadPreviewUrl("");
-    setUploadCaption("");
-    setUploadAlt("");
+    setUploadCaption(imageCaption);
+    setUploadAlt(imageAlt);
     setShowImageModal(true);
     setPhotoPickerLoading(true);
     fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {}).finally(() => setPhotoPickerLoading(false));
