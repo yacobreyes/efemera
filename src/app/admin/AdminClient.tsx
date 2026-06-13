@@ -352,9 +352,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
       {/* Mobile drawer */}
       {showMobileNav && (
-        <div className="admin-drawer" onClick={() => setShowMobileNav(false)}>
-          <div className="admin-drawer-bg" />
-          <div className="admin-drawer-panel" onClick={e => e.stopPropagation()}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 300 }} onClick={() => setShowMobileNav(false)}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />
+          <div style={{ position: "absolute", top: 0, left: 0, width: 240, height: "100%", background: CRIMSON, display: "flex", flexDirection: "column", padding: "1rem 0.75rem", gap: "0.25rem", overflowY: "auto", boxSizing: "border-box" }} onClick={e => e.stopPropagation()}>
             <p style={{ fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.45)", margin: "0 0 0.75rem 0.25rem" }}>Efemera</p>
             <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); setShowMobileNav(false); }}
               style={{ width: "100%", background: "white", border: "none", borderRadius: 4, color: CRIMSON, fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, padding: "0.55rem", cursor: "pointer", marginBottom: "0.5rem" }}>
