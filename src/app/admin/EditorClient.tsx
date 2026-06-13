@@ -435,7 +435,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         {/* Canvas */}
         <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "1.5rem 1.25rem" : "3rem 4rem" }}>
           {editorTab === "content" && (
-            <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <input
                   placeholder="Type your headline"
