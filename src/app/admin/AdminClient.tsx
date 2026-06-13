@@ -523,18 +523,18 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                           <div key={post._id}
                             onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }}
                             onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, post }); }}
-                            style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 140px 120px", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
+                            style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 100px 80px" : "1fr 140px 120px", gap: isMobile ? "0 0.5rem" : "0 1rem", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
                             onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
                             onMouseLeave={e => (e.currentTarget.style.background = "white")}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                               <div style={{ minWidth: 0 }}>
                                 <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}{post.pinned ? " 📌" : ""}</p>
-                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}{isMobile && post.section ? ` · ${post.section}` : ""}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
                               </div>
                             </div>
-                            {!isMobile && <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>{post.section}</span>}
-                            {!isMobile && <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>{post.date}</span>}
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.section}</span>
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{post.date}</span>
                           </div>
                         ))}
                       </div>
