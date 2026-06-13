@@ -21,23 +21,32 @@ export default function Choopy() {
   function meow() {
     try {
       const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = "sine";
-      const t = ctx.currentTime;
-      // pitch glide: up then down, like a meow
-      osc.frequency.setValueAtTime(520, t);
-      osc.frequency.linearRampToValueAtTime(780, t + 0.12);
-      osc.frequency.linearRampToValueAtTime(480, t + 0.45);
-      gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.22, t + 0.04);
-      gain.gain.linearRampToValueAtTime(0.18, t + 0.3);
-      gain.gain.linearRampToValueAtTime(0, t + 0.5);
-      osc.start(t);
-      osc.stop(t + 0.5);
-      osc.onended = () => ctx.close();
+      // Meow Mix: meow-meow-meow-meow (short short short long)
+      // Each "meow" = pitch glide up then down
+      const notes = [
+        { start: 0.0,  dur: 0.22 },
+        { start: 0.28, dur: 0.22 },
+        { start: 0.56, dur: 0.22 },
+        { start: 0.84, dur: 0.55 },
+      ];
+      for (const { start, dur } of notes) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        const t = ctx.currentTime + start;
+        osc.frequency.setValueAtTime(500, t);
+        osc.frequency.linearRampToValueAtTime(750, t + dur * 0.3);
+        osc.frequency.linearRampToValueAtTime(460, t + dur);
+        gain.gain.setValueAtTime(0, t);
+        gain.gain.linearRampToValueAtTime(0.2, t + 0.03);
+        gain.gain.linearRampToValueAtTime(0.15, t + dur * 0.7);
+        gain.gain.linearRampToValueAtTime(0, t + dur);
+        osc.start(t);
+        osc.stop(t + dur + 0.01);
+        osc.onended = () => { if (start === notes[notes.length - 1].start) ctx.close(); };
+      }
     } catch { /* audio not available */ }
   }
 
