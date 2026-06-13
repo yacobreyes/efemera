@@ -1,0 +1,54 @@
+import { NextRequest, NextResponse } from "next/server";
+import { client } from "@/lib/sanity";
+
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+const token = () => process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN ?? "";
+
+async function mutate(mutations: unknown[]) {
+  const res = await fetch(
+    `https://${projectId}.api.sanity.io/v2024-01-01/data/mutate/${dataset}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify({ mutations }),
+    }
+  );
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function GET(req: NextRequest) {
+  const slug = req.nextUrl.searchParams.get("slug");
+  if (!slug) return NextResponse.json([]);
+  const comments = await client.fetch(
+    `*[_type == "comment" && slug == $slug && approved == true] | order(_createdAt asc) { _id, name, text, _createdAt }`,
+    { slug },
+    { cache: "no-store" }
+  );
+  return NextResponse.json(comments ?? []);
+}
+
+export async function POST(req: NextRequest) {
+  const { slug, name, text } = await req.json() as { slug: string; name: string; text: string };
+  if (!slug || !name?.trim() || !text?.trim()) {
+    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+  await mutate([{
+    create: {
+      _type: "comment",
+      slug,
+      name: name.trim().slice(0, 80),
+      text: text.trim().slice(0, 1000),
+      approved: true,
+    },
+  }]);
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const { id } = await req.json() as { id: string };
+  if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
+  await mutate([{ delete: { id } }]);
+  return NextResponse.json({ ok: true });
+}

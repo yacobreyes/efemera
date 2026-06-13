@@ -2,31 +2,44 @@
 
 import { useEffect, useRef, useState } from "react";
 
-interface Comment { id: number; name: string; text: string; }
+interface Comment { _id: string; name: string; text: string; _createdAt: string; }
 
 export default function CommentSection({ slug }: { slug: string }) {
-  const storageKey = `efemera_comments_${slug}`;
   const [comments, setComments] = useState<Comment[]>([]);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) setComments(JSON.parse(stored));
-      const savedName = localStorage.getItem("efemera_commenter_name");
-      if (savedName) setName(savedName);
-    } catch { /* ignore */ }
-  }, [storageKey]);
+    try { const n = localStorage.getItem("efemera_commenter_name"); if (n) setName(n); } catch {}
+    fetch(`/api/comments?slug=${encodeURIComponent(slug)}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setComments(d); })
+      .catch(() => {});
+  }, [slug]);
 
-  function submit() {
-    if (!text.trim() || !name.trim()) return;
-    const next = [...comments, { id: Date.now(), name: name.trim(), text: text.trim() }];
-    setComments(next);
-    localStorage.setItem(storageKey, JSON.stringify(next));
-    localStorage.setItem("efemera_commenter_name", name.trim());
-    setText("");
+  async function submit() {
+    if (!text.trim() || !name.trim() || submitting) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, name: name.trim(), text: text.trim() }),
+      });
+      if (res.ok) {
+        try { localStorage.setItem("efemera_commenter_name", name.trim()); } catch {}
+        setText("");
+        setSubmitted(true);
+        const updated = await fetch(`/api/comments?slug=${encodeURIComponent(slug)}`).then(r => r.json());
+        if (Array.isArray(updated)) setComments(updated);
+        setTimeout(() => setSubmitted(false), 3000);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const S: React.CSSProperties = {
@@ -50,7 +63,7 @@ export default function CommentSection({ slug }: { slug: string }) {
         {comments.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
             {comments.map(c => (
-              <div key={c.id} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.75rem 1rem" }}>
+              <div key={c._id} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.75rem 1rem" }}>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: "0.78rem", color: "#8B0000", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.name}</p>
                 <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.6, color: "#2d2d2d", margin: 0 }}>{c.text}</p>
               </div>
@@ -58,31 +71,35 @@ export default function CommentSection({ slug }: { slug: string }) {
           </div>
         )}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-          <input
-            placeholder="Your name"
-            value={name}
-            onChange={e => setName(e.target.value)}
-            style={{ ...S, width: "100%" }}
-          />
-          <textarea
-            ref={textRef}
-            value={text}
-            onChange={e => setText(e.target.value)}
-            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
-            placeholder="What did this bring up for you? (Enter to post)"
-            rows={3}
-            style={{ ...S, width: "100%", resize: "vertical", lineHeight: 1.6 }}
-          />
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button
-              onClick={submit}
-              disabled={!name.trim() || !text.trim()}
-              style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "white", background: "#8B0000", border: "none", borderRadius: 3, cursor: "pointer", padding: "0.4rem 1rem", opacity: (!name.trim() || !text.trim()) ? 0.5 : 1 }}>
-              Post
-            </button>
+        {submitted ? (
+          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", color: "#2e7d32" }}>Comment posted!</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+            <input
+              placeholder="Your name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              style={{ ...S, width: "100%" }}
+            />
+            <textarea
+              ref={textRef}
+              value={text}
+              onChange={e => setText(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
+              placeholder="What did this bring up for you? (Enter to post)"
+              rows={3}
+              style={{ ...S, width: "100%", resize: "vertical", lineHeight: 1.6 }}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button
+                onClick={submit}
+                disabled={!name.trim() || !text.trim() || submitting}
+                style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "white", background: "#8B0000", border: "none", borderRadius: 3, cursor: "pointer", padding: "0.4rem 1rem", opacity: (!name.trim() || !text.trim() || submitting) ? 0.5 : 1 }}>
+                {submitting ? "Posting…" : "Post"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

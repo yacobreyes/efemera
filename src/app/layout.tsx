@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   description: "A literary blog about the ephemeral moments that make a life.",
   icons: { icon: "/Favicon.jpg" },
   metadataBase: new URL(siteUrl),
+  alternates: {
+    types: { "application/rss+xml": `${siteUrl}/feed.xml` },
+  },
   openGraph: {
     siteName: "Efemera",
     title: "Efemera - Life, in Brief.",
