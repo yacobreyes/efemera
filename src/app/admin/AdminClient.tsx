@@ -423,7 +423,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                 ))}
               </div>
               {/* Desktop pill tabs + New post button (hidden on mobile via the bar above) */}
-              <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", alignItems: "center" }} className="desktop-tab-row">
+              <div style={{ gap: "0.5rem", marginBottom: "1.5rem", alignItems: "center" }} className="desktop-tab-row">
                 {(["drafts", "scheduled", "published"] as const).map(tab => (
                   <button key={tab} onClick={() => setPostTab(tab)} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.4rem 1.1rem", borderRadius: 4, border: `1px solid ${postTab === tab ? CRIMSON : BORDER}`, background: postTab === tab ? CRIMSON : "white", color: postTab === tab ? "white" : TEXT_MUTED, cursor: "pointer" }}>
                     {tab === "drafts" ? `Drafts (${drafts.length})` : tab === "scheduled" ? `Scheduled (${scheduled.length})` : `Published (${published.length})`}
