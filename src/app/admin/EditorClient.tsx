@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, uploadImage } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPost } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { JSONContent } from "@tiptap/react";
@@ -158,17 +158,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const revertToDraft = useCallback(() => {
     if (!confirm("Revert to draft? This will unpublish the story.")) return;
     setSaveStatus("saving");
-    const fd = new FormData();
-    const { body, ...rest } = form;
-    Object.entries({ ...rest, status: "draft", date: form.date }).forEach(([k, v]) => fd.set(k, String(v)));
-    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
-    fd.set("id", post._id);
-    if (imageAssetId) fd.set("imageAssetId", imageAssetId);
-    if (imageCaption) fd.set("imageCaption", imageCaption);
-    if (imageAlt) fd.set("imageAlt", imageAlt);
     startTransition(async () => {
       try {
-        await savePost(fd);
+        await unpublishPost(post._id);
         setForm(f => ({ ...f, status: "draft" }));
         setLastSaved(s => ({ ...s, status: "draft" }));
         setSaveStatus("saved");
@@ -176,7 +168,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         setSaveStatus("unsaved");
       }
     });
-  }, [form, post._id, imageAssetId, imageCaption, imageAlt]);
+  }, [post._id]);
 
   // Auto-save every 5s when dirty
   useEffect(() => {
