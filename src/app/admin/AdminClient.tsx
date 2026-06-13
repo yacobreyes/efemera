@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useTransition, useEffect, useRef, useCallback } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, uploadImage, saveDraftToCloud, loadDraftFromCloud, clearCloudDraft } from "./actions";
 import { login } from "./auth";
-import { ptToMarkdown } from "@/lib/parseBody";
+import { parseBody } from "@/lib/parseBody";
+import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
+import RichBodyEditor from "@/components/RichBodyEditor";
+import type { JSONContent } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
 const CRIMSON = "#8B0000";
@@ -30,6 +33,8 @@ function slugify(str: string) {
 
 const LS_KEY = "efemera_admin_draft";
 
+const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
+
 type FormState = {
   headline: string;
   subheadline: string;
@@ -37,7 +42,7 @@ type FormState = {
   slug: string;
   section: string;
   date: string;
-  body: string;
+  body: JSONContent;
   status: "draft" | "published";
   pinned: boolean;
 };
@@ -49,7 +54,7 @@ const DEFAULT_FORM: FormState = {
   slug: "",
   section: "Narratives",
   date: new Date().toISOString().slice(0, 10),
-  body: "",
+  body: EMPTY_DOC,
   status: "draft",
   pinned: false,
 };
@@ -80,7 +85,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageAssetId, setImageAssetId] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<FormState>(DEFAULT_FORM);
@@ -88,19 +92,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
   const [aboutBody, setAboutBody] = useState("");
 
-  // Undo / redo stacks for body text
-  const undoStack = useRef<string[]>([]);
-  const redoStack = useRef<string[]>([]);
-  const [undoLen, setUndoLen] = useState(0);
-  const [redoLen, setRedoLen] = useState(0);
-  const bodyBeforeTyping = useRef<string | null>(null);
-  const undoDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Draft history snapshots
-  const LS_HISTORY = "efemera_admin_history";
-  type DraftSnapshot = { ts: number; label: string; form: FormState };
-  const [draftHistory, setDraftHistory] = useState<DraftSnapshot[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
 
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -108,64 +99,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const cloudTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [showPreview, setShowPreview] = useState(false);
-
-  // Load draft history from localStorage
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_HISTORY);
-      if (raw) setDraftHistory(JSON.parse(raw));
-    } catch {}
-  }, []);
-
-  function addDraftSnapshot(f: FormState) {
-    try {
-      const raw = localStorage.getItem(LS_HISTORY);
-      const existing: DraftSnapshot[] = raw ? JSON.parse(raw) : [];
-      const ts = Date.now();
-      const label = f.headline ? `${f.headline.slice(0, 30)} — ${new Date(ts).toLocaleTimeString()}` : `Untitled — ${new Date(ts).toLocaleTimeString()}`;
-      const updated = [{ ts, label, form: f }, ...existing].slice(0, 15);
-      localStorage.setItem(LS_HISTORY, JSON.stringify(updated));
-      setDraftHistory(updated);
-    } catch {}
-  }
-
-  // Undo/redo helpers
-  function pushUndo(snapshot: string) {
-    undoStack.current.push(snapshot);
-    redoStack.current = [];
-    setUndoLen(undoStack.current.length);
-    setRedoLen(0);
-  }
-
-  function handleBodyChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    if (bodyBeforeTyping.current === null) bodyBeforeTyping.current = form.body;
-    if (undoDebounce.current) clearTimeout(undoDebounce.current);
-    undoDebounce.current = setTimeout(() => {
-      if (bodyBeforeTyping.current !== null) {
-        pushUndo(bodyBeforeTyping.current);
-        bodyBeforeTyping.current = null;
-      }
-    }, 800);
-    updateForm({ body: e.target.value });
-  }
-
-  function handleUndo() {
-    if (!undoStack.current.length) return;
-    redoStack.current.push(form.body);
-    const prev = undoStack.current.pop()!;
-    updateForm({ body: prev });
-    setUndoLen(undoStack.current.length);
-    setRedoLen(redoStack.current.length);
-  }
-
-  function handleRedo() {
-    if (!redoStack.current.length) return;
-    undoStack.current.push(form.body);
-    const next = redoStack.current.pop()!;
-    updateForm({ body: next });
-    setUndoLen(undoStack.current.length);
-    setRedoLen(redoStack.current.length);
-  }
 
   // Load posts from admin API
   function refreshPosts() {
@@ -231,7 +164,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         const snapshot = { ts: Date.now(), form };
         try {
           localStorage.setItem(LS_KEY, JSON.stringify(snapshot));
-          addDraftSnapshot(form);
           setAutosaveLabel("Draft saved");
           if (autosaveFade.current) clearTimeout(autosaveFade.current);
           autosaveFade.current = setTimeout(() => setAutosaveLabel(""), 2000);
@@ -239,7 +171,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       }, 800);
       if (cloudTimer.current) clearTimeout(cloudTimer.current);
       cloudTimer.current = setTimeout(() => {
-        const hasContent = form.headline.trim() || form.body.trim();
+        const hasContent = form.headline.trim();
         if (hasContent) {
           saveDraftToCloud(JSON.stringify({ ts: Date.now(), form })).catch(() => {});
         }
@@ -298,7 +230,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   }
 
   function startEdit(post: SanityPost) {
-    const bodyMd = ptToMarkdown(post.body);
     const f: FormState = {
       headline: post.headline,
       subheadline: post.subheadline ?? "",
@@ -306,7 +237,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       slug: post.slug,
       section: post.section,
       date: post.date,
-      body: bodyMd,
+      body: portableTextToTiptap(post.body),
       status: post.status === "published" || !post.status ? "published" : "draft",
       pinned: post.pinned ?? false,
     };
@@ -362,40 +293,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     }
   }
 
-  function wrapSelection(before: string, after: string) {
-    const ta = bodyRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const val = ta.value;
-    pushUndo(val);
-    const selected = val.slice(start, end);
-    const newVal = val.slice(0, start) + before + selected + after + val.slice(end);
-    updateForm({ body: newVal });
-    // restore selection after state update
-    requestAnimationFrame(() => {
-      ta.focus();
-      ta.setSelectionRange(start + before.length, end + before.length);
-    });
-  }
-
-  function handleBodyKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if ((e.metaKey || e.ctrlKey) && e.key === "b") {
-      e.preventDefault();
-      wrapSelection("**", "**");
-    }
-    if ((e.metaKey || e.ctrlKey) && e.key === "i") {
-      e.preventDefault();
-      wrapSelection("_", "_");
-    }
-  }
-
-  function handleSubmit(e: React.FormEvent) {
+function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setSuccess("");
     const fd = new FormData();
-    Object.entries(form).forEach(([k, v]) => fd.set(k, String(v)));
+    const { body, ...rest } = form;
+    Object.entries(rest).forEach(([k, v]) => fd.set(k, String(v)));
+    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
     if (editing) fd.set("id", editing._id);
     if (imageAssetId) fd.set("imageAssetId", imageAssetId);
     if (imageCaption) fd.set("imageCaption", imageCaption);
@@ -534,9 +439,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             {form.subheadline && <p style={{ fontFamily: FONT, fontSize: "1.05rem", color: TEXT_MUTED, margin: "0 0 1rem" }}>{form.subheadline}</p>}
             <p style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, margin: "0 0 1.5rem" }}>{form.byline} · {form.date}</p>
             <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "0 0 1.5rem" }} />
-            {form.body.split(/\n\n+/).filter(Boolean).map((para, i) => (
-              <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{para}</p>
-            ))}
+            {(form.body.content ?? []).map((node, i) => {
+              const text = (node.content ?? []).flatMap((n: { type?: string; text?: string }) => n.type === "text" ? [n.text ?? ""] : []).join("");
+              return <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{text}</p>;
+            })}
           </div>
         </div>
       )}
@@ -753,88 +659,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                   </div>
                 </div>
 
-                {/* 6. Body with toolbar */}
+                {/* 6. Body */}
                 <div>
-                  <label style={LABEL}>Body — blank line between paragraphs · **bold** · _italic_ · ## heading · {">"} quote</label>
-                  {/* Toolbar */}
-                  <div style={{ display: "flex", gap: "0.35rem", marginBottom: "0.35rem", flexWrap: "wrap", alignItems: "center" }}>
-                    {[
-                      { label: "B", title: "Bold (Cmd+B)", action: () => wrapSelection("**", "**"), style: { fontWeight: 700 } },
-                      { label: "I", title: "Italic (Cmd+I)", action: () => wrapSelection("_", "_"), style: { fontStyle: "italic" } },
-                    ].map(btn => (
-                      <button
-                        key={btn.label}
-                        type="button"
-                        title={btn.title}
-                        onMouseDown={e => e.preventDefault()}
-                        onClick={btn.action}
-                        style={{ ...btn.style, background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_DARK, lineHeight: 1.4 }}
-                      >
-                        {btn.label}
-                      </button>
-                    ))}
-                    <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.1rem" }} />
-                    <button
-                      type="button"
-                      title="Undo (Cmd+Z)"
-                      onMouseDown={e => e.preventDefault()}
-                      onClick={handleUndo}
-                      disabled={undoLen === 0}
-                      style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: undoLen ? "pointer" : "default", color: undoLen ? TEXT_DARK : "#aaa", lineHeight: 1.4 }}
-                    >↩</button>
-                    <button
-                      type="button"
-                      title="Redo"
-                      onMouseDown={e => e.preventDefault()}
-                      onClick={handleRedo}
-                      disabled={redoLen === 0}
-                      style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.85rem", cursor: redoLen ? "pointer" : "default", color: redoLen ? TEXT_DARK : "#aaa", lineHeight: 1.4 }}
-                    >↪</button>
-                    {draftHistory.length > 0 && (
-                      <>
-                        <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.1rem" }} />
-                        <button
-                          type="button"
-                          onMouseDown={e => e.preventDefault()}
-                          onClick={() => setShowHistory(h => !h)}
-                          style={{ background: showHistory ? "#f5f8fa" : "white", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.2rem 0.65rem", fontFamily: FONT, fontSize: "0.75rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1.4 }}
-                        >
-                          History {showHistory ? "▲" : "▼"}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  {/* Draft history panel */}
-                  {showHistory && draftHistory.length > 0 && (
-                    <div style={{ border: `1px solid ${BORDER}`, borderRadius: 4, background: "#f9fbfc", marginBottom: "0.5rem", maxHeight: 200, overflowY: "auto" }}>
-                      {draftHistory.map((snap, i) => (
-                        <div
-                          key={snap.ts}
-                          style={{ padding: "0.45rem 0.75rem", borderBottom: i < draftHistory.length - 1 ? `1px solid ${BORDER}` : "none", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.5rem" }}
-                        >
-                          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{snap.label}</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm("Restore this draft? Current body text will be replaced.")) {
-                                pushUndo(form.body);
-                                updateForm({ body: snap.form.body });
-                                setShowHistory(false);
-                              }
-                            }}
-                            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.15rem 0.5rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap", flexShrink: 0 }}
-                          >Restore</button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  <textarea
-                    ref={bodyRef}
-                    style={{ ...INPUT, minHeight: 320, resize: "vertical", lineHeight: 1.7 }}
-                    value={form.body}
-                    onChange={handleBodyChange}
-                    onKeyDown={handleBodyKeyDown}
-                    required
+                  <label style={LABEL}>Body</label>
+                  <RichBodyEditor
+                    initialContent={form.body}
+                    onChange={doc => updateForm({ body: doc })}
                   />
                 </div>
 

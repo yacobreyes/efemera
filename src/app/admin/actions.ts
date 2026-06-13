@@ -65,7 +65,14 @@ export async function savePost(formData: FormData) {
   const status = (formData.get("status") as string) || "draft";
   const pinned = formData.get("pinned") === "true";
 
-  const body = parseBody(bodyRaw);
+  let body: unknown;
+  try {
+    const parsed = JSON.parse(bodyRaw);
+    if (Array.isArray(parsed)) body = parsed;
+    else body = parseBody(bodyRaw);
+  } catch {
+    body = parseBody(bodyRaw);
+  }
 
   const doc: Record<string, unknown> = {
     _id: id || `post-${slug}`,
