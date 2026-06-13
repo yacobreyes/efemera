@@ -83,6 +83,13 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
   const [versions, setVersions] = useState<VersionEntry[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 700);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   // Popup for re-publishing: ask whether to update publish date
   const [showPublishTimeModal, setShowPublishTimeModal] = useState(false);
 
@@ -225,14 +232,14 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
 
       {/* Top bar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
         <button type="button" onClick={() => router.push("/admin")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Go back
+          {!isMobile && "Go back"}
         </button>
 
-        {/* Formatting toolbar — only shown on story content tab */}
-        {editorTab === "content" && editor && (
+        {/* Formatting toolbar — only shown on story content tab, desktop only */}
+        {!isMobile && editorTab === "content" && editor && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.15rem" }}>
             <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.5rem" }} />
             {([
@@ -355,35 +362,51 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       )}
 
       {/* Body */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden" }} onClick={() => setShowEllipsis(false)}>
-        {/* Left section nav */}
-        <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
-          <div style={{ padding: "1.25rem 0 0.5rem" }}>
-            <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Required</p>
-            {(["content", "metadata"] as const).map(tab => (
+      <div style={{ display: "flex", flex: 1, overflow: "hidden", flexDirection: "column" }} onClick={() => setShowEllipsis(false)}>
+
+        {/* Mobile tab bar */}
+        {isMobile && (
+          <div style={{ display: "flex", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0 }}>
+            {(["content", "metadata", "versions"] as const).map(tab => (
               <button key={tab} type="button" onClick={() => setEditorTab(tab)}
-                style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === tab ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === tab ? 600 : 400, color: editorTab === tab ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-                {tab === "content" ? "Story content" : "Metadata"}
+                style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${editorTab === tab ? CRIMSON : "transparent"}`, padding: "0.6rem 0", fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: editorTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
+                {tab === "content" ? "Story" : tab === "metadata" ? "Meta" : "History"}
               </button>
             ))}
           </div>
-          <div style={{ padding: "1rem 0 0.5rem", borderTop: `1px solid ${BORDER}`, marginTop: "0.75rem" }}>
-            <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>History</p>
-            <button type="button" onClick={() => setEditorTab("versions")}
-              style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === "versions" ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === "versions" ? 600 : 400, color: editorTab === "versions" ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-              Previous drafts
-            </button>
+        )}
+
+        <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+        {/* Left section nav — desktop only */}
+        {!isMobile && (
+          <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+            <div style={{ padding: "1.25rem 0 0.5rem" }}>
+              <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Required</p>
+              {(["content", "metadata"] as const).map(tab => (
+                <button key={tab} type="button" onClick={() => setEditorTab(tab)}
+                  style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === tab ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === tab ? 600 : 400, color: editorTab === tab ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
+                  {tab === "content" ? "Story content" : "Metadata"}
+                </button>
+              ))}
+            </div>
+            <div style={{ padding: "1rem 0 0.5rem", borderTop: `1px solid ${BORDER}`, marginTop: "0.75rem" }}>
+              <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>History</p>
+              <button type="button" onClick={() => setEditorTab("versions")}
+                style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === "versions" ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === "versions" ? 600 : 400, color: editorTab === "versions" ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
+                Previous drafts
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Canvas */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "3rem 4rem" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "1.5rem 1.25rem" : "3rem 4rem" }}>
           {editorTab === "content" && (
             <div style={{ maxWidth: 680, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <input
                   placeholder="Type your headline"
-                  style={{ fontFamily: FONT, fontSize: "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}
+                  style={{ fontFamily: FONT, fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}
                   value={form.headline}
                   onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
                 />
@@ -462,12 +485,13 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             </div>
           )}
         </div>
+        </div>
       </div>
 
       {/* Image modal */}
       {showImageModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowImageModal(false)}>
-          <div style={{ background: "white", borderRadius: 10, width: "min(880px, 95vw)", height: "min(600px, 90vh)", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
+          <div style={{ background: "white", borderRadius: isMobile ? 0 : 10, width: isMobile ? "100vw" : "min(880px, 95vw)", height: isMobile ? "100dvh" : "min(600px, 90vh)", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div style={{ padding: "1rem 1.5rem", borderBottom: `1px solid ${BORDER}` }}>
               <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: "0 0 0.75rem", color: TEXT_DARK }}>Add featured image</p>
