@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
@@ -193,17 +193,23 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
 
 export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; onMastheadClick?: () => void }) {
   const searchParams = useSearchParams();
-  const hashTab = typeof window !== "undefined" ? (window.location.hash.slice(1) as Tab) : null;
-  const initialTab = hashTab && ["About", "Micro-Memoirs", "Narratives", "Archive"].includes(hashTab)
-    ? hashTab
-    : (searchParams.get("tab") as Tab) ?? "Home";
+  const router = useRouter();
+  const initialTab = (searchParams.get("tab") as Tab) ?? "Home";
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+
+  const TAB_PATHS: Record<Tab, string> = {
+    "Home": "/",
+    "About": "/about",
+    "Micro-Memoirs": "/micro-memoirs",
+    "Narratives": "/narratives",
+    "Archive": "/archive-tab",
+  };
 
   function switchTab(tab: Tab) {
     setActiveTab(tab);
     setQuery("");
-    window.history.replaceState(null, "", tab === "Home" ? "/" : `/#${encodeURIComponent(tab)}`);
+    router.replace(TAB_PATHS[tab], { scroll: false });
   }
   const [welcome, setWelcome] = useState<{ headline: string; body: string } | null>(null);
 
