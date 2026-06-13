@@ -12,7 +12,7 @@ import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
 import SiteFooter from "@/components/SiteFooter";
 
-type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives";
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -137,6 +137,46 @@ const ABOUT_DEFAULT = [
   "This blog is where I keep mine.",
 ];
 
+function ArchiveTab({ posts }: { posts: SanityPost[] }) {
+  const groups = new Map<string, SanityPost[]>();
+  for (const post of posts) {
+    const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
+    const key = d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(post);
+  }
+
+  return (
+    <div style={{ maxWidth: 600, margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
+      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.6rem", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
+      {groups.size === 0 && <p style={{ fontFamily: "'Inter', sans-serif", color: "#657786" }}>Nothing here yet.</p>}
+      {[...groups.entries()].map(([month, monthPosts]) => (
+        <div key={month} style={{ marginBottom: "1.8rem" }}>
+          <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
+            {month}
+          </h2>
+          {monthPosts.map(post => {
+            const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
+            return (
+              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.35rem 0" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
+                  {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
+                </span>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 600, color: "#1c2938", lineHeight: 1.4 }}>
+                  {post.headline}
+                </span>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {post.section}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AboutPage({ paragraphs }: { paragraphs: string[] }) {
   const content = paragraphs.length > 0 ? paragraphs : ABOUT_DEFAULT;
 
@@ -205,15 +245,16 @@ export default function Feed({ posts, aboutParagraphs, lately, onMastheadClick }
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.png" alt="efemera" onClick={onMastheadClick} style={{ height: "clamp(28px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
-          {(["Home", "About", "Micro-Memoirs", "Narratives"] as Tab[]).map(s => (
+          {(["Home", "About", "Micro-Memoirs", "Narratives", "Archive"] as Tab[]).map(s => (
             <button key={s} onClick={() => { setActiveTab(s); setQuery(""); }} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
-          <Link href="/archive" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em", opacity: 0.7, whiteSpace: "nowrap" }}>Archive</Link>
         </nav>
       </header>
 
       {activeTab === "About" ? (
         <AboutPage paragraphs={aboutParagraphs} />
+      ) : activeTab === "Archive" ? (
+        <ArchiveTab posts={posts} />
       ) : (
         <div className="feed-layout">
           {/* Main column */}
