@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { client } from "@/lib/sanity";
 import type { SanityPost } from "@/lib/sanity";
 import EditorClient from "../../EditorClient";
-import { createDraft } from "../../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -18,13 +17,25 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
 
   const { id } = await params;
 
-  let post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
-
-  if (!post && id.startsWith("untitled-")) {
-    await createDraft(id).catch(() => {});
-    post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
+  // For new drafts, render immediately with empty state — first auto-save creates the doc
+  if (id.startsWith("untitled-")) {
+    const existing = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
+    const post: SanityPost = existing ?? {
+      _id: `post-${id}`,
+      slug: id,
+      headline: "",
+      subheadline: "",
+      byline: "Yacob Reyes",
+      section: "Narratives",
+      date: new Date().toISOString().slice(0, 10),
+      body: [],
+      status: "draft",
+      pinned: false,
+    };
+    return <EditorClient post={post} />;
   }
 
+  const post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
   if (!post) redirect("/admin");
 
   return <EditorClient post={post} />;
