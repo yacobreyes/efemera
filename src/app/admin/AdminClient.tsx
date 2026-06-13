@@ -99,6 +99,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
   const mediaFileRef = useRef<HTMLInputElement>(null);
+  const [showPhotoPicker, setShowPhotoPicker] = useState(false);
+  const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
+  const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
+
+  const [pendingDraft, setPendingDraft] = useState<FormState | null>(null);
 
   const [autosaveLabel, setAutosaveLabel] = useState("");
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -131,29 +136,34 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       .catch(() => {});
   }, []);
 
-  // Restore autosave on mount when creating new post — newest of localStorage vs Sanity cloud draft
+  // On login, check for a saved draft and prompt the user
   useEffect(() => {
-    if (!auth || editing || activePanel !== "post") return;
+    if (!auth) return;
     let local: { ts: number; form: FormState } | null = null;
     try {
       const saved = localStorage.getItem(LS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // older format stored the FormState directly
         local = parsed?.form ? parsed : { ts: 0, form: parsed };
       }
     } catch {}
-    if (local) setForm({ ...DEFAULT_FORM, ...local.form });
 
     loadDraftFromCloud()
       .then(cloud => {
-        if (!cloud) return;
-        const parsed = JSON.parse(cloud.data) as { ts: number; form: FormState };
-        if (parsed?.form && (!local || (parsed.ts ?? 0) > local.ts)) {
-          setForm({ ...DEFAULT_FORM, ...parsed.form });
+        let best = local;
+        if (cloud) {
+          const parsed = JSON.parse(cloud.data) as { ts: number; form: FormState };
+          if (parsed?.form && (!local || (parsed.ts ?? 0) > local.ts)) best = parsed;
+        }
+        if (best?.form?.headline || best?.form?.body) {
+          setPendingDraft({ ...DEFAULT_FORM, ...best.form });
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (local?.form?.headline || local?.form?.body) {
+          setPendingDraft({ ...DEFAULT_FORM, ...local!.form });
+        }
+      });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
@@ -454,6 +464,54 @@ function handleSubmit(e: React.FormEvent) {
           color: ${TEXT_DARK} !important;
         }
       `}</style>
+
+      {/* Pending draft banner */}
+      {pendingDraft && (
+        <div style={{ position: "fixed", bottom: "1.5rem", left: "50%", transform: "translateX(-50%)", zIndex: 2000, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", padding: "1rem 1.5rem", display: "flex", alignItems: "center", gap: "1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, whiteSpace: "nowrap" }}>
+          <span>📝 You have an unsaved draft{pendingDraft.headline ? `: "${pendingDraft.headline.slice(0, 40)}"` : ""}</span>
+          <button onClick={() => { setForm(pendingDraft); setPendingDraft(null); setActivePanel("post"); setEditing(null); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.35rem 0.9rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Continue</button>
+          <button onClick={() => { setPendingDraft(null); try { localStorage.removeItem(LS_KEY); } catch {} clearCloudDraft().catch(() => {}); }} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.35rem 0.75rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED }}>Discard</button>
+        </div>
+      )}
+
+      {/* Photo picker modal */}
+      {showPhotoPicker && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1100, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }} onClick={e => { if (e.target === e.currentTarget) setShowPhotoPicker(false); }}>
+          <div style={{ background: "white", borderRadius: 6, width: "100%", maxWidth: 720, padding: "1.5rem", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2 style={{ fontFamily: FONT, fontSize: "1.1rem", color: TEXT_DARK, margin: 0 }}>Choose from library</h2>
+              <button onClick={() => setShowPhotoPicker(false)} style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
+            </div>
+            {photoPickerLoading ? (
+              <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p>
+            ) : photoPickerAssets.length === 0 ? (
+              <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images in library yet.</p>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "0.6rem" }}>
+                {photoPickerAssets.map(asset => (
+                  <div
+                    key={asset._id}
+                    onClick={() => {
+                      const caption = asset.originalFilename ? asset.originalFilename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ") : "";
+                      setImageAssetId(asset._id);
+                      setImagePreview("existing");
+                      setImageCaption(caption);
+                      setShowPhotoPicker(false);
+                    }}
+                    style={{ cursor: "pointer", border: `2px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = CRIMSON)}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = BORDER)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`${asset.url}?w=280&h=160&fit=crop&auto=format`} alt={asset.originalFilename ?? ""} style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
+                    <p style={{ fontFamily: FONT, fontSize: "0.65rem", color: TEXT_MUTED, margin: 0, padding: "0.3rem 0.4rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{asset.originalFilename ?? asset._id.slice(-8)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Preview Modal */}
       {showPreview && (
@@ -798,9 +856,16 @@ function handleSubmit(e: React.FormEvent) {
                 <div>
                   <label style={LABEL}>Photo {uploadingImage && <span style={{ color: "#657786", fontWeight: 400 }}>— uploading…</span>}</label>
                   <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
-                  <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start", flexWrap: "wrap" }}>
                     <button type="button" onClick={() => fileRef.current?.click()} style={{ padding: "0.45rem 1rem", border: `1px solid ${BORDER}`, borderRadius: 4, background: "white", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap" }}>
-                      {imagePreview ? "Change photo" : "Add photo"}
+                      {imagePreview ? "Change photo" : "Upload photo"}
+                    </button>
+                    <button type="button" onClick={() => {
+                      setShowPhotoPicker(true);
+                      setPhotoPickerLoading(true);
+                      fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setPhotoPickerAssets(data); }).catch(() => {}).finally(() => setPhotoPickerLoading(false));
+                    }} style={{ padding: "0.45rem 1rem", border: `1px solid ${BORDER}`, borderRadius: 4, background: "white", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: TEXT_MUTED, whiteSpace: "nowrap" }}>
+                      Choose from library
                     </button>
                     {imagePreview && imagePreview !== "existing" && (
                       // eslint-disable-next-line @next/next/no-img-element
