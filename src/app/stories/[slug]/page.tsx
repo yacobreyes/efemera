@@ -44,6 +44,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
   const postUrl = `${siteUrl}/stories/${slug}`;
+  const ogImage = imageUrl
+    ? { url: imageUrl, width: 1200, height: 630, alt: post.headline }
+    : { url: "/Masthead.png", width: 1200, height: 630, alt: "Efemera" };
 
   return {
     title: `${post.headline} — Efemera`,
@@ -56,13 +59,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: "Efemera",
       publishedTime: post.date,
       authors: [post.byline],
-      ...(imageUrl ? { images: [{ url: imageUrl, width: 1200, height: 630, alt: post.headline }] } : {}),
+      images: [ogImage],
     },
     twitter: {
-      card: imageUrl ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: post.headline,
       description,
-      ...(imageUrl ? { images: [imageUrl] } : {}),
+      images: [ogImage.url],
     },
   };
 }
