@@ -75,6 +75,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   const [form, setForm] = useState<FormState>(initialForm);
   const [lastSaved, setLastSaved] = useState<FormState>(initialForm);
+  const [lastSavedImg, setLastSavedImg] = useState({ id: post.image?.asset?._ref ?? "", caption: post.image?.caption ?? "", alt: post.image?.alt ?? "" });
   const [editorTab, setEditorTab] = useState<"content" | "metadata" | "versions">("content");
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
@@ -111,7 +112,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
-  const isDirty = JSON.stringify(form) !== JSON.stringify(lastSaved);
+  const isDirty = JSON.stringify(form) !== JSON.stringify(lastSaved) ||
+    imageAssetId !== lastSavedImg.id || imageCaption !== lastSavedImg.caption || imageAlt !== lastSavedImg.alt;
 
   const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false) => {
     setSaveStatus("saving");
@@ -132,6 +134,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         appendVersion(post.slug, entry);
         setVersions(loadVersions(post.slug));
         setLastSaved({ ...form, status, date: saveDate });
+        setLastSavedImg({ id: imageAssetId, caption: imageCaption, alt: imageAlt });
         setForm(f => ({ ...f, status, date: saveDate }));
         setSaveStatus("saved");
       } catch {
@@ -148,7 +151,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       doSave(form.status === "published" ? "published" : "draft");
     }, 1500);
     return () => clearTimeout(timer);
-  }, [form, imageAssetId, imageCaption, imageAlt]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, imageAssetId, imageCaption, imageAlt, doSave]);
 
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
@@ -202,7 +206,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   }
 
   function handlePublishClick() {
-    // Already published → ask about publish date
+    if (!form.headline.trim()) { alert("Add a headline before publishing."); return; }
+    if (!imageAssetId) { alert("Add a featured image before publishing."); return; }
+    const bodyText = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join("").trim();
+    if (!bodyText) { alert("Write something in the body before publishing."); return; }
     if (initialForm.status === "published") {
       setShowPublishTimeModal(true);
     } else {
@@ -211,6 +218,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   }
 
   const statusLabel = saveStatus === "saving" ? "Saving…" : saveStatus === "unsaved" ? "Unsaved" : "Saved";
+  const wordCount = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
@@ -263,6 +271,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{statusLabel}</span>
+          {wordCount > 0 && <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>· {wordCount} words</span>}
           <button
             type="button"
             disabled={isPending || uploadingImage}
