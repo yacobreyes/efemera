@@ -96,6 +96,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
+  const [query, setQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
@@ -439,60 +440,66 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
 
           {/* DASHBOARD */}
           {activePanel === "dashboard" && (
-            <div style={{ maxWidth: 720 }}>
-              {/* Mobile-style underline tabs */}
-              <div className="mobile-tab-bar">
-                {(["drafts", "scheduled", "published"] as const).map(tab => (
-                  <button key={tab} className={`mobile-tab-btn${postTab === tab ? " active" : ""}`} onClick={() => setPostTab(tab)}>
-                    {tab === "drafts" ? `Drafts` : tab === "scheduled" ? `Scheduled` : `Published`}
-                  </button>
-                ))}
-              </div>
-              {/* Desktop pill tabs + New post button (hidden on mobile via the bar above) */}
-              <div style={{ gap: "0.5rem", marginBottom: "1.5rem", alignItems: "center" }} className="desktop-tab-row">
-                {(["drafts", "scheduled", "published"] as const).map(tab => (
-                  <button key={tab} onClick={() => setPostTab(tab)} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.4rem 1.1rem", borderRadius: 4, border: `1px solid ${postTab === tab ? CRIMSON : BORDER}`, background: postTab === tab ? CRIMSON : "white", color: postTab === tab ? "white" : TEXT_MUTED, cursor: "pointer" }}>
-                    {tab === "drafts" ? `Drafts (${drafts.length})` : tab === "scheduled" ? `Scheduled (${scheduled.length})` : `Published (${published.length})`}
-                  </button>
-                ))}
-                <button onClick={startNew} style={{ marginLeft: "auto", background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>+ New post</button>
+            <div style={{ maxWidth: 900 }}>
+              {/* Top bar: search + tabs + create */}
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+                <div style={{ position: "relative", flex: "1 1 200px", maxWidth: 320 }}>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <input placeholder="Search stories…" value={query} onChange={e => setQuery(e.target.value)} style={{ ...INPUT, paddingLeft: "2.2rem", fontSize: "0.85rem" }} />
+                </div>
+                <div style={{ display: "flex", borderBottom: `2px solid ${BORDER}`, gap: 0 }}>
+                  {(["drafts", "scheduled", "published"] as const).map(tab => (
+                    <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
+                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+                    </button>
+                  ))}
+                </div>
+                <button onClick={startNew} style={{ marginLeft: "auto", background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.5rem 1.2rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>+ Create new</button>
               </div>
 
-              {postTab === "drafts" && (
-                drafts.length === 0 ? (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
-                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No drafts yet.</p>
-                  </div>
-                ) : (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                    {drafts.map(post => <PostRow key={post._id} post={post} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} />)}
-                  </div>
-                )
-              )}
-
-              {postTab === "scheduled" && (
-                scheduled.length === 0 ? (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
-                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No scheduled posts.</p>
-                  </div>
-                ) : (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                    {scheduled.map(post => <PostRow key={post._id} post={post} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} />)}
-                  </div>
-                )
-              )}
-
-              {postTab === "published" && (
-                published.length === 0 ? (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
-                    <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No published posts yet.</p>
-                  </div>
-                ) : (
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                    {published.map(post => <PostRow key={post._id} post={post} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} />)}
-                  </div>
-                )
-              )}
+              {/* Count + sort row */}
+              {(() => {
+                const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
+                const filtered = query.trim() ? list.filter(p => p.headline.toLowerCase().includes(query.toLowerCase()) || p.subheadline?.toLowerCase().includes(query.toLowerCase())) : list;
+                const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled post" : "published post";
+                return (
+                  <>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
+                    </div>
+                    {/* Table header */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem", borderBottom: `1px solid ${BORDER}` }}>
+                      {["Name", "Section", "Date"].map(h => (
+                        <span key={h} style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: TEXT_MUTED }}>{h}</span>
+                      ))}
+                    </div>
+                    {/* Rows */}
+                    {filtered.length === 0 ? (
+                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center", marginTop: "0.25rem" }}>
+                        <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>{query ? `No results for "${query}"` : `No ${label}s yet.`}</p>
+                      </div>
+                    ) : (
+                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginTop: "0.25rem" }}>
+                        {filtered.map(post => (
+                          <div key={post._id} onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }} style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "white")}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                              <div style={{ minWidth: 0 }}>
+                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}{post.pinned ? " 📌" : ""}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
+                              </div>
+                            </div>
+                            <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>{post.section}</span>
+                            <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>{post.date}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
 
