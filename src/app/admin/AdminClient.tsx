@@ -355,7 +355,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         {/* Collapsible sidebar */}
         <div className="admin-sidebar">
           {/* Logo + toggle */}
-          <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "space-between" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, gap: "0.5rem" }}>
+          <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "flex-start" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, position: "relative" }}>
             {sidebarOpen ? (
               <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
                 <span style={{ color: CRIMSON }}>e</span>femera
@@ -363,8 +363,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
             ) : (
               <span style={{ fontFamily: FONT, fontSize: "1.4rem", fontWeight: 900, color: CRIMSON, letterSpacing: "-0.02em", lineHeight: 1 }}>e</span>
             )}
-            <button onClick={() => setSidebarOpen(v => !v)} style={{ background: "#f0f4f8", border: "none", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, flexShrink: 0 }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            {/* Toggle sits on the right border line */}
+            <button onClick={() => setSidebarOpen(v => !v)} style={{ position: "absolute", right: -14, top: "50%", transform: "translateY(-50%)", background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, zIndex: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.1)" }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
               </svg>
             </button>
