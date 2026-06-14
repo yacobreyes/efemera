@@ -147,7 +147,7 @@ export default function FlappyChoopy() {
         ctx.arc(f.x, f.y + bob, FLY_SIZE / 2 + 4, 0, Math.PI * 2);
         ctx.fill();
         // crimson ring to signal collectible
-        ctx.strokeStyle = "#CC2200";
+        ctx.strokeStyle = "#FFD700";
         ctx.lineWidth = 2;
         ctx.stroke();
         ctx.globalAlpha = 1;
