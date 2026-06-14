@@ -20,6 +20,42 @@ const FLY_SIZE = 30;
 const CHOOPY_X = 80;
 const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
+// ── Chiptune: Teenage Dirtbag melody ────────────────────────────────────────
+const BPM = 148;
+const NQ = 60 / BPM;       // quarter note
+const NE = NQ / 2;         // eighth note
+const NH = NQ * 2;         // half note
+
+const G4=392.00, A4=440.00, B4=493.88, E4=329.63, Fs4=369.99;
+const C5=523.25, D5=587.33, E5=659.25;
+
+const MELODY: [number, number][] = [
+  // "Her name is No-elle"
+  [B4,NE],[B4,NQ],[C5,NE],[D5,NQ],[E5,NH],
+  // "I have a dream about her"
+  [B4,NE],[C5,NE],[D5,NE],[E5,NE],[D5,NQ],[C5,NE],[B4,NH],
+  // "She rings my bell"
+  [B4,NE],[C5,NQ],[D5,NQ],[E5,NH],
+  // "Got gym class in half an hour"
+  [B4,NE],[B4,NE],[C5,NE],[D5,NE],[E5,NE],[D5,NE],[C5,NQ],[B4,NH],
+  // "Oh how she rocks"
+  [B4,NQ],[C5,NQ],[B4,NQ],[A4,NH],
+  // "In Keds and tube socks"
+  [G4,NQ],[G4,NE],[A4,NE],[B4,NQ],[E4,NH],
+  // "But she doesn't know who I am"
+  [B4,NE],[B4,NE],[C5,NE],[D5,NQ],[E5,NE],[C5,NQ],[B4,NQ],[B4,NE],[A4,NE],
+  // "And she doesn't give a damn about me"
+  [B4,NE],[B4,NE],[C5,NE],[D5,NQ],[E5,NE],[B4,NE],[A4,NQ],[G4,NE],[Fs4,NE],[G4,NH],
+  // chorus: "'Cause I'm just a teenage dirtbag baby"
+  [G4,NE],[G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NH],
+  // "Yeah I'm just a teenage dirtbag baby"
+  [G4,NE],[G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NH],
+  // "Listen to Iron Maiden maybe with me"
+  [G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NQ],[Fs4,NE],[G4,NH],
+  // "Ooh ooh ooh ooh ooh ohh"
+  [G4,NQ],[A4,NQ],[B4,NQ],[A4,NQ],[G4,NQ],[Fs4,NH],
+];
+
 type GameState = "idle" | "playing" | "dead";
 
 interface Pipe { x: number; gapY: number; scored: boolean; }
@@ -35,12 +71,62 @@ export default function FlappyChoopy() {
   const [scores, setScores] = useState({ pipes: 0, flies: 0 });
   const [best, setBest] = useState(0);
   const bestRef = useRef(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextLoopAtRef = useRef(0);
+  const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
     setBest(stored);
     bestRef.current = stored;
   }, []);
+
+  function scheduleLoop(ctx: AudioContext, startAt: number) {
+    if (mutedRef.current) return;
+    let t = startAt;
+    MELODY.forEach(([freq, dur]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.055, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.82);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + dur);
+      t += dur;
+    });
+    const totalDur = t - startAt;
+    nextLoopAtRef.current = startAt + totalDur;
+    loopTimerRef.current = setTimeout(() => {
+      if (!mutedRef.current && audioCtxRef.current) {
+        scheduleLoop(audioCtxRef.current, nextLoopAtRef.current);
+      }
+    }, (totalDur - 0.4) * 1000);
+  }
+
+  function startMusic() {
+    if (mutedRef.current) return;
+    if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+    const ctx = audioCtxRef.current;
+    if (ctx.state === "suspended") ctx.resume();
+    if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+    scheduleLoop(ctx, ctx.currentTime + 0.05);
+  }
+
+  function toggleMute() {
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    setMuted(next);
+    if (next) {
+      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+    } else {
+      startMusic();
+    }
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -70,6 +156,7 @@ export default function FlappyChoopy() {
     function flap() {
       if (stateRef.current === "idle") {
         stateRef.current = "playing"; setDisplayState("playing");
+        startMusic();
         reset(); vy = FLAP; return;
       }
       if (stateRef.current === "dead") {
@@ -346,16 +433,21 @@ export default function FlappyChoopy() {
       cancelAnimationFrame(animId);
       canvas.removeEventListener("click", flap);
       window.removeEventListener("keydown", onKey);
+      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
+      audioCtxRef.current?.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", textAlign: "center" }}>
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
         <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           Flappy Choopy
         </span>
+        <button onClick={toggleMute} title={muted ? "Unmute" : "Mute"} style={{ position: "absolute", right: "0.85rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.75rem", color: "#657786", padding: 0 }}>
+          {muted ? "🔇" : "🔊"}
+        </button>
       </div>
       <canvas
         ref={canvasRef}
