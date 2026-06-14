@@ -444,7 +444,7 @@ export default function FlappyChoopy() {
       // Tip
       ctx.font = "11px monospace";
       ctx.fillStyle = "rgba(255,215,0,0.75)";
-      ctx.fillText("eat 🪰 mayflies for bonus pts", W / 2, H - 50);
+      ctx.fillText("EAT 🪰 MAYFLIES FOR BONUS PTS", W / 2, H - 50);
 
       // Best score badge
       if (bestRef.current > 0) {
