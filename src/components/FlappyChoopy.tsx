@@ -16,7 +16,7 @@ const WATER_H = 28;
 
 const CHOOPY_W = 48;
 const CHOOPY_H = Math.round(48 * (1448 / 1086)); // ~64
-const FLY_SIZE = 22;
+const FLY_SIZE = 30;
 const CHOOPY_X = 80;
 const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
@@ -46,7 +46,7 @@ export default function FlappyChoopy() {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const choopyImg = new Image(); choopyImg.src = "/choopy-fly.webp";
-    const mayflyImg = new Image(); mayflyImg.src = "/mayfly-icon.webp";
+    const mayflyImg = new Image(); mayflyImg.src = "/Flying Mayfly Kicker.webp";
     const bgImg = new Image(); bgImg.src = "/tampa-skyline.webp";
 
     let frame = 0;
