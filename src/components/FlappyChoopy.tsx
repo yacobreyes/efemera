@@ -217,14 +217,25 @@ export default function FlappyChoopy() {
       ctx.fillText("GAME OVER", W / 2, H / 2 - 54);
 
       const bonus = fs * BONUS_PER_FLY;
-      ctx.fillStyle = "#1c2938"; ctx.font = "15px monospace";
-      ctx.fillText(`PIPES:    ${ps}`, W / 2, H / 2 - 20);
-      ctx.fillStyle = "#b8860b"; ctx.font = "bold 15px monospace";
-      ctx.fillText(`🪰 BONUS:  +${bonus}`, W / 2, H / 2 + 4);
-
       const total = ps + bonus;
+      const xL = W / 2 - 52;   // label column (left-aligned)
+      const xV = W / 2 + 52;   // value column (right-aligned)
+
+      ctx.font = "15px monospace";
+      ctx.textAlign = "left";  ctx.fillStyle = "#1c2938";
+      ctx.fillText("PIPES:", xL, H / 2 - 20);
+      ctx.textAlign = "right";
+      ctx.fillText(String(ps), xV, H / 2 - 20);
+
+      ctx.fillStyle = "#b8860b"; ctx.font = "bold 15px monospace";
+      ctx.textAlign = "left";  ctx.fillText("BONUS:", xL, H / 2 + 4);
+      ctx.textAlign = "right"; ctx.fillText(`+${bonus}`, xV, H / 2 + 4);
+
       ctx.fillStyle = "#1c2938"; ctx.font = "bold 15px monospace";
-      ctx.fillText(`TOTAL:    ${total}`, W / 2, H / 2 + 28);
+      ctx.textAlign = "left";  ctx.fillText("TOTAL:", xL, H / 2 + 28);
+      ctx.textAlign = "right"; ctx.fillText(String(total), xV, H / 2 + 28);
+
+      ctx.textAlign = "center";
 
       const nb = Math.max(total, bestRef.current);
       ctx.fillStyle = "#8B0000"; ctx.font = "bold 13px monospace";
