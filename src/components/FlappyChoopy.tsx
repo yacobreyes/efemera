@@ -84,42 +84,32 @@ export default function FlappyChoopy() {
 
     // ── Tampa skyline (real pixel-art image) ─────────────────────
     function drawBackground() {
-      const fieldBottom = H - GROUND_H;
       if (bgImg.complete && bgImg.naturalWidth) {
-        // fit to width; image already includes sky, skyline + water reflection
-        const dh = bgImg.naturalHeight * (W / bgImg.naturalWidth);
-        ctx.drawImage(bgImg, 0, 0, W, dh);
-        // extend deep water below the image down to the ground
-        if (dh < fieldBottom) {
-          ctx.fillStyle = "#0b1d3a";
-          ctx.fillRect(0, Math.floor(dh) - 1, W, fieldBottom - Math.floor(dh) + 1);
-          // shimmer in the extended water
-          ctx.lineWidth = 1;
-          for (let wx = 0; wx < W; wx += 16) {
-            const woff = Math.sin(frame * 0.04 + wx * 0.12) * 2;
-            ctx.strokeStyle = "rgba(120,170,255,0.18)";
-            ctx.beginPath();
-            ctx.moveTo(wx, dh + 8 + woff);
-            ctx.lineTo(wx + 9, dh + 8 + woff);
-            ctx.stroke();
-          }
-        }
+        // cover the whole canvas; image includes sky, skyline + water reflection
+        const scale = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight);
+        const dw = bgImg.naturalWidth * scale;
+        const dh = bgImg.naturalHeight * scale;
+        ctx.drawImage(bgImg, (W - dw) / 2, (H - dh) / 2, dw, dh);
       } else {
         ctx.fillStyle = "#0a0f2e";
-        ctx.fillRect(0, 0, W, fieldBottom);
+        ctx.fillRect(0, 0, W, H);
       }
     }
 
     function drawWater() { /* water is part of the skyline image */ }
 
     function drawGround() {
-      ctx.fillStyle = "#8B7355";
-      ctx.fillRect(0, H - GROUND_H, W, GROUND_H);
-      ctx.fillStyle = "#5a8a3c";
-      ctx.fillRect(0, H - GROUND_H, W, 10);
-      ctx.fillStyle = "#4a7a2c";
-      for (let gx = (-groundOffset % 48); gx < W + 48; gx += 48) {
-        ctx.beginPath(); ctx.arc(gx, H - GROUND_H + 5, 9, Math.PI, 0); ctx.fill();
+      // The skyline image already provides the bay water; add a moving
+      // shimmer along the death waterline so the surface reads as alive.
+      const waterY = H - GROUND_H - WATER_H;
+      ctx.lineWidth = 1;
+      for (let wx = (-groundOffset % 18); wx < W; wx += 18) {
+        const woff = Math.sin(frame * 0.05 + wx * 0.1) * 2;
+        ctx.strokeStyle = "rgba(255,230,180,0.18)";
+        ctx.beginPath();
+        ctx.moveTo(wx, waterY + 4 + woff);
+        ctx.lineTo(wx + 8, waterY + 4 + woff);
+        ctx.stroke();
       }
     }
 
