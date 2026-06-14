@@ -5,26 +5,26 @@ import { useEffect, useRef, useState, useCallback } from "react";
 const W = 400;
 const H = 380;
 const IS_MOBILE = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
-const GRAVITY = IS_MOBILE ? 0.35 : 0.35;
-const FLAP = IS_MOBILE ? -6.5 : -6.5;
-const PIPE_SPEED = IS_MOBILE ? 1.5 : 1.5;
-const PIPE_GAP = IS_MOBILE ? 160 : 160;
+const GRAVITY = 0.35;
+const FLAP = -6.5;
+const BASE_PIPE_SPEED = 1.5;
+const PIPE_GAP = 160;
 const PIPE_INTERVAL = IS_MOBILE ? 110 : 95;
 const PIPE_WIDTH = 52;
 const GROUND_H = 28;
 const WATER_H = 14;
-
 const CHOOPY_W = 48;
-const CHOOPY_H = Math.round(48 * (1448 / 1086)); // ~64
+const CHOOPY_H = Math.round(48 * (1448 / 1086));
 const FLY_SIZE = 30;
 const CHOOPY_X = 80;
-const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
+const BONUS_PER_FLY = 3;
+const MILESTONES = [5, 10, 20, 30, 50];
 
 type GameState = "idle" | "playing" | "dead";
-
 interface Pipe { x: number; gapY: number; scored: boolean; }
 interface Fly { x: number; y: number; eaten: boolean; bobOffset: number; }
-interface Popup { x: number; y: number; life: number; }
+interface Popup { x: number; y: number; life: number; text: string; color: string; }
+interface LeaderEntry { _id: string; name: string; score: number; }
 
 export default function FlappyChoopy() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,16 +42,45 @@ export default function FlappyChoopy() {
   const musicBufferRef = useRef<AudioBuffer | null>(null);
   const wantsMusicRef = useRef(false);
 
+  // Leaderboard UI state
+  const [leaderboard, setLeaderboard] = useState<LeaderEntry[]>([]);
+  const [showLeader, setShowLeader] = useState(false);
+  const [submitName, setSubmitName] = useState("");
+  const [pendingScore, setPendingScore] = useState<number | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [loadingLB, setLoadingLB] = useState(false);
+
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
     setBest(stored);
     bestRef.current = stored;
   }, []);
 
+  const fetchLeaderboard = useCallback(async () => {
+    setLoadingLB(true);
+    try {
+      const res = await fetch("/api/leaderboard");
+      const data = await res.json() as { scores: LeaderEntry[] };
+      setLeaderboard(data.scores ?? []);
+    } catch { /* ignore */ }
+    setLoadingLB(false);
+  }, []);
+
+  const submitScore = useCallback(async (name: string, score: number) => {
+    try {
+      const res = await fetch("/api/leaderboard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, score }),
+      });
+      const data = await res.json() as { scores: LeaderEntry[] };
+      setLeaderboard(data.scores ?? []);
+      setSubmitted(true);
+    } catch { /* ignore */ }
+  }, []);
+
   const startMusic = useCallback(() => {
     wantsMusicRef.current = true;
-    // Buffer may still be downloading/decoding — the loader will start it
-    // once it's ready (see decodeAudioData handler).
     if (!audioCtxRef.current || !musicBufferRef.current) return;
     audioCtxRef.current.resume();
     try { musicSourceRef.current?.stop(); } catch (_) {}
@@ -76,7 +105,6 @@ export default function FlappyChoopy() {
     g.gain.setValueAtTime(0.4, ctx.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
     g.connect(ctx.destination);
-    // descending thud: square wave drop
     const osc = ctx.createOscillator();
     osc.type = "square";
     osc.frequency.setValueAtTime(220, ctx.currentTime);
@@ -84,6 +112,24 @@ export default function FlappyChoopy() {
     osc.connect(g);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.35);
+  }, []);
+
+  const playMilestoneSound = useCallback(() => {
+    if (!audioCtxRef.current || mutedRef.current) return;
+    const ctx = audioCtxRef.current;
+    [523, 659, 784].forEach((freq, i) => {
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, ctx.currentTime + i * 0.08);
+      g.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i * 0.08 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.08 + 0.18);
+      g.connect(masterGainRef.current!);
+      const osc = ctx.createOscillator();
+      osc.type = "square";
+      osc.frequency.value = freq;
+      osc.connect(g);
+      osc.start(ctx.currentTime + i * 0.08);
+      osc.stop(ctx.currentTime + i * 0.08 + 0.18);
+    });
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -96,7 +142,6 @@ export default function FlappyChoopy() {
   }, []);
 
   useEffect(() => {
-    // Set up audio context and load music
     const actx = new AudioContext();
     audioCtxRef.current = actx;
     const master = actx.createGain();
@@ -109,8 +154,6 @@ export default function FlappyChoopy() {
       .then(ab => actx.decodeAudioData(ab))
       .then(buf => {
         musicBufferRef.current = buf;
-        // If a game is already running and music was requested before the
-        // buffer finished loading, kick it off now.
         if (wantsMusicRef.current && !musicSourceRef.current) startMusic();
       })
       .catch(() => {});
@@ -130,26 +173,35 @@ export default function FlappyChoopy() {
     let animId = 0;
     let dead = false;
     let spawnCount = 0;
+    let flapFrame = -99; // frame of last flap for wing animation
+    let milestoneHit = new Set<number>();
+    let flashLife = 0; // frames of screen flash remaining
+
+    function pipeSpeed() {
+      // Ramp up speed every 5 pipes, capped at 2.8
+      return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 5) * 0.12, 2.8);
+    }
 
     function reset() {
       frame = 0; y = H / 2 - 20; vy = 0;
       pipes = []; flies = []; popups = [];
       scoreRef.current = 0; flyScoreRef.current = 0;
-      dead = false; spawnCount = 0;
+      dead = false; spawnCount = 0; flapFrame = -99;
+      milestoneHit = new Set(); flashLife = 0;
     }
 
     function flap() {
       if (stateRef.current === "idle") {
         actx.resume();
         stateRef.current = "playing"; setDisplayState("playing");
-        reset(); vy = FLAP;
+        reset(); vy = FLAP; flapFrame = frame;
         startMusic();
         return;
       }
       if (stateRef.current === "dead") {
         stateRef.current = "idle"; setDisplayState("idle"); return;
       }
-      vy = FLAP;
+      vy = FLAP; flapFrame = frame;
     }
 
     canvas.addEventListener("click", flap);
@@ -158,10 +210,8 @@ export default function FlappyChoopy() {
     }
     window.addEventListener("keydown", onKey);
 
-    // ── Tampa skyline (real pixel-art image) ─────────────────────
     function drawBackground() {
       if (bgImg.complete && bgImg.naturalWidth) {
-        // cover the whole canvas; image includes sky, skyline + water reflection
         const scale = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight);
         const dw = bgImg.naturalWidth * scale;
         const dh = bgImg.naturalHeight * scale;
@@ -172,14 +222,9 @@ export default function FlappyChoopy() {
       }
     }
 
-    function drawWater() { /* water is part of the skyline image */ }
-
-    function drawGround() { /* the skyline image provides the bay water */ }
-
     function drawPipe(x: number, topH: number, botY: number) {
       const C = "#8B0000", D = "#5a0000", CAP = 22, CX = 3;
-      ctx.fillStyle = C;
-      ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP);
+      ctx.fillStyle = C; ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, 0, 8, topH - CAP);
       ctx.fillStyle = C; ctx.fillRect(x - CX, topH - CAP, PIPE_WIDTH + CX * 2, CAP);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 5, topH - CAP, 5, CAP);
@@ -192,11 +237,16 @@ export default function FlappyChoopy() {
 
     function drawChoopy(cy: number, vel: number) {
       const angle = Math.min(Math.max(vel * 0.055, -0.35), 0.85);
+      // Wing flap: squish vertically for 8 frames after flap
+      const flapAge = frame - flapFrame;
+      const squishY = flapAge < 8 ? 1 - Math.sin((flapAge / 8) * Math.PI) * 0.25 : 1;
+      const squishX = flapAge < 8 ? 1 + Math.sin((flapAge / 8) * Math.PI) * 0.15 : 1;
+
       ctx.save();
       ctx.translate(CHOOPY_X, cy);
       ctx.rotate(angle);
+      ctx.scale(squishX, squishY);
       if (choopyImg.complete && choopyImg.naturalWidth > 0) {
-        // gold glow outline so she pops against the busy skyline
         ctx.shadowColor = "#FFD700";
         ctx.shadowBlur = 7;
         for (let i = 0; i < 3; i++) {
@@ -227,44 +277,54 @@ export default function FlappyChoopy() {
 
     function drawPopups(ps: Popup[]) {
       ctx.save();
-      ctx.font = "bold 13px monospace"; ctx.textAlign = "center";
+      ctx.font = "bold 14px monospace"; ctx.textAlign = "center";
       ps.forEach(p => {
-        const a = p.life / 40;
-        const rise = (40 - p.life) * 0.9;
+        const a = p.life / 50;
+        const rise = (50 - p.life) * 1.1;
         ctx.strokeStyle = `rgba(0,0,0,${a * 0.4})`; ctx.lineWidth = 2;
-        ctx.fillStyle = `rgba(255,215,0,${a})`;
-        ctx.strokeText(`+${BONUS_PER_FLY} 🪰`, p.x, p.y - rise);
-        ctx.fillText(`+${BONUS_PER_FLY} 🪰`, p.x, p.y - rise);
+        ctx.fillStyle = p.color.replace(")", `,${a})`).replace("rgb", "rgba");
+        ctx.strokeText(p.text, p.x, p.y - rise);
+        ctx.fillText(p.text, p.x, p.y - rise);
       });
       ctx.restore();
     }
 
-    function drawHUD(pipes: number, mayflies: number) {
-      // Pipe score — center top
+    function drawHUD(pipeScore: number, flyCount: number) {
+      const speed = pipeSpeed();
       ctx.save();
       ctx.font = "bold 38px monospace"; ctx.textAlign = "center";
       ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 3;
-      ctx.strokeText(String(pipes), W / 2, 50);
-      ctx.fillStyle = "white"; ctx.fillText(String(pipes), W / 2, 50);
+      ctx.strokeText(String(pipeScore), W / 2, 50);
+      ctx.fillStyle = "white"; ctx.fillText(String(pipeScore), W / 2, 50);
 
-      // Mayfly bonus — top right (applied on top of pipe score)
-      const bonus = mayflies * BONUS_PER_FLY;
+      const bonus = flyCount * BONUS_PER_FLY;
       ctx.font = "bold 16px monospace"; ctx.textAlign = "right";
       ctx.strokeText(`🪰 +${bonus}`, W - 10, 30);
       ctx.fillStyle = "#FFD700"; ctx.fillText(`🪰 +${bonus}`, W - 10, 30);
+
+      // Speed indicator — subtle top-left
+      if (speed > BASE_PIPE_SPEED + 0.05) {
+        const lvl = Math.floor((speed - BASE_PIPE_SPEED) / 0.12);
+        ctx.font = "bold 11px monospace"; ctx.textAlign = "left";
+        ctx.fillStyle = "rgba(255,100,100,0.85)";
+        ctx.fillText(`⚡ LVL ${lvl}`, 8, 20);
+      }
       ctx.restore();
+    }
+
+    function drawFlash() {
+      if (flashLife <= 0) return;
+      const a = (flashLife / 20) * 0.35;
+      ctx.fillStyle = `rgba(255,215,0,${a})`;
+      ctx.fillRect(0, 0, W, H);
+      flashLife--;
     }
 
     function drawIdle() {
       drawBackground();
-      drawWater();
-      drawGround();
       drawChoopy(H / 2 - 20 + Math.sin(frame * 0.05) * 7, 0);
-
       ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.beginPath();
-      rrect(W / 2 - 120, H / 2 - 68, 240, 128, 10); ctx.fill();
-
+      ctx.beginPath(); rrect(W / 2 - 120, H / 2 - 68, 240, 128, 10); ctx.fill();
       ctx.textAlign = "center";
       ctx.fillStyle = "white"; ctx.font = "bold 22px monospace";
       ctx.fillText("FLAPPY CHOOPY", W / 2, H / 2 - 34);
@@ -280,46 +340,31 @@ export default function FlappyChoopy() {
 
     function drawDead(ps: number, fs: number) {
       drawBackground();
-      drawWater();
       pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
       drawFlies(flies);
-      drawGround();
       drawChoopy(y, vy);
-
       ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, 0, W, H);
-
       ctx.fillStyle = "white";
       ctx.beginPath(); rrect(W / 2 - 115, H / 2 - 90, 230, 168, 10); ctx.fill();
-
       ctx.textAlign = "center";
       ctx.fillStyle = "#8B0000"; ctx.font = "bold 22px monospace";
       ctx.fillText("GAME OVER", W / 2, H / 2 - 54);
-
       const bonus = fs * BONUS_PER_FLY;
       const total = ps + bonus;
-      const xL = W / 2 - 52;   // label column (left-aligned)
-      const xV = W / 2 + 52;   // value column (right-aligned)
-
-      ctx.font = "15px monospace";
-      ctx.textAlign = "left";  ctx.fillStyle = "#1c2938";
+      const xL = W / 2 - 52; const xV = W / 2 + 52;
+      ctx.font = "15px monospace"; ctx.textAlign = "left"; ctx.fillStyle = "#1c2938";
       ctx.fillText("PIPES:", xL, H / 2 - 20);
-      ctx.textAlign = "right";
-      ctx.fillText(String(ps), xV, H / 2 - 20);
-
+      ctx.textAlign = "right"; ctx.fillText(String(ps), xV, H / 2 - 20);
       ctx.fillStyle = "#b8860b"; ctx.font = "bold 15px monospace";
-      ctx.textAlign = "left";  ctx.fillText("BONUS:", xL, H / 2 + 4);
+      ctx.textAlign = "left"; ctx.fillText("BONUS:", xL, H / 2 + 4);
       ctx.textAlign = "right"; ctx.fillText(`+${bonus}`, xV, H / 2 + 4);
-
       ctx.fillStyle = "#1c2938"; ctx.font = "bold 15px monospace";
-      ctx.textAlign = "left";  ctx.fillText("TOTAL:", xL, H / 2 + 28);
+      ctx.textAlign = "left"; ctx.fillText("TOTAL:", xL, H / 2 + 28);
       ctx.textAlign = "right"; ctx.fillText(String(total), xV, H / 2 + 28);
-
       ctx.textAlign = "center";
-
       const nb = Math.max(total, bestRef.current);
       ctx.fillStyle = "#8B0000"; ctx.font = "bold 13px monospace";
       ctx.fillText(`BEST: ${nb}`, W / 2, H / 2 + 52);
-
       ctx.fillStyle = "#526270"; ctx.font = "11px monospace";
       ctx.fillText("tap to play again", W / 2, H / 2 + 74);
     }
@@ -353,26 +398,40 @@ export default function FlappyChoopy() {
         if (dist < 18 + FLY_SIZE / 2) {
           f.eaten = true;
           flyScoreRef.current++;
-          popups.push({ x: f.x, y: cy - 10, life: 40 });
+          popups.push({ x: f.x, y: cy - 10, life: 50, text: `+${BONUS_PER_FLY} 🪰`, color: "rgb(255,215,0)" });
         }
       });
+    }
+
+    function checkMilestones(score: number) {
+      for (const m of MILESTONES) {
+        if (score >= m && !milestoneHit.has(m)) {
+          milestoneHit.add(m);
+          flashLife = 20;
+          playMilestoneSound();
+          popups.push({ x: W / 2, y: H / 2, life: 50, text: `🔥 ${m} PIPES!`, color: "rgb(255,100,50)" });
+        }
+      }
+      // Speed level up notification
+      const prevSpeed = Math.min(BASE_PIPE_SPEED + Math.floor((score - 1) / 5) * 0.12, 2.8);
+      const newSpeed = Math.min(BASE_PIPE_SPEED + Math.floor(score / 5) * 0.12, 2.8);
+      if (newSpeed > prevSpeed && newSpeed < 2.8) {
+        popups.push({ x: W / 2, y: H / 3, life: 40, text: "⚡ FASTER!", color: "rgb(255,80,80)" });
+      }
     }
 
     function tick() {
       frame++;
       const state = stateRef.current;
-
       if (state === "idle") { drawIdle(); animId = requestAnimationFrame(tick); return; }
 
       if (state === "playing") {
-
+        const speed = pipeSpeed();
         if (frame % PIPE_INTERVAL === 0) {
           const margin = IS_MOBILE ? 50 : 60;
           const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - PIPE_GAP - margin * 2);
           pipes.push({ x: W + 10, gapY, scored: false });
           spawnCount++;
-          // Every other pipe gets a mayfly, tucked near a pipe lip so
-          // grabbing it means flying dangerously close to the crimson.
           if (spawnCount % 2 === 0) {
             const nearTop = Math.random() < 0.5;
             const flyY = nearTop ? gapY + 24 : gapY + PIPE_GAP - 24;
@@ -380,13 +439,15 @@ export default function FlappyChoopy() {
           }
         }
 
-        pipes = pipes.map(p => ({ ...p, x: p.x - PIPE_SPEED })).filter(p => p.x > -PIPE_WIDTH - 10);
-        flies = flies.map(f => ({ ...f, x: f.x - PIPE_SPEED })).filter(f => f.x > -FLY_SIZE);
+        pipes = pipes.map(p => ({ ...p, x: p.x - speed })).filter(p => p.x > -PIPE_WIDTH - 10);
+        flies = flies.map(f => ({ ...f, x: f.x - speed })).filter(f => f.x > -FLY_SIZE);
         popups = popups.map(p => ({ ...p, life: p.life - 1 })).filter(p => p.life > 0);
 
         pipes.forEach(p => {
           if (!p.scored && p.x + PIPE_WIDTH < CHOOPY_X) {
-            p.scored = true; scoreRef.current++;
+            p.scored = true;
+            scoreRef.current++;
+            checkMilestones(scoreRef.current);
           }
         });
 
@@ -401,17 +462,23 @@ export default function FlappyChoopy() {
           const nb = Math.max(total, bestRef.current);
           bestRef.current = nb; setBest(nb);
           localStorage.setItem("flappy_choopy_best", String(nb));
+          if (total >= 3) {
+            setPendingScore(total);
+            setSubmitted(false);
+            setSubmitName("");
+          }
         }
 
-        drawBackground(); drawWater();
+        drawBackground();
         pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
-        drawFlies(flies); drawGround();
-        drawChoopy(y, vy); drawPopups(popups);
+        drawFlies(flies);
+        drawChoopy(y, vy);
+        drawPopups(popups);
         drawHUD(scoreRef.current, flyScoreRef.current);
+        drawFlash();
       }
 
       if (state === "dead") drawDead(scoreRef.current, flyScoreRef.current);
-
       animId = requestAnimationFrame(tick);
     }
 
@@ -424,7 +491,7 @@ export default function FlappyChoopy() {
       actx.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startMusic, stopMusic, playHitSound]);
+  }, [startMusic, stopMusic, playHitSound, playMilestoneSound]);
 
   return (
     <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
@@ -432,20 +499,83 @@ export default function FlappyChoopy() {
         <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           Flappy Choopy
         </span>
-        <button
-          onClick={toggleMute}
-          style={{ position: "absolute", right: "0.85rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }}
-          title={muted ? "Unmute" : "Mute"}
-        >
-          {muted ? "🔇" : "🔊"}
-        </button>
+        <div style={{ position: "absolute", right: "0.85rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <button
+            onClick={() => { setShowLeader(v => { if (!v) fetchLeaderboard(); return !v; }); }}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: 0, color: "#8B0000", fontWeight: 700 }}
+            title="Leaderboard"
+          >🏆</button>
+          <button
+            onClick={toggleMute}
+            style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }}
+            title={muted ? "Unmute" : "Mute"}
+          >{muted ? "🔇" : "🔊"}</button>
+        </div>
       </div>
+
       <canvas
         ref={canvasRef}
         width={W}
         height={H}
         style={{ display: "block", width: "100%", cursor: "pointer" }}
       />
+
+      {/* Score submission after death */}
+      {displayState === "dead" && pendingScore !== null && !submitted && (
+        <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid #e1e8ed", background: "#fafafa" }}>
+          <p style={{ margin: "0 0 0.5rem", fontSize: "0.72rem", color: "#1c2938", fontWeight: 700 }}>
+            Score {pendingScore} — add to leaderboard?
+          </p>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <input
+              value={submitName}
+              onChange={e => setSubmitName(e.target.value.slice(0, 20))}
+              placeholder="your name"
+              maxLength={20}
+              style={{ flex: 1, padding: "0.3rem 0.5rem", border: "1px solid #ccd6dd", borderRadius: 3, fontSize: "0.75rem" }}
+              onKeyDown={e => { if (e.key === "Enter" && submitName.trim()) submitScore(submitName.trim(), pendingScore); }}
+            />
+            <button
+              onClick={() => { if (submitName.trim()) submitScore(submitName.trim(), pendingScore!); }}
+              disabled={!submitName.trim()}
+              style={{ padding: "0.3rem 0.75rem", background: "#8B0000", color: "white", border: "none", borderRadius: 3, fontSize: "0.72rem", fontWeight: 700, cursor: submitName.trim() ? "pointer" : "default", opacity: submitName.trim() ? 1 : 0.5 }}
+            >Submit</button>
+            <button
+              onClick={() => setPendingScore(null)}
+              style={{ padding: "0.3rem 0.5rem", background: "none", border: "1px solid #ccd6dd", borderRadius: 3, fontSize: "0.72rem", cursor: "pointer", color: "#657786" }}
+            >Skip</button>
+          </div>
+        </div>
+      )}
+      {displayState === "dead" && submitted && (
+        <div style={{ padding: "0.5rem 1rem", borderTop: "1px solid #e1e8ed", background: "#fafafa", fontSize: "0.72rem", color: "#8B0000", fontWeight: 700 }}>
+          ✓ Score submitted!{" "}
+          <button onClick={() => setShowLeader(true)} style={{ background: "none", border: "none", cursor: "pointer", color: "#8B0000", fontWeight: 700, fontSize: "0.72rem", textDecoration: "underline", padding: 0 }}>View leaderboard</button>
+        </div>
+      )}
+
+      {/* Leaderboard panel */}
+      {showLeader && (
+        <div style={{ borderTop: "1px solid #e1e8ed", padding: "0.75rem 1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <span style={{ fontWeight: 700, fontSize: "0.72rem", color: "#1c2938" }}>🏆 Top 10</span>
+            <button onClick={() => setShowLeader(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#657786", fontSize: "0.85rem", padding: 0 }}>✕</button>
+          </div>
+          {loadingLB ? (
+            <p style={{ fontSize: "0.7rem", color: "#657786", margin: 0 }}>Loading…</p>
+          ) : leaderboard.length === 0 ? (
+            <p style={{ fontSize: "0.7rem", color: "#657786", margin: 0 }}>No scores yet — be the first!</p>
+          ) : (
+            <ol style={{ margin: 0, padding: "0 0 0 1.2rem", fontSize: "0.72rem", color: "#1c2938", lineHeight: "1.8" }}>
+              {leaderboard.map((e, i) => (
+                <li key={e._id} style={{ fontWeight: i === 0 ? 700 : 400, color: i === 0 ? "#8B0000" : "#1c2938" }}>
+                  {e.name} — {e.score}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
     </div>
   );
 }
