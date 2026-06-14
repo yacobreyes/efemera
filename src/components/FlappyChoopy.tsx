@@ -227,6 +227,8 @@ export default function FlappyChoopy() {
       vy = FLAP; flapFrame = frame;
     }
 
+    function onTouch(e: TouchEvent) { e.preventDefault(); flap(); }
+    canvas.addEventListener("touchstart", onTouch, { passive: false });
     canvas.addEventListener("click", flap);
     function onKey(e: KeyboardEvent) {
       if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); flap(); }
@@ -612,6 +614,7 @@ export default function FlappyChoopy() {
     animId = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(animId);
+      canvas.removeEventListener("touchstart", onTouch);
       canvas.removeEventListener("click", flap);
       window.removeEventListener("keydown", onKey);
       stopMusic(); actx.close();
