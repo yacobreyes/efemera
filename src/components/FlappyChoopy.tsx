@@ -46,7 +46,7 @@ export default function FlappyChoopy() {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const choopyImg = new Image(); choopyImg.src = "/choopy-fly.webp";
-    const mayflyImg = new Image(); mayflyImg.src = "/Flying Mayfly Kicker.webp";
+    const mayflyImg = new Image(); mayflyImg.src = "/mayfly-icon.webp";
     const bgImg = new Image(); bgImg.src = "/tampa-skyline.webp";
 
     let frame = 0;
