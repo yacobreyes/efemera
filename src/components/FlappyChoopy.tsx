@@ -32,7 +32,6 @@ export default function FlappyChoopy() {
   const [displayState, setDisplayState] = useState<GameState>("idle");
   const scoreRef = useRef(0);
   const flyScoreRef = useRef(0);
-  const [scores, setScores] = useState({ pipes: 0, flies: 0 });
   const [best, setBest] = useState(0);
   const bestRef = useRef(0);
   const [muted, setMuted] = useState(false);
@@ -125,7 +124,6 @@ export default function FlappyChoopy() {
       pipes = []; flies = []; popups = [];
       scoreRef.current = 0; flyScoreRef.current = 0;
       dead = false; spawnCount = 0;
-      setScores({ pipes: 0, flies: 0 });
     }
 
     function flap() {
@@ -343,7 +341,6 @@ export default function FlappyChoopy() {
         if (dist < 18 + FLY_SIZE / 2) {
           f.eaten = true;
           flyScoreRef.current++;
-          setScores({ pipes: scoreRef.current, flies: flyScoreRef.current });
           popups.push({ x: f.x, y: cy - 10, life: 40 });
         }
       });
@@ -378,7 +375,6 @@ export default function FlappyChoopy() {
         pipes.forEach(p => {
           if (!p.scored && p.x + PIPE_WIDTH < CHOOPY_X) {
             p.scored = true; scoreRef.current++;
-            setScores({ pipes: scoreRef.current, flies: flyScoreRef.current });
           }
         });
 
@@ -438,12 +434,6 @@ export default function FlappyChoopy() {
         height={H}
         style={{ display: "block", width: "100%", cursor: "pointer" }}
       />
-      {displayState === "playing" && (
-        <div style={{ padding: "0.35rem 0.85rem", display: "flex", justifyContent: "space-between", fontSize: "0.68rem", color: "#657786", borderTop: "1px solid #f0f3f4" }}>
-          <span>pipes: {scores.pipes}</span>
-          <span>🪰 bonus: +{scores.flies * BONUS_PER_FLY}</span>
-        </div>
-      )}
     </div>
   );
 }
