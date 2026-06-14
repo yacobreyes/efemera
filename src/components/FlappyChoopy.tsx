@@ -142,17 +142,11 @@ export default function FlappyChoopy() {
         if (f.eaten) return;
         const bob = Math.sin(frame * 0.08 + f.bobOffset) * 4;
         ctx.save();
-        // dark pill background so the white mayfly reads against any background
-        ctx.fillStyle = "rgba(20,10,0,0.55)";
-        ctx.beginPath();
-        ctx.arc(f.x, f.y + bob, FLY_SIZE / 2 + 4, 0, Math.PI * 2);
-        ctx.fill();
-        // crimson ring to signal collectible
-        ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.globalAlpha = 1;
-        ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
+        ctx.shadowColor = "rgba(0,0,0,0.9)";
+        ctx.shadowBlur = 4;
+        for (let i = 0; i < 3; i++) {
+          ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
+        }
         ctx.restore();
       });
     }
