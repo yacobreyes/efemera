@@ -229,7 +229,12 @@ export default function FlappyChoopy() {
     }
 
     function drawPipe(x: number, topH: number, botY: number) {
-      const C = "#8B0000", D = "#6b0000", CAP = 22, CX = 3;
+      const C = "#8B0000", D = "#5a0000", CAP = 22, CX = 3;
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,0.5)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 4;
+      ctx.shadowOffsetY = 0;
       ctx.fillStyle = C; ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, 0, 8, topH - CAP);
       ctx.fillStyle = C; ctx.fillRect(x - CX, topH - CAP, PIPE_WIDTH + CX * 2, CAP);
@@ -239,13 +244,18 @@ export default function FlappyChoopy() {
       const bb = botY + CAP;
       ctx.fillStyle = C; ctx.fillRect(x, bb, PIPE_WIDTH, H - bb);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, bb, 8, H - bb);
+      ctx.restore();
     }
 
     function drawChoopy(cy: number, vel: number) {
       const angle = Math.min(Math.max(vel * 0.055, -0.35), 0.85);
+      const flapAge = frame - flapFrame;
+      const squishY = flapAge < 8 ? 1 - Math.sin((flapAge / 8) * Math.PI) * 0.25 : 1;
+      const squishX = flapAge < 8 ? 1 + Math.sin((flapAge / 8) * Math.PI) * 0.15 : 1;
       ctx.save();
       ctx.translate(CHOOPY_X, cy);
       ctx.rotate(angle);
+      ctx.scale(squishX, squishY);
       if (choopyImg.complete && choopyImg.naturalWidth > 0) {
         ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 7;
         for (let i = 0; i < 3; i++)
