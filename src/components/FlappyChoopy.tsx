@@ -399,20 +399,66 @@ export default function FlappyChoopy() {
 
     function drawIdle() {
       drawBackground();
-      drawChoopy(H / 2 - 20 + Math.sin(frame * 0.05) * 7, 0);
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.beginPath(); rrect(W / 2 - 120, H / 2 - 78, 240, 148, 10); ctx.fill();
+
+      // Dark gradient veil over skyline
+      const veil = ctx.createLinearGradient(0, 0, 0, H);
+      veil.addColorStop(0, "rgba(0,0,0,0.55)");
+      veil.addColorStop(0.6, "rgba(0,0,0,0.35)");
+      veil.addColorStop(1, "rgba(0,0,0,0.65)");
+      ctx.fillStyle = veil; ctx.fillRect(0, 0, W, H);
+
+      // Choopy bobbing — larger, centered
+      const bobY = H / 2 - 30 + Math.sin(frame * 0.05) * 8;
+      drawChoopy(bobY, Math.sin(frame * 0.05) * 1.5);
+
+      // Title — two-tone, large
+      ctx.save();
       ctx.textAlign = "center";
-      ctx.fillStyle = "white"; ctx.font = "bold 22px monospace";
-      ctx.fillText("FLAPPY CHOOPY", W / 2, H / 2 - 44);
-      ctx.font = "12px monospace"; ctx.fillStyle = "rgba(255,255,255,0.85)";
-      ctx.fillText("tap or space to fly", W / 2, H / 2 - 18);
+
+      ctx.font = "bold 36px monospace";
+      ctx.shadowColor = "#8B0000"; ctx.shadowBlur = 18;
+      ctx.fillStyle = "white";
+      ctx.fillText("FLAPPY", W / 2, 80);
+      ctx.shadowBlur = 0;
+
+      ctx.font = "bold 36px monospace";
+      ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 14;
       ctx.fillStyle = "#FFD700";
-      ctx.fillText("eat mayflies for bonus pts!", W / 2, H / 2 + 4);
-      if (bestRef.current > 0) {
-        ctx.font = "bold 12px monospace"; ctx.fillStyle = "#FFD700";
-        ctx.fillText(`BEST: ${bestRef.current}`, W / 2, H / 2 + 28);
+      ctx.fillText("CHOOPY", W / 2, 118);
+      ctx.shadowBlur = 0;
+
+      // Thin divider line
+      ctx.strokeStyle = "rgba(255,215,0,0.3)";
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(W / 2 - 80, 130); ctx.lineTo(W / 2 + 80, 130); ctx.stroke();
+
+      // Blinking start prompt
+      if (Math.floor(frame / 28) % 2 === 0) {
+        ctx.font = "bold 13px monospace";
+        ctx.fillStyle = "white";
+        ctx.shadowColor = "white"; ctx.shadowBlur = 6;
+        ctx.fillText(IS_MOBILE ? "TAP TO FLY" : "PRESS SPACE TO FLY", W / 2, 158);
+        ctx.shadowBlur = 0;
       }
+
+      // Tip
+      ctx.font = "11px monospace";
+      ctx.fillStyle = "rgba(255,215,0,0.75)";
+      ctx.fillText("eat 🪰 mayflies for bonus pts", W / 2, 182);
+
+      // Best score badge
+      if (bestRef.current > 0) {
+        const bx = W / 2, by = H - 38;
+        ctx.fillStyle = "rgba(0,0,0,0.6)";
+        ctx.beginPath(); rrect(bx - 60, by - 16, 120, 26, 5); ctx.fill();
+        ctx.font = "bold 12px monospace";
+        ctx.fillStyle = "#FFD700";
+        ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 6;
+        ctx.fillText(`BEST  ${bestRef.current}`, bx, by + 2);
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.restore();
     }
 
     function drawDead(ps: number, fs: number) {
