@@ -40,7 +40,6 @@ function readingTime(text: string) {
 
 function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
   const [visible, setVisible] = useState(index < 2);
   const [commentCount, setCommentCount] = useState(0);
 
@@ -67,63 +66,62 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const plainText = portableToPlainText(post.body);
   const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
 
+  const storyHref = `/stories/${post.slug}`;
+
   return (
     <div
       ref={ref}
-      onClick={() => router.push(`/stories/${post.slug}`)}
       style={{
         padding: "1.1rem 1rem",
         background: "white",
         borderBottom: "1px solid #e1e8ed",
-        cursor: "pointer",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",
         transition: "opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-          {post.section}
-        </span>
-        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-          {formatDate(post.date)}
-        </span>
-      </div>
+      <Link href={storyHref} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+            {post.section}
+          </span>
+          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+            {formatDate(post.date)}
+          </span>
+        </div>
 
-      <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={`/stories/${post.slug}`} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+        <h2 style={{ margin: "0 0 0.25rem", fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em" }}>
           {post.headline}
-        </Link>
-      </h2>
+        </h2>
 
-      {post.subheadline && (
-        <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
-          {post.subheadline}
+        {post.subheadline && (
+          <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+            {post.subheadline}
+          </p>
+        )}
+
+        {post.image?.asset && (
+          <div style={{ display: "block", marginBottom: "0.75rem" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
+              alt={post.image.alt ?? post.image.caption ?? ""}
+              style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
+            />
+          </div>
+        )}
+
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+          {displayText}
         </p>
-      )}
 
-      {post.image?.asset && (
-        <Link href={`/stories/${post.slug}`} onClick={e => e.stopPropagation()} style={{ display: "block", marginBottom: "0.75rem" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
-            alt={post.image.alt ?? post.image.caption ?? ""}
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
-          />
-        </Link>
-      )}
+        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+          {post.byline} · {readingTime(plainText)} min read
+        </div>
+      </Link>
 
-      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-        {displayText}
-      </p>
-
-
-      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {readingTime(plainText)} min read
-      </div>
-
-      <div onClick={e => e.stopPropagation()} style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
-        <Link href={`/stories/${post.slug}#comments`} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
+      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
+        <Link href={`${storyHref}#comments`} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
