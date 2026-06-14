@@ -9,11 +9,9 @@ export default function ArcadeUnlockPopup() {
   const router = useRouter();
 
   useEffect(() => {
-    // Already seen the popup — never show again
-    if (localStorage.getItem("arcade_unlocked")) return;
+    // Already shown this session — don't show again until next session
+    if (sessionStorage.getItem("arcade_popup_shown")) return;
 
-    // Count how many unique articles have been read
-    // ReadCounter sets efemera_read_{slug} on every story visit
     const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
 
     if (readCount >= 2) {
@@ -22,7 +20,7 @@ export default function ArcadeUnlockPopup() {
   }, []);
 
   function dismiss() {
-    localStorage.setItem("arcade_unlocked", "1");
+    sessionStorage.setItem("arcade_popup_shown", "1");
     setShow(false);
   }
 

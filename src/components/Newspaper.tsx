@@ -40,15 +40,17 @@ function readingTime(text: string) {
 
 function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const [visible, setVisible] = useState(index < 2);
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
+    if (!visible) return;
     fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
       .catch(() => {});
-  }, [post.slug]);
+  }, [post.slug, visible]);
 
   useEffect(() => {
     if (visible) return;
@@ -68,10 +70,12 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   return (
     <div
       ref={ref}
+      onClick={() => router.push(`/stories/${post.slug}`)}
       style={{
         padding: "1.1rem 1rem",
         background: "white",
         borderBottom: "1px solid #e1e8ed",
+        cursor: "pointer",
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",
         transition: "opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
@@ -99,7 +103,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
       )}
 
       {post.image?.asset && (
-        <Link href={`/stories/${post.slug}`} style={{ display: "block", marginBottom: "0.75rem" }}>
+        <Link href={`/stories/${post.slug}`} onClick={e => e.stopPropagation()} style={{ display: "block", marginBottom: "0.75rem" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
@@ -118,7 +122,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         {post.byline} · {readingTime(plainText)} min read
       </div>
 
-      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
+      <div onClick={e => e.stopPropagation()} style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
         <Link href={`/stories/${post.slug}#comments`} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>

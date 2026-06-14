@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import Feed from "@/components/Newspaper";
+import ArcadeUnlockPopup from "@/components/ArcadeUnlockPopup";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 
 const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ssr: false });
@@ -25,6 +26,7 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, fi
   return (
     <>
       <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} onMastheadClick={() => setShowAnimation(true)} />
+      <ArcadeUnlockPopup />
       {showAnimation && (
         <div style={{ opacity: fadingOut ? 0 : 1, transition: "opacity 0.65s ease", position: "fixed", inset: 0, zIndex: 100 }}>
           <IntroAnimation onEnter={handleEnter} />
