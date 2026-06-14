@@ -20,40 +20,41 @@ const FLY_SIZE = 30;
 const CHOOPY_X = 80;
 const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
-// ── Chiptune: Teenage Dirtbag melody ────────────────────────────────────────
-const BPM = 148;
+// ── Chiptune: Teenage Dirtbag melody (E major, ♩=96) ────────────────────────
+const BPM = 96;
 const NQ = 60 / BPM;       // quarter note
 const NE = NQ / 2;         // eighth note
 const NH = NQ * 2;         // half note
 
-const G4=392.00, A4=440.00, B4=493.88, E4=329.63, Fs4=369.99;
-const C5=523.25, D5=587.33, E5=659.25;
+// E major: all C→C#, D→D#, G→G#, F→F#
+const E4=329.63, Fs4=369.99, Gs4=415.30, A4=440.00, B4=493.88;
+const Cs5=554.37, Ds5=622.25, E5=659.25;
 
 const MELODY: [number, number][] = [
-  // "Her name is No-elle"
-  [B4,NE],[B4,NQ],[C5,NE],[D5,NQ],[E5,NH],
+  // "Her name is No-el"
+  [B4,NE],[B4,NQ],[Cs5,NE],[Ds5,NQ],[E5,NH],
   // "I have a dream about her"
-  [B4,NE],[C5,NE],[D5,NE],[E5,NE],[D5,NQ],[C5,NE],[B4,NH],
+  [B4,NE],[Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NQ],[Cs5,NE],[B4,NH],
   // "She rings my bell"
-  [B4,NE],[C5,NQ],[D5,NQ],[E5,NH],
+  [B4,NE],[Cs5,NQ],[Ds5,NQ],[E5,NH],
   // "Got gym class in half an hour"
-  [B4,NE],[B4,NE],[C5,NE],[D5,NE],[E5,NE],[D5,NE],[C5,NQ],[B4,NH],
+  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NE],[Cs5,NQ],[B4,NH],
   // "Oh how she rocks"
-  [B4,NQ],[C5,NQ],[B4,NQ],[A4,NH],
+  [B4,NQ],[Cs5,NQ],[B4,NQ],[A4,NH],
   // "In Keds and tube socks"
-  [G4,NQ],[G4,NE],[A4,NE],[B4,NQ],[E4,NH],
+  [Gs4,NQ],[Gs4,NE],[A4,NE],[B4,NQ],[E4,NH],
   // "But she doesn't know who I am"
-  [B4,NE],[B4,NE],[C5,NE],[D5,NQ],[E5,NE],[C5,NQ],[B4,NQ],[B4,NE],[A4,NE],
+  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[Cs5,NQ],[B4,NQ],[B4,NE],[A4,NE],
   // "And she doesn't give a damn about me"
-  [B4,NE],[B4,NE],[C5,NE],[D5,NQ],[E5,NE],[B4,NE],[A4,NQ],[G4,NE],[Fs4,NE],[G4,NH],
+  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[B4,NE],[A4,NQ],[Gs4,NE],[Fs4,NE],[Gs4,NH],
   // chorus: "'Cause I'm just a teenage dirtbag baby"
-  [G4,NE],[G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NH],
+  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
   // "Yeah I'm just a teenage dirtbag baby"
-  [G4,NE],[G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NH],
+  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
   // "Listen to Iron Maiden maybe with me"
-  [G4,NE],[C5,NQ],[B4,NE],[A4,NE],[G4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[G4,NQ],[Fs4,NE],[G4,NH],
+  [Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NQ],[Fs4,NE],[Gs4,NH],
   // "Ooh ooh ooh ooh ooh ohh"
-  [G4,NQ],[A4,NQ],[B4,NQ],[A4,NQ],[G4,NQ],[Fs4,NH],
+  [Gs4,NQ],[A4,NQ],[B4,NQ],[A4,NQ],[Gs4,NQ],[Fs4,NH],
 ];
 
 type GameState = "idle" | "playing" | "dead";
