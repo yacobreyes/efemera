@@ -194,6 +194,8 @@ export default function FlappyChoopy() {
     function flap() {
       const state = stateRef.current;
       if (state === "scores") {
+        pendingScoreRef.current = null;
+        setNameInputActive(false);
         stateRef.current = "idle"; setDisplayState("idle"); return;
       }
       if (state === "idle") {
@@ -315,69 +317,81 @@ export default function FlappyChoopy() {
     }
 
     function drawScores() {
-      // Dark arcade background
       ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
 
-      // Scanline effect
-      ctx.fillStyle = "rgba(0,0,0,0.15)";
-      for (let sy = 0; sy < H; sy += 4) ctx.fillRect(0, sy, W, 2);
+      // Scanlines
+      ctx.fillStyle = "rgba(255,255,255,0.03)";
+      for (let sy = 0; sy < H; sy += 3) ctx.fillRect(0, sy, W, 1);
 
-      // Title
       ctx.save();
       ctx.textAlign = "center";
-      ctx.font = "bold 22px monospace";
+
+      // Title
+      ctx.font = "bold 24px monospace";
       ctx.fillStyle = "#FFD700";
-      ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 12;
-      ctx.fillText("HIGH SCORES", W / 2, 42);
+      ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 16;
+      ctx.fillText("HIGH SCORES", W / 2, 46);
       ctx.shadowBlur = 0;
 
-      // Blinking subtitle
-      if (Math.floor(frame / 30) % 2 === 0) {
-        ctx.font = "10px monospace"; ctx.fillStyle = "#ff6b6b";
-        ctx.fillText("TAP TO PLAY", W / 2, 62);
-      }
-
-      const entries = leaderboardRef.current;
-      const rowH = 26;
-      const startY = 90;
+      const entries = leaderboardRef.current.slice(0, 5);
+      const rowH = 44;
+      const startY = 88;
+      const rankColors = ["#FFD700", "#C0C0C0", "#cd7f32", "#88aaff", "#ff88aa"];
 
       if (entries.length === 0) {
-        ctx.font = "12px monospace"; ctx.fillStyle = "#888";
-        ctx.fillText("NO SCORES YET", W / 2, H / 2);
-        ctx.fillText("BE THE FIRST!", W / 2, H / 2 + 22);
+        ctx.font = "13px monospace"; ctx.fillStyle = "#555";
+        ctx.fillText("NO SCORES YET", W / 2, H / 2 - 10);
+        ctx.fillText("BE THE FIRST!", W / 2, H / 2 + 16);
       } else {
         entries.forEach((e, i) => {
           const rowY = startY + i * rowH;
+          const color = rankColors[i];
           const isTop = i === 0;
 
-          // Row highlight for #1
-          if (isTop) {
-            ctx.fillStyle = "rgba(255,215,0,0.08)";
-            ctx.fillRect(20, rowY - 18, W - 40, rowH - 2);
-          }
-
-          // Rank
+          // Rank number
           ctx.textAlign = "left";
-          const rankColors = ["#FFD700", "#C0C0C0", "#cd7f32"];
-          ctx.font = `bold ${isTop ? 15 : 13}px monospace`;
-          ctx.fillStyle = rankColors[i] ?? "#aaa";
-          ctx.shadowColor = rankColors[i] ?? "transparent";
-          ctx.shadowBlur = isTop ? 8 : 0;
-          ctx.fillText(`${i + 1}.`, 28, rowY);
+          ctx.font = `bold ${isTop ? 20 : 16}px monospace`;
+          ctx.fillStyle = color;
+          ctx.shadowColor = color; ctx.shadowBlur = isTop ? 10 : 4;
+          ctx.fillText(`${i + 1}`, 30, rowY);
           ctx.shadowBlur = 0;
 
           // Name
-          ctx.fillStyle = isTop ? "#FFD700" : "#e0e0e0";
-          ctx.font = `${isTop ? "bold" : ""} ${isTop ? 15 : 13}px monospace`;
-          ctx.fillText(e.name.toUpperCase(), 60, rowY);
+          ctx.font = `${isTop ? "bold " : ""}${isTop ? 18 : 15}px monospace`;
+          ctx.fillStyle = color;
+          ctx.fillText(e.name.toUpperCase(), 58, rowY);
 
-          // Score — right-aligned with dots
-          const scoreStr = String(e.score).padStart(4, "0");
+          // Score right-aligned
           ctx.textAlign = "right";
-          ctx.fillStyle = isTop ? "#FFD700" : "#aaffaa";
-          ctx.font = `bold ${isTop ? 15 : 13}px monospace`;
-          ctx.fillText(scoreStr, W - 28, rowY);
+          ctx.font = `bold ${isTop ? 20 : 16}px monospace`;
+          ctx.fillStyle = color;
+          ctx.shadowColor = color; ctx.shadowBlur = isTop ? 10 : 0;
+          ctx.fillText(String(e.score).padStart(4, "0"), W - 30, rowY);
+          ctx.shadowBlur = 0;
+
+          // Divider
+          if (i < entries.length - 1) {
+            ctx.strokeStyle = "rgba(255,255,255,0.07)";
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(24, rowY + 14); ctx.lineTo(W - 24, rowY + 14); ctx.stroke();
+          }
         });
+      }
+
+      // Player's last score (if just died)
+      const lastTotal = pendingScoreRef.current;
+      if (lastTotal !== null) {
+        ctx.textAlign = "center";
+        ctx.font = "bold 13px monospace";
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillText(`YOUR SCORE: ${lastTotal}`, W / 2, H - 48);
+      }
+
+      // Blinking tap prompt
+      if (Math.floor(frame / 28) % 2 === 0) {
+        ctx.font = "11px monospace"; ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.textAlign = "center";
+        ctx.fillText("TAP TO PLAY AGAIN", W / 2, H - 24);
       }
 
       ctx.restore();
@@ -514,7 +528,7 @@ export default function FlappyChoopy() {
         vy += GRAVITY; y += vy;
         checkEat(y);
         if (!dead && checkCollision(y)) {
-          dead = true; stateRef.current = "dead"; setDisplayState("dead");
+          dead = true; stateRef.current = "scores"; setDisplayState("scores");
           stopMusic(); playHitSound();
           const total = scoreRef.current + flyScoreRef.current * BONUS_PER_FLY;
           const nb = Math.max(total, bestRef.current);
@@ -527,6 +541,7 @@ export default function FlappyChoopy() {
             submitNameRef.current = "";
             setNameInputActive(true);
           }
+          fetchLeaderboard();
         }
         drawBackground();
         pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
@@ -535,7 +550,6 @@ export default function FlappyChoopy() {
         drawFlash();
       }
 
-      if (state === "dead") drawDead(scoreRef.current, flyScoreRef.current);
       animId = requestAnimationFrame(tick);
     }
 
@@ -570,7 +584,7 @@ export default function FlappyChoopy() {
       <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", cursor: "pointer" }} />
 
       {/* Score submission — shown below canvas after death */}
-      {displayState === "dead" && nameInputActive && pendingScoreRef.current !== null && !submitted && (
+      {displayState === "scores" && nameInputActive && pendingScoreRef.current !== null && !submitted && (
         <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid #e1e8ed", background: "#000", display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <span style={{ fontSize: "0.72rem", color: "#FFD700", fontWeight: 700, fontFamily: "monospace", whiteSpace: "nowrap" }}>
             SCORE {pendingScoreRef.current} —
@@ -600,7 +614,7 @@ export default function FlappyChoopy() {
           >SKIP</button>
         </div>
       )}
-      {displayState === "dead" && submitted && (
+      {displayState === "scores" && submitted && (
         <div style={{ padding: "0.4rem 1rem", borderTop: "1px solid #111", background: "#000", fontSize: "0.72rem", color: "#FFD700", fontWeight: 700, fontFamily: "monospace", display: "flex", gap: "1rem", alignItems: "center" }}>
           ✓ SCORE SAVED
           <button onClick={goToScores} style={{ background: "none", border: "none", cursor: "pointer", color: "#FFD700", fontWeight: 700, fontSize: "0.72rem", fontFamily: "monospace", textDecoration: "underline", padding: 0 }}>VIEW HIGH SCORES</button>
