@@ -545,7 +545,7 @@ export default function FlappyChoopy() {
       if (state === "playing") {
         const speed = pipeSpeed();
         if (frame % PIPE_INTERVAL === 0) {
-          const margin = IS_MOBILE ? 50 : 60;
+          const margin = IS_MOBILE ? 28 : 32;
           const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - PIPE_GAP - margin * 2);
           pipes.push({ x: W + 10, gapY, scored: false });
           spawnCount++;
