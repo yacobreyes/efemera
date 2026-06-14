@@ -9,18 +9,13 @@ export default function ArcadeUnlockPopup() {
   const router = useRouter();
 
   useEffect(() => {
-    // Already shown this session — don't show again until next session
-    if (sessionStorage.getItem("arcade_popup_shown")) return;
-
     const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
-
     if (readCount >= 2) {
       setTimeout(() => setShow(true), 600);
     }
   }, []);
 
   function dismiss() {
-    sessionStorage.setItem("arcade_popup_shown", "1");
     setShow(false);
   }
 
