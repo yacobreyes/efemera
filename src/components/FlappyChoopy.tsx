@@ -49,6 +49,8 @@ export default function FlappyChoopy() {
   const [submitName, setSubmitName] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [nameInputActive, setNameInputActive] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
@@ -66,17 +68,31 @@ export default function FlappyChoopy() {
   }, []);
 
   const submitScore = useCallback(async (name: string, score: number) => {
+    setSubmitting(true);
+    setSubmitError(null);
     try {
       const res = await fetch("/api/leaderboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, score }),
       });
-      const data = await res.json() as { scores: LeaderEntry[] };
-      leaderboardRef.current = data.scores ?? [];
-      setLeaderboard(data.scores ?? []);
+      const data = await res.json() as { scores?: LeaderEntry[]; error?: string };
+      if (!res.ok || !Array.isArray(data.scores)) {
+        setSubmitError(
+          res.status === 429 ? "TOO MANY TRIES — WAIT A BIT" : "COULDN'T SAVE — TRY AGAIN"
+        );
+        setSubmitting(false);
+        return;
+      }
+      leaderboardRef.current = data.scores;
+      setLeaderboard(data.scores);
       setSubmitted(true);
-    } catch { /* ignore */ }
+      setNameInputActive(false);
+    } catch {
+      setSubmitError("NETWORK ERROR — TRY AGAIN");
+    } finally {
+      setSubmitting(false);
+    }
   }, []);
 
   const startMusic = useCallback(() => {
@@ -624,33 +640,39 @@ export default function FlappyChoopy() {
 
       {/* Score submission — shown below canvas after death */}
       {displayState === "scores" && nameInputActive && pendingScoreRef.current !== null && !submitted && (
-        <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid #e1e8ed", background: "#000", display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <span style={{ fontSize: "0.72rem", color: "#FFD700", fontWeight: 700, fontFamily: "monospace", whiteSpace: "nowrap" }}>
-            SCORE {pendingScoreRef.current} —
-          </span>
-          <input
-            autoFocus
-            value={submitName}
-            onChange={e => { setSubmitName(e.target.value.slice(0, 20)); submitNameRef.current = e.target.value.slice(0, 20); }}
-            placeholder="ENTER NAME"
-            maxLength={20}
-            style={{ flex: 1, padding: "0.3rem 0.5rem", background: "#111", border: "1px solid #FFD700", borderRadius: 2, fontSize: "0.75rem", color: "#FFD700", fontFamily: "monospace", outline: "none" }}
-            onKeyDown={e => {
-              if (e.key === "Enter" && submitNameRef.current.trim()) {
-                submitScore(submitNameRef.current.trim(), pendingScoreRef.current!);
-                setNameInputActive(false);
-              }
-            }}
-          />
-          <button
-            onClick={() => { if (submitNameRef.current.trim()) { submitScore(submitNameRef.current.trim(), pendingScoreRef.current!); setNameInputActive(false); } }}
-            disabled={!submitName.trim()}
-            style={{ padding: "0.3rem 0.6rem", background: "#FFD700", color: "#000", border: "none", borderRadius: 2, fontSize: "0.72rem", fontWeight: 700, fontFamily: "monospace", cursor: submitName.trim() ? "pointer" : "default", opacity: submitName.trim() ? 1 : 0.4 }}
-          >OK</button>
-          <button
-            onClick={() => setNameInputActive(false)}
-            style={{ padding: "0.3rem 0.5rem", background: "none", border: "1px solid #444", borderRadius: 2, fontSize: "0.72rem", cursor: "pointer", color: "#888", fontFamily: "monospace" }}
-          >SKIP</button>
+        <div style={{ borderTop: "1px solid #e1e8ed", background: "#000" }}>
+          <div style={{ padding: "0.75rem 1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            <span style={{ fontSize: "0.72rem", color: "#FFD700", fontWeight: 700, fontFamily: "monospace", whiteSpace: "nowrap" }}>
+              SCORE {pendingScoreRef.current} —
+            </span>
+            <input
+              autoFocus
+              value={submitName}
+              onChange={e => { setSubmitName(e.target.value.slice(0, 20)); submitNameRef.current = e.target.value.slice(0, 20); }}
+              placeholder="ENTER NAME"
+              maxLength={20}
+              style={{ flex: 1, padding: "0.3rem 0.5rem", background: "#111", border: "1px solid #FFD700", borderRadius: 2, fontSize: "0.75rem", color: "#FFD700", fontFamily: "monospace", outline: "none" }}
+              onKeyDown={e => {
+                if (e.key === "Enter" && submitNameRef.current.trim() && !submitting) {
+                  submitScore(submitNameRef.current.trim(), pendingScoreRef.current!);
+                }
+              }}
+            />
+            <button
+              onClick={() => { if (submitNameRef.current.trim() && !submitting) submitScore(submitNameRef.current.trim(), pendingScoreRef.current!); }}
+              disabled={!submitName.trim() || submitting}
+              style={{ padding: "0.3rem 0.6rem", background: "#FFD700", color: "#000", border: "none", borderRadius: 2, fontSize: "0.72rem", fontWeight: 700, fontFamily: "monospace", cursor: submitName.trim() && !submitting ? "pointer" : "default", opacity: submitName.trim() && !submitting ? 1 : 0.4 }}
+            >{submitting ? "…" : "OK"}</button>
+            <button
+              onClick={() => { setNameInputActive(false); setSubmitError(null); }}
+              style={{ padding: "0.3rem 0.5rem", background: "none", border: "1px solid #444", borderRadius: 2, fontSize: "0.72rem", cursor: "pointer", color: "#888", fontFamily: "monospace" }}
+            >SKIP</button>
+          </div>
+          {submitError && (
+            <div style={{ padding: "0 1rem 0.6rem", fontSize: "0.66rem", color: "#ff6b6b", fontFamily: "monospace", fontWeight: 700 }}>
+              ⚠ {submitError}
+            </div>
+          )}
         </div>
       )}
       {displayState === "scores" && submitted && (
