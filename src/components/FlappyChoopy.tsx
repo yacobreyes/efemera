@@ -140,14 +140,18 @@ export default function FlappyChoopy() {
       fs.forEach(f => {
         if (f.eaten) return;
         const bob = Math.sin(frame * 0.08 + f.bobOffset) * 4;
-        ctx.save(); ctx.globalAlpha = 0.92;
-        // gold glow so the mayfly reads as a collectible bonus
-        ctx.shadowColor = "#FFD700";
-        ctx.shadowBlur = 8;
-        for (let i = 0; i < 3; i++) {
-          ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
-        }
-        ctx.shadowBlur = 0;
+        ctx.save();
+        // dark pill background so the white mayfly reads against any background
+        ctx.fillStyle = "rgba(20,10,0,0.55)";
+        ctx.beginPath();
+        ctx.arc(f.x, f.y + bob, FLY_SIZE / 2 + 4, 0, Math.PI * 2);
+        ctx.fill();
+        // crimson ring to signal collectible
+        ctx.strokeStyle = "#CC2200";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
         ctx.restore();
       });
     }
