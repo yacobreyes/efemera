@@ -11,8 +11,8 @@ const PIPE_SPEED = IS_MOBILE ? 1.7 : 2.2;
 const PIPE_GAP = IS_MOBILE ? 145 : 115;
 const PIPE_INTERVAL = IS_MOBILE ? 110 : 95;
 const PIPE_WIDTH = 52;
-const GROUND_H = 56;
-const WATER_H = 28;
+const GROUND_H = 28;
+const WATER_H = 14;
 
 const CHOOPY_W = 48;
 const CHOOPY_H = Math.round(48 * (1448 / 1086)); // ~64
