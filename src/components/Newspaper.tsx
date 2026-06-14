@@ -11,7 +11,6 @@ import { urlFor } from "@/lib/sanity";
 import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
 import dynamic from "next/dynamic";
-const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), { ssr: false });
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
@@ -313,9 +312,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
           </div>
           <div className="sidebar-choopy">
             <Choopy />
-          </div>
-          <div>
-            <FlappyChoopy />
           </div>
         </div>
       )}
