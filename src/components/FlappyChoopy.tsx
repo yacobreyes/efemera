@@ -8,11 +8,16 @@ const GRAVITY = 0.45;
 const FLAP = -7.5;
 const PIPE_SPEED = 2.2;
 const PIPE_GAP = 130;
-const PIPE_INTERVAL = 90; // frames
+const PIPE_INTERVAL = 90;
 const PIPE_WIDTH = 52;
 const GROUND_H = 64;
-const CHOOPY_W = 46;
-const CHOOPY_H = 36;
+
+// Choopy: original is 1086x1448, keep aspect ratio
+const CHOOPY_W = 44;
+const CHOOPY_H = Math.round(44 * (1448 / 1086)); // ~59
+
+// Mayfly collectible size
+const FLY_SIZE = 24;
 
 type GameState = "idle" | "playing" | "dead";
 
@@ -22,30 +27,46 @@ interface Pipe {
   scored: boolean;
 }
 
+interface Fly {
+  x: number;
+  y: number;
+  eaten: boolean;
+  bobOffset: number;
+}
+
+interface Popup {
+  x: number;
+  y: number;
+  life: number; // frames remaining
+}
+
 export default function FlappyChoopy() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>("idle");
   const [displayState, setDisplayState] = useState<GameState>("idle");
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(0);
+  const bestRef = useRef(0);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
     setBest(stored);
+    bestRef.current = stored;
   }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
 
-    // Load images
     const choopyImg = new Image(); choopyImg.src = "/choopy-fly.webp";
     const mayflyImg = new Image(); mayflyImg.src = "/mayfly-icon.webp";
 
     let frame = 0;
-    let y = H / 2 - 30;
+    let y = H / 2 - 20;
     let vy = 0;
     let pipes: Pipe[] = [];
+    let flies: Fly[] = [];
+    let popups: Popup[] = [];
     let currentScore = 0;
     let groundOffset = 0;
     let animId = 0;
@@ -53,9 +74,11 @@ export default function FlappyChoopy() {
 
     function reset() {
       frame = 0;
-      y = H / 2 - 30;
+      y = H / 2 - 20;
       vy = 0;
       pipes = [];
+      flies = [];
+      popups = [];
       currentScore = 0;
       groundOffset = 0;
       dead = false;
@@ -77,71 +100,50 @@ export default function FlappyChoopy() {
       vy = FLAP;
     }
 
+    canvas.addEventListener("click", flap);
+    window.addEventListener("keydown", onKey);
     function onKey(e: KeyboardEvent) {
       if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); flap(); }
     }
-    function onClick() { flap(); }
 
-    canvas.addEventListener("click", onClick);
-    window.addEventListener("keydown", onKey);
+    // ── Drawing helpers ──────────────────────────────────────────
 
-    function drawPipe(x: number, topH: number, botY: number) {
-      const PIPE_COLOR = "#8B0000";
-      const CAP_H = 22;
-      const CAP_EXTRA = 6;
-
-      // top pipe body
-      ctx.fillStyle = PIPE_COLOR;
-      ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP_H);
-      // top pipe cap
-      ctx.fillRect(x - CAP_EXTRA / 2, topH - CAP_H, PIPE_WIDTH + CAP_EXTRA, CAP_H);
-
-      // bottom pipe body
-      const botBodyTop = botY + CAP_H;
-      ctx.fillRect(x, botBodyTop, PIPE_WIDTH, H - GROUND_H - botBodyTop);
-      // bottom pipe cap
-      ctx.fillRect(x - CAP_EXTRA / 2, botY, PIPE_WIDTH + CAP_EXTRA, CAP_H);
-
-      // mayfly at gap openings
-      const mSize = 28;
-      if (mayflyImg.complete) {
-        ctx.save();
-        ctx.globalAlpha = 0.85;
-        // top opening - flip vertically
-        ctx.translate(x + PIPE_WIDTH / 2, topH - 4);
-        ctx.scale(1, -1);
-        ctx.drawImage(mayflyImg, -mSize / 2, 0, mSize, mSize);
-        ctx.restore();
-        // bottom opening
-        ctx.save();
-        ctx.globalAlpha = 0.85;
-        ctx.drawImage(mayflyImg, x + PIPE_WIDTH / 2 - mSize / 2, botY - mSize + 4, mSize, mSize);
-        ctx.restore();
-      }
+    function roundRect(x: number, ry: number, w: number, h: number, r: number) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, ry);
+      ctx.lineTo(x + w - r, ry);
+      ctx.arcTo(x + w, ry, x + w, ry + r, r);
+      ctx.lineTo(x + w, ry + h - r);
+      ctx.arcTo(x + w, ry + h, x + w - r, ry + h, r);
+      ctx.lineTo(x + r, ry + h);
+      ctx.arcTo(x, ry + h, x, ry + h - r, r);
+      ctx.lineTo(x, ry + r);
+      ctx.arcTo(x, ry, x + r, ry, r);
+      ctx.closePath();
     }
 
-    function drawChoopy(cy: number, vel: number) {
-      const angle = Math.min(Math.max(vel * 0.06, -0.4), 0.9);
-      ctx.save();
-      ctx.translate(72, cy + CHOOPY_H / 2);
-      ctx.rotate(angle);
-      if (choopyImg.complete) {
-        ctx.drawImage(choopyImg, -CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
-      } else {
-        ctx.fillStyle = "#8B4513";
-        ctx.fillRect(-CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
-      }
-      ctx.restore();
+    function drawBackground() {
+      const sky = ctx.createLinearGradient(0, 0, 0, H - GROUND_H);
+      sky.addColorStop(0, "#87CEEB");
+      sky.addColorStop(1, "#c9e8f5");
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H - GROUND_H);
+
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      [[40, 60, 20], [160, 40, 18], [250, 80, 16]].forEach(([cx, cy, r]) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.arc(cx + r, cy - 4, r * 0.75, 0, Math.PI * 2);
+        ctx.arc(cx - r * 0.7, cy + 2, r * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      });
     }
 
     function drawGround() {
-      // Scrolling ground strip
       ctx.fillStyle = "#c8a96e";
       ctx.fillRect(0, H - GROUND_H, W, GROUND_H);
       ctx.fillStyle = "#5a8a3c";
       ctx.fillRect(0, H - GROUND_H, W, 12);
-
-      // grass tufts
       ctx.fillStyle = "#4a7a2c";
       for (let gx = (-groundOffset % 48); gx < W + 48; gx += 48) {
         ctx.beginPath();
@@ -150,29 +152,154 @@ export default function FlappyChoopy() {
       }
     }
 
-    function drawBackground() {
-      // Sky gradient
-      const sky = ctx.createLinearGradient(0, 0, 0, H - GROUND_H);
-      sky.addColorStop(0, "#87CEEB");
-      sky.addColorStop(1, "#c9e8f5");
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, W, H - GROUND_H);
+    function drawPipe(x: number, topH: number, botY: number) {
+      const C = "#8B0000";
+      const DARK = "#5a0000";
+      const CAP_H = 22;
+      const CAP_X = 3;
 
-      // Clouds
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
-      const clouds = [[40, 60], [160, 40], [250, 80]];
-      clouds.forEach(([cx, cy]) => {
-        ctx.beginPath();
-        ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-        ctx.arc(cx + 20, cy - 5, 15, 0, Math.PI * 2);
-        ctx.arc(cx - 15, cy + 2, 14, 0, Math.PI * 2);
-        ctx.fill();
+      // top body
+      ctx.fillStyle = C;
+      ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP_H);
+      // top highlight stripe
+      ctx.fillStyle = DARK;
+      ctx.fillRect(x + PIPE_WIDTH - 8, 0, 8, topH - CAP_H);
+      // top cap
+      ctx.fillStyle = C;
+      ctx.fillRect(x - CAP_X, topH - CAP_H, PIPE_WIDTH + CAP_X * 2, CAP_H);
+      ctx.fillStyle = DARK;
+      ctx.fillRect(x - CAP_X + PIPE_WIDTH + CAP_X * 2 - 8, topH - CAP_H, 8, CAP_H);
+
+      // bottom cap
+      ctx.fillStyle = C;
+      ctx.fillRect(x - CAP_X, botY, PIPE_WIDTH + CAP_X * 2, CAP_H);
+      ctx.fillStyle = DARK;
+      ctx.fillRect(x - CAP_X + PIPE_WIDTH + CAP_X * 2 - 8, botY, 8, CAP_H);
+      // bottom body
+      const botBodyTop = botY + CAP_H;
+      ctx.fillStyle = C;
+      ctx.fillRect(x, botBodyTop, PIPE_WIDTH, H - GROUND_H - botBodyTop);
+      ctx.fillStyle = DARK;
+      ctx.fillRect(x + PIPE_WIDTH - 8, botBodyTop, 8, H - GROUND_H - botBodyTop);
+    }
+
+    function drawChoopy(cy: number, vel: number) {
+      const angle = Math.min(Math.max(vel * 0.055, -0.35), 0.85);
+      ctx.save();
+      ctx.translate(72, cy);
+      ctx.rotate(angle);
+      if (choopyImg.complete && choopyImg.naturalWidth > 0) {
+        ctx.drawImage(choopyImg, -CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
+      } else {
+        ctx.fillStyle = "#8B4513";
+        ctx.fillRect(-CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
+      }
+      ctx.restore();
+    }
+
+    function drawFlies(fs: Fly[]) {
+      if (!mayflyImg.complete || !mayflyImg.naturalWidth) return;
+      fs.forEach(f => {
+        if (f.eaten) return;
+        const bob = Math.sin(frame * 0.08 + f.bobOffset) * 4;
+        ctx.save();
+        ctx.globalAlpha = 0.92;
+        ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
+        ctx.restore();
       });
     }
 
+    function drawPopups(ps: Popup[]) {
+      ctx.save();
+      ctx.font = "bold 14px monospace";
+      ctx.textAlign = "center";
+      ps.forEach(p => {
+        const alpha = p.life / 40;
+        ctx.fillStyle = `rgba(255,215,0,${alpha})`;
+        ctx.strokeStyle = `rgba(0,0,0,${alpha * 0.5})`;
+        ctx.lineWidth = 2;
+        const rise = (40 - p.life) * 0.8;
+        ctx.strokeText("+1", p.x, p.y - rise);
+        ctx.fillText("+1", p.x, p.y - rise);
+      });
+      ctx.restore();
+    }
+
+    function drawScore(s: number) {
+      ctx.save();
+      ctx.font = "bold 36px monospace";
+      ctx.textAlign = "center";
+      ctx.strokeStyle = "rgba(0,0,0,0.35)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(String(s), W / 2, 52);
+      ctx.fillStyle = "white";
+      ctx.fillText(String(s), W / 2, 52);
+      ctx.restore();
+    }
+
+    function drawIdle() {
+      drawBackground();
+      drawGround();
+      drawChoopy(H / 2 - 20 + Math.sin(frame * 0.05) * 7, 0);
+
+      ctx.fillStyle = "rgba(0,0,0,0.45)";
+      roundRect(W / 2 - 110, H / 2 - 62, 220, 115, 10);
+      ctx.fill();
+
+      ctx.fillStyle = "white";
+      ctx.font = "bold 22px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("FLAPPY CHOOPY", W / 2, H / 2 - 28);
+      ctx.font = "12px monospace";
+      ctx.fillStyle = "rgba(255,255,255,0.8)";
+      ctx.fillText("tap or space to fly", W / 2, H / 2 + 2);
+      ctx.fillStyle = "rgba(255,215,0,0.9)";
+      ctx.fillText("eat mayflies for bonus pts!", W / 2, H / 2 + 22);
+      if (bestRef.current > 0) {
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "bold 12px monospace";
+        ctx.fillText(`BEST: ${bestRef.current}`, W / 2, H / 2 + 44);
+      }
+    }
+
+    function drawDead(s: number) {
+      drawBackground();
+      pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
+      drawFlies(flies);
+      drawGround();
+      drawChoopy(y, vy);
+
+      ctx.fillStyle = "rgba(0,0,0,0.4)";
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = "white";
+      roundRect(W / 2 - 110, H / 2 - 85, 220, 155, 10);
+      ctx.fill();
+
+      ctx.fillStyle = "#8B0000";
+      ctx.font = "bold 22px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("GAME OVER", W / 2, H / 2 - 48);
+
+      ctx.fillStyle = "#1c2938";
+      ctx.font = "14px monospace";
+      ctx.fillText(`SCORE: ${s}`, W / 2, H / 2 - 14);
+      ctx.fillStyle = "#8B0000";
+      ctx.font = "bold 14px monospace";
+      const nb = Math.max(s, bestRef.current);
+      ctx.fillText(`BEST: ${nb}`, W / 2, H / 2 + 12);
+
+      ctx.fillStyle = "#526270";
+      ctx.font = "11px monospace";
+      ctx.fillText("pipes = 1pt  ·  mayflies = +1", W / 2, H / 2 + 42);
+      ctx.fillText("tap to play again", W / 2, H / 2 + 60);
+    }
+
+    // ── Collision ────────────────────────────────────────────────
+
     function checkCollision(cy: number, ps: Pipe[]): boolean {
       const cx = 72;
-      const r = 13; // Choopy hitbox radius (tight)
+      const r = 12;
       if (cy + r >= H - GROUND_H) return true;
       if (cy - r <= 0) return true;
       for (const p of ps) {
@@ -183,89 +310,24 @@ export default function FlappyChoopy() {
       return false;
     }
 
-    function drawScore(s: number) {
-      ctx.save();
-      ctx.font = "bold 36px monospace";
-      ctx.fillStyle = "white";
-      ctx.strokeStyle = "rgba(0,0,0,0.4)";
-      ctx.lineWidth = 3;
-      ctx.textAlign = "center";
-      ctx.strokeText(String(s), W / 2, 52);
-      ctx.fillText(String(s), W / 2, 52);
-      ctx.restore();
+    function checkFlyEat(cy: number, fs: Fly[]) {
+      const cx = 72;
+      const r = 16;
+      fs.forEach(f => {
+        if (f.eaten) return;
+        const bob = Math.sin(frame * 0.08 + f.bobOffset) * 4;
+        const fy = f.y + bob;
+        const dist = Math.sqrt((cx - f.x) ** 2 + (cy - fy) ** 2);
+        if (dist < r + FLY_SIZE / 2) {
+          f.eaten = true;
+          currentScore++;
+          setScore(currentScore);
+          popups.push({ x: f.x, y: cy - 10, life: 40 });
+        }
+      });
     }
 
-    function drawIdle() {
-      drawBackground();
-      drawGround();
-      drawChoopy(H / 2 - 30 + Math.sin(frame * 0.05) * 6, 0);
-
-      // Panel
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.beginPath();
-      roundRect(ctx, W / 2 - 110, H / 2 - 60, 220, 110, 10);
-      ctx.fill();
-
-      ctx.fillStyle = "white";
-      ctx.font = "bold 22px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText("FLAPPY CHOOPY", W / 2, H / 2 - 28);
-      ctx.font = "13px monospace";
-      ctx.fillStyle = "rgba(255,255,255,0.8)";
-      ctx.fillText("tap or press space", W / 2, H / 2 + 2);
-      if (best > 0) {
-        ctx.fillStyle = "#FFD700";
-        ctx.font = "bold 13px monospace";
-        ctx.fillText(`BEST: ${best}`, W / 2, H / 2 + 28);
-      }
-    }
-
-    function drawDead(s: number) {
-      drawBackground();
-      pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
-      drawGround();
-      drawChoopy(y, vy);
-
-      // Dim
-      ctx.fillStyle = "rgba(0,0,0,0.35)";
-      ctx.fillRect(0, 0, W, H);
-
-      // Panel
-      ctx.fillStyle = "white";
-      ctx.beginPath();
-      roundRect(ctx, W / 2 - 110, H / 2 - 80, 220, 145, 10);
-      ctx.fill();
-
-      ctx.fillStyle = "#8B0000";
-      ctx.font = "bold 22px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText("GAME OVER", W / 2, H / 2 - 45);
-
-      ctx.fillStyle = "#1c2938";
-      ctx.font = "14px monospace";
-      ctx.fillText(`SCORE: ${s}`, W / 2, H / 2 - 10);
-      ctx.fillStyle = "#8B0000";
-      ctx.font = "bold 14px monospace";
-      ctx.fillText(`BEST: ${Math.max(s, best)}`, W / 2, H / 2 + 15);
-
-      ctx.fillStyle = "#526270";
-      ctx.font = "12px monospace";
-      ctx.fillText("tap to play again", W / 2, H / 2 + 50);
-    }
-
-    function roundRect(c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-      c.beginPath();
-      c.moveTo(x + r, y);
-      c.lineTo(x + w - r, y);
-      c.arcTo(x + w, y, x + w, y + r, r);
-      c.lineTo(x + w, y + h - r);
-      c.arcTo(x + w, y + h, x + w - r, y + h, r);
-      c.lineTo(x + r, y + h);
-      c.arcTo(x, y + h, x, y + h - r, r);
-      c.lineTo(x, y + r);
-      c.arcTo(x, y, x + r, y, r);
-      c.closePath();
-    }
+    // ── Main loop ────────────────────────────────────────────────
 
     function tick() {
       frame++;
@@ -280,18 +342,26 @@ export default function FlappyChoopy() {
       if (state === "playing") {
         groundOffset += PIPE_SPEED;
 
-        // Spawn pipes
+        // Spawn pipes + one mayfly per pipe in the gap
         if (frame % PIPE_INTERVAL === 0) {
           const minGapY = 60;
           const maxGapY = H - GROUND_H - PIPE_GAP - 60;
           const gapY = minGapY + Math.random() * (maxGapY - minGapY);
           pipes.push({ x: W + 10, gapY, scored: false });
+          // mayfly in the center of the gap
+          flies.push({
+            x: W + 10 + PIPE_WIDTH / 2,
+            y: gapY + PIPE_GAP / 2,
+            eaten: false,
+            bobOffset: Math.random() * Math.PI * 2,
+          });
         }
 
-        // Move pipes
         pipes = pipes.map(p => ({ ...p, x: p.x - PIPE_SPEED })).filter(p => p.x > -PIPE_WIDTH - 10);
+        flies = flies.map(f => ({ ...f, x: f.x - PIPE_SPEED })).filter(f => f.x > -FLY_SIZE);
+        popups = popups.map(p => ({ ...p, life: p.life - 1 })).filter(p => p.life > 0);
 
-        // Score
+        // Score for passing pipes
         pipes.forEach(p => {
           if (!p.scored && p.x + PIPE_WIDTH < 72) {
             p.scored = true;
@@ -304,21 +374,26 @@ export default function FlappyChoopy() {
         vy += GRAVITY;
         y += vy;
 
+        // Eat mayflies
+        checkFlyEat(y, flies);
+
         // Collision
-        if (!dead && checkCollision(y + CHOOPY_H / 2, pipes)) {
+        if (!dead && checkCollision(y, pipes)) {
           dead = true;
           stateRef.current = "dead";
           setDisplayState("dead");
-          const newBest = Math.max(currentScore, best);
-          setBest(newBest);
-          localStorage.setItem("flappy_choopy_best", String(newBest));
+          const nb = Math.max(currentScore, bestRef.current);
+          bestRef.current = nb;
+          setBest(nb);
+          localStorage.setItem("flappy_choopy_best", String(nb));
         }
 
-        // Draw
         drawBackground();
         pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
+        drawFlies(flies);
         drawGround();
         drawChoopy(y, vy);
+        drawPopups(popups);
         drawScore(currentScore);
       }
 
@@ -333,7 +408,7 @@ export default function FlappyChoopy() {
 
     return () => {
       cancelAnimationFrame(animId);
-      canvas.removeEventListener("click", onClick);
+      canvas.removeEventListener("click", flap);
       window.removeEventListener("keydown", onKey);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -350,13 +425,8 @@ export default function FlappyChoopy() {
         ref={canvasRef}
         width={W}
         height={H}
-        style={{ display: "block", width: "100%", cursor: "pointer", imageRendering: "pixelated" }}
+        style={{ display: "block", width: "100%", cursor: "pointer" }}
       />
-      {displayState === "playing" && (
-        <div style={{ padding: "0.4rem 0.85rem", textAlign: "center", fontSize: "0.68rem", color: "#657786", fontStyle: "italic" }}>
-          tap or space to flap · score: {score}
-        </div>
-      )}
     </div>
   );
 }
