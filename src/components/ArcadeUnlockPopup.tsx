@@ -9,30 +9,19 @@ export default function ArcadeUnlockPopup() {
   const router = useRouter();
 
   useEffect(() => {
-    // Already dismissed this session
-    if (sessionStorage.getItem("arcade_popup_shown")) return;
-    // Already seen the popup ever
+    // Already seen the popup — never show again
     if (localStorage.getItem("arcade_unlocked")) return;
 
-    // Count unique articles read this session
-    const sessionKey = "arcade_session_reads";
-    const existing = JSON.parse(sessionStorage.getItem(sessionKey) ?? "[]") as string[];
+    // Count how many unique articles have been read
+    // ReadCounter sets efemera_read_{slug} on every story visit
+    const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
 
-    // The slug is in the URL path: /stories/[slug]
-    const slug = window.location.pathname.replace("/stories/", "").replace(/\//g, "");
-    if (!slug) return;
-
-    const updated = existing.includes(slug) ? existing : [...existing, slug];
-    sessionStorage.setItem(sessionKey, JSON.stringify(updated));
-
-    if (updated.length >= 2) {
-      // Small delay so the page has settled
-      setTimeout(() => setShow(true), 800);
+    if (readCount >= 2) {
+      setTimeout(() => setShow(true), 600);
     }
   }, []);
 
   function dismiss() {
-    sessionStorage.setItem("arcade_popup_shown", "1");
     localStorage.setItem("arcade_unlocked", "1");
     setShow(false);
   }
