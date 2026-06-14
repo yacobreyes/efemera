@@ -335,7 +335,7 @@ export default function FlappyChoopy() {
       const rankColors = ["#FFD700", "#C0C0C0", "#cd7f32", "#88aaff", "#ff88aa"];
 
       if (entries.length === 0) {
-        ctx.font = "13px monospace"; ctx.fillStyle = "#555";
+        ctx.font = "13px monospace"; ctx.fillStyle = "rgba(255,255,255,0.5)";
         ctx.fillText("NO SCORES YET", W / 2, H / 2 - 10);
         ctx.fillText("BE THE FIRST!", W / 2, H / 2 + 16);
       } else {
