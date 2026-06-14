@@ -24,7 +24,7 @@ function createFly(id: number, stagger = false): Fly {
     x: stagger ? randomBetween(-30, 100) : randomBetween(-30, -5),
     y: randomBetween(3, 92),
     size: randomBetween(32, 72),
-    speed: randomBetween(0.35, 0.8),
+    speed: randomBetween(0.8, 1.6),
     wobblePhase: randomBetween(0, Math.PI * 2),
     wobbleAmp: randomBetween(0.06, 0.2),
     wobbleSpeed: randomBetween(0.02, 0.06),
