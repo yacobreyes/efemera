@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const W = 400;
 const H = 380;
@@ -35,6 +35,12 @@ export default function FlappyChoopy() {
   const [scores, setScores] = useState({ pipes: 0, flies: 0 });
   const [best, setBest] = useState(0);
   const bestRef = useRef(0);
+  const [muted, setMuted] = useState(false);
+  const mutedRef = useRef(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
+  const musicSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const musicBufferRef = useRef<AudioBuffer | null>(null);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
@@ -42,7 +48,62 @@ export default function FlappyChoopy() {
     bestRef.current = stored;
   }, []);
 
+  const startMusic = useCallback(() => {
+    if (!audioCtxRef.current || !musicBufferRef.current) return;
+    musicSourceRef.current?.stop();
+    const src = audioCtxRef.current.createBufferSource();
+    src.buffer = musicBufferRef.current;
+    src.loop = true;
+    src.connect(masterGainRef.current!);
+    src.start(0);
+    musicSourceRef.current = src;
+  }, []);
+
+  const stopMusic = useCallback(() => {
+    try { musicSourceRef.current?.stop(); } catch (_) {}
+    musicSourceRef.current = null;
+  }, []);
+
+  const playHitSound = useCallback(() => {
+    if (!audioCtxRef.current || mutedRef.current) return;
+    const ctx = audioCtxRef.current;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.4, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+    g.connect(ctx.destination);
+    // descending thud: square wave drop
+    const osc = ctx.createOscillator();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(55, ctx.currentTime + 0.25);
+    osc.connect(g);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.35);
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    const next = !mutedRef.current;
+    mutedRef.current = next;
+    setMuted(next);
+    if (masterGainRef.current && audioCtxRef.current) {
+      masterGainRef.current.gain.setValueAtTime(next ? 0 : 0.6, audioCtxRef.current.currentTime);
+    }
+  }, []);
+
   useEffect(() => {
+    // Set up audio context and load music
+    const actx = new AudioContext();
+    audioCtxRef.current = actx;
+    const master = actx.createGain();
+    master.gain.value = mutedRef.current ? 0 : 0.6;
+    master.connect(actx.destination);
+    masterGainRef.current = master;
+
+    fetch("/teenage-dirtbag-chiptune.wav")
+      .then(r => r.arrayBuffer())
+      .then(ab => actx.decodeAudioData(ab))
+      .then(buf => { musicBufferRef.current = buf; });
+
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const choopyImg = new Image(); choopyImg.src = "/choopy-fly.webp";
@@ -69,8 +130,11 @@ export default function FlappyChoopy() {
 
     function flap() {
       if (stateRef.current === "idle") {
+        actx.resume();
         stateRef.current = "playing"; setDisplayState("playing");
-        reset(); vy = FLAP; return;
+        reset(); vy = FLAP;
+        startMusic();
+        return;
       }
       if (stateRef.current === "dead") {
         stateRef.current = "idle"; setDisplayState("idle"); return;
@@ -323,6 +387,8 @@ export default function FlappyChoopy() {
 
         if (!dead && checkCollision(y)) {
           dead = true; stateRef.current = "dead"; setDisplayState("dead");
+          stopMusic();
+          playHitSound();
           const total = scoreRef.current + flyScoreRef.current * BONUS_PER_FLY;
           const nb = Math.max(total, bestRef.current);
           bestRef.current = nb; setBest(nb);
@@ -346,16 +412,25 @@ export default function FlappyChoopy() {
       cancelAnimationFrame(animId);
       canvas.removeEventListener("click", flap);
       window.removeEventListener("keydown", onKey);
+      stopMusic();
+      actx.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [startMusic, stopMusic, playHitSound]);
 
   return (
     <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", textAlign: "center" }}>
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
         <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           Flappy Choopy
         </span>
+        <button
+          onClick={toggleMute}
+          style={{ position: "absolute", right: "0.85rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }}
+          title={muted ? "Unmute" : "Mute"}
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
       </div>
       <canvas
         ref={canvasRef}
