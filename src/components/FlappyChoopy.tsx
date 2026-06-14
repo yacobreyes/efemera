@@ -17,6 +17,7 @@ const CHOOPY_W = 48;
 const CHOOPY_H = Math.round(48 * (1448 / 1086)); // ~64
 const FLY_SIZE = 22;
 const CHOOPY_X = 80;
+const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
 type GameState = "idle" | "playing" | "dead";
 
@@ -55,12 +56,13 @@ export default function FlappyChoopy() {
     let popups: Popup[] = [];
     let animId = 0;
     let dead = false;
+    let spawnCount = 0;
 
     function reset() {
       frame = 0; y = H / 2 - 20; vy = 0;
       pipes = []; flies = []; popups = [];
       scoreRef.current = 0; flyScoreRef.current = 0;
-      dead = false;
+      dead = false; spawnCount = 0;
       setScores({ pipes: 0, flies: 0 });
     }
 
@@ -119,7 +121,13 @@ export default function FlappyChoopy() {
       ctx.translate(CHOOPY_X, cy);
       ctx.rotate(angle);
       if (choopyImg.complete && choopyImg.naturalWidth > 0) {
-        ctx.drawImage(choopyImg, -CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
+        // gold glow outline so she pops against the busy skyline
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 7;
+        for (let i = 0; i < 3; i++) {
+          ctx.drawImage(choopyImg, -CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
+        }
+        ctx.shadowBlur = 0;
       } else {
         ctx.fillStyle = "#8B4513";
         ctx.fillRect(-CHOOPY_W / 2, -CHOOPY_H / 2, CHOOPY_W, CHOOPY_H);
@@ -146,8 +154,8 @@ export default function FlappyChoopy() {
         const rise = (40 - p.life) * 0.9;
         ctx.strokeStyle = `rgba(0,0,0,${a * 0.4})`; ctx.lineWidth = 2;
         ctx.fillStyle = `rgba(255,215,0,${a})`;
-        ctx.strokeText("+1 🪰", p.x, p.y - rise);
-        ctx.fillText("+1 🪰", p.x, p.y - rise);
+        ctx.strokeText(`+${BONUS_PER_FLY} 🪰`, p.x, p.y - rise);
+        ctx.fillText(`+${BONUS_PER_FLY} 🪰`, p.x, p.y - rise);
       });
       ctx.restore();
     }
@@ -160,10 +168,11 @@ export default function FlappyChoopy() {
       ctx.strokeText(String(pipes), W / 2, 50);
       ctx.fillStyle = "white"; ctx.fillText(String(pipes), W / 2, 50);
 
-      // Mayfly score — top right with tiny icon
+      // Mayfly bonus — top right (applied on top of pipe score)
+      const bonus = mayflies * BONUS_PER_FLY;
       ctx.font = "bold 16px monospace"; ctx.textAlign = "right";
-      ctx.strokeText(`🪰 ×${mayflies}`, W - 10, 30);
-      ctx.fillStyle = "#FFD700"; ctx.fillText(`🪰 ×${mayflies}`, W - 10, 30);
+      ctx.strokeText(`🪰 +${bonus}`, W - 10, 30);
+      ctx.fillStyle = "#FFD700"; ctx.fillText(`🪰 +${bonus}`, W - 10, 30);
       ctx.restore();
     }
 
@@ -207,12 +216,13 @@ export default function FlappyChoopy() {
       ctx.fillStyle = "#8B0000"; ctx.font = "bold 22px monospace";
       ctx.fillText("GAME OVER", W / 2, H / 2 - 54);
 
+      const bonus = fs * BONUS_PER_FLY;
       ctx.fillStyle = "#1c2938"; ctx.font = "15px monospace";
       ctx.fillText(`PIPES:    ${ps}`, W / 2, H / 2 - 20);
       ctx.fillStyle = "#b8860b"; ctx.font = "bold 15px monospace";
-      ctx.fillText(`MAYFLIES: ${fs}`, W / 2, H / 2 + 4);
+      ctx.fillText(`🪰 BONUS:  +${bonus}`, W / 2, H / 2 + 4);
 
-      const total = ps + fs;
+      const total = ps + bonus;
       ctx.fillStyle = "#1c2938"; ctx.font = "bold 15px monospace";
       ctx.fillText(`TOTAL:    ${total}`, W / 2, H / 2 + 28);
 
@@ -270,7 +280,14 @@ export default function FlappyChoopy() {
         if (frame % PIPE_INTERVAL === 0) {
           const gapY = 60 + Math.random() * (H - GROUND_H - WATER_H - PIPE_GAP - 120);
           pipes.push({ x: W + 10, gapY, scored: false });
-          flies.push({ x: W + 10 + PIPE_WIDTH / 2, y: gapY + PIPE_GAP / 2, eaten: false, bobOffset: Math.random() * Math.PI * 2 });
+          spawnCount++;
+          // Every other pipe gets a mayfly, tucked near a pipe lip so
+          // grabbing it means flying dangerously close to the crimson.
+          if (spawnCount % 2 === 0) {
+            const nearTop = Math.random() < 0.5;
+            const flyY = nearTop ? gapY + 24 : gapY + PIPE_GAP - 24;
+            flies.push({ x: W + 10 + PIPE_WIDTH / 2, y: flyY, eaten: false, bobOffset: Math.random() * Math.PI * 2 });
+          }
         }
 
         pipes = pipes.map(p => ({ ...p, x: p.x - PIPE_SPEED })).filter(p => p.x > -PIPE_WIDTH - 10);
@@ -289,7 +306,7 @@ export default function FlappyChoopy() {
 
         if (!dead && checkCollision(y)) {
           dead = true; stateRef.current = "dead"; setDisplayState("dead");
-          const total = scoreRef.current + flyScoreRef.current;
+          const total = scoreRef.current + flyScoreRef.current * BONUS_PER_FLY;
           const nb = Math.max(total, bestRef.current);
           bestRef.current = nb; setBest(nb);
           localStorage.setItem("flappy_choopy_best", String(nb));
@@ -332,7 +349,7 @@ export default function FlappyChoopy() {
       {displayState === "playing" && (
         <div style={{ padding: "0.35rem 0.85rem", display: "flex", justifyContent: "space-between", fontSize: "0.68rem", color: "#657786", borderTop: "1px solid #f0f3f4" }}>
           <span>pipes: {scores.pipes}</span>
-          <span>🪰 mayflies: {scores.flies}</span>
+          <span>🪰 bonus: +{scores.flies * BONUS_PER_FLY}</span>
         </div>
       )}
     </div>
