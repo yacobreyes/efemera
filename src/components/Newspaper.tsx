@@ -106,7 +106,8 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
             <img
               src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
               alt={post.image.alt ?? post.image.caption ?? ""}
-              style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
+              loading="lazy"
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
             />
           </div>
         )}
