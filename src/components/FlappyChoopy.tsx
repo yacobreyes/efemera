@@ -229,7 +229,7 @@ export default function FlappyChoopy() {
     }
 
     function drawPipe(x: number, topH: number, botY: number) {
-      const C = "#8B0000", CAP = 22, CX = 3;
+      const C = "#8B0000", D = "#6b0000", CAP = 22, CX = 3;
       // Shadow pass (separate so shadow doesn't darken the pipe face)
       ctx.save();
       ctx.shadowColor = "rgba(0,0,0,0.35)";
@@ -244,10 +244,14 @@ export default function FlappyChoopy() {
       ctx.restore();
       // Detail pass (no shadow)
       ctx.fillStyle = C; ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP);
+      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, 0, 8, topH - CAP);
       ctx.fillStyle = C; ctx.fillRect(x - CX, topH - CAP, PIPE_WIDTH + CX * 2, CAP);
+      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 5, topH - CAP, 5, CAP);
       ctx.fillStyle = C; ctx.fillRect(x - CX, botY, PIPE_WIDTH + CX * 2, CAP);
+      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 5, botY, 5, CAP);
       const bb = botY + CAP;
       ctx.fillStyle = C; ctx.fillRect(x, bb, PIPE_WIDTH, H - bb);
+      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, bb, 8, H - bb);
     }
 
     function drawChoopy(cy: number, vel: number) {
