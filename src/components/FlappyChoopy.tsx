@@ -243,13 +243,9 @@ export default function FlappyChoopy() {
 
     function drawChoopy(cy: number, vel: number) {
       const angle = Math.min(Math.max(vel * 0.055, -0.35), 0.85);
-      const flapAge = frame - flapFrame;
-      const squishY = flapAge < 8 ? 1 - Math.sin((flapAge / 8) * Math.PI) * 0.25 : 1;
-      const squishX = flapAge < 8 ? 1 + Math.sin((flapAge / 8) * Math.PI) * 0.15 : 1;
       ctx.save();
       ctx.translate(CHOOPY_X, cy);
       ctx.rotate(angle);
-      ctx.scale(squishX, squishY);
       if (choopyImg.complete && choopyImg.naturalWidth > 0) {
         ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 7;
         for (let i = 0; i < 3; i++)
