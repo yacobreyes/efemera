@@ -53,7 +53,6 @@ export default function FlappyChoopy() {
     let pipes: Pipe[] = [];
     let flies: Fly[] = [];
     let popups: Popup[] = [];
-    let groundOffset = 0;
     let animId = 0;
     let dead = false;
 
@@ -61,7 +60,7 @@ export default function FlappyChoopy() {
       frame = 0; y = H / 2 - 20; vy = 0;
       pipes = []; flies = []; popups = [];
       scoreRef.current = 0; flyScoreRef.current = 0;
-      groundOffset = 0; dead = false;
+      dead = false;
       setScores({ pipes: 0, flies: 0 });
     }
 
@@ -98,20 +97,7 @@ export default function FlappyChoopy() {
 
     function drawWater() { /* water is part of the skyline image */ }
 
-    function drawGround() {
-      // The skyline image already provides the bay water; add a moving
-      // shimmer along the death waterline so the surface reads as alive.
-      const waterY = H - GROUND_H - WATER_H;
-      ctx.lineWidth = 1;
-      for (let wx = (-groundOffset % 18); wx < W; wx += 18) {
-        const woff = Math.sin(frame * 0.05 + wx * 0.1) * 2;
-        ctx.strokeStyle = "rgba(255,230,180,0.18)";
-        ctx.beginPath();
-        ctx.moveTo(wx, waterY + 4 + woff);
-        ctx.lineTo(wx + 8, waterY + 4 + woff);
-        ctx.stroke();
-      }
-    }
+    function drawGround() { /* the skyline image provides the bay water */ }
 
     function drawPipe(x: number, topH: number, botY: number) {
       const C = "#8B0000", D = "#5a0000", CAP = 22, CX = 3;
@@ -123,8 +109,8 @@ export default function FlappyChoopy() {
       ctx.fillStyle = C; ctx.fillRect(x - CX, botY, PIPE_WIDTH + CX * 2, CAP);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 5, botY, 5, CAP);
       const botBodyTop = botY + CAP;
-      ctx.fillStyle = C; ctx.fillRect(x, botBodyTop, PIPE_WIDTH, H - GROUND_H - botBodyTop);
-      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, botBodyTop, 8, H - GROUND_H - botBodyTop);
+      ctx.fillStyle = C; ctx.fillRect(x, botBodyTop, PIPE_WIDTH, H - botBodyTop);
+      ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, botBodyTop, 8, H - botBodyTop);
     }
 
     function drawChoopy(cy: number, vel: number) {
@@ -280,7 +266,6 @@ export default function FlappyChoopy() {
       if (state === "idle") { drawIdle(); animId = requestAnimationFrame(tick); return; }
 
       if (state === "playing") {
-        groundOffset += PIPE_SPEED;
 
         if (frame % PIPE_INTERVAL === 0) {
           const gapY = 60 + Math.random() * (H - GROUND_H - WATER_H - PIPE_GAP - 120);
