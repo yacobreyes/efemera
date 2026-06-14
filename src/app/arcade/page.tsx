@@ -10,6 +10,13 @@ export const metadata: Metadata = {
 
 export default function ArcadePage() {
   return (
+    <>
+      <head>
+        <link rel="preload" as="image" href="/tampa-skyline.webp" />
+        <link rel="preload" as="image" href="/choopy-fly.webp" />
+        <link rel="preload" as="image" href="/mayfly-icon.webp" />
+        <link rel="preload" as="fetch" href="/teenage-dirtbag-chiptune.wav" crossOrigin="anonymous" />
+      </head>
     <main style={{
       minHeight: "100dvh",
       background: "#000",
@@ -57,5 +64,6 @@ export default function ArcadePage() {
         </div>
       </div>
     </main>
+    </>
   );
 }
