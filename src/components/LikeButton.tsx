@@ -17,17 +17,17 @@ export default function LikeButton({ slug }: { slug: string }) {
 
   async function toggle() {
     if (pending.current) return;
-    // each user gets one like — no unliking
-    if (liked) return;
     pending.current = true;
-    setLiked(true);
-    setCount(c => c + 1);
-    localStorage.setItem(`efemera_liked_${slug}`, "1");
+    const newLiked = !liked;
+    const delta = newLiked ? 1 : -1;
+    setLiked(newLiked);
+    setCount(c => c + delta);
+    localStorage.setItem(`efemera_liked_${slug}`, newLiked ? "1" : "0");
     try {
       const res = await fetch("/api/likes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, delta: 1 }),
+        body: JSON.stringify({ slug, delta }),
       });
       const d = await res.json();
       if (d.count !== undefined) setCount(d.count);
@@ -38,11 +38,10 @@ export default function LikeButton({ slug }: { slug: string }) {
   return (
     <button
       onClick={toggle}
-      disabled={liked}
       style={{
         display: "flex", alignItems: "center", gap: "0.35rem",
         background: "none", border: "none",
-        cursor: liked ? "default" : "pointer",
+        cursor: "pointer",
         padding: 0,
         color: liked ? "#e0245e" : "#657786",
       }}
