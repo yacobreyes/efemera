@@ -27,61 +27,27 @@ const BPM = 96;
 const NQ  = 60 / BPM;
 const NE  = NQ / 2;
 const NH  = NQ * 2;
-const NDH = NQ * 3;
 const NDQ = NQ * 1.5;
 const R   = 0; // rest frequency
 
-// E major scale notes used
-const B3=246.94;
-const E4=329.63, Fs4=369.99, Gs4=415.30, A4=440.00, B4=493.88;
+// E major scale notes used in the melody
+const Fs4=369.99, Gs4=415.30, A4=440.00, B4=493.88;
 const Cs5=554.37, Ds5=622.25, E5=659.25;
-const Fs5=739.99, Gs5=830.61, A5=880.00, B5=987.77;
 
-// [freq, dur] — rests are [R, dur]
-// Verse 1, mm.4-12
-// m4: 8th rest, "Her"(8th) "name"(q) "is"(8th) "No-"(q)
-// m5: "-el"(half) rest(half)
-// m6: 8th rest "I"(8th) "have"(8th) "a"(8th)
-// m7: "dream"(q) "a-"(8th) "-bout"(8th) "her"(half)
-// m8: 8th rest "She"(8th) "rings"(q) "my"(8th) "bell"(dh)
-// m9: 8th rest "I've"(8th) "got"(q)
-// m10: "gym"(8th)"class"(8th)"in"(8th)"half"(8th) "an"(8th)"ho-"(q) "-ur"(8th)
-// m10b: "oh"(q) "how"(8th) "she"(8th) "rocks"(q+)
-// m11: "in"(8th) "Keds"(q) "and"(8th) "tube"(q) "socks"(half)
-// m12: "but"(8th) "she"(8th) "does-n't"(8th+8th) "know"(q) "who"(8th) "I"(8th) "am"(half)
-// m13-14: "and she does-n't give a damn a-bout me"
-// chorus m15-21: 'Cause … baby (x2), Listen … me, Ooh x6
+// [freq, dur] — rests are [R, dur].
+// Pitches + rhythm extracted directly from the engraved noteheads in the PDF
+// (vector glyph y-positions mapped to staff lines; durations from note spacing).
 const MELODY: [number, number][] = [
-  // m4 — "Her name is No-"
-  [R,NE],[B4,NE],[B4,NQ],[Cs5,NE],[Ds5,NQ],
-  // m5 — "-el ___"
-  [E5,NH],[R,NH],
-  // m6 — "I have a"
-  [R,NE],[B4,NE],[Cs5,NE],[Ds5,NE],
-  // m7 — "dream a-bout her ___"
-  [E5,NQ],[Ds5,NE],[Cs5,NE],[B4,NH],
-  // m8 — "She rings my bell ___"
-  [R,NE],[B4,NE],[Cs5,NQ],[Ds5,NE],[E5,NDH],
-  // m9 — "I've got"
-  [R,NE],[B4,NE],[B4,NQ],
-  // m10 — "gym class in half an ho-ur"
-  [Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NE],[Cs5,NE],[B4,NQ],[A4,NE],
-  // m10b — "oh how she rocks"
-  [Gs4,NQ],[A4,NE],[B4,NE],[Cs5,NQ],
-  // m11 — "in Keds and tube socks"
-  [B4,NE],[A4,NQ],[Gs4,NE],[A4,NQ],[Fs4,NH],
-  // m12 — "but she does-n't know who I am ___"
-  [R,NE],[B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[Cs5,NE],[B4,NH],
-  // m13 — "and she does-n't give a damn a-bout me"
-  [R,NE],[B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[B4,NE],[A4,NE],[Gs4,NQ],[Fs4,NE],[Gs4,NH],
-  // chorus m14-15 — "'Cause I'm just a teen-age dirt-bag ba-by ___"
-  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[A4,NE],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
-  // m16-17 — "Yeah I'm just a teen-age dirt-bag ba-by ___"
-  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[A4,NE],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
-  // m18-19 — "Lis-ten to I-ron Mai-den may-be with me?"
-  [Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[B4,NE],[Fs4,NE],[Gs4,NE],[Fs4,NE],[Gs4,NH],
-  // m20-21 — "Ooh ooh ooh ooh ooh ohh"
-  [Gs4,NQ],[A4,NQ],[B4,NQ],[A4,NQ],[Gs4,NQ],[Fs4,NH],
+  // "Her name is No-el ___"  (G#-A-B-C#-E rising, then held E)
+  [Gs4,NE],[A4,NE],[B4,NE],[Cs5,NE],[E5,NE],[E5,NH],[R,NE],
+  // "I have a dream a-bout her ___"
+  [A4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[Ds5,NE],[Cs5,NE],[B4,NE],[A4,NH],[R,NQ],
+  // "She rings my bell ___  I've got"
+  [A4,NE],[B4,NE],[Cs5,NE],[E5,NE],[E5,NQ],[Gs4,NE],[Gs4,NQ],[R,NE],
+  // "gym class in half an ho-ur"
+  [A4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[Ds5,NE],[Cs5,NE],[B4,NE],[A4,NQ],[R,NE],
+  // "oh how she rocks ___"
+  [A4,NE],[B4,NE],[A4,NE],[Gs4,NE],[Gs4,NDQ],[Fs4,NH],[R,NQ],
 ];
 
 type GameState = "idle" | "playing" | "dead";
