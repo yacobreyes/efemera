@@ -20,36 +20,6 @@ const FLY_SIZE = 30;
 const CHOOPY_X = 80;
 const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
-// ── Chiptune: Teenage Dirtbag (Wheatus) — E major, ♩=96 ────────────────────
-// Transcribed from sheet music (arr. Sarah Bullard)
-// Durations: NW=whole, NH=half, NDH=dotted-half, NQ=quarter, NDQ=dotted-quarter, NE=eighth
-const BPM = 96;
-const NQ  = 60 / BPM;
-const NE  = NQ / 2;
-const NH  = NQ * 2;
-const NDQ = NQ * 1.5;
-const R   = 0; // rest frequency
-
-// E major scale notes used in the melody
-const Fs4=369.99, Gs4=415.30, A4=440.00, B4=493.88;
-const Cs5=554.37, Ds5=622.25, E5=659.25;
-
-// [freq, dur] — rests are [R, dur].
-// Pitches + rhythm extracted directly from the engraved noteheads in the PDF
-// (vector glyph y-positions mapped to staff lines; durations from note spacing).
-const MELODY: [number, number][] = [
-  // "Her name is No-el ___"  (G#-A-B-C#-E rising, then held E)
-  [Gs4,NE],[A4,NE],[B4,NE],[Cs5,NE],[E5,NE],[E5,NH],[R,NE],
-  // "I have a dream a-bout her ___"
-  [A4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[Ds5,NE],[Cs5,NE],[B4,NE],[A4,NH],[R,NQ],
-  // "She rings my bell ___  I've got"
-  [A4,NE],[B4,NE],[Cs5,NE],[E5,NE],[E5,NQ],[Gs4,NE],[Gs4,NQ],[R,NE],
-  // "gym class in half an ho-ur"
-  [A4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[Ds5,NE],[Cs5,NE],[B4,NE],[A4,NQ],[R,NE],
-  // "oh how she rocks ___"
-  [A4,NE],[B4,NE],[A4,NE],[Gs4,NE],[Gs4,NDQ],[Fs4,NH],[R,NQ],
-];
-
 type GameState = "idle" | "playing" | "dead";
 
 interface Pipe { x: number; gapY: number; scored: boolean; }
@@ -65,69 +35,12 @@ export default function FlappyChoopy() {
   const [scores, setScores] = useState({ pipes: 0, flies: 0 });
   const [best, setBest] = useState(0);
   const bestRef = useRef(0);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const masterGainRef = useRef<GainNode | null>(null);
-  const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const nextLoopAtRef = useRef(0);
-  const musicRunningRef = useRef(false);
-  const [muted, setMuted] = useState(false);
-  const mutedRef = useRef(false);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
     setBest(stored);
     bestRef.current = stored;
   }, []);
-
-  function scheduleLoop(ctx: AudioContext, master: GainNode, startAt: number) {
-    let t = startAt;
-    MELODY.forEach(([freq, dur]) => {
-      if (freq === R) { t += dur; return; }
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "square";
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.08, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.80);
-      osc.connect(gain);
-      gain.connect(master);
-      osc.start(t);
-      osc.stop(t + dur);
-      t += dur;
-    });
-    const totalDur = t - startAt;
-    nextLoopAtRef.current = startAt + totalDur;
-    loopTimerRef.current = setTimeout(() => {
-      if (audioCtxRef.current && masterGainRef.current) {
-        scheduleLoop(audioCtxRef.current, masterGainRef.current, nextLoopAtRef.current);
-      }
-    }, (totalDur - 0.5) * 1000);
-  }
-
-  function startMusic() {
-    if (musicRunningRef.current) return; // already looping, don't layer
-    musicRunningRef.current = true;
-    if (!audioCtxRef.current) {
-      const ctx = new AudioContext();
-      const master = ctx.createGain();
-      master.gain.value = mutedRef.current ? 0 : 1;
-      master.connect(ctx.destination);
-      audioCtxRef.current = ctx;
-      masterGainRef.current = master;
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === "suspended") ctx.resume();
-    scheduleLoop(ctx, masterGainRef.current!, ctx.currentTime + 0.05);
-  }
-
-  function toggleMute() {
-    const next = !mutedRef.current;
-    mutedRef.current = next;
-    setMuted(next);
-    if (masterGainRef.current && audioCtxRef.current) {
-      masterGainRef.current.gain.setTargetAtTime(next ? 0 : 1, audioCtxRef.current.currentTime, 0.05);
-    }
-  }
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -157,7 +70,6 @@ export default function FlappyChoopy() {
     function flap() {
       if (stateRef.current === "idle") {
         stateRef.current = "playing"; setDisplayState("playing");
-        startMusic();
         reset(); vy = FLAP; return;
       }
       if (stateRef.current === "dead") {
@@ -434,21 +346,16 @@ export default function FlappyChoopy() {
       cancelAnimationFrame(animId);
       canvas.removeEventListener("click", flap);
       window.removeEventListener("keydown", onKey);
-      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
-      audioCtxRef.current?.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", textAlign: "center" }}>
         <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           Flappy Choopy
         </span>
-        <button onClick={toggleMute} title={muted ? "Unmute" : "Mute"} style={{ position: "absolute", right: "0.85rem", background: "none", border: "none", cursor: "pointer", fontSize: "0.75rem", color: "#657786", padding: 0 }}>
-          {muted ? "🔇" : "🔊"}
-        </button>
       </div>
       <canvas
         ref={canvasRef}
