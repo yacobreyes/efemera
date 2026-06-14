@@ -8,6 +8,10 @@ export default function LikeButton({ slug }: { slug: string }) {
 
   useEffect(() => {
     setLiked(localStorage.getItem(`efemera_liked_${slug}`) === "1");
+    fetch(`/api/likes?slug=${encodeURIComponent(slug)}`)
+      .then(r => r.json())
+      .then(d => { if (d.count !== undefined) setCount(d.count); })
+      .catch(() => {});
   }, [slug]);
 
   async function toggle() {
