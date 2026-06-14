@@ -20,40 +20,67 @@ const FLY_SIZE = 30;
 const CHOOPY_X = 80;
 const BONUS_PER_FLY = 3; // each mayfly is worth 3× a pipe — risky bonus
 
-// ── Chiptune: Teenage Dirtbag melody (E major, ♩=96) ────────────────────────
+// ── Chiptune: Teenage Dirtbag (Wheatus) — E major, ♩=96 ────────────────────
+// Transcribed from sheet music (arr. Sarah Bullard)
+// Durations: NW=whole, NH=half, NDH=dotted-half, NQ=quarter, NDQ=dotted-quarter, NE=eighth
 const BPM = 96;
-const NQ = 60 / BPM;       // quarter note
-const NE = NQ / 2;         // eighth note
-const NH = NQ * 2;         // half note
+const NQ  = 60 / BPM;
+const NE  = NQ / 2;
+const NH  = NQ * 2;
+const NDH = NQ * 3;
+const NDQ = NQ * 1.5;
+const R   = 0; // rest frequency
 
-// E major: all C→C#, D→D#, G→G#, F→F#
+// E major scale notes used
+const B3=246.94;
 const E4=329.63, Fs4=369.99, Gs4=415.30, A4=440.00, B4=493.88;
 const Cs5=554.37, Ds5=622.25, E5=659.25;
+const Fs5=739.99, Gs5=830.61, A5=880.00, B5=987.77;
 
+// [freq, dur] — rests are [R, dur]
+// Verse 1, mm.4-12
+// m4: 8th rest, "Her"(8th) "name"(q) "is"(8th) "No-"(q)
+// m5: "-el"(half) rest(half)
+// m6: 8th rest "I"(8th) "have"(8th) "a"(8th)
+// m7: "dream"(q) "a-"(8th) "-bout"(8th) "her"(half)
+// m8: 8th rest "She"(8th) "rings"(q) "my"(8th) "bell"(dh)
+// m9: 8th rest "I've"(8th) "got"(q)
+// m10: "gym"(8th)"class"(8th)"in"(8th)"half"(8th) "an"(8th)"ho-"(q) "-ur"(8th)
+// m10b: "oh"(q) "how"(8th) "she"(8th) "rocks"(q+)
+// m11: "in"(8th) "Keds"(q) "and"(8th) "tube"(q) "socks"(half)
+// m12: "but"(8th) "she"(8th) "does-n't"(8th+8th) "know"(q) "who"(8th) "I"(8th) "am"(half)
+// m13-14: "and she does-n't give a damn a-bout me"
+// chorus m15-21: 'Cause … baby (x2), Listen … me, Ooh x6
 const MELODY: [number, number][] = [
-  // "Her name is No-el"
-  [B4,NE],[B4,NQ],[Cs5,NE],[Ds5,NQ],[E5,NH],
-  // "I have a dream about her"
-  [B4,NE],[Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NQ],[Cs5,NE],[B4,NH],
-  // "She rings my bell"
-  [B4,NE],[Cs5,NQ],[Ds5,NQ],[E5,NH],
-  // "Got gym class in half an hour"
-  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NE],[Cs5,NQ],[B4,NH],
-  // "Oh how she rocks"
-  [B4,NQ],[Cs5,NQ],[B4,NQ],[A4,NH],
-  // "In Keds and tube socks"
-  [Gs4,NQ],[Gs4,NE],[A4,NE],[B4,NQ],[E4,NH],
-  // "But she doesn't know who I am"
-  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[Cs5,NQ],[B4,NQ],[B4,NE],[A4,NE],
-  // "And she doesn't give a damn about me"
-  [B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[B4,NE],[A4,NQ],[Gs4,NE],[Fs4,NE],[Gs4,NH],
-  // chorus: "'Cause I'm just a teenage dirtbag baby"
-  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
-  // "Yeah I'm just a teenage dirtbag baby"
-  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
-  // "Listen to Iron Maiden maybe with me"
-  [Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NQ],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NQ],[Fs4,NE],[Gs4,NH],
-  // "Ooh ooh ooh ooh ooh ohh"
+  // m4 — "Her name is No-"
+  [R,NE],[B4,NE],[B4,NQ],[Cs5,NE],[Ds5,NQ],
+  // m5 — "-el ___"
+  [E5,NH],[R,NH],
+  // m6 — "I have a"
+  [R,NE],[B4,NE],[Cs5,NE],[Ds5,NE],
+  // m7 — "dream a-bout her ___"
+  [E5,NQ],[Ds5,NE],[Cs5,NE],[B4,NH],
+  // m8 — "She rings my bell ___"
+  [R,NE],[B4,NE],[Cs5,NQ],[Ds5,NE],[E5,NDH],
+  // m9 — "I've got"
+  [R,NE],[B4,NE],[B4,NQ],
+  // m10 — "gym class in half an ho-ur"
+  [Cs5,NE],[Ds5,NE],[E5,NE],[Ds5,NE],[Cs5,NE],[B4,NQ],[A4,NE],
+  // m10b — "oh how she rocks"
+  [Gs4,NQ],[A4,NE],[B4,NE],[Cs5,NQ],
+  // m11 — "in Keds and tube socks"
+  [B4,NE],[A4,NQ],[Gs4,NE],[A4,NQ],[Fs4,NH],
+  // m12 — "but she does-n't know who I am ___"
+  [R,NE],[B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[Cs5,NE],[B4,NH],
+  // m13 — "and she does-n't give a damn a-bout me"
+  [R,NE],[B4,NE],[B4,NE],[Cs5,NE],[Ds5,NQ],[E5,NE],[B4,NE],[A4,NE],[Gs4,NQ],[Fs4,NE],[Gs4,NH],
+  // chorus m14-15 — "'Cause I'm just a teen-age dirt-bag ba-by ___"
+  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[A4,NE],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
+  // m16-17 — "Yeah I'm just a teen-age dirt-bag ba-by ___"
+  [Gs4,NE],[Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[A4,NE],[B4,NE],[Fs4,NE],[Fs4,NE],[Gs4,NH],
+  // m18-19 — "Lis-ten to I-ron Mai-den may-be with me?"
+  [Gs4,NE],[Cs5,NQ],[B4,NE],[A4,NE],[Gs4,NE],[B4,NE],[Fs4,NE],[Gs4,NE],[Fs4,NE],[Gs4,NH],
+  // m20-21 — "Ooh ooh ooh ooh ooh ohh"
   [Gs4,NQ],[A4,NQ],[B4,NQ],[A4,NQ],[Gs4,NQ],[Fs4,NH],
 ];
 
@@ -73,8 +100,10 @@ export default function FlappyChoopy() {
   const [best, setBest] = useState(0);
   const bestRef = useRef(0);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const masterGainRef = useRef<GainNode | null>(null);
   const loopTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextLoopAtRef = useRef(0);
+  const musicRunningRef = useRef(false);
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
 
@@ -84,18 +113,18 @@ export default function FlappyChoopy() {
     bestRef.current = stored;
   }, []);
 
-  function scheduleLoop(ctx: AudioContext, startAt: number) {
-    if (mutedRef.current) return;
+  function scheduleLoop(ctx: AudioContext, master: GainNode, startAt: number) {
     let t = startAt;
     MELODY.forEach(([freq, dur]) => {
+      if (freq === R) { t += dur; return; }
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "square";
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.055, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.82);
+      gain.gain.setValueAtTime(0.08, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.80);
       osc.connect(gain);
-      gain.connect(ctx.destination);
+      gain.connect(master);
       osc.start(t);
       osc.stop(t + dur);
       t += dur;
@@ -103,29 +132,34 @@ export default function FlappyChoopy() {
     const totalDur = t - startAt;
     nextLoopAtRef.current = startAt + totalDur;
     loopTimerRef.current = setTimeout(() => {
-      if (!mutedRef.current && audioCtxRef.current) {
-        scheduleLoop(audioCtxRef.current, nextLoopAtRef.current);
+      if (audioCtxRef.current && masterGainRef.current) {
+        scheduleLoop(audioCtxRef.current, masterGainRef.current, nextLoopAtRef.current);
       }
-    }, (totalDur - 0.4) * 1000);
+    }, (totalDur - 0.5) * 1000);
   }
 
   function startMusic() {
-    if (mutedRef.current) return;
-    if (!audioCtxRef.current) audioCtxRef.current = new AudioContext();
+    if (musicRunningRef.current) return; // already looping, don't layer
+    musicRunningRef.current = true;
+    if (!audioCtxRef.current) {
+      const ctx = new AudioContext();
+      const master = ctx.createGain();
+      master.gain.value = mutedRef.current ? 0 : 1;
+      master.connect(ctx.destination);
+      audioCtxRef.current = ctx;
+      masterGainRef.current = master;
+    }
     const ctx = audioCtxRef.current;
     if (ctx.state === "suspended") ctx.resume();
-    if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
-    scheduleLoop(ctx, ctx.currentTime + 0.05);
+    scheduleLoop(ctx, masterGainRef.current!, ctx.currentTime + 0.05);
   }
 
   function toggleMute() {
     const next = !mutedRef.current;
     mutedRef.current = next;
     setMuted(next);
-    if (next) {
-      if (loopTimerRef.current) clearTimeout(loopTimerRef.current);
-    } else {
-      startMusic();
+    if (masterGainRef.current && audioCtxRef.current) {
+      masterGainRef.current.gain.setTargetAtTime(next ? 0 : 1, audioCtxRef.current.currentTime, 0.05);
     }
   }
 
