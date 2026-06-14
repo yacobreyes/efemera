@@ -141,7 +141,13 @@ export default function FlappyChoopy() {
         if (f.eaten) return;
         const bob = Math.sin(frame * 0.08 + f.bobOffset) * 4;
         ctx.save(); ctx.globalAlpha = 0.92;
-        ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
+        // gold glow so the mayfly reads as a collectible bonus
+        ctx.shadowColor = "#FFD700";
+        ctx.shadowBlur = 8;
+        for (let i = 0; i < 3; i++) {
+          ctx.drawImage(mayflyImg, f.x - FLY_SIZE / 2, f.y + bob - FLY_SIZE / 2, FLY_SIZE, FLY_SIZE);
+        }
+        ctx.shadowBlur = 0;
         ctx.restore();
       });
     }
