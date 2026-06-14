@@ -21,7 +21,7 @@ const BONUS_PER_FLY = 3;
 const MILESTONES = [5, 10, 20, 30, 50];
 
 type GameState = "idle" | "playing" | "dead" | "scores";
-interface Pipe { x: number; gapY: number; scored: boolean; }
+interface Pipe { x: number; gapY: number; gap: number; scored: boolean; }
 interface Fly { x: number; y: number; eaten: boolean; bobOffset: number; }
 interface Popup { x: number; y: number; life: number; text: string; color: string; }
 interface LeaderEntry { _id: string; name: string; score: number; }
@@ -459,7 +459,7 @@ export default function FlappyChoopy() {
 
     function drawDead(ps: number, fs: number) {
       drawBackground();
-      pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
+      pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + p.gap));
       drawFlies(flies);
       drawChoopy(y, vy);
       ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(0, 0, W, H);
@@ -503,7 +503,7 @@ export default function FlappyChoopy() {
       if (cy - r <= 0) return true;
       for (const p of pipes) {
         if (CHOOPY_X + r > p.x + 4 && CHOOPY_X - r < p.x + PIPE_WIDTH - 4) {
-          if (cy - r < p.gapY || cy + r > p.gapY + PIPE_GAP) return true;
+          if (cy - r < p.gapY || cy + r > p.gapY + p.gap) return true;
         }
       }
       return false;
@@ -545,13 +545,14 @@ export default function FlappyChoopy() {
       if (state === "playing") {
         const speed = pipeSpeed();
         if (frame % PIPE_INTERVAL === 0) {
+          const gap = PIPE_GAP + (Math.random() - 0.5) * 80;
           const margin = IS_MOBILE ? 28 : 32;
-          const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - PIPE_GAP - margin * 2);
-          pipes.push({ x: W + 10, gapY, scored: false });
+          const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - gap - margin * 2);
+          pipes.push({ x: W + 10, gapY, gap, scored: false });
           spawnCount++;
           if (spawnCount % 2 === 0) {
             const nearTop = Math.random() < 0.5;
-            const flyY = nearTop ? gapY + 24 : gapY + PIPE_GAP - 24;
+            const flyY = nearTop ? gapY + 24 : gapY + gap - 24;
             flies.push({ x: W + 10 + PIPE_WIDTH / 2, y: flyY, eaten: false, bobOffset: Math.random() * Math.PI * 2 });
           }
         }
@@ -583,7 +584,7 @@ export default function FlappyChoopy() {
           fetchLeaderboard();
         }
         drawBackground();
-        pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + PIPE_GAP));
+        pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + p.gap));
         drawFlies(flies); drawChoopy(y, vy);
         drawPopups(popups); drawHUD(scoreRef.current, flyScoreRef.current);
         drawFlash();
