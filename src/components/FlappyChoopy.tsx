@@ -40,6 +40,7 @@ export default function FlappyChoopy() {
   const masterGainRef = useRef<GainNode | null>(null);
   const musicSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const musicBufferRef = useRef<AudioBuffer | null>(null);
+  const wantsMusicRef = useRef(false);
 
   useEffect(() => {
     const stored = parseInt(localStorage.getItem("flappy_choopy_best") ?? "0");
@@ -48,8 +49,12 @@ export default function FlappyChoopy() {
   }, []);
 
   const startMusic = useCallback(() => {
+    wantsMusicRef.current = true;
+    // Buffer may still be downloading/decoding — the loader will start it
+    // once it's ready (see decodeAudioData handler).
     if (!audioCtxRef.current || !musicBufferRef.current) return;
-    musicSourceRef.current?.stop();
+    audioCtxRef.current.resume();
+    try { musicSourceRef.current?.stop(); } catch (_) {}
     const src = audioCtxRef.current.createBufferSource();
     src.buffer = musicBufferRef.current;
     src.loop = true;
@@ -59,6 +64,7 @@ export default function FlappyChoopy() {
   }, []);
 
   const stopMusic = useCallback(() => {
+    wantsMusicRef.current = false;
     try { musicSourceRef.current?.stop(); } catch (_) {}
     musicSourceRef.current = null;
   }, []);
@@ -101,7 +107,13 @@ export default function FlappyChoopy() {
     fetch("/teenage-dirtbag-chiptune.wav")
       .then(r => r.arrayBuffer())
       .then(ab => actx.decodeAudioData(ab))
-      .then(buf => { musicBufferRef.current = buf; });
+      .then(buf => {
+        musicBufferRef.current = buf;
+        // If a game is already running and music was requested before the
+        // buffer finished loading, kick it off now.
+        if (wantsMusicRef.current && !musicSourceRef.current) startMusic();
+      })
+      .catch(() => {});
 
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
