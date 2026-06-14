@@ -39,7 +39,10 @@ export default function ArcadeUnlockPopup() {
   }, [show]);
 
   function dismiss() {
-    try { sessionStorage.setItem("arcade_popup_shown", "1"); } catch {}
+    try {
+      sessionStorage.setItem("arcade_popup_shown", "1");
+      window.dispatchEvent(new Event("arcade-unlocked"));
+    } catch {}
     setShow(false);
   }
 

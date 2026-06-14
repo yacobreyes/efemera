@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Feed from "@/components/Newspaper";
 import ArcadeUnlockPopup from "@/components/ArcadeUnlockPopup";
@@ -17,7 +17,17 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
   );
   const [fadingOut, setFadingOut] = useState(false);
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [arcadeUnlocked, setArcadeUnlocked] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    function check() {
+      try { setArcadeUnlocked(sessionStorage.getItem("arcade_popup_shown") === "1"); } catch {}
+    }
+    check();
+    window.addEventListener("arcade-unlocked", check);
+    return () => window.removeEventListener("arcade-unlocked", check);
+  }, []);
 
   function handleEnter() {
     if (enterTimer.current) return; // prevent double-firing
@@ -35,8 +45,8 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
       <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} onMastheadClick={() => setShowAnimation(true)} />
       <ArcadeUnlockPopup />
 
-      {/* Persistent arcade button — visible after popup has been dismissed */}
-      <button
+      {/* Persistent arcade button — only after popup has been seen and dismissed */}
+      {arcadeUnlocked && <button
         onClick={() => router.push("/arcade")}
         title="Choopy's Arcade"
         style={{
@@ -55,7 +65,7 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/mayfly-icon.webp" alt="" width={24} height={24} style={{ display: "block", imageRendering: "pixelated" }} />
-      </button>
+      </button>}
 
       {showAnimation && (
         <div style={{ opacity: fadingOut ? 0 : 1, transition: "opacity 0.65s ease", position: "fixed", inset: 0, zIndex: 100 }}>
