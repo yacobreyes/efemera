@@ -80,46 +80,46 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
         transition: "opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
       }}
     >
-      <Link href={storyHref} className="card-link" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-            {post.section}
-          </span>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-            {formatDate(post.date)}
-          </span>
-        </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+          {post.section}
+        </span>
+        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+          {formatDate(post.date)}
+        </span>
+      </div>
 
-        <h2 className="card-headline" style={{ margin: "0 0 0.25rem", fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em" }}>
+      <h2 style={{ margin: "0 0 0.25rem" }}>
+        <Link href={storyHref} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
-        </h2>
+        </Link>
+      </h2>
 
-        {post.subheadline && (
-          <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
-            {post.subheadline}
-          </p>
-        )}
-
-        {post.image?.asset && (
-          <div style={{ display: "block", marginBottom: "0.75rem" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
-              alt={post.image.alt ?? post.image.caption ?? ""}
-              loading="lazy"
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
-            />
-          </div>
-        )}
-
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-          {displayText}
+      {post.subheadline && (
+        <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+          {post.subheadline}
         </p>
+      )}
 
-        <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-          {post.byline} · {readingTime(plainText)} min read
+      {post.image?.asset && (
+        <div style={{ marginBottom: "0.75rem" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
+            alt={post.image.alt ?? post.image.caption ?? ""}
+            loading="lazy"
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
+          />
         </div>
-      </Link>
+      )}
+
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+        {displayText}
+      </p>
+
+      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+        {post.byline} · {readingTime(plainText)} min read
+      </div>
 
       <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
         <Link href={`${storyHref}#comments`} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
@@ -241,7 +241,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
         .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
         .archive-title { color: #1c2938; transition: color 0.15s; }
         .archive-title:hover { color: #8B0000; }
-        .card-link:hover .card-headline { color: #8B0000 !important; transition: color 0.15s; }
         .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
         .feed-main { grid-column: 1; grid-row: 1 / span 2; }
         .sidebar-lately { grid-column: 2; grid-row: 1; }
