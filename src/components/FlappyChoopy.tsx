@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from "react";
 
 const W = 400;
 const H = 380;
-const GRAVITY = 0.45;
-const FLAP = -7.5;
-const PIPE_SPEED = 2.2;
-const PIPE_GAP = 115;
-const PIPE_INTERVAL = 95;
+const IS_MOBILE = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+const GRAVITY = IS_MOBILE ? 0.35 : 0.45;
+const FLAP = IS_MOBILE ? -6.5 : -7.5;
+const PIPE_SPEED = IS_MOBILE ? 1.7 : 2.2;
+const PIPE_GAP = IS_MOBILE ? 145 : 115;
+const PIPE_INTERVAL = IS_MOBILE ? 110 : 95;
 const PIPE_WIDTH = 52;
 const GROUND_H = 56;
 const WATER_H = 28;
