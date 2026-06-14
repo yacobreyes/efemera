@@ -7,7 +7,7 @@ const H = 380;
 const IS_MOBILE = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 const GRAVITY = IS_MOBILE ? 0.40 : 0.46;
 const FLAP = IS_MOBILE ? -7.0 : -7.4;
-const BASE_PIPE_SPEED = IS_MOBILE ? 3.0 : 3.4;
+const BASE_PIPE_SPEED = IS_MOBILE ? 3.5 : 3.9;
 const PIPE_GAP = IS_MOBILE ? 148 : 132;
 const PIPE_INTERVAL = IS_MOBILE ? 110 : 95;
 const PIPE_WIDTH = 52;
