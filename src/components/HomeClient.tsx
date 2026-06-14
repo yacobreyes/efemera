@@ -10,8 +10,10 @@ const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ss
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
 
-export default function HomeClient({ posts, aboutParagraphs, lately, welcome, firstVisit, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; firstVisit: boolean; initialTab: Tab }) {
-  const [showAnimation, setShowAnimation] = useState(firstVisit);
+export default function HomeClient({ posts, aboutParagraphs, lately, welcome, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; initialTab: Tab }) {
+  const [showAnimation, setShowAnimation] = useState(() =>
+    typeof document === "undefined" ? false : !document.cookie.includes("efemera_entered=1")
+  );
   const [fadingOut, setFadingOut] = useState(false);
 
   function handleEnter() {
