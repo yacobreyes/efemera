@@ -407,54 +407,54 @@ export default function FlappyChoopy() {
       veil.addColorStop(1, "rgba(0,0,0,0.65)");
       ctx.fillStyle = veil; ctx.fillRect(0, 0, W, H);
 
-      // Choopy bobbing — larger, centered
-      const bobY = H / 2 + 60 + Math.sin(frame * 0.05) * 8;
-      drawChoopy(bobY, Math.sin(frame * 0.05) * 1.5);
-
-      // Title — two-tone, large
       ctx.save();
       ctx.textAlign = "center";
 
+      // Title at top
       ctx.font = "bold 36px monospace";
       ctx.shadowColor = "#8B0000"; ctx.shadowBlur = 18;
       ctx.fillStyle = "white";
-      ctx.fillText("FLAPPY", W / 2, 80);
+      ctx.fillText("FLAPPY", W / 2, 60);
       ctx.shadowBlur = 0;
 
       ctx.font = "bold 36px monospace";
       ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 14;
       ctx.fillStyle = "#FFD700";
-      ctx.fillText("CHOOPY", W / 2, 118);
+      ctx.fillText("CHOOPY", W / 2, 98);
       ctx.shadowBlur = 0;
 
-      // Thin divider line
-      ctx.strokeStyle = "rgba(255,215,0,0.3)";
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.moveTo(W / 2 - 80, 130); ctx.lineTo(W / 2 + 80, 130); ctx.stroke();
+      ctx.restore();
 
-      // Blinking start prompt
+      // Choopy bobbing in the middle
+      const bobY = H / 2 + 10 + Math.sin(frame * 0.05) * 8;
+      drawChoopy(bobY, Math.sin(frame * 0.05) * 1.5);
+
+      ctx.save();
+      ctx.textAlign = "center";
+
+      // Blinking start prompt below Choopy
       if (Math.floor(frame / 28) % 2 === 0) {
         ctx.font = "bold 13px monospace";
         ctx.fillStyle = "white";
         ctx.shadowColor = "white"; ctx.shadowBlur = 6;
-        ctx.fillText(IS_MOBILE ? "TAP TO FLY" : "PRESS SPACE TO FLY", W / 2, 158);
+        ctx.fillText(IS_MOBILE ? "TAP TO FLY" : "PRESS SPACE TO FLY", W / 2, H - 72);
         ctx.shadowBlur = 0;
       }
 
       // Tip
       ctx.font = "11px monospace";
       ctx.fillStyle = "rgba(255,215,0,0.75)";
-      ctx.fillText("eat 🪰 mayflies for bonus pts", W / 2, 182);
+      ctx.fillText("eat 🪰 mayflies for bonus pts", W / 2, H - 50);
 
       // Best score badge
       if (bestRef.current > 0) {
-        const bx = W / 2, by = H - 38;
+        const bx = W / 2, by = H - 22;
         ctx.fillStyle = "rgba(0,0,0,0.6)";
-        ctx.beginPath(); rrect(bx - 60, by - 16, 120, 26, 5); ctx.fill();
+        ctx.beginPath(); rrect(bx - 60, by - 16, 120, 22, 5); ctx.fill();
         ctx.font = "bold 12px monospace";
         ctx.fillStyle = "#FFD700";
         ctx.shadowColor = "#FFD700"; ctx.shadowBlur = 6;
-        ctx.fillText(`BEST  ${bestRef.current}`, bx, by + 2);
+        ctx.fillText(`BEST  ${bestRef.current}`, bx, by);
         ctx.shadowBlur = 0;
       }
 
