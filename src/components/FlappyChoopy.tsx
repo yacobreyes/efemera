@@ -408,7 +408,7 @@ export default function FlappyChoopy() {
       ctx.fillStyle = veil; ctx.fillRect(0, 0, W, H);
 
       // Choopy bobbing — larger, centered
-      const bobY = H / 2 - 30 + Math.sin(frame * 0.05) * 8;
+      const bobY = H / 2 + 60 + Math.sin(frame * 0.05) * 8;
       drawChoopy(bobY, Math.sin(frame * 0.05) * 1.5);
 
       // Title — two-tone, large
