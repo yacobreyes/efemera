@@ -413,9 +413,6 @@ export default function FlappyChoopy() {
         ctx.font = "bold 12px monospace"; ctx.fillStyle = "#FFD700";
         ctx.fillText(`BEST: ${bestRef.current}`, W / 2, H / 2 + 28);
       }
-      // High scores hint
-      ctx.font = "10px monospace"; ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.fillText("🏆 tap trophy for high scores", W / 2, H / 2 + 52);
     }
 
     function drawDead(ps: number, fs: number) {
@@ -576,8 +573,7 @@ export default function FlappyChoopy() {
           Flappy Choopy
         </span>
         <div style={{ position: "absolute", right: "0.85rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <button onClick={goToScores} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.85rem", lineHeight: 1, padding: 0, color: "#8B0000", fontWeight: 700 }} title="High Scores">🏆</button>
-          <button onClick={toggleMute} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }} title={muted ? "Unmute" : "Mute"}>{muted ? "🔇" : "🔊"}</button>
+<button onClick={toggleMute} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }} title={muted ? "Unmute" : "Mute"}>{muted ? "🔇" : "🔊"}</button>
         </div>
       </div>
 
