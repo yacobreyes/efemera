@@ -230,6 +230,11 @@ export default function FlappyChoopy() {
 
     function drawPipe(x: number, topH: number, botY: number) {
       const C = "#8B0000", D = "#5a0000", CAP = 22, CX = 3;
+      ctx.save();
+      ctx.shadowColor = "rgba(0,0,0,0.5)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetX = 4;
+      ctx.shadowOffsetY = 0;
       ctx.fillStyle = C; ctx.fillRect(x, 0, PIPE_WIDTH, topH - CAP);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, 0, 8, topH - CAP);
       ctx.fillStyle = C; ctx.fillRect(x - CX, topH - CAP, PIPE_WIDTH + CX * 2, CAP);
@@ -239,6 +244,7 @@ export default function FlappyChoopy() {
       const bb = botY + CAP;
       ctx.fillStyle = C; ctx.fillRect(x, bb, PIPE_WIDTH, H - bb);
       ctx.fillStyle = D; ctx.fillRect(x + PIPE_WIDTH - 8, bb, 8, H - bb);
+      ctx.restore();
     }
 
     function drawChoopy(cy: number, vel: number) {

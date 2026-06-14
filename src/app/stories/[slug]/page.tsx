@@ -8,6 +8,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
 import SiteFooter from "@/components/SiteFooter";
+import ArcadeUnlockPopup from "@/components/ArcadeUnlockPopup";
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
   const words = blocks
@@ -198,6 +199,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       </div>
 
       <SiteFooter />
+      <ArcadeUnlockPopup />
     </div>
   );
 }

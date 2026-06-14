@@ -1,0 +1,127 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
+export default function ArcadeUnlockPopup() {
+  const [show, setShow] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Already dismissed this session
+    if (sessionStorage.getItem("arcade_popup_shown")) return;
+    // Already seen the popup ever
+    if (localStorage.getItem("arcade_unlocked")) return;
+
+    // Count unique articles read this session
+    const sessionKey = "arcade_session_reads";
+    const existing = JSON.parse(sessionStorage.getItem(sessionKey) ?? "[]") as string[];
+
+    // The slug is in the URL path: /stories/[slug]
+    const slug = window.location.pathname.replace("/stories/", "").replace(/\//g, "");
+    if (!slug) return;
+
+    const updated = existing.includes(slug) ? existing : [...existing, slug];
+    sessionStorage.setItem(sessionKey, JSON.stringify(updated));
+
+    if (updated.length >= 2) {
+      // Small delay so the page has settled
+      setTimeout(() => setShow(true), 800);
+    }
+  }, []);
+
+  function dismiss() {
+    sessionStorage.setItem("arcade_popup_shown", "1");
+    localStorage.setItem("arcade_unlocked", "1");
+    setShow(false);
+  }
+
+  function goToArcade() {
+    dismiss();
+    router.push("/arcade");
+  }
+
+  if (!show) return null;
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: "rgba(0,0,0,0.75)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "1rem",
+        animation: "fadeIn 0.3s ease",
+      }}
+      onClick={dismiss}
+    >
+      <style>{`@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } } @keyframes slideUp { from { opacity: 0; transform: translateY(24px) } to { opacity: 1; transform: translateY(0) } }`}</style>
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          background: "#0a0a0a",
+          border: "2px solid #FFD700",
+          borderRadius: 8,
+          padding: "2rem 1.75rem",
+          maxWidth: 340,
+          width: "100%",
+          textAlign: "center",
+          boxShadow: "0 0 40px rgba(255,215,0,0.2), 0 20px 60px rgba(0,0,0,0.8)",
+          animation: "slideUp 0.4s ease",
+        }}
+      >
+        <Image
+          src="/choopy-arcade-cabinet.png"
+          alt="Choopy's Arcade"
+          width={160}
+          height={200}
+          style={{ margin: "0 auto 1rem", display: "block", filter: "drop-shadow(0 0 12px rgba(255,215,0,0.4))" }}
+        />
+
+        <p style={{ fontFamily: "monospace", fontSize: "0.65rem", letterSpacing: "0.18em", color: "#FFD700", textTransform: "uppercase", margin: "0 0 0.5rem" }}>
+          Achievement Unlocked
+        </p>
+
+        <h2 style={{ fontFamily: "monospace", fontSize: "1.15rem", fontWeight: 700, color: "white", margin: "0 0 0.75rem", lineHeight: 1.3 }}>
+          You&apos;ve read 2 articles!<br />
+          <span style={{ color: "#FFD700" }}>Choopy&apos;s Arcade</span> is now open.
+        </h2>
+
+        <p style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", margin: "0 0 1.5rem", lineHeight: 1.6 }}>
+          Help Choopy fly through Tampa and dodge the pipes.
+        </p>
+
+        <button
+          onClick={goToArcade}
+          style={{
+            width: "100%",
+            padding: "0.7rem",
+            background: "#FFD700",
+            color: "#000",
+            border: "none",
+            borderRadius: 4,
+            fontFamily: "monospace",
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            letterSpacing: "0.1em",
+            cursor: "pointer",
+            marginBottom: "0.6rem",
+          }}
+        >
+          INSERT COIN →
+        </button>
+
+        <button
+          onClick={dismiss}
+          style={{
+            background: "none", border: "none", cursor: "pointer",
+            color: "rgba(255,255,255,0.35)", fontFamily: "monospace",
+            fontSize: "0.68rem", letterSpacing: "0.1em",
+          }}
+        >
+          MAYBE LATER
+        </button>
+      </div>
+    </div>
+  );
+}
