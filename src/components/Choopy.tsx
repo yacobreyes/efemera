@@ -25,15 +25,11 @@ export default function Choopy() {
     jingleUntil.current = Date.now() + 4200;
     try {
       const ctx = new AudioContext();
-      // 8-bit chiptune jingle, transcribed from the sheet music:
-      // C-B-A-G twice, chromatic rise C-C#, D-B-A-G answer,
-      // then the E-C-A-G tail resolving up through A-B to a held C.
-      // Fits Choopy's 4s dance.
       const C5 = 523, Cs5 = 554, D5 = 587, E5 = 659, B4 = 494, A4 = 440, G4 = 392;
       const melody = [C5, B4, A4, G4, C5, B4, A4, G4, C5, B4, C5, Cs5, D5, B4, A4, G4, E5, C5, A4, G4, A4, B4];
       const beat = 0.16;
       const notes = melody.map((freq, i) => ({ freq, start: i * beat, dur: beat * 0.92 }));
-      notes.push({ freq: C5, start: melody.length * beat, dur: 0.55 }); // final C, held
+      notes.push({ freq: C5, start: melody.length * beat, dur: 0.55 });
       const last = notes.length - 1;
       notes.forEach(({ freq, start, dur }, i) => {
         const t = ctx.currentTime + start;
@@ -42,9 +38,8 @@ export default function Choopy() {
         osc.connect(gain);
         gain.connect(ctx.destination);
 
-        osc.type = "square"; // classic chiptune voice
+        osc.type = "square";
         osc.frequency.setValueAtTime(freq, t);
-        // tiny downward bend at the tail of each note = "meow" inflection
         osc.frequency.setValueAtTime(freq, t + dur * 0.6);
         osc.frequency.linearRampToValueAtTime(freq * 0.88, t + dur);
 
@@ -55,7 +50,8 @@ export default function Choopy() {
 
         osc.start(t);
         osc.stop(t + dur + 0.02);
-        if (i === last) osc.onended = () => ctx.close();
+        // close the context after the last note so the AudioContext doesn't leak
+        if (i === last) osc.onended = () => { ctx.close().catch(() => {}); };
       });
     } catch { /* audio not available */ }
   }

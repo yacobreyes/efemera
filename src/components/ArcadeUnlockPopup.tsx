@@ -1,24 +1,45 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+// Incremented in story pages when user visits one
+export function recordStoryVisit() {
+  try {
+    const n = parseInt(sessionStorage.getItem("efemera_stories_visited") ?? "0", 10);
+    sessionStorage.setItem("efemera_stories_visited", String(n + 1));
+  } catch {}
+}
+
 export default function ArcadeUnlockPopup() {
   const [show, setShow] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
-    const lastAt = parseInt(sessionStorage.getItem("arcade_popup_last_count") ?? "0", 10);
-    if (readCount - lastAt >= 2) {
-      setTimeout(() => setShow(true), 600);
-    }
+    try {
+      // already been shown this session
+      if (sessionStorage.getItem("arcade_popup_shown") === "1") return;
+      const visited = parseInt(sessionStorage.getItem("efemera_stories_visited") ?? "0", 10);
+      if (visited >= 2) {
+        timerRef.current = setTimeout(() => setShow(true), 600);
+      }
+    } catch {}
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, []);
 
+  useEffect(() => {
+    if (!show) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") dismiss();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [show]);
+
   function dismiss() {
-    const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
-    sessionStorage.setItem("arcade_popup_last_count", String(readCount));
+    try { sessionStorage.setItem("arcade_popup_shown", "1"); } catch {}
     setShow(false);
   }
 

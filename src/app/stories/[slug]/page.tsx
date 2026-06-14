@@ -8,6 +8,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
 import SiteFooter from "@/components/SiteFooter";
+import StoryVisitTracker from "@/components/StoryVisitTracker";
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
   const words = blocks
@@ -197,6 +198,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         <CommentSection slug={slug} />
       </div>
 
+      <StoryVisitTracker />
       <SiteFooter />
     </div>
   );
