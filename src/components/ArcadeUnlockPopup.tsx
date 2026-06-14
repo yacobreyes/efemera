@@ -10,12 +10,15 @@ export default function ArcadeUnlockPopup() {
 
   useEffect(() => {
     const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
-    if (readCount >= 2) {
+    const lastAt = parseInt(sessionStorage.getItem("arcade_popup_last_count") ?? "0", 10);
+    if (readCount - lastAt >= 2) {
       setTimeout(() => setShow(true), 600);
     }
   }, []);
 
   function dismiss() {
+    const readCount = Object.keys(localStorage).filter(k => k.startsWith("efemera_read_")).length;
+    sessionStorage.setItem("arcade_popup_last_count", String(readCount));
     setShow(false);
   }
 
