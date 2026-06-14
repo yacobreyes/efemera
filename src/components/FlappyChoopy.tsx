@@ -45,6 +45,7 @@ export default function FlappyChoopy() {
     const ctx = canvas.getContext("2d")!;
     const choopyImg = new Image(); choopyImg.src = "/choopy-fly.webp";
     const mayflyImg = new Image(); mayflyImg.src = "/mayfly-icon.webp";
+    const bgImg = new Image(); bgImg.src = "/tampa-skyline.webp";
 
     let frame = 0;
     let y = H / 2 - 20;
@@ -81,156 +82,35 @@ export default function FlappyChoopy() {
     }
     window.addEventListener("keydown", onKey);
 
-    // ── Tampa night skyline (pixel art sunset style) ─────────────
+    // ── Tampa skyline (real pixel-art image) ─────────────────────
     function drawBackground() {
-      const groundY = H - GROUND_H - WATER_H;
-
-      // Night sunset sky
-      const sky = ctx.createLinearGradient(0, 0, 0, groundY);
-      sky.addColorStop(0,   "#0a0f2e");
-      sky.addColorStop(0.4, "#1a1a6e");
-      sky.addColorStop(0.7, "#6b2d6b");
-      sky.addColorStop(0.88,"#d4560a");
-      sky.addColorStop(1,   "#f09020");
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, W, groundY);
-
-      // Purple/pink clouds near horizon
-      ctx.save();
-      ctx.fillStyle = "rgba(160,60,120,0.35)";
-      [[60,groundY-28,50,14],[180,groundY-22,70,12],[310,groundY-30,55,14]].forEach(([cx,cy,rw,rh])=>{
-        ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, Math.PI*2); ctx.fill();
-      });
-      ctx.restore();
-
-      // Building helpers
-      function bld(x: number, w: number, h: number, color = "#0d1520") {
-        ctx.fillStyle = color; ctx.fillRect(x, groundY - h, w, h);
-      }
-      function lit(x: number, w: number, h: number, color = "#0d1520") {
-        bld(x, w, h, color);
-        // warm lit windows
-        for (let wx = x + 2; wx < x + w - 2; wx += 5) {
-          for (let wy = groundY - h + 3; wy < groundY - 3; wy += 7) {
-            if ((wx + wy) % 3 !== 0) {
-              ctx.fillStyle = "rgba(255,190,60,0.75)";
-              ctx.fillRect(wx, wy, 3, 4);
-            }
+      const fieldBottom = H - GROUND_H;
+      if (bgImg.complete && bgImg.naturalWidth) {
+        // fit to width; image already includes sky, skyline + water reflection
+        const dh = bgImg.naturalHeight * (W / bgImg.naturalWidth);
+        ctx.drawImage(bgImg, 0, 0, W, dh);
+        // extend deep water below the image down to the ground
+        if (dh < fieldBottom) {
+          ctx.fillStyle = "#0b1d3a";
+          ctx.fillRect(0, Math.floor(dh) - 1, W, fieldBottom - Math.floor(dh) + 1);
+          // shimmer in the extended water
+          ctx.lineWidth = 1;
+          for (let wx = 0; wx < W; wx += 16) {
+            const woff = Math.sin(frame * 0.04 + wx * 0.12) * 2;
+            ctx.strokeStyle = "rgba(120,170,255,0.18)";
+            ctx.beginPath();
+            ctx.moveTo(wx, dh + 8 + woff);
+            ctx.lineTo(wx + 9, dh + 8 + woff);
+            ctx.stroke();
           }
         }
-      }
-
-      // Far background buildings (muted purple-dark)
-      bld(0,  22, 65, "#1a1a40"); bld(24, 18, 50, "#1a1a40");
-      bld(355,25, 72, "#1a1a40"); bld(382,20, 55, "#1a1a40");
-
-      // SYKES cylindrical tower (left) — round with red sign
-      bld(18, 34, 105, "#0d1520");
-      // round top
-      ctx.fillStyle = "#0d1520";
-      ctx.beginPath(); ctx.ellipse(35, groundY-105, 17, 8, 0, Math.PI, 0); ctx.fill();
-      // red SYKES sign
-      ctx.fillStyle = "#cc1111";
-      ctx.fillRect(22, groundY - 82, 26, 10);
-      ctx.fillStyle = "#ff4444";
-      ctx.font = "bold 5px monospace"; ctx.textAlign = "center";
-      ctx.fillText("SYKES", 35, groundY - 75);
-
-      // Left cluster skyscrapers
-      lit(56,  24, 120); lit(82,  20, 95);  lit(104, 18, 78);
-
-      // Tallest center-left tower w/ gold crown
-      lit(130, 26, 155);
-      // gold triangular crown
-      ctx.fillStyle = "#d4a020";
-      ctx.beginPath(); ctx.moveTo(143, groundY-155); ctx.lineTo(136, groundY-170); ctx.lineTo(150, groundY-170); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "#ffcc00"; ctx.fillRect(141, groundY-158, 4, 4);
-
-      // Mid buildings
-      lit(158, 22, 120); lit(182, 20, 98);
-
-      // Blue pyramid tower (center landmark)
-      lit(206, 26, 135);
-      ctx.fillStyle = "#2244aa";
-      ctx.beginPath(); ctx.moveTo(219, groundY-135); ctx.lineTo(210, groundY-155); ctx.lineTo(228, groundY-155); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = "#4488ff"; ctx.fillRect(217, groundY-140, 4, 6);
-
-      // Right cluster
-      lit(234, 24, 110); lit(260, 22, 90); lit(284, 20, 75);
-
-      // Right twin towers (gold-topped)
-      lit(306, 28, 128, "#0d1520");
-      ctx.fillStyle = "#c8920a"; ctx.fillRect(306, groundY-134, 28, 8);
-      lit(336, 26, 108, "#0d1520");
-      ctx.fillStyle = "#c8920a"; ctx.fillRect(336, groundY-114, 26, 7);
-
-      // Palm trees along waterfront
-      const palms = [50, 120, 195, 270, 340];
-      palms.forEach(px => {
-        ctx.fillStyle = "#1a2a10";
-        ctx.fillRect(px, groundY - 28, 3, 28);
-        ctx.fillStyle = "#2a4a18";
-        [[-12,-8],[-8,-14],[0,-18],[8,-14],[12,-8]].forEach(([dx,dy]) => {
-          ctx.beginPath(); ctx.moveTo(px+1, groundY-26);
-          ctx.lineTo(px+1+dx, groundY-26+dy); ctx.lineWidth = 2;
-          ctx.strokeStyle = "#2a4a18"; ctx.stroke();
-        });
-      });
-
-      // Convention Center — long low building at waterfront
-      ctx.fillStyle = "#0a1830";
-      ctx.fillRect(60, groundY - 22, 240, 22);
-      // windows row
-      for (let cx = 68; cx < 295; cx += 14) {
-        ctx.fillStyle = "rgba(255,160,40,0.6)";
-        ctx.fillRect(cx, groundY - 18, 8, 10);
-      }
-      // blue neon sign
-      ctx.fillStyle = "#1133cc";
-      ctx.fillRect(120, groundY - 28, 120, 9);
-      ctx.fillStyle = "#88aaff";
-      ctx.font = "bold 5px monospace"; ctx.textAlign = "center";
-      ctx.fillText("TAMPA CONVENTION CENTER", 180, groundY - 21);
-    }
-
-    function drawWater() {
-      const waterY = H - GROUND_H - WATER_H;
-      // Deep blue water
-      const water = ctx.createLinearGradient(0, waterY, 0, waterY + WATER_H);
-      water.addColorStop(0, "#0a1550");
-      water.addColorStop(1, "#050d30");
-      ctx.fillStyle = water;
-      ctx.fillRect(0, waterY, W, WATER_H);
-
-      // Orange glow reflection from sunset
-      const glow = ctx.createLinearGradient(W*0.3, waterY, W*0.7, waterY);
-      glow.addColorStop(0, "transparent");
-      glow.addColorStop(0.5, "rgba(200,100,20,0.18)");
-      glow.addColorStop(1, "transparent");
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, waterY, W, WATER_H);
-
-      // Gold building reflections
-      [[143,10],[219,8],[320,8]].forEach(([rx, rw]) => {
-        ctx.fillStyle = "rgba(200,140,20,0.25)";
-        ctx.fillRect(rx - rw/2, waterY, rw, WATER_H);
-      });
-
-      // Blue convention center reflection
-      ctx.fillStyle = "rgba(20,50,180,0.3)";
-      ctx.fillRect(120, waterY + 4, 120, WATER_H - 4);
-
-      // Shimmer lines
-      ctx.lineWidth = 1;
-      for (let wx = 0; wx < W; wx += 16) {
-        const woff = Math.sin(frame * 0.04 + wx * 0.12) * 2;
-        ctx.strokeStyle = "rgba(100,150,255,0.2)";
-        ctx.beginPath();
-        ctx.moveTo(wx, waterY + 6 + woff);
-        ctx.lineTo(wx + 9, waterY + 6 + woff);
-        ctx.stroke();
+      } else {
+        ctx.fillStyle = "#0a0f2e";
+        ctx.fillRect(0, 0, W, fieldBottom);
       }
     }
+
+    function drawWater() { /* water is part of the skyline image */ }
 
     function drawGround() {
       ctx.fillStyle = "#8B7355";
