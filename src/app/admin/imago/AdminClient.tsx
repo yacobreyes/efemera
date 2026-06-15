@@ -157,7 +157,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     fetch("/api/media").then(r => r.json()).then(data => {
       if (Array.isArray(data)) {
         setMediaAssets(data);
-        if (data.length > 0) { setInspectAsset(prev => prev ?? data[0]); setInspectAltText(data[0].altText ?? ""); }
+        if (!isMobile && data.length > 0) { setInspectAsset(prev => prev ?? data[0]); setInspectAltText(data[0].altText ?? ""); }
       }
     }).catch(() => {});
     return () => clearTimeout(retryTimer);
@@ -198,7 +198,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       fetch("/api/media").then(r => r.json()).then(data => {
         if (Array.isArray(data)) {
           setMediaAssets(data);
-          if (data.length > 0) { setInspectAsset(data[0]); setInspectAltText(data[0].altText ?? ""); setUrlCopied(false); }
+          if (!isMobile && data.length > 0) { setInspectAsset(data[0]); setInspectAltText(data[0].altText ?? ""); setUrlCopied(false); }
         }
       }).catch(() => {});
     }
