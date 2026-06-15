@@ -452,13 +452,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
                 <span style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
-                  <span style={{ color: CRIMSON }}>e</span>femera
+                  <span style={{ color: CRIMSON }}>i</span>mago
                 </span>
-                {activePanel === "dashboard" && (
+                {activePanel === "dashboard" ? (
                   <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
                     style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.85rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
                     + New
                   </button>
+                ) : (
+                  <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
+                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : ""}
+                  </span>
                 )}
               </div>
               {/* Row 2: search (dashboard only) */}
@@ -489,13 +493,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
               <div style={{ position: "absolute", top: 0, left: 0, width: 260, height: "100%", background: "white", display: "flex", flexDirection: "column", overflowY: "auto", boxSizing: "border-box", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
                 <div style={{ padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 900, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>e</span>femera</span>
+                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 900, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>i</span>mago</span>
                   <button onClick={() => setShowMobileNav(false)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media"]] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"]] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
