@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "Choopy's Arcade - Efemera",
   description: "Help Choopy fly through Tampa. An unlockable mini-game on Efemera.",
   robots: { index: false },
+  icons: {
+    icon: [{ url: "/arcade-favicon.png", type: "image/png" }],
+    shortcut: [{ url: "/arcade-favicon.png", type: "image/png" }],
+  },
 };
 
 export default function ArcadePage() {
