@@ -465,7 +465,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               </div>
               {!imagePreview ? (
                 <button type="button" onClick={openImageModal} style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer", alignSelf: "flex-start" }}>
-                  + Add a featured image
+                  Add a featured image
                 </button>
               ) : (
                 <div>
