@@ -269,7 +269,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
-          {(["Home", "About", "Archive"] as Tab[]).map(s => (
+          {(["Home", "About"] as Tab[]).map(s => (
             <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
           {/* Sections dropdown */}
@@ -292,6 +292,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
               </div>
             )}
           </div>
+          <button onClick={() => switchTab("Archive")} style={{ opacity: activeTab === "Archive" ? 1 : 0.7, borderBottom: activeTab === "Archive" ? "1px solid white" : "none" }}>Archive</button>
         </nav>
       </header>
 
