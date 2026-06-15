@@ -251,20 +251,18 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   if (!auth) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
-        <form onSubmit={async e => {
-          e.preventDefault(); setAuthError(""); setLoggingIn(true);
-          try {
-            const { ok } = await login(pw);
-            if (ok) { try { localStorage.removeItem(LS_KEY); } catch {} setAuth(true); }
-            else setAuthError("Wrong password");
-          } catch { setAuthError("Login failed"); }
-          finally { setLoggingIn(false); }
-        }} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "2rem", width: 300, display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h1 style={{ fontFamily: FONT, fontSize: "1.4rem", color: TEXT_DARK, margin: 0 }}>Admin</h1>
-          <input type="password" placeholder="Password" value={pw} onChange={e => setPw(e.target.value)} style={INPUT} />
-          {authError && <p style={{ color: "#e0245e", fontFamily: FONT, fontSize: "0.8rem", margin: 0 }}>{authError}</p>}
-          <button type="submit" disabled={loggingIn} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem", fontFamily: FONT, fontSize: "1rem", cursor: "pointer" }}>{loggingIn ? "…" : "Enter"}</button>
-        </form>
+        <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "2.5rem 2rem", width: 300, display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center", textAlign: "center" }}>
+          <span style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}>
+            <span style={{ color: CRIMSON }}>i</span>mago
+          </span>
+          <button
+            onClick={() => { import("next-auth/react").then(({ signIn }) => signIn("google", { callbackUrl: "/admin/imago" })); }}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", width: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+          >
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v8.51h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.14z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.55 10.78l7.98-6.19z"/><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.55 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/></svg>
+            Continue with Google
+          </button>
+        </div>
       </div>
     );
   }
@@ -383,7 +381,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           </div>
           {/* Sign out */}
           <div style={{ padding: "0.75rem 0.4rem", borderTop: `1px solid ${BORDER}` }}>
-            <button onClick={async () => { await logout(); setAuth(false); }} className="admin-nav-btn" title={!sidebarOpen ? "Sign out" : undefined}>
+            <button onClick={async () => { const { signOut } = await import("next-auth/react"); await signOut({ callbackUrl: "/admin/imago" }); }} className="admin-nav-btn" title={!sidebarOpen ? "Sign out" : undefined}>
               <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </span>
@@ -498,7 +496,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   ))}
                 </div>
                 <div style={{ padding: "1rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
-                  <button onClick={async () => { await logout(); setAuth(false); setShowMobileNav(false); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
+                  <button onClick={async () => { const { signOut } = await import("next-auth/react"); await signOut({ callbackUrl: "/admin/imago" }); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
                 </div>
               </div>
             </div>

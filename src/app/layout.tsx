@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const bodoni = Bodoni_Moda({ subsets: ["latin"], variable: "--font-bodoni", display: "swap", style: ["normal", "italic"], weight: ["400", "700"] });
@@ -38,7 +39,7 @@ export default function RootLayout({
       <head>
         <link rel="preload" as="image" href="/Masthead.webp" />
       </head>
-      <body>{children}</body>
+      <body><SessionProviderWrapper>{children}</SessionProviderWrapper></body>
     </html>
   );
 }
