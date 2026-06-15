@@ -287,6 +287,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               style={{ background: editor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 32, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "0.88rem", fontWeight: 700 }}>
               H2
             </button>
+            <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.25rem" }} />
             {/* Bullet list */}
             <button type="button" title="Bullet list" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
               style={{ background: editor.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
