@@ -240,7 +240,14 @@ export async function updateMediaAsset(assetId: string, fields: { title?: string
 
 export async function saveAbout(formData: FormData) {
   await requireAuth();
-  const body = parseBody(formData.get("body") as string);
+  const raw = formData.get("body") as string;
+  let body: unknown;
+  try {
+    const parsed = JSON.parse(raw);
+    body = Array.isArray(parsed) ? parsed : parseBody(raw);
+  } catch {
+    body = parseBody(raw);
+  }
   await mutate([{ createOrReplace: { _id: "about", _type: "about", body } }]);
 }
 
@@ -275,12 +282,15 @@ export async function saveLately(formData: FormData) {
   await requireAuth();
   const reading = formData.get("reading") as string;
   const readingAuthor = formData.get("readingAuthor") as string;
+  const readingUrl = formData.get("readingUrl") as string;
   const listening = formData.get("listening") as string;
   const listeningArtist = formData.get("listeningArtist") as string;
+  const listeningUrl = formData.get("listeningUrl") as string;
   const watching = formData.get("watching") as string;
+  const watchingUrl = formData.get("watchingUrl") as string;
   const doc: Record<string, unknown> = {
     _id: "lately", _type: "lately",
-    reading, readingAuthor, listening, listeningArtist, watching,
+    reading, readingAuthor, readingUrl, listening, listeningArtist, listeningUrl, watching, watchingUrl,
   };
 
   await mutate([{ createOrReplace: doc }]);

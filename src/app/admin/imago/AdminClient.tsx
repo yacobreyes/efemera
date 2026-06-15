@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
 import { login, logout } from "../auth";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
-import { ptToMarkdown } from "@/lib/parseBody";
-import RichBodyEditor from "@/components/RichBodyEditor";
-import type { JSONContent } from "@tiptap/react";
+import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
+import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
 const CRIMSON = "#8B0000";
@@ -64,11 +63,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   const [latelyReading, setLatelyReading] = useState("");
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
+  const [latelyReadingUrl, setLatelyReadingUrl] = useState("");
   const [latelyListening, setLatelyListening] = useState("");
   const [latelyListeningArtist, setLatelyListeningArtist] = useState("");
+  const [latelyListeningUrl, setLatelyListeningUrl] = useState("");
   const [latelyWatching, setLatelyWatching] = useState("");
+  const [latelyWatchingUrl, setLatelyWatchingUrl] = useState("");
 
-  const [aboutBody, setAboutBody] = useState("");
+  const [aboutDoc, setAboutDoc] = useState<JSONContent>(EMPTY_DOC);
+  const [aboutEditor, setAboutEditor] = useState<Editor | null>(null);
+  const [aboutToolbar, setAboutToolbar] = useState<ToolbarHandles | null>(null);
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [savedForm, setSavedForm] = useState<FormState>(DEFAULT_FORM);
@@ -137,7 +141,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     const retryTimer = setTimeout(refreshPosts, 1500);
     return () => clearTimeout(retryTimer);
     fetch("/api/about").then(r => r.json()).then(data => {
-      if (data?.body) setAboutBody(ptToMarkdown(data.body));
+      if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
     fetch("/api/welcome").then(r => r.json()).then(data => {
       if (data?.headline) setWelcomeHeadline(data.headline);
@@ -147,9 +151,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       if (!data) return;
       if (data.reading) setLatelyReading(data.reading);
       if (data.readingAuthor) setLatelyReadingAuthor(data.readingAuthor);
+      if (data.readingUrl) setLatelyReadingUrl(data.readingUrl);
       if (data.listening) setLatelyListening(data.listening);
       if (data.listeningArtist) setLatelyListeningArtist(data.listeningArtist);
+      if (data.listeningUrl) setLatelyListeningUrl(data.listeningUrl);
       if (data.watching) setLatelyWatching(data.watching);
+      if (data.watchingUrl) setLatelyWatchingUrl(data.watchingUrl);
     }).catch(() => {});
     fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -568,10 +575,23 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* ABOUT EDITOR */}
           {activePanel === "about" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", aboutBody); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", JSON.stringify(tiptapToPortableText(aboutDoc))); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
-              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, lineHeight: 1.5 }}>Separate paragraphs with a blank line. Add a link with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>[text](https://url.com)</code> · bold with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>**text**</code> · italic with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>_text_</code></p>
-              <textarea style={{ ...INPUT, minHeight: 240, resize: "vertical", lineHeight: 1.7 }} value={aboutBody} onChange={e => setAboutBody(e.target.value)} />
+              {/* Mini toolbar */}
+              {aboutEditor && (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", borderBottom: `1px solid ${BORDER}`, paddingBottom: "0.5rem" }}>
+                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor.isActive("bold") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, cursor: "pointer", color: aboutEditor.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1.05rem" }}>B</button>
+                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor.isActive("italic") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, cursor: "pointer", color: aboutEditor.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1.05rem" }}>I</button>
+                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 34, cursor: "pointer", color: aboutEditor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.95rem" }}>H2</button>
+                  <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.3rem" }} />
+                  <button type="button" title="Link (⌘K)" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </button>
+                </div>
+              )}
+              <div style={{ minHeight: 240 }}>
+                <RichBodyEditor initialContent={aboutDoc} onChange={setAboutDoc} onEditor={setAboutEditor} onToolbar={setAboutToolbar} />
+              </div>
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
@@ -580,14 +600,22 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* LATELY EDITOR */}
           {activePanel === "lately" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("watching", latelyWatching); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("readingUrl", latelyReadingUrl); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("listeningUrl", latelyListeningUrl); fd.set("watching", latelyWatching); fd.set("watchingUrl", latelyWatchingUrl); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
-              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, lineHeight: 1.5 }}>Add a link with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>[text](https://url.com)</code></p>
-              <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
-              <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
-              <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>
-              <div><label style={LABEL}>Artist</label><input style={INPUT} value={latelyListeningArtist} onChange={e => setLatelyListeningArtist(e.target.value)} /></div>
-              <div><label style={LABEL}>Currently Watching</label><input style={INPUT} value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} /></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
+                <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
+                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyReadingUrl} onChange={e => setLatelyReadingUrl(e.target.value)} /></div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>
+                <div><label style={LABEL}>Artist</label><input style={INPUT} value={latelyListeningArtist} onChange={e => setLatelyListeningArtist(e.target.value)} /></div>
+                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyListeningUrl} onChange={e => setLatelyListeningUrl(e.target.value)} /></div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <div><label style={LABEL}>Currently Watching</label><input style={INPUT} value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} /></div>
+                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyWatchingUrl} onChange={e => setLatelyWatchingUrl(e.target.value)} /></div>
+              </div>
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>

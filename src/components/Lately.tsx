@@ -1,5 +1,10 @@
 import type { SanityLately } from "@/lib/sanity";
-import { renderInline } from "@/lib/renderInline";
+
+function MaybeLink({ url, children }: { url?: string; children: React.ReactNode }) {
+  if (!url) return <>{children}</>;
+  const href = url.startsWith("http") ? url : `https://${url}`;
+  return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>;
+}
 
 const FONT = "'Inter', sans-serif";
 const BORDER = "#e1e8ed";
@@ -30,7 +35,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Reading</span>
             <span style={ROW_VALUE}>
-              &quot;{renderInline(data.reading)}{data.readingAuthor ? "," : ""}&quot;{data.readingAuthor ? <> {renderInline(data.readingAuthor)}</> : ""}
+              &quot;<MaybeLink url={data.readingUrl}>{data.reading}</MaybeLink>{data.readingAuthor ? "," : ""}&quot;{data.readingAuthor ? ` ${data.readingAuthor}` : ""}
             </span>
           </div>
         )}
@@ -39,7 +44,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Listening</span>
             <span style={ROW_VALUE}>
-              &quot;{renderInline(data.listening)}{data.listeningArtist ? "," : ""}&quot;{data.listeningArtist ? <> {renderInline(data.listeningArtist)}</> : ""}
+              &quot;<MaybeLink url={data.listeningUrl}>{data.listening}</MaybeLink>{data.listeningArtist ? "," : ""}&quot;{data.listeningArtist ? ` ${data.listeningArtist}` : ""}
             </span>
           </div>
         )}
@@ -47,7 +52,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
         {data.watching && (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Watching</span>
-            <span style={ROW_VALUE}>{renderInline(data.watching)}</span>
+            <span style={ROW_VALUE}><MaybeLink url={data.watchingUrl}>{data.watching}</MaybeLink></span>
           </div>
         )}
       </div>
