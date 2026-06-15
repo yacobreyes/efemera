@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, ViewTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
@@ -67,7 +67,7 @@ function TweetCard({ post }: { post: SanityPost; index: number }) {
       </div>
 
       <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={storyHref} transitionTypes={["nav-forward"]} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+        <Link href={storyHref} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
         </Link>
       </h2>
@@ -271,8 +271,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
         </nav>
       </header>
 
-      <ViewTransition name="page-content">
-      <div>
       {activeTab === "About" ? (
         <AboutPage paragraphs={aboutParagraphs} />
       ) : activeTab === "Archive" ? (
@@ -329,8 +327,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
           </div>
         </div>
       )}
-      </div>
-      </ViewTransition>
 
       <SiteFooter />
     </div>

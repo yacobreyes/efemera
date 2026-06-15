@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { ViewTransition } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PortableText } from "@portabletext/react";
@@ -124,8 +123,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         <StoryNav />
       </header>
 
-      <ViewTransition name="page-content">
-      <div>
       <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
         <BackLink section={post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"} tab={post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"} />
 
@@ -222,9 +219,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
         <CommentSection slug={slug} />
       </div>
-
-      </div>
-      </ViewTransition>
 
       <StoryVisitTracker />
       <SiteFooter />
