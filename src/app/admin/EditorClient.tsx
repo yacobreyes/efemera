@@ -6,6 +6,7 @@ import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPos
 import type { PostVersion } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor from "@/components/RichBodyEditor";
+import type { ToolbarHandles } from "@/components/RichBodyEditor";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
@@ -104,6 +105,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [uploadingNew, setUploadingNew] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [toolbar, setToolbar] = useState<ToolbarHandles | null>(null);
 
   const refreshVersions = useCallback(() => {
     getVersions(post.slug).then(v => { if (Array.isArray(v)) setVersions(v); }).catch(() => {});
@@ -289,6 +291,21 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             <button type="button" title="Numbered list" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run(); }}
               style={{ background: editor.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+            </button>
+            {/* Link */}
+            <button type="button" title="Link (⌘K)" onMouseDown={e => { e.preventDefault(); toolbar?.openLink(); }}
+              style={{ background: editor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </button>
+            {/* Image */}
+            <button type="button" title="Insert image" onMouseDown={e => { e.preventDefault(); toolbar?.openImage(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>
+            {/* Embed */}
+            <button type="button" title="Embed YouTube" onMouseDown={e => { e.preventDefault(); toolbar?.openEmbed(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </button>
             <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.5rem" }} />
           </div>
@@ -479,7 +496,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   </div>
                 </div>
               )}
-              <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} />
+              <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} onToolbar={setToolbar} />
               {wordCount > 0 && (
                 <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: "#aaa", margin: "1rem 0 0", padding: 0 }}>{wordCount} {wordCount === 1 ? "word" : "words"}</p>
               )}

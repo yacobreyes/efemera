@@ -14,13 +14,20 @@ const TEXT_DARK = "#1c2938";
 const BORDER = "#e1e8ed";
 const FONT = "'Inter', sans-serif";
 
+export interface ToolbarHandles {
+  openLink: () => void;
+  openImage: () => void;
+  openEmbed: () => void;
+}
+
 interface Props {
   initialContent: JSONContent;
   onChange: (doc: JSONContent) => void;
   onEditor?: (editor: Editor | null) => void;
+  onToolbar?: (handles: ToolbarHandles | null) => void;
 }
 
-export default function RichBodyEditor({ initialContent, onChange, onEditor }: Props) {
+export default function RichBodyEditor({ initialContent, onChange, onEditor, onToolbar }: Props) {
   const [linkModal, setLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [imageModal, setImageModal] = useState(false);
@@ -86,6 +93,17 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor }: P
   }, [editor]);
 
   useEffect(() => {
+    if (!editor) { onToolbar?.(null); return; }
+    onToolbar?.({
+      openLink: () => { setLinkUrl(editor.getAttributes("link").href ?? ""); setLinkModal(true); },
+      openImage: () => { setImageUrl(""); setImageModal(true); },
+      openEmbed: () => { setEmbedUrl(""); setEmbedModal(true); },
+    });
+    return () => onToolbar?.(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor]);
+
+  useEffect(() => {
     if (!editor) return;
     const current = JSON.stringify(editor.getJSON());
     const next = JSON.stringify(initialContent);
@@ -141,41 +159,6 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor }: P
         .editor-modal-overlay { position: fixed; inset: 0; zIndex: 500; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
         .editor-modal { background: white; border-radius: 8px; padding: 1.25rem; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.75rem; }
       `}</style>
-
-      {/* Inline toolbar — appears below the editor, always visible */}
-      <div style={{ display: "flex", gap: "0.25rem", borderTop: `1px solid ${BORDER}`, paddingTop: "0.6rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-        {/* Link */}
-        <button
-          type="button"
-          title="Link (⌘K)"
-          onMouseDown={e => {
-            e.preventDefault();
-            setLinkUrl(editor.getAttributes("link").href ?? "");
-            setLinkModal(true);
-          }}
-          style={{ background: editor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : "#657786" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        </button>
-        {/* Image */}
-        <button
-          type="button"
-          title="Insert image"
-          onMouseDown={e => { e.preventDefault(); setImageUrl(""); setImageModal(true); }}
-          style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#657786" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        </button>
-        {/* Embed */}
-        <button
-          type="button"
-          title="Embed YouTube"
-          onMouseDown={e => { e.preventDefault(); setEmbedUrl(""); setEmbedModal(true); }}
-          style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#657786" }}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        </button>
-      </div>
 
       <EditorContent editor={editor} />
 
