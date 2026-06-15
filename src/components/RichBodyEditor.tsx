@@ -209,20 +209,26 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
 
       {/* Embed modal */}
       {embedModal && (
-        <div className="editor-modal-overlay" onClick={() => setEmbedModal(false)}>
-          <div className="editor-modal" onClick={e => e.stopPropagation()}>
-            <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "0.9rem", margin: 0, color: TEXT_DARK }}>Embed YouTube video</p>
+        <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setEmbedModal(false)}>
+          <div style={{ background: "white", borderRadius: 12, padding: "1.5rem", width: 420, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
+              <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: 0, color: TEXT_DARK }}>Embed</p>
+              <button type="button" onClick={() => setEmbedModal(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#657786", display: "flex", alignItems: "center", padding: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <label style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: "#657786", letterSpacing: "0.06em", textTransform: "uppercase", display: "block", marginBottom: "0.4rem" }}>URL</label>
             <input
               autoFocus
-              placeholder="https://youtube.com/watch?v=..."
+              placeholder="Enter a URL"
               value={embedUrl}
               onChange={e => setEmbedUrl(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") applyEmbed(); if (e.key === "Escape") setEmbedModal(false); }}
-              style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem", border: `1px solid ${BORDER}`, borderRadius: 4, outline: "none", width: "100%", boxSizing: "border-box" }}
+              style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.55rem 0.8rem", border: `1.5px solid #c8d3db`, borderRadius: 8, outline: "none", width: "100%", boxSizing: "border-box", marginBottom: "1.25rem" }}
             />
             <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setEmbedModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#657786" }}>Cancel</button>
-              <button type="button" onClick={applyEmbed} disabled={!embedUrl.trim()} style={{ background: CRIMSON, border: "none", borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "white", opacity: embedUrl.trim() ? 1 : 0.5 }}>Embed</button>
+              <button type="button" onClick={() => setEmbedModal(false)} style={{ background: "none", border: `1.5px solid #c8d3db`, borderRadius: 20, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer", color: TEXT_DARK }}>Cancel</button>
+              <button type="button" onClick={applyEmbed} disabled={!embedUrl.trim()} style={{ background: embedUrl.trim() ? "#6b8cba" : "#c8d3db", border: "none", borderRadius: 20, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: embedUrl.trim() ? "pointer" : "default", color: "white" }}>Embed</button>
             </div>
           </div>
         </div>

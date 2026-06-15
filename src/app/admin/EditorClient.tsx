@@ -106,6 +106,13 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [showPreview, setShowPreview] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [toolbar, setToolbar] = useState<ToolbarHandles | null>(null);
+  const [showBodyImageModal, setShowBodyImageModal] = useState(false);
+  const [bodyImageTab, setBodyImageTab] = useState<"library" | "upload">("library");
+  const [bodySelectedAsset, setBodySelectedAsset] = useState<MediaAsset | null>(null);
+  const [bodyUploadFile, setBodyUploadFile] = useState<File | null>(null);
+  const [bodyUploadPreviewUrl, setBodyUploadPreviewUrl] = useState("");
+  const [bodyUploadAlt, setBodyUploadAlt] = useState("");
+  const [bodyUploadingNew, setBodyUploadingNew] = useState(false);
 
   const refreshVersions = useCallback(() => {
     getVersions(post.slug).then(v => { if (Array.isArray(v)) setVersions(v); }).catch(() => {});
@@ -261,7 +268,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         {/* Formatting toolbar — only shown on story content tab, desktop only */}
         {!isMobile && editorTab === "content" && editor && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.15rem" }}>
-            <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.5rem" }} />
             {([
               ["B", "Bold", editor.isActive("bold"), () => editor.chain().focus().toggleBold().run(), { fontWeight: 700 }],
               ["I", "Italic", editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
@@ -281,7 +287,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               style={{ background: editor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 32, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "0.88rem", fontWeight: 700 }}>
               H2
             </button>
-            <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.25rem" }} />
             {/* Bullet list */}
             <button type="button" title="Bullet list" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
               style={{ background: editor.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
@@ -292,6 +297,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               style={{ background: editor.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
             </button>
+            <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.25rem" }} />
             {/* Link */}
             <button type="button" title="Link (⌘K)" onMouseDown={e => { e.preventDefault(); toolbar?.openLink(); }}
               style={{ background: editor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
@@ -496,7 +502,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   </div>
                 </div>
               )}
-              <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} onToolbar={setToolbar} />
+              <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} onToolbar={h => {
+                if (!h) { setToolbar(null); return; }
+                setToolbar({ ...h, openImage: () => { setBodySelectedAsset(null); setBodyUploadFile(null); setBodyUploadPreviewUrl(""); setBodyUploadAlt(""); setBodyImageTab("library"); setShowBodyImageModal(true); fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {}); } });
+              }} />
               {wordCount > 0 && (
                 <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: "#aaa", margin: "1rem 0 0", padding: 0 }}>{wordCount} {wordCount === 1 ? "word" : "words"}</p>
               )}
@@ -565,7 +574,106 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         </div>
       </div>
 
-      {/* Image modal */}
+      {/* Body image modal */}
+      {showBodyImageModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowBodyImageModal(false)}>
+          <div style={{ background: "white", borderRadius: isMobile ? 0 : 10, width: isMobile ? "100vw" : "min(880px, 95vw)", height: isMobile ? "100dvh" : "min(600px, 90vh)", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
+            <div style={{ padding: "1rem 1.5rem", borderBottom: `1px solid ${BORDER}` }}>
+              <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: "0 0 0.75rem", color: TEXT_DARK }}>Add image</p>
+              <div style={{ display: "flex", gap: 0, borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
+                {(["library", "upload"] as const).map(tab => (
+                  <button key={tab} type="button" onClick={() => setBodyImageTab(tab)}
+                    style={{ background: "none", border: "none", borderBottom: `2px solid ${bodyImageTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.4rem 1rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: bodyImageTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
+                    {tab === "library" ? "Library" : "Upload new"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+              {bodyImageTab === "library" && (
+                <>
+                  <div style={{ flex: 1, overflowY: "auto", padding: "1rem" }}>
+                    {photoPickerAssets.length === 0 ? (
+                      <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images in library yet.</p>
+                    ) : (
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.5rem" }}>
+                        {photoPickerAssets.map(a => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img key={a._id} src={a.url} alt={a.originalFilename}
+                            onClick={() => { setBodySelectedAsset(a); setBodyUploadAlt(a.altText ?? ""); }}
+                            style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 4, cursor: "pointer", border: `2px solid ${bodySelectedAsset?._id === a._id ? CRIMSON : "transparent"}`, boxSizing: "border-box" }} />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  {bodySelectedAsset && (
+                    <div style={{ width: 260, flexShrink: 0, borderLeft: `1px solid ${BORDER}`, padding: "1rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={bodySelectedAsset.url} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 6 }} />
+                      <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                    </div>
+                  )}
+                </>
+              )}
+              {bodyImageTab === "upload" && (
+                <div style={{ flex: 1, display: "flex", gap: "1.5rem", padding: "1.5rem", overflowY: "auto" }}>
+                  <div style={{ flex: 1 }}>
+                    {!bodyUploadPreviewUrl ? (
+                      <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${BORDER}`, borderRadius: 8, padding: "2.5rem 1rem", cursor: "pointer", textAlign: "center" }}>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.5" strokeLinecap="round" style={{ marginBottom: "0.75rem" }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, margin: "0 0 0.25rem", fontWeight: 600 }}>Drag image here or <span style={{ color: CRIMSON }}>click to upload</span></p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, margin: 0 }}>JPEG, PNG, GIF, or WEBP</p>
+                        <input type="file" accept="image/*" onChange={async e => {
+                          const file = e.target.files?.[0]; if (!file) return;
+                          setBodyUploadFile(file); setBodyUploadPreviewUrl(URL.createObjectURL(file));
+                        }} style={{ display: "none" }} />
+                      </label>
+                    ) : (
+                      <div>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={bodyUploadPreviewUrl} alt="" style={{ width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 6, marginBottom: "0.5rem" }} />
+                        <button type="button" onClick={() => { setBodyUploadFile(null); setBodyUploadPreviewUrl(""); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Remove</button>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#fafbfc" }}>
+              <button type="button" onClick={() => setShowBodyImageModal(false)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer", color: TEXT_DARK }}>Cancel</button>
+              <button type="button"
+                disabled={bodyUploadingNew || (bodyImageTab === "library" && !bodySelectedAsset) || (bodyImageTab === "upload" && !bodyUploadFile)}
+                style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", opacity: (bodyImageTab === "library" && !bodySelectedAsset) || (bodyImageTab === "upload" && !bodyUploadFile) ? 0.5 : 1 }}
+                onClick={async () => {
+                  if (!editor) return;
+                  if (bodyImageTab === "library" && bodySelectedAsset) {
+                    editor.chain().focus().setImage({ src: bodySelectedAsset.url, alt: bodyUploadAlt }).run();
+                    setShowBodyImageModal(false);
+                  } else if (bodyImageTab === "upload" && bodyUploadFile) {
+                    setBodyUploadingNew(true);
+                    try {
+                      const fd = new FormData(); fd.set("file", bodyUploadFile);
+                      const { assetId } = await uploadImage(fd);
+                      // fetch the URL back
+                      const res = await fetch("/api/media"); const assets: MediaAsset[] = await res.json();
+                      const uploaded = assets.find(a => a._id === assetId);
+                      const src = uploaded?.url ?? bodyUploadPreviewUrl;
+                      editor.chain().focus().setImage({ src, alt: bodyUploadAlt }).run();
+                      setPhotoPickerAssets(assets);
+                    } catch {} finally { setBodyUploadingNew(false); }
+                    setShowBodyImageModal(false);
+                  }
+                }}
+              >{bodyUploadingNew ? "Uploading…" : "Insert image"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Featured image modal */}
       {showImageModal && (
         <div style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowImageModal(false)}>
           <div style={{ background: "white", borderRadius: isMobile ? 0 : 10, width: isMobile ? "100vw" : "min(880px, 95vw)", height: isMobile ? "100dvh" : "min(600px, 90vh)", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
