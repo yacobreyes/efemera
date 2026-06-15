@@ -2,7 +2,8 @@
 
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPost } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPost, getVersions } from "./actions";
+import type { PostVersion } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { JSONContent } from "@tiptap/react";
@@ -43,21 +44,7 @@ type FormState = {
   status: "draft" | "published" | "scheduled";
 };
 
-type VersionSnapshot = { headline: string; subheadline: string; body: JSONContent };
-type VersionEntry = { savedAt: string; type: "autosave" | "publish"; wordCount?: number; snapshot?: VersionSnapshot };
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
-
-function versionsKey(slug: string) { return `efemera_versions_${slug}`; }
-function loadVersions(slug: string): VersionEntry[] {
-  try { return JSON.parse(localStorage.getItem(versionsKey(slug)) ?? "[]"); } catch { return []; }
-}
-function appendVersion(slug: string, entry: VersionEntry) {
-  try {
-    const v = loadVersions(slug);
-    v.unshift(entry);
-    localStorage.setItem(versionsKey(slug), JSON.stringify(v.slice(0, 20)));
-  } catch {}
-}
 
 export default function EditorClient({ post }: { post: SanityPost }) {
   const router = useRouter();
@@ -83,7 +70,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [versionMenu, setVersionMenu] = useState<number | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
-  const [versions, setVersions] = useState<VersionEntry[]>([]);
+  const [versions, setVersions] = useState<PostVersion[]>([]);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
@@ -118,9 +105,11 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [showPreview, setShowPreview] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
 
-  useEffect(() => {
-    setVersions(loadVersions(post.slug));
+  const refreshVersions = useCallback(() => {
+    getVersions(post.slug).then(v => { if (Array.isArray(v)) setVersions(v); }).catch(() => {});
   }, [post.slug]);
+
+  useEffect(() => { refreshVersions(); }, [refreshVersions]);
 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
@@ -142,10 +131,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     startTransition(async () => {
       try {
         await savePost(fd);
-        const wc = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
-        const entry: VersionEntry = { savedAt: new Date().toISOString(), type: status === "published" ? "publish" : "autosave", wordCount: wc, snapshot: { headline: form.headline, subheadline: form.subheadline, body: form.body } };
-        appendVersion(post.slug, entry);
-        setVersions(loadVersions(post.slug));
+        refreshVersions();
         setLastSaved({ ...form, status, date: saveDate });
         setLastSavedImg({ id: imageAssetId, caption: imageCaption, alt: imageAlt });
         setForm(f => ({ ...f, status, date: saveDate }));
@@ -154,7 +140,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         setSaveStatus("unsaved");
       }
     });
-  }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt]);
+  }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt, refreshVersions]);
 
   const revertToDraft = useCallback(async () => {
     if (!confirm("Revert to draft? This will unpublish the story.")) return;
@@ -172,11 +158,12 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   }, [post._id]);
 
   const revertToVersion = useCallback((i: number) => {
-    const snap = versions[i]?.snapshot;
-    if (!snap) { alert("This save point has no stored content to restore."); return; }
+    const snap = versions[i];
+    if (!snap) return;
     if (!confirm("Restore this version? Your current text will be replaced.")) return;
-    setForm(f => ({ ...f, headline: snap.headline, subheadline: snap.subheadline, body: snap.body }));
-    if (editor) editor.commands.setContent(snap.body);
+    const body = snap.body?.length ? portableTextToTiptap(snap.body) : EMPTY_DOC;
+    setForm(f => ({ ...f, headline: snap.headline, subheadline: snap.subheadline, body }));
+    if (editor) editor.commands.setContent(body);
   }, [versions, editor]);
 
   // Auto-save every 5s when dirty
@@ -426,7 +413,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>History</p>
               <button type="button" onClick={() => setEditorTab("versions")}
                 style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === "versions" ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === "versions" ? 600 : 400, color: editorTab === "versions" ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-                Previous drafts
+                Previous versions
               </button>
             </div>
           </div>
@@ -490,7 +477,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           {editorTab === "versions" && (
             <div style={{ maxWidth: 480 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-                <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Previous drafts</h2>
+                <h2 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Previous versions</h2>
               </div>
               {versions.length === 0 ? (
                 <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet.</p>

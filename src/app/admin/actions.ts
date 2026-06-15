@@ -121,7 +121,71 @@ export async function savePost(formData: FormData) {
   }
 
   await mutate([{ createOrReplace: doc }]);
+  await snapshotVersion({
+    postId: doc._id as string,
+    slug,
+    type: status === "published" ? "publish" : "autosave",
+    headline, subheadline,
+    body: Array.isArray(body) ? body : [],
+  });
   return { slug };
+}
+
+function portableWordCount(body: unknown[]): number {
+  const text = body
+    .filter((b): b is { _type: string; children?: { text?: string }[] } => typeof b === "object" && b !== null && (b as { _type?: string })._type === "block")
+    .map(b => (b.children ?? []).map(c => c.text ?? "").join(""))
+    .join(" ");
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+interface VersionInput { postId: string; slug: string; type: "autosave" | "publish"; headline: string; subheadline: string; body: unknown[]; }
+
+// Saves a snapshot of the post as a separate postVersion document, then prunes
+// to the most recent 20 per post. Stored in Sanity so history survives across devices.
+async function snapshotVersion({ postId, slug, type, headline, subheadline, body }: VersionInput) {
+  try {
+    const versionDoc = {
+      _id: `version-${slug}-${Date.now()}`,
+      _type: "postVersion",
+      postId, slug, type,
+      savedAt: new Date().toISOString(),
+      wordCount: portableWordCount(body),
+      headline, subheadline, body,
+    };
+    // Existing versions at index >= 19 get pruned once this new one is added.
+    const stale: string[] = await client.fetch(
+      `*[_type == "postVersion" && slug == $slug] | order(savedAt desc) [19...100]._id`,
+      { slug },
+      { cache: "no-store" }
+    );
+    await mutate([
+      { createOrReplace: versionDoc },
+      ...stale.map(id => ({ delete: { id } })),
+    ]);
+  } catch (err) {
+    // Version history is best-effort — never block a save on it.
+    console.error("snapshotVersion failed", err);
+  }
+}
+
+export interface PostVersion {
+  _id: string;
+  savedAt: string;
+  type: "autosave" | "publish";
+  wordCount?: number;
+  headline: string;
+  subheadline: string;
+  body: import("@portabletext/types").PortableTextBlock[];
+}
+
+export async function getVersions(slug: string): Promise<PostVersion[]> {
+  await requireAuth();
+  return client.fetch(
+    `*[_type == "postVersion" && slug == $slug] | order(savedAt desc){ _id, savedAt, type, wordCount, headline, subheadline, body }`,
+    { slug },
+    { cache: "no-store" }
+  );
 }
 
 export async function deletePost(id: string) {
