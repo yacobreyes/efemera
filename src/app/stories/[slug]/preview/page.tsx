@@ -117,9 +117,21 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
                 bullet: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
                 number: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
               },
+              types: {
+                imageEmbed: ({ value }: { value: { src: string; alt?: string } }) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={value.src} alt={value.alt ?? ""} style={{ maxWidth: "100%", borderRadius: 4, margin: "1.2rem 0", display: "block" }} />
+                ),
+                youtubeEmbed: ({ value }: { value: { src: string } }) => (
+                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, margin: "1.2rem 0" }}>
+                    <iframe src={value.src.replace("watch?v=", "embed/")} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", borderRadius: 4 }} allowFullScreen />
+                  </div>
+                ),
+              },
               marks: {
                 strong: ({ children }) => <strong>{children}</strong>,
                 em: ({ children }) => <em>{children}</em>,
+                link: ({ children, value }) => <a href={value?.href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>,
               },
             }}
           />
