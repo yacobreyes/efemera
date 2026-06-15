@@ -129,6 +129,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }
 
   useEffect(() => {
+    // Fire all prefetches in parallel on mount so every panel is instant
+    refreshPosts();
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body) {
         const plain = data.body.filter((b: any) => b._type === "block")
@@ -140,8 +142,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       if (data?.headline) setWelcomeHeadline(data.headline);
       if (data?.body) setWelcomeBody(data.body);
     }).catch(() => {});
-    // Prefetch media so library opens instantly
+    fetch("/api/lately").then(r => r.json()).then(data => {
+      if (!data) return;
+      if (data.reading) setLatelyReading(data.reading);
+      if (data.readingAuthor) setLatelyReadingAuthor(data.readingAuthor);
+      if (data.listening) setLatelyListening(data.listening);
+      if (data.listeningArtist) setLatelyListeningArtist(data.listeningArtist);
+      if (data.watching) setLatelyWatching(data.watching);
+    }).catch(() => {});
     fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -172,13 +182,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       setIsDirty(false);
       const url = panel === "dashboard" ? "/admin/imago" : `/admin/imago/${panel}`;
       window.history.pushState(null, "", url);
-    }
-    if (panel === "lately") {
-      fetch("/api/lately").then(r => r.json()).then(data => {
-        if (!data) return;
-        setLatelyReading(data.reading ?? ""); setLatelyReadingAuthor(data.readingAuthor ?? "");
-        setLatelyListening(data.listening ?? ""); setLatelyListeningArtist(data.listeningArtist ?? ""); setLatelyWatching(data.watching ?? "");
-      }).catch(() => {});
     }
     if (panel === "media") {
       setMediaSearch("");
