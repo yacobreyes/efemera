@@ -93,6 +93,9 @@ export async function savePost(formData: FormData) {
   const status = (formData.get("status") as string) || "draft";
   const scheduledAt = (formData.get("scheduledAt") as string) || null;
   const shouldSnapshot = formData.get("snapshot") === "1";
+  const seoHeadline = (formData.get("seoHeadline") as string) || null;
+  const socialHeadline = (formData.get("socialHeadline") as string) || null;
+  const socialDescription = (formData.get("socialDescription") as string) || null;
 
   let body: unknown;
   try {
@@ -110,6 +113,9 @@ export async function savePost(formData: FormData) {
     slug: { _type: "slug", current: slug },
     section, byline, date, body, status,
     ...(scheduledAt ? { scheduledAt } : {}),
+    ...(seoHeadline ? { seoHeadline } : {}),
+    ...(socialHeadline ? { socialHeadline } : {}),
+    ...(socialDescription ? { socialDescription } : {}),
   };
 
   if (imageAssetId) {

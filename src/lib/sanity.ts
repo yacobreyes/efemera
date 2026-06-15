@@ -35,6 +35,9 @@ export interface SanityPost {
   image?: { asset: SanityImageSource; url?: string; caption?: string; alt?: string };
   status?: "draft" | "published" | "scheduled" | "trashed";
   scheduledAt?: string;
+  seoHeadline?: string;
+  socialHeadline?: string;
+  socialDescription?: string;
 }
 
 const POST_FIELDS = `
@@ -49,7 +52,10 @@ const POST_FIELDS = `
   body,
   image { asset, caption, alt },
   status,
-  scheduledAt
+  scheduledAt,
+  seoHeadline,
+  socialHeadline,
+  socialDescription
 `;
 
 const POSTS_QUERY = `*[_type == "post" && (

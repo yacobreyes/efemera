@@ -43,6 +43,7 @@ type FormState = {
   headline: string; subheadline: string; byline: string; slug: string;
   section: string; date: string; body: JSONContent;
   status: "draft" | "published" | "scheduled";
+  seoHeadline: string; socialHeadline: string; socialDescription: string;
 };
 
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
@@ -59,6 +60,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     date: post.date ?? new Date().toISOString().slice(0, 10),
     body: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
     status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
+    seoHeadline: post.seoHeadline ?? "",
+    socialHeadline: post.socialHeadline ?? "",
+    socialDescription: post.socialDescription ?? "",
   };
 
   const [form, setForm] = useState<FormState>(initialForm);
@@ -545,7 +549,29 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
-              <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" /></div>
+
+              {/* Social & SEO */}
+              <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "1.25rem" }}>
+                <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, color: TEXT_MUTED, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 1.25rem" }}>Social &amp; SEO</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+                  <div>
+                    <label style={LABEL}>URL Slug</label>
+                    <input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" />
+                  </div>
+                  <div>
+                    <label style={LABEL}>SEO Headline</label>
+                    <input style={INPUT} value={form.seoHeadline} onChange={e => updateForm({ seoHeadline: e.target.value })} placeholder={form.headline || "Appears in Google search results"} />
+                  </div>
+                  <div>
+                    <label style={LABEL}>Social Headline</label>
+                    <input style={INPUT} value={form.socialHeadline} onChange={e => updateForm({ socialHeadline: e.target.value })} placeholder={form.headline || "Appears on shared link preview"} />
+                  </div>
+                  <div>
+                    <label style={LABEL}>Social Description</label>
+                    <textarea style={{ ...INPUT, resize: "vertical", minHeight: 80 }} value={form.socialDescription} onChange={e => updateForm({ socialDescription: e.target.value })} placeholder="Caption that appears under shared link" />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

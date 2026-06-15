@@ -35,10 +35,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = await getPost(slug);
   if (!post) return {};
 
-  const description = post.subheadline ||
-    post.body.filter(b => b._type === "block")
-      .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
-      .join(" ").slice(0, 160).trim();
+  const bodyText = post.body.filter(b => b._type === "block")
+    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
+    .join(" ").slice(0, 160).trim();
+
+  const seoTitle = post.seoHeadline || post.headline;
+  const socialTitle = post.socialHeadline || post.headline;
+  const description = post.socialDescription || post.subheadline || bodyText;
+  const seoDescription = post.socialDescription || post.subheadline || bodyText;
 
   const imageUrl = post.image?.asset
     ? urlFor(post.image.asset).width(1200).height(630).fit("crop").auto("format").url()
@@ -51,12 +55,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : { url: "/og-image.png", width: 1200, height: 630, alt: "Efemera" };
 
   return {
-    title: `${post.headline} — Efemera`,
-    description,
+    title: `${seoTitle} — Efemera`,
+    description: seoDescription,
     openGraph: {
       type: "article",
       url: postUrl,
-      title: post.headline,
+      title: socialTitle,
       description,
       siteName: "Efemera",
       publishedTime: post.date,
@@ -65,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: "summary_large_image",
-      title: post.headline,
+      title: socialTitle,
       description,
       images: [ogImage.url],
     },
