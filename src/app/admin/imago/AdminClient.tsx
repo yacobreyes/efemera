@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
 import { login, logout } from "../auth";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
+import { ptToMarkdown } from "@/lib/parseBody";
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { JSONContent } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
@@ -136,11 +137,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     const retryTimer = setTimeout(refreshPosts, 1500);
     return () => clearTimeout(retryTimer);
     fetch("/api/about").then(r => r.json()).then(data => {
-      if (data?.body) {
-        const plain = data.body.filter((b: any) => b._type === "block")
-          .map((b: any) => b.children.map((c: any) => c.text).join("")).join("\n\n");
-        setAboutBody(plain);
-      }
+      if (data?.body) setAboutBody(ptToMarkdown(data.body));
     }).catch(() => {});
     fetch("/api/welcome").then(r => r.json()).then(data => {
       if (data?.headline) setWelcomeHeadline(data.headline);
@@ -573,7 +570,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           {activePanel === "about" && (
             <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", aboutBody); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
-              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>Separate paragraphs with a blank line.</p>
+              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, lineHeight: 1.5 }}>Separate paragraphs with a blank line. Add a link with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>[text](https://url.com)</code> · bold with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>**text**</code> · italic with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>_text_</code></p>
               <textarea style={{ ...INPUT, minHeight: 240, resize: "vertical", lineHeight: 1.7 }} value={aboutBody} onChange={e => setAboutBody(e.target.value)} />
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
@@ -585,6 +582,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           {activePanel === "lately" && (
             <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("watching", latelyWatching); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
+              <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, lineHeight: 1.5 }}>Add a link with <code style={{ background: "#f5f8fa", padding: "0 0.3rem", borderRadius: 3 }}>[text](https://url.com)</code></p>
               <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
               <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>

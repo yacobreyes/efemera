@@ -10,6 +10,7 @@ import type { SanityPost, SanityLately } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
+import { renderInline } from "@/lib/renderInline";
 import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -188,7 +189,7 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
     <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
       <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
       {content.map((p, i) => (
-            <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{p}</p>
+            <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
           ))
       }
     </div>

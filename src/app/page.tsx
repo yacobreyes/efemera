@@ -1,5 +1,6 @@
 import HomeClient from "@/components/HomeClient";
 import { getAllPosts, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
+import { ptToParagraphs } from "@/lib/parseBody";
 
 export const revalidate = 60;
 
@@ -19,10 +20,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   const posts = postsResult.status === "fulfilled" ? postsResult.value : [];
   let aboutParagraphs: string[] = [];
   if (aboutResult.status === "fulfilled" && aboutResult.value?.body) {
-    const texts = aboutResult.value.body
-      .filter((b: any) => b._type === "block")
-      .map((b: any) => (b.children as { text: string }[]).map(c => c.text).join(""))
-      .filter(Boolean) as string[];
+    const texts = ptToParagraphs(aboutResult.value.body);
     if (texts.length > 0) aboutParagraphs = texts;
   }
   const lately = latelyResult.status === "fulfilled" ? latelyResult.value : null;

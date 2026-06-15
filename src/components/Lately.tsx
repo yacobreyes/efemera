@@ -1,4 +1,5 @@
 import type { SanityLately } from "@/lib/sanity";
+import { renderInline } from "@/lib/renderInline";
 
 const FONT = "'Inter', sans-serif";
 const BORDER = "#e1e8ed";
@@ -29,7 +30,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Reading</span>
             <span style={ROW_VALUE}>
-              &quot;{data.reading}{data.readingAuthor ? "," : ""}&quot;{data.readingAuthor ? ` ${data.readingAuthor}` : ""}
+              &quot;{renderInline(data.reading)}{data.readingAuthor ? "," : ""}&quot;{data.readingAuthor ? <> {renderInline(data.readingAuthor)}</> : ""}
             </span>
           </div>
         )}
@@ -38,7 +39,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Listening</span>
             <span style={ROW_VALUE}>
-              &quot;{data.listening}{data.listeningArtist ? "," : ""}&quot;{data.listeningArtist ? ` ${data.listeningArtist}` : ""}
+              &quot;{renderInline(data.listening)}{data.listeningArtist ? "," : ""}&quot;{data.listeningArtist ? <> {renderInline(data.listeningArtist)}</> : ""}
             </span>
           </div>
         )}
@@ -46,7 +47,7 @@ export default function Lately({ data }: { data: SanityLately | null }) {
         {data.watching && (
           <div style={{ display: "flex", gap: "0.6rem", alignItems: "flex-start" }}>
             <span style={ROW_LABEL}>Watching</span>
-            <span style={ROW_VALUE}>{data.watching}</span>
+            <span style={ROW_VALUE}>{renderInline(data.watching)}</span>
           </div>
         )}
       </div>
