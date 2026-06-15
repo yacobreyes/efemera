@@ -3,7 +3,7 @@ import Link from "next/link";
 import FlappyChoopyClient from "@/components/FlappyChoopyClient";
 
 export const metadata: Metadata = {
-  title: "Choopy's Arcade — Efemera",
+  title: "Choopy's Arcade - Efemera",
   description: "Help Choopy fly through Tampa. An unlockable mini-game on Efemera.",
   robots: { index: false },
 };
@@ -17,6 +17,7 @@ export default function ArcadePage() {
         <link rel="preload" as="image" href="/mayfly-icon.webp" />
         <link rel="preload" as="fetch" href="/teenage-dirtbag-chiptune.wav" crossOrigin="anonymous" />
       </head>
+      <style>{`html, body { background: #000 !important; }`}</style>
     <main style={{
       minHeight: "100dvh",
       background: "#000",
