@@ -26,7 +26,9 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
   useEffect(() => {
     if (!hasPlayedThisLoad) {
       hasPlayedThisLoad = true;
-      setShowAnimation(true);
+      // Only play on a genuine navigation to the site — not on refresh or back/forward.
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      if (!nav || nav.type === "navigate") setShowAnimation(true);
     }
     setMounted(true);
   }, []);
