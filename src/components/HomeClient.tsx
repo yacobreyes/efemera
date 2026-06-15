@@ -20,8 +20,7 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
   const router = useRouter();
 
   useEffect(() => {
-    const needsAnimation = !document.cookie.includes("efemera_entered=1");
-    setShowAnimation(needsAnimation);
+    setShowAnimation(true);
     setMounted(true);
   }, []);
 
