@@ -95,6 +95,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f8fa" }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <style>{`
+        .story-article ul { list-style-type: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
+        .story-article ol { list-style-type: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
+        .story-article li { display: list-item; margin-bottom: 0.25em; }
         .story-header { display: flex; align-items: center; justify-content: space-between; }
         .story-nav { display: flex; gap: 2rem; align-items: center; }
         @media (max-width: 600px) {
