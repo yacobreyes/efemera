@@ -40,30 +40,15 @@ function readingTime(text: string) {
 }
 
 
-function TweetCard({ post, index }: { post: SanityPost; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(index < 2);
+function TweetCard({ post }: { post: SanityPost; index: number }) {
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
-    if (!visible) return;
     fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
       .catch(() => {});
-  }, [post.slug, visible]);
-
-  useEffect(() => {
-    if (visible) return;
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.08 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [visible]);
+  }, [post.slug]);
 
   const plainText = portableToPlainText(post.body);
   const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
@@ -71,17 +56,7 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   const storyHref = `/stories/${post.slug}`;
 
   return (
-    <div
-      ref={ref}
-      style={{
-        padding: "1.1rem 1rem",
-        background: "white",
-        borderBottom: "1px solid #e1e8ed",
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : "translateY(20px)",
-        transition: "opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1)",
-      }}
-    >
+    <div style={{ padding: "1.1rem 1rem", background: "white", borderBottom: "1px solid #e1e8ed" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
         <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           {post.section}
