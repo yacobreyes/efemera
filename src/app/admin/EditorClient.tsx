@@ -448,7 +448,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "1.5rem 1.25rem" : "3rem 4rem" }}>
           {editorTab === "content" && (
             <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minHeight: isMobile ? "4rem" : "5.5rem" }}>
                 <input
                   placeholder="Type your headline"
                   style={{ fontFamily: FONT, fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}

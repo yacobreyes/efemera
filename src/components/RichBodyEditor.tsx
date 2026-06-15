@@ -64,9 +64,10 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor }: P
         .ProseMirror h2 { font-family: ${FONT}; font-size: 1.25rem; font-weight: 700; color: ${TEXT_DARK}; margin: 1.4em 0 0.4em; }
         .ProseMirror h3 { font-family: ${FONT}; font-size: 1.05rem; font-weight: 700; color: ${TEXT_DARK}; margin: 1.2em 0 0.3em; }
         .ProseMirror blockquote { border-left: 3px solid ${CRIMSON}; margin: 1em 0; padding: 0.1em 0 0.1em 1.2em; font-style: italic; color: #526270; }
-        .ProseMirror ul { padding-left: 1.4em; margin: 0 0 1em; }
-        .ProseMirror ol { padding-left: 1.4em; margin: 0 0 1em; }
-        .ProseMirror li { margin-bottom: 0.25em; }
+        .ProseMirror ul { list-style-type: disc; padding-left: 1.4em; margin: 0 0 1em; }
+        .ProseMirror ol { list-style-type: decimal; padding-left: 1.4em; margin: 0 0 1em; }
+        .ProseMirror li { margin-bottom: 0.25em; display: list-item; }
+        .ProseMirror li p { margin: 0; }
         .ProseMirror:focus { outline: none; }
       `}</style>
       <EditorContent editor={editor} />
