@@ -111,7 +111,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [commentsLoading, setCommentsLoading] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; post: SanityPost } | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -515,69 +514,47 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           {activePanel === "dashboard" && (
             <div style={{ maxWidth: 900 }}>
 
-              {/* Dashboard post list grouped by section */}
+              {/* Count + sort row */}
               {(() => {
                 const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
                 const filtered = query.trim() ? list.filter(p => p.headline.toLowerCase().includes(query.toLowerCase()) || p.subheadline?.toLowerCase().includes(query.toLowerCase())) : list;
                 const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled post" : "published post";
-                const sections = ["Narratives", "Micro-Memoir"] as const;
-                const bySec = Object.fromEntries(sections.map(s => [s, filtered.filter(p => p.section === s)]));
-                const other = filtered.filter(p => !sections.includes(p.section as typeof sections[number]));
-                const allSecs: string[] = [...sections.filter(s => bySec[s].length > 0), ...(other.length ? ["Other"] : [])];
-
-                function toggleSection(sec: string) {
-                  setCollapsedSections(prev => {
-                    const next = new Set(prev);
-                    next.has(sec) ? next.delete(sec) : next.add(sec);
-                    return next;
-                  });
-                }
-
-                function PostRow({ post }: { post: SanityPost }) {
-                  return (
-                    <div
-                      onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }}
-                      onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, post }); }}
-                      style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 80px" : "1fr 120px", gap: "0 1rem", padding: "0.75rem 1rem 0.75rem 2.5rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
-                      onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
-                      onMouseLeave={e => (e.currentTarget.style.background = "white")}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}</p>
-                      </div>
-                      <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{post.date}</span>
-                    </div>
-                  );
-                }
-
                 return (
                   <>
-                    <div style={{ display: "flex", alignItems: "center", marginBottom: "0.5rem", paddingLeft: "1rem" }}>
-                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, paddingLeft: "1rem" }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
                     </div>
+                    {/* Table header */}
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem" }}>
+                      {["Name", "Section", "Date"].map(h => (
+                        <span key={h} style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: TEXT_MUTED }}>{h}</span>
+                      ))}
+                    </div>
+                    {/* Rows */}
                     {filtered.length === 0 ? (
-                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
+                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center", marginTop: "0.25rem" }}>
                         <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>{query ? `No results for "${query}"` : `No ${label}s yet.`}</p>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        {allSecs.map(sec => {
-                          const posts = sec === "Other" ? other : bySec[sec as typeof sections[number]];
-                          const collapsed = collapsedSections.has(sec);
-                          return (
-                            <div key={sec} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                              <button
-                                type="button"
-                                onClick={() => toggleSection(sec)}
-                                style={{ width: "100%", display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.6rem 1rem", background: "#fafafa", border: "none", borderBottom: collapsed ? "none" : `1px solid ${BORDER}`, cursor: "pointer", textAlign: "left" }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, transition: "transform 0.15s", transform: collapsed ? "rotate(-90deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
-                                <span style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.09em", textTransform: "uppercase", color: TEXT_DARK }}>{sec}</span>
-                                <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, marginLeft: "0.25rem" }}>{posts.length}</span>
-                              </button>
-                              {!collapsed && posts.map(post => <PostRow key={post._id} post={post} />)}
+                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginTop: "0.25rem" }}>
+                        {filtered.map(post => (
+                          <div key={post._id}
+                            onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }}
+                            onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, post }); }}
+                            style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 100px 80px" : "1fr 140px 120px", gap: isMobile ? "0 0.5rem" : "0 1rem", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "white")}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                              <div style={{ minWidth: 0 }}>
+                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</em>}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
+                              </div>
                             </div>
-                          );
-                        })}
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.section}</span>
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{post.date}</span>
+                          </div>
+                        ))}
                       </div>
                     )}
                   </>
