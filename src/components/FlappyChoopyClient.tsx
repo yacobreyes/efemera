@@ -8,7 +8,17 @@ const H = 380;
 const DURATION_MS = 6000;
 const FADE_MS = 500;
 
-const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), { ssr: false });
+const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), {
+  ssr: false,
+  // Same-sized placeholder so the wrapper never collapses to a line while
+  // the game's JS downloads (it sits hidden under the loading overlay anyway).
+  loading: () => (
+    <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", height: 33, boxSizing: "border-box" }} />
+      <div style={{ width: "100%", aspectRatio: `${W}/${H}`, background: "#000" }} />
+    </div>
+  ),
+});
 
 export default function FlappyChoopyClient() {
   const [hideOverlay, setHideOverlay] = useState(false);
