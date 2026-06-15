@@ -65,7 +65,7 @@ const POSTS_QUERY = `*[_type == "post" && (
 )] | order(date desc) { ${POST_FIELDS} }`;
 
 export async function getAllPosts(): Promise<SanityPost[]> {
-  return client.fetch(POSTS_QUERY, {}, { cache: "no-store" });
+  return client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
 }
 
 
