@@ -12,6 +12,7 @@ const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ss
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
 
 export default function HomeClient({ posts, aboutParagraphs, lately, welcome, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; initialTab: Tab }) {
+  const [mounted, setMounted] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [fadingOut, setFadingOut] = useState(false);
   const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -19,7 +20,9 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
   const router = useRouter();
 
   useEffect(() => {
-    if (!document.cookie.includes("efemera_entered=1")) setShowAnimation(true);
+    const needsAnimation = !document.cookie.includes("efemera_entered=1");
+    setShowAnimation(needsAnimation);
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -44,7 +47,9 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
 
   return (
     <>
-      <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} onMastheadClick={() => setShowAnimation(true)} />
+      <div style={{ visibility: mounted ? "visible" : "hidden" }}>
+        <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} onMastheadClick={() => setShowAnimation(true)} />
+      </div>
       <ArcadeUnlockPopup />
 
       {/* Persistent arcade button — only after popup has been seen and dismissed */}
