@@ -15,7 +15,7 @@ const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), {
       <div style={{ width: "100%", aspectRatio: `${W}/${H}`, background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.25rem" }}>
         <style>{`
           @keyframes fc-fill { from { width: 0% } to { width: 100% } }
-          .fc-bar { animation: fc-fill 3s cubic-bezier(0.4,0,0.2,1) forwards; }
+          .fc-bar { animation: fc-fill 7s cubic-bezier(0.4,0,0.2,1) forwards; }
         `}</style>
         <span style={{ fontFamily: "monospace", fontSize: "clamp(0.75rem, 2.5vw, 0.9rem)", fontWeight: 700, letterSpacing: "0.2em", color: "#FFD700", textTransform: "uppercase", textShadow: "0 0 10px rgba(255,215,0,0.5)" }}>
           LOADING
