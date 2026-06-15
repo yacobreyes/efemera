@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ViewTransition } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { PortableText } from "@portabletext/react";
@@ -115,7 +116,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           .story-comments { margin: 1rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem !important; }
         }
       `}</style>
-      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", viewTransitionName: "site-header" } as React.CSSProperties}>
         <Link href="/">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
@@ -123,6 +124,8 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         <StoryNav />
       </header>
 
+      <ViewTransition name="page-content">
+      <div>
       <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
         <BackLink section={post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"} tab={post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"} />
 
@@ -219,6 +222,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
         <CommentSection slug={slug} />
       </div>
+
+      </div>
+      </ViewTransition>
 
       <StoryVisitTracker />
       <SiteFooter />

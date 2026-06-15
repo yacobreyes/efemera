@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    viewTransition: true,
+  },
   serverExternalPackages: ["sanity", "@sanity/vision"],
   async rewrites() {
     return [

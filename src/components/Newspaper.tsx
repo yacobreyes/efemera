@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, ViewTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
@@ -67,7 +67,7 @@ function TweetCard({ post }: { post: SanityPost; index: number }) {
       </div>
 
       <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={storyHref} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+        <Link href={storyHref} transitionTypes={["nav-forward"]} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
         </Link>
       </h2>
@@ -240,7 +240,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
           .feed-layout { padding: 0 0.75rem; }
         }
       `}</style>
-      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)", viewTransitionName: "site-header" } as React.CSSProperties}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
@@ -271,6 +271,8 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
         </nav>
       </header>
 
+      <ViewTransition name="page-content">
+      <div>
       {activeTab === "About" ? (
         <AboutPage paragraphs={aboutParagraphs} />
       ) : activeTab === "Archive" ? (
@@ -327,6 +329,8 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
           </div>
         </div>
       )}
+      </div>
+      </ViewTransition>
 
       <SiteFooter />
     </div>
