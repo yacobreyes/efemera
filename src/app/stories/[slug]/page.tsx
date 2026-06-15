@@ -9,6 +9,7 @@ import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
 import SiteFooter from "@/components/SiteFooter";
 import StoryVisitTracker from "@/components/StoryVisitTracker";
+import StoryNav from "@/components/StoryNav";
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
   const words = blocks
@@ -118,12 +119,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
         </Link>
-        <nav className="story-nav">
-          {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
-            <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
-          ))}
-          <Link href="/archive" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>Archive</Link>
-        </nav>
+        <StoryNav />
       </header>
 
       <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
