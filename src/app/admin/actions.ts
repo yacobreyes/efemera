@@ -145,6 +145,19 @@ interface VersionInput { postId: string; slug: string; type: "autosave" | "publi
 // to the most recent 20 per post. Stored in Sanity so history survives across devices.
 async function snapshotVersion({ postId, slug, type, headline, subheadline, body }: VersionInput) {
   try {
+    // Skip if nothing changed since the most recent version (avoids empty saves).
+    const latest = await client.fetch(
+      `*[_type == "postVersion" && slug == $slug] | order(savedAt desc)[0]{ headline, subheadline, body }`,
+      { slug },
+      { cache: "no-store" }
+    );
+    if (latest &&
+        latest.headline === headline &&
+        latest.subheadline === subheadline &&
+        JSON.stringify(latest.body ?? []) === JSON.stringify(body)) {
+      return;
+    }
+
     const versionDoc = {
       _id: `version-${slug}-${Date.now()}`,
       _type: "postVersion",
