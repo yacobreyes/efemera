@@ -486,7 +486,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               ))}
             </div>
             <div style={{ padding: "1rem 0 0.5rem", borderTop: `1px solid ${BORDER}`, marginTop: "0.75rem" }}>
-              <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>History</p>
+              <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Optional</p>
               <button type="button" onClick={() => setEditorTab("versions")}
                 style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === "versions" ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === "versions" ? 600 : 400, color: editorTab === "versions" ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
                 Previous versions
