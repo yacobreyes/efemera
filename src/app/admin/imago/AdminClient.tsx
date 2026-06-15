@@ -59,8 +59,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   const [editing, setEditing] = useState<SanityPost | null>(null);
 
-  const [welcomeHeadline, setWelcomeHeadline] = useState("👋 Hey, Yacob here.");
-  const [welcomeBody, setWelcomeBody] = useState("Welcome to my world! I made this space to share some of my more personal writing. Stay tuned.");
+  const [welcomeHeadline, setWelcomeHeadline] = useState("");
+  const [welcomeBody, setWelcomeBody] = useState("");
 
   const [latelyReading, setLatelyReading] = useState("");
   const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");

@@ -136,12 +136,6 @@ function TweetCard({ post, index }: { post: SanityPost; index: number }) {
   );
 }
 
-const ABOUT_DEFAULT = [
-  "Efemera is a collection of micro-memoirs, short narratives, and notes on craft.",
-  "We are, each of us, passersby, mere blips in time before we breathe our last and recede into memory. What we leave behind is ephemera, what Maurice Rickards called \"the minor transient documents of everyday life.\" Journal entries, photographs, and ticket stubs. A paper trail that, pieced together, tells a story.",
-  "This blog is where I keep mine.",
-];
-
 function ArchiveTab({ posts }: { posts: SanityPost[] }) {
   const groups = new Map<string, SanityPost[]>();
   for (const post of posts) {
@@ -183,7 +177,7 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
 }
 
 function AboutPage({ paragraphs }: { paragraphs: string[] }) {
-  const content = paragraphs.length > 0 ? paragraphs : ABOUT_DEFAULT;
+  const content = paragraphs;
 
   return (
     <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
@@ -304,14 +298,20 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
 
           {/* Sidebar */}
           <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
-                {welcome?.headline ?? "👋 Hey, Yacob here."}
-              </p>
-              <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", color: "#526270", margin: "0.35rem 0 0", lineHeight: 1.5 }}>
-                {welcome?.body ?? "Welcome to my world! I made this space to share some of my more personal writing. Stay tuned."}
-              </p>
-            </div>
+            {(welcome?.headline || welcome?.body) && (
+              <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
+                {welcome?.headline && (
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
+                    {welcome.headline}
+                  </p>
+                )}
+                {welcome?.body && (
+                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
+                    {welcome.body}
+                  </p>
+                )}
+              </div>
+            )}
             <Lately data={lately ?? null} />
           </div>
           <div className="sidebar-choopy">
