@@ -575,22 +575,21 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* ABOUT EDITOR */}
           {activePanel === "about" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", JSON.stringify(tiptapToPortableText(aboutDoc))); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", JSON.stringify(tiptapToPortableText(aboutDoc))); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
-              {/* Mini toolbar */}
-              {aboutEditor && (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", borderBottom: `1px solid ${BORDER}`, paddingBottom: "0.5rem" }}>
-                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor.isActive("bold") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, cursor: "pointer", color: aboutEditor.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1.05rem" }}>B</button>
-                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor.isActive("italic") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, cursor: "pointer", color: aboutEditor.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1.05rem" }}>I</button>
-                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 34, cursor: "pointer", color: aboutEditor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.95rem" }}>H2</button>
-                  <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.3rem" }} />
-                  <button type="button" title="Link (⌘K)" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 34, height: 34, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              <div style={{ border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.35rem 0.5rem", background: "#fafafa", borderBottom: `1px solid ${BORDER}` }}>
+                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor?.isActive("bold") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1rem", fontFamily: FONT }}>B</button>
+                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor?.isActive("italic") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1rem", fontFamily: FONT }}>I</button>
+                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor?.isActive("heading", { level: 2 }) ? "#efefef" : "none", border: "none", borderRadius: 3, padding: "0 6px", height: 30, cursor: "pointer", color: aboutEditor?.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.85rem", fontFamily: FONT }}>H2</button>
+                  <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.25rem" }} />
+                  <button type="button" title="Link" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor?.isActive("link") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor?.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                   </button>
                 </div>
-              )}
-              <div style={{ minHeight: 240 }}>
-                <RichBodyEditor initialContent={aboutDoc} onChange={setAboutDoc} onEditor={setAboutEditor} onToolbar={setAboutToolbar} />
+                <div style={{ minHeight: 240 }}>
+                  <RichBodyEditor initialContent={aboutDoc} onChange={setAboutDoc} onEditor={setAboutEditor} onToolbar={setAboutToolbar} />
+                </div>
               </div>
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
@@ -600,22 +599,38 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* LATELY EDITOR */}
           {activePanel === "lately" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("readingUrl", latelyReadingUrl); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("listeningUrl", latelyListeningUrl); fd.set("watching", latelyWatching); fd.set("watchingUrl", latelyWatchingUrl); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("readingUrl", latelyReadingUrl); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("listeningUrl", latelyListeningUrl); fd.set("watching", latelyWatching); fd.set("watchingUrl", latelyWatchingUrl); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
-                <div><label style={LABEL}>Book Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyReadingUrl} onChange={e => setLatelyReadingUrl(e.target.value)} /></div>
-                <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>
-                <div><label style={LABEL}>Song Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyListeningUrl} onChange={e => setLatelyListeningUrl(e.target.value)} /></div>
-                <div><label style={LABEL}>Artist</label><input style={INPUT} value={latelyListeningArtist} onChange={e => setLatelyListeningArtist(e.target.value)} /></div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                <div><label style={LABEL}>Currently Watching</label><input style={INPUT} value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} /></div>
-                <div><label style={LABEL}>Watch Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyWatchingUrl} onChange={e => setLatelyWatchingUrl(e.target.value)} /></div>
-              </div>
+              {([
+                { label: "Reading", fields: [
+                  { key: "reading", label: "Book title", val: latelyReading, set: setLatelyReading },
+                  { key: "readingUrl", label: "Link (optional)", val: latelyReadingUrl, set: setLatelyReadingUrl, placeholder: "https://…" },
+                  { key: "readingAuthor", label: "Author", val: latelyReadingAuthor, set: setLatelyReadingAuthor },
+                ]},
+                { label: "Listening", fields: [
+                  { key: "listening", label: "Song / album title", val: latelyListening, set: setLatelyListening },
+                  { key: "listeningUrl", label: "Link (optional)", val: latelyListeningUrl, set: setLatelyListeningUrl, placeholder: "https://…" },
+                  { key: "listeningArtist", label: "Artist", val: latelyListeningArtist, set: setLatelyListeningArtist },
+                ]},
+                { label: "Watching", fields: [
+                  { key: "watching", label: "Title", val: latelyWatching, set: setLatelyWatching },
+                  { key: "watchingUrl", label: "Link (optional)", val: latelyWatchingUrl, set: setLatelyWatchingUrl, placeholder: "https://…" },
+                ]},
+              ] as { label: string; fields: { key: string; label: string; val: string; set: (v: string) => void; placeholder?: string }[] }[]).map(section => (
+                <div key={section.label} style={{ border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{ padding: "0.5rem 0.85rem", background: "#fafafa", borderBottom: `1px solid ${BORDER}` }}>
+                    <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON }}>{section.label}</span>
+                  </div>
+                  <div style={{ padding: "1rem 0.85rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                    {section.fields.map(f => (
+                      <div key={f.key}>
+                        <label style={LABEL}>{f.label}</label>
+                        <input style={INPUT} value={f.val} placeholder={f.placeholder ?? ""} onChange={e => f.set(e.target.value)} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
