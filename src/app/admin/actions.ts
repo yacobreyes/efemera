@@ -92,6 +92,7 @@ export async function savePost(formData: FormData) {
   const imageAlt = formData.get("imageAlt") as string | null;
   const status = (formData.get("status") as string) || "draft";
   const scheduledAt = (formData.get("scheduledAt") as string) || null;
+  const shouldSnapshot = formData.get("snapshot") === "1";
 
   let body: unknown;
   try {
@@ -121,6 +122,7 @@ export async function savePost(formData: FormData) {
   }
 
   await mutate([{ createOrReplace: doc }]);
+  if (!shouldSnapshot) return { slug };
   await snapshotVersion({
     postId: doc._id as string,
     slug,

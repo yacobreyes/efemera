@@ -116,7 +116,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const isDirty = JSON.stringify(form) !== JSON.stringify(lastSaved) ||
     imageAssetId !== lastSavedImg.id || imageCaption !== lastSavedImg.caption || imageAlt !== lastSavedImg.alt;
 
-  const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false) => {
+  const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false, snapshot = false) => {
     setSaveStatus("saving");
     const fd = new FormData();
     const { body, ...rest } = form;
@@ -128,10 +128,11 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (imageCaption) fd.set("imageCaption", imageCaption);
     if (imageAlt) fd.set("imageAlt", imageAlt);
     if (status === "scheduled" && scheduledAt) fd.set("scheduledAt", new Date(scheduledAt).toISOString());
+    if (snapshot) fd.set("snapshot", "1");
     startTransition(async () => {
       try {
         await savePost(fd);
-        refreshVersions();
+        if (snapshot) refreshVersions();
         setLastSaved({ ...form, status, date: saveDate });
         setLastSavedImg({ id: imageAssetId, caption: imageCaption, alt: imageAlt });
         setForm(f => ({ ...f, status, date: saveDate }));
@@ -171,7 +172,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (!isDirty) return;
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
-      doSave(form.status === "published" ? "published" : "draft");
+      doSave(form.status === "published" ? "published" : "draft", false, false);
     }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +237,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (form.status === "published") {
       setShowPublishTimeModal(true);
     } else {
-      doSave("published", true);
+      doSave("published", true, true);
     }
   }
 
@@ -250,7 +251,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" onClick={() => { doSave(form.status === "published" ? "published" : "draft"); setTimeout(() => router.push("/admin"), 600); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+        <button type="button" onClick={() => { doSave(form.status === "published" ? "published" : "draft", false, true); router.push("/admin"); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           {!isMobile && "Save & Exit"}
         </button>
@@ -341,10 +342,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: "0 0 0.5rem", color: TEXT_DARK }}>Update publish time?</p>
             <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: "0 0 1.5rem", lineHeight: 1.5 }}>This story was originally published on <strong>{form.date}</strong>. Do you want to update the publish date to today?</p>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", true); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer" }}>
+              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", true, true); }} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer" }}>
                 Update to today ({new Date().toISOString().slice(0, 10)})
               </button>
-              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", false); }} style={{ background: "white", color: TEXT_DARK, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer" }}>
+              <button type="button" onClick={() => { setShowPublishTimeModal(false); doSave("published", false, true); }} style={{ background: "white", color: TEXT_DARK, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer" }}>
                 Keep original ({form.date})
               </button>
             </div>
@@ -359,7 +360,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             <p style={{ fontFamily: FONT, fontWeight: 700, margin: "0 0 1rem", color: TEXT_DARK }}>Schedule post</p>
             <label style={LABEL}>Publish at</label>
             <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.75rem" }} />
-            <button type="button" disabled={!scheduledAt || isPending} onClick={() => { setShowScheduler(false); doSave("scheduled"); }} style={{ width: "100%", background: CRIMSON, color: "white", border: "none", borderRadius: 6, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Confirm schedule</button>
+            <button type="button" disabled={!scheduledAt || isPending} onClick={() => { setShowScheduler(false); doSave("scheduled", false, true); }} style={{ width: "100%", background: CRIMSON, color: "white", border: "none", borderRadius: 6, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>Confirm schedule</button>
           </div>
         </div>
       )}
