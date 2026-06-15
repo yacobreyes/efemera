@@ -6,12 +6,13 @@ import dynamic from "next/dynamic";
 const W = 400;
 const H = 380;
 const MIN_SPLASH_MS = 2800;
+const FADE_MS = 400;
 
 const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), { ssr: false });
 
-function Splash() {
+function Splash({ fading }: { fading: boolean }) {
   return (
-    <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+    <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden", opacity: fading ? 0 : 1, transition: `opacity ${FADE_MS}ms ease` }}>
       <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>Flappy Choopy</span>
       </div>
@@ -32,13 +33,14 @@ function Splash() {
 }
 
 export default function FlappyChoopyClient() {
-  const [ready, setReady] = useState(false);
+  const [phase, setPhase] = useState<"splash" | "fading" | "done">("splash");
 
   useEffect(() => {
-    const t = setTimeout(() => setReady(true), MIN_SPLASH_MS);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => setPhase("fading"), MIN_SPLASH_MS);
+    const t2 = setTimeout(() => setPhase("done"), MIN_SPLASH_MS + FADE_MS);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  if (!ready) return <Splash />;
-  return <FlappyChoopy />;
+  if (phase === "done") return <FlappyChoopy />;
+  return <Splash fading={phase === "fading"} />;
 }
