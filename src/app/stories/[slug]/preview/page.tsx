@@ -106,6 +106,14 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
                 h3: ({ children }) => <h3 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "1.6rem 0 0", lineHeight: 1.3 }}>{children}</h3>,
                 blockquote: ({ children }) => <blockquote style={{ margin: "1.4rem 0 0", padding: "0.2rem 0 0.2rem 1.1rem", borderLeft: "3px solid #8B0000", fontStyle: "italic", color: "#526270" }}>{children}</blockquote>,
               },
+              list: {
+                bullet: ({ children }) => <ul style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ul>,
+                number: ({ children }) => <ol style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ol>,
+              },
+              listItem: {
+                bullet: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
+                number: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
+              },
               marks: {
                 strong: ({ children }) => <strong>{children}</strong>,
                 em: ({ children }) => <em>{children}</em>,
