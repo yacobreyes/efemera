@@ -2,7 +2,7 @@ import { isAuthed } from "@/lib/adminAuth";
 import { redirect } from "next/navigation";
 import { client } from "@/lib/sanity";
 import type { SanityPost } from "@/lib/sanity";
-import EditorClient from "../../EditorClient";
+import EditorClient from "../../../EditorClient";
 
 export const dynamic = "force-dynamic";
 

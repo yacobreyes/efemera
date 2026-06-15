@@ -155,11 +155,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
   function startNew() {
-    router.push(`/admin/posts/untitled-${Date.now()}`);
+    router.push(`/admin/imago/posts/untitled-${Date.now()}`);
   }
 
   function startEdit(post: SanityPost) {
-    router.push(`/admin/posts/${post.slug}`);
+    router.push(`/admin/imago/posts/${post.slug}`);
   }
 
   function tryNav(panel: Panel) {
@@ -695,7 +695,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
             </div>
           )}
 
-          {/* POST EDITOR is now at /admin/posts/[id] and /admin/posts/new */}
+          {/* POST EDITOR is now at /admin/imago/posts/[id] and /admin/imago/posts/new */}
           {activePanel === "editor" && (
             <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
@@ -823,7 +823,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               </>
             ) : (
               <>
-                <button onClick={() => { setContextMenu(null); router.push(`/admin/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
+                <button onClick={() => { setContextMenu(null); router.push(`/admin/imago/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button onClick={() => { const p = contextMenu.post; setContextMenu(null); if (confirm(`Delete "${p.headline || "this post"}"? This cannot be undone.`)) startTransition(async () => { await deletePost(p._id); refreshPosts(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
               </>
