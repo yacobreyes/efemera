@@ -9,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function ImagoLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <style>{`html { background: #f5f8fa !important; }`}</style>
+      {children}
+    </>
+  );
 }
