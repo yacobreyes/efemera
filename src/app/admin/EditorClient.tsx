@@ -301,34 +301,34 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               </button>
             ))}
             {/* Quote */}
-            <button type="button" title="Blockquote" data-tooltip="Blockquote" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run(); }}
+            <button type="button" title="Quote" data-tooltip="Quote" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run(); }}
               style={{ background: editor.isActive("blockquote") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
-            {/* H2 */}
-            <button type="button" title="Heading 2" data-tooltip="Heading 2" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run(); }}
+            {/* Headline */}
+            <button type="button" title="Headline" data-tooltip="Headline" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run(); }}
               style={{ background: editor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 32, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "0.88rem", fontWeight: 700 }}>
               H2
             </button>
             <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.25rem" }} />
-            {/* Bullet list */}
-            <button type="button" title="Bullet list" data-tooltip="Bullet list" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
+            {/* Bullet List */}
+            <button type="button" title="Bullet List" data-tooltip="Bullet List" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
               style={{ background: editor.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </button>
-            {/* Numbered list */}
-            <button type="button" title="Numbered list" data-tooltip="Numbered list" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run(); }}
+            {/* Number List */}
+            <button type="button" title="Number List" data-tooltip="Number List" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run(); }}
               style={{ background: editor.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
             </button>
             <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.25rem" }} />
             {/* Link */}
-            <button type="button" title="Link (⌘K)" data-tooltip="Link (⌘K)" className="tb-btn" onMouseDown={e => { e.preventDefault(); toolbar?.openLink(); }}
+            <button type="button" title="Link" data-tooltip="Link" className="tb-btn" onMouseDown={e => { e.preventDefault(); toolbar?.openLink(); }}
               style={{ background: editor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </button>
             {/* Image */}
-            <button type="button" title="Insert image" data-tooltip="Insert image" className="tb-btn" onMouseDown={e => { e.preventDefault(); toolbar?.openImage(); }}
+            <button type="button" title="Image" data-tooltip="Image" className="tb-btn" onMouseDown={e => { e.preventDefault(); toolbar?.openImage(); }}
               style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             </button>
