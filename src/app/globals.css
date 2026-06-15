@@ -10,6 +10,7 @@
 
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
+html { background: #8B0000; }
 
 .paper-bg {
   background-color: #f5f8fa;
