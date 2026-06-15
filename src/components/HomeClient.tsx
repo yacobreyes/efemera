@@ -9,6 +9,10 @@ import { useRouter } from "next/navigation";
 
 const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ssr: false });
 
+// Module-level flag: persists across client-side navigations (e.g. clicking "Home"),
+// but resets on a full page load (fresh tab, refresh, arriving from Google).
+let hasPlayedThisLoad = false;
+
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
 
 export default function HomeClient({ posts, aboutParagraphs, lately, welcome, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; initialTab: Tab }) {
@@ -20,7 +24,10 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
   const router = useRouter();
 
   useEffect(() => {
-    setShowAnimation(true);
+    if (!hasPlayedThisLoad) {
+      hasPlayedThisLoad = true;
+      setShowAnimation(true);
+    }
     setMounted(true);
   }, []);
 
