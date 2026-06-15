@@ -604,17 +604,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                 <div><label style={LABEL}>Currently Reading</label><input style={INPUT} value={latelyReading} onChange={e => setLatelyReading(e.target.value)} /></div>
+                <div><label style={LABEL}>Book Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyReadingUrl} onChange={e => setLatelyReadingUrl(e.target.value)} /></div>
                 <div><label style={LABEL}>Author</label><input style={INPUT} value={latelyReadingAuthor} onChange={e => setLatelyReadingAuthor(e.target.value)} /></div>
-                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyReadingUrl} onChange={e => setLatelyReadingUrl(e.target.value)} /></div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                 <div><label style={LABEL}>Currently Listening To</label><input style={INPUT} value={latelyListening} onChange={e => setLatelyListening(e.target.value)} /></div>
+                <div><label style={LABEL}>Song Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyListeningUrl} onChange={e => setLatelyListeningUrl(e.target.value)} /></div>
                 <div><label style={LABEL}>Artist</label><input style={INPUT} value={latelyListeningArtist} onChange={e => setLatelyListeningArtist(e.target.value)} /></div>
-                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyListeningUrl} onChange={e => setLatelyListeningUrl(e.target.value)} /></div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                 <div><label style={LABEL}>Currently Watching</label><input style={INPUT} value={latelyWatching} onChange={e => setLatelyWatching(e.target.value)} /></div>
-                <div><label style={LABEL}>Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyWatchingUrl} onChange={e => setLatelyWatchingUrl(e.target.value)} /></div>
+                <div><label style={LABEL}>Watch Link (optional)</label><input style={INPUT} placeholder="https://..." value={latelyWatchingUrl} onChange={e => setLatelyWatchingUrl(e.target.value)} /></div>
               </div>
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
