@@ -415,12 +415,18 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </button>
                 ))}
               </div>
-              {/* Right: Create new */}
-              <div style={{ width: 280, flexShrink: 0, display: "flex", justifyContent: "flex-end" }}>
-                <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-                  style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                  + Create new
-                </button>
+              {/* Right: Create new (dashboard only) or panel title */}
+              <div style={{ width: 280, flexShrink: 0, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                {activePanel === "dashboard" ? (
+                  <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                    + Create new
+                  </button>
+                ) : (
+                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : ""}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -436,10 +442,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 <span style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
                   <span style={{ color: CRIMSON }}>e</span>femera
                 </span>
-                <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-                  style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.85rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
-                  + New
-                </button>
+                {activePanel === "dashboard" && (
+                  <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.85rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
+                    + New
+                  </button>
+                )}
               </div>
               {/* Row 2: search (dashboard only) */}
               {activePanel === "dashboard" && (
@@ -597,7 +605,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 {/* Left: grid */}
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "1rem", overflowY: "auto", paddingRight: "1.5rem" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0, flexShrink: 0 }}>Media Library</h2>
                     <input
                       type="search"
                       placeholder="Search by name, alt text, or URL…"
