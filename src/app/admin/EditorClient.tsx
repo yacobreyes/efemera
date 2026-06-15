@@ -314,7 +314,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               style={{ background: "none", border: "none", borderRadius: 4, width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </button>
-            <div style={{ width: 1, height: 20, background: BORDER, margin: "0 0.5rem" }} />
           </div>
         )}
 
