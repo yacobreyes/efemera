@@ -154,7 +154,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       if (data.watching) setLatelyWatching(data.watching);
       if (data.watchingUrl) setLatelyWatchingUrl(data.watchingUrl);
     }).catch(() => {});
-    fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
+    fetch("/api/media").then(r => r.json()).then(data => {
+      if (Array.isArray(data)) {
+        setMediaAssets(data);
+        if (data.length > 0) { setInspectAsset(prev => prev ?? data[0]); setInspectAltText(data[0].altText ?? ""); }
+      }
+    }).catch(() => {});
     return () => clearTimeout(retryTimer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
