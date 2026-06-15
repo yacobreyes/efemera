@@ -132,7 +132,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     startTransition(async () => {
       try {
         await savePost(fd);
-        if (snapshot) refreshVersions();
+        refreshVersions();
         setLastSaved({ ...form, status, date: saveDate });
         setLastSavedImg({ id: imageAssetId, caption: imageCaption, alt: imageAlt });
         setForm(f => ({ ...f, status, date: saveDate }));
@@ -172,7 +172,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (!isDirty) return;
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
-      doSave(form.status === "published" ? "published" : "draft", false, false);
+      doSave(form.status === "published" ? "published" : "draft", false, true);
     }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps

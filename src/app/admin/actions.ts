@@ -122,7 +122,6 @@ export async function savePost(formData: FormData) {
   }
 
   await mutate([{ createOrReplace: doc }]);
-  if (!shouldSnapshot) return { slug };
   await snapshotVersion({
     postId: doc._id as string,
     slug,
