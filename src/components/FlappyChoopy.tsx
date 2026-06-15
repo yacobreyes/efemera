@@ -639,7 +639,7 @@ export default function FlappyChoopy() {
         </div>
       </div>
 
-      <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", cursor: "pointer" }} />
+      <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", cursor: "pointer", background: "#000" }} />
 
       {/* Score submission — shown below canvas after death */}
       {displayState === "scores" && nameInputActive && pendingScoreRef.current !== null && !submitted && (
