@@ -629,13 +629,13 @@ export default function FlappyChoopy() {
   }, [fetchLeaderboard]);
 
   return (
-    <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid #e1e8ed", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-        <span style={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+    <div style={{ background: "#0a0a0a", border: "2px solid #FFD700", borderRadius: 6, overflow: "hidden", boxShadow: "0 0 24px rgba(255,215,0,0.15)" }}>
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid rgba(255,215,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#FFD700", textShadow: "0 0 8px rgba(255,215,0,0.5)" }}>
           Flappy Choopy
         </span>
         <div style={{ position: "absolute", right: "0.85rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
-<button onClick={toggleMute} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#657786" }} title={muted ? "Unmute" : "Mute"}>{muted ? "🔇" : "🔊"}</button>
+<button onClick={toggleMute} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.95rem", lineHeight: 1, padding: 0, color: "#FFD700" }} title={muted ? "Unmute" : "Mute"}>{muted ? "🔇" : "🔊"}</button>
         </div>
       </div>
 
