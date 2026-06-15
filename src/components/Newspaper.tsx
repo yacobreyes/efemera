@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
+type SectionTab = "Micro-Memoirs" | "Narratives";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -194,6 +195,8 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+  const [sectionsOpen, setSectionsOpen] = useState(false);
+  const sectionsRef = useRef<HTMLDivElement>(null);
   const HOME_LIMIT = 10;
 
   const TAB_PATHS: Record<Tab, string> = {
@@ -207,8 +210,17 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
   function switchTab(tab: Tab) {
     setActiveTab(tab);
     setQuery("");
+    setSectionsOpen(false);
     router.replace(TAB_PATHS[tab], { scroll: false });
   }
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (sectionsRef.current && !sectionsRef.current.contains(e.target as Node)) setSectionsOpen(false);
+    }
+    if (sectionsOpen) document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [sectionsOpen]);
   const welcome = welcomeProp ?? null;
 
   const tabFiltered = activeTab === "Home"
@@ -257,9 +269,29 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
         <nav className="feed-nav">
-          {(["Home", "About", "Micro-Memoirs", "Narratives", "Archive"] as Tab[]).map(s => (
+          {(["Home", "About", "Archive"] as Tab[]).map(s => (
             <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
           ))}
+          {/* Sections dropdown */}
+          <div ref={sectionsRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setSectionsOpen(v => !v)}
+              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              Sections
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            {sectionsOpen && (
+              <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
+                {(["Micro-Memoirs", "Narratives"] as SectionTab[]).map(s => (
+                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.88rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+                    onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
+                    onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
       </header>
 
