@@ -168,11 +168,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     if (panel !== "editor") {
       setEditing(null);
       setIsDirty(false);
-      if (panel === "dashboard") {
-        router.push("/admin/imago");
-      } else {
-        router.push(`/admin/imago/${panel}`);
-      }
+      const url = panel === "dashboard" ? "/admin/imago" : `/admin/imago/${panel}`;
+      window.history.pushState(null, "", url);
     }
     if (panel === "lately") {
       fetch("/api/lately").then(r => r.json()).then(data => {
