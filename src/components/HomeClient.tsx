@@ -46,7 +46,7 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
 
   return (
     <>
-      <div style={{ visibility: mounted ? "visible" : "hidden" }}>
+      <div style={{ visibility: mounted && (!showAnimation || fadingOut) ? "visible" : "hidden" }}>
         <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} onMastheadClick={() => setShowAnimation(true)} />
       </div>
       <ArcadeUnlockPopup />
@@ -74,7 +74,7 @@ export default function HomeClient({ posts, aboutParagraphs, lately, welcome, in
       </button>}
 
       {showAnimation && (
-        <div style={{ opacity: fadingOut ? 0 : 1, transition: "opacity 0.65s ease", position: "fixed", inset: 0, zIndex: 100 }}>
+        <div style={{ opacity: fadingOut ? 0 : 1, transition: "opacity 0.65s ease", position: "fixed", inset: 0, zIndex: 100, background: "var(--crimson)" }}>
           <IntroAnimation onEnter={handleEnter} />
         </div>
       )}
