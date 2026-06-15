@@ -374,7 +374,32 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             {form.subheadline && <p style={{ fontFamily: FONT, fontSize: "1.05rem", color: TEXT_MUTED, margin: "0 0 1rem" }}>{form.subheadline}</p>}
             <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "0 0 1.5rem" }} />
             {(form.body.content ?? []).map((node, i) => {
-              const text = (node.content ?? []).flatMap((n: { type?: string; text?: string }) => n.type === "text" ? [n.text ?? ""] : []).join("");
+              if (node.type === "heading") {
+                const text = (node.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
+                const Tag = node.attrs?.level === 2 ? "h2" : "h3";
+                return <Tag key={i} style={{ fontFamily: FONT, fontWeight: 700, fontSize: node.attrs?.level === 2 ? "1.3rem" : "1.1rem", color: TEXT_DARK, margin: "1.5rem 0 0.4rem", lineHeight: 1.3 }}>{text}</Tag>;
+              }
+              if (node.type === "blockquote") {
+                const text = (node.content?.[0]?.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
+                return <blockquote key={i} style={{ borderLeft: `3px solid ${CRIMSON}`, margin: "1em 0", padding: "0.1em 0 0.1em 1.2em", fontStyle: "italic", color: "#526270", fontFamily: FONT }}>{text}</blockquote>;
+              }
+              if (node.type === "bulletList") {
+                return <ul key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem", paddingLeft: "1.4em" }}>
+                  {(node.content ?? []).map((item, j) => {
+                    const text = (item.content?.[0]?.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
+                    return <li key={j}>{text}</li>;
+                  })}
+                </ul>;
+              }
+              if (node.type === "orderedList") {
+                return <ol key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem", paddingLeft: "1.4em" }}>
+                  {(node.content ?? []).map((item, j) => {
+                    const text = (item.content?.[0]?.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
+                    return <li key={j}>{text}</li>;
+                  })}
+                </ol>;
+              }
+              const text = (node.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
               return <p key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem" }}>{text}</p>;
             })}
           </div>
