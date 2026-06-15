@@ -134,12 +134,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }
 
   useEffect(() => {
-    // Fire all prefetches in parallel on mount so every panel is instant
     refreshPosts();
-    // Re-fetch posts after a delay in case we just returned from the editor
-    // and the save hasn't landed in Sanity yet
     const retryTimer = setTimeout(refreshPosts, 1500);
-    return () => clearTimeout(retryTimer);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
@@ -159,6 +155,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       if (data.watchingUrl) setLatelyWatchingUrl(data.watchingUrl);
     }).catch(() => {});
     fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
+    return () => clearTimeout(retryTimer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
