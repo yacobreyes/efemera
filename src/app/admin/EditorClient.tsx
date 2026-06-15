@@ -68,7 +68,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const [form, setForm] = useState<FormState>(initialForm);
   const [lastSaved, setLastSaved] = useState<FormState>(initialForm);
   const [lastSavedImg, setLastSavedImg] = useState({ id: post.image?.asset?._ref ?? "", caption: post.image?.caption ?? "", alt: post.image?.alt ?? "" });
-  const [editorTab, setEditorTab] = useState<"content" | "metadata" | "versions">("content");
+  const [editorTab, setEditorTab] = useState<"content" | "metadata" | "seo" | "versions">("content");
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
   const [showEllipsis, setShowEllipsis] = useState(false);
@@ -463,10 +463,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         {/* Mobile tab bar */}
         {isMobile && (
           <div style={{ display: "flex", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0 }}>
-            {(["content", "metadata", "versions"] as const).map(tab => (
+            {(["content", "metadata", "seo", "versions"] as const).map(tab => (
               <button key={tab} type="button" onClick={() => setEditorTab(tab)}
-                style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${editorTab === tab ? CRIMSON : "transparent"}`, padding: "0.6rem 0", fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: editorTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
-                {tab === "content" ? "Story" : tab === "metadata" ? "Meta" : "History"}
+                style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${editorTab === tab ? CRIMSON : "transparent"}`, padding: "0.6rem 0", fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: editorTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
+                {tab === "content" ? "Story" : tab === "metadata" ? "Meta" : tab === "seo" ? "SEO" : "History"}
               </button>
             ))}
           </div>
@@ -478,10 +478,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
             <div style={{ padding: "1.25rem 0 0.5rem" }}>
               <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Required</p>
-              {(["content", "metadata"] as const).map(tab => (
+              {(["content", "metadata", "seo"] as const).map(tab => (
                 <button key={tab} type="button" onClick={() => setEditorTab(tab)}
                   style={{ display: "block", width: "100%", background: "none", border: "none", borderLeft: `3px solid ${editorTab === tab ? CRIMSON : "transparent"}`, textAlign: "left", padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: editorTab === tab ? 600 : 400, color: editorTab === tab ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-                  {tab === "content" ? "Story content" : "Metadata"}
+                  {tab === "content" ? "Story content" : tab === "metadata" ? "Metadata" : "Social & SEO"}
                 </button>
               ))}
             </div>
@@ -549,28 +549,26 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+            </div>
+          )}
 
-              {/* Social & SEO */}
-              <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "1.25rem" }}>
-                <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, color: TEXT_MUTED, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 1.25rem" }}>Social &amp; SEO</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-                  <div>
-                    <label style={LABEL}>URL Slug</label>
-                    <input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" />
-                  </div>
-                  <div>
-                    <label style={LABEL}>SEO Headline</label>
-                    <input style={INPUT} value={form.seoHeadline} onChange={e => updateForm({ seoHeadline: e.target.value })} placeholder={form.headline || "Appears in Google search results"} />
-                  </div>
-                  <div>
-                    <label style={LABEL}>Social Headline</label>
-                    <input style={INPUT} value={form.socialHeadline} onChange={e => updateForm({ socialHeadline: e.target.value })} placeholder={form.headline || "Appears on shared link preview"} />
-                  </div>
-                  <div>
-                    <label style={LABEL}>Social Description</label>
-                    <textarea style={{ ...INPUT, resize: "vertical", minHeight: 80 }} value={form.socialDescription} onChange={e => updateForm({ socialDescription: e.target.value })} placeholder="Caption that appears under shared link" />
-                  </div>
-                </div>
+          {editorTab === "seo" && (
+            <div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <div>
+                <label style={LABEL}>URL Slug</label>
+                <input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" />
+              </div>
+              <div>
+                <label style={LABEL}>SEO Headline</label>
+                <input style={INPUT} value={form.seoHeadline} onChange={e => updateForm({ seoHeadline: e.target.value })} placeholder={form.headline || "Appears in Google search results"} />
+              </div>
+              <div>
+                <label style={LABEL}>Social Headline</label>
+                <input style={INPUT} value={form.socialHeadline} onChange={e => updateForm({ socialHeadline: e.target.value })} placeholder={form.headline || "Appears on shared link preview"} />
+              </div>
+              <div>
+                <label style={LABEL}>Social Description</label>
+                <textarea style={{ ...INPUT, resize: "vertical", minHeight: 80 }} value={form.socialDescription} onChange={e => updateForm({ socialDescription: e.target.value })} placeholder="Caption that appears under shared link" />
               </div>
             </div>
           )}
