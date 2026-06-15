@@ -3,7 +3,6 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
-import { login, logout } from "../auth";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import type { JSONContent, Editor } from "@tiptap/react";
@@ -48,10 +47,7 @@ type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" |
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
   const router = useRouter();
-  const [auth, setAuth] = useState(initialAuth);
-  const [pw, setPw] = useState("");
-  const [authError, setAuthError] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false);
+  const [auth] = useState(initialAuth);
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [activePanel, setActivePanel] = useState<Panel>(initialPanel);

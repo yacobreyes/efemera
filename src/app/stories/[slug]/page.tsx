@@ -123,9 +123,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       </header>
 
       <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
-        <div style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
-          {post.section}
-        </div>
+        <Link href={`/?tab=${post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"}`} style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem", fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.1em", textTransform: "uppercase", color: "#8B0000", textDecoration: "none", marginBottom: "0.75rem" }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+          {post.section === "Micro-Memoir" ? "Micro-Memoirs" : "Narratives"}
+        </Link>
 
         <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
           {post.headline}
