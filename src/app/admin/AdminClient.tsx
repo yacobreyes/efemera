@@ -87,7 +87,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number } };
+  type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number }; usedIn?: { slug: string; headline: string }[] };
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
@@ -98,6 +98,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [inspectAltText, setInspectAltText] = useState("");
   const [urlCopied, setUrlCopied] = useState(false);
+  const [mediaSearch, setMediaSearch] = useState("");
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   type AdminComment = { _id: string; name: string; text: string; slug: string; _createdAt: string };
@@ -173,7 +174,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
       }).catch(() => {});
     }
     if (panel === "media") {
-      fetch("/api/media").then(r => r.json()).then(data => { if (Array.isArray(data)) setMediaAssets(data); }).catch(() => {});
+      setMediaSearch("");
+      fetch("/api/media").then(r => r.json()).then(data => {
+        if (Array.isArray(data)) {
+          setMediaAssets(data);
+          if (data.length > 0) { setInspectAsset(data[0]); setInspectAltText(data[0].altText ?? ""); setUrlCopied(false); }
+        }
+      }).catch(() => {});
     }
     if (panel === "comments") {
       setCommentsLoading(true);
@@ -197,7 +204,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
     try {
       const fd = new FormData(); fd.set("file", file); await uploadImage(fd);
       const data = await fetch("/api/media").then(r => r.json());
-      if (Array.isArray(data)) setMediaAssets(data);
+      if (Array.isArray(data)) { setMediaAssets(data); if (data.length > 0) { setInspectAsset(data[0]); setInspectAltText(data[0].altText ?? ""); setUrlCopied(false); } }
     } catch {}
     finally { setMediaUploading(false); if (mediaFileRef.current) mediaFileRef.current.value = ""; }
   }
@@ -315,47 +322,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
         </div>
       )}
 
-      {/* Inspect asset modal */}
-      {inspectAsset && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }} onClick={e => { if (e.target === e.currentTarget) setInspectAsset(null); }}>
-          <div style={{ background: "white", borderRadius: 6, maxWidth: 540, width: "100%", padding: "1.5rem" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`${inspectAsset.url}?w=800&auto=format`} alt="" style={{ width: "100%", maxHeight: 260, objectFit: "contain", borderRadius: 4, marginBottom: "1rem" }} />
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-              <div>
-                <label style={LABEL}>Alt text</label>
-                <textarea
-                  style={{ ...INPUT, minHeight: 52, resize: "vertical" }}
-                  value={inspectAltText}
-                  onChange={e => setInspectAltText(e.target.value)}
-                  onBlur={() => updateMediaAsset(inspectAsset._id, { altText: inspectAltText }).catch(() => {})}
-                  placeholder="Describe this image for screen readers"
-                />
-              </div>
-              <div><label style={LABEL}>Caption &amp; credit</label><textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} /></div>
-              <div>
-                <label style={LABEL}>Date added</label>
-                <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>{new Date(inspectAsset._createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
-              </div>
-              <div>
-                <label style={LABEL}>Recently used in</label>
-                <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>—</p>
-              </div>
-              <div>
-                <label style={LABEL}>Image URL</label>
-                <div style={{ display: "flex", gap: "0.4rem" }}>
-                  <input readOnly style={{ ...INPUT, flex: 1, color: TEXT_MUTED, fontSize: "0.78rem" }} value={inspectAsset.url} />
-                  <button type="button" onClick={() => { navigator.clipboard.writeText(inspectAsset.url).catch(() => {}); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }} style={{ background: urlCopied ? "#6a0000" : CRIMSON, border: "none", borderRadius: 4, padding: "0 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: "white", whiteSpace: "nowrap", transition: "background 0.15s" }}>{urlCopied ? "Copied!" : "Copy"}</button>
-                </div>
-              </div>
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
-                <button onClick={() => setInspectAsset(null)} style={{ flex: 1, background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Done</button>
-                <button onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(inspectAsset._id).then(() => { setMediaAssets(prev => prev.filter(a => a._id !== inspectAsset._id)); setInspectAsset(null); }).catch(() => {}); }} style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 4, padding: "0.5rem 0.75rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: CRIMSON }}>Delete</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Preview modal */}
       {showPreview && (
@@ -609,34 +575,86 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
           )}
 
           {/* MEDIA LIBRARY */}
-          {activePanel === "media" && (
-            <div style={{ maxWidth: 860 }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
-                <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Media Library</h2>
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                  {mediaUploading && <span style={{ fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED }}>Uploading…</span>}
-                  <input ref={mediaFileRef} type="file" accept="image/*" onChange={handleMediaUpload} style={{ display: "none" }} />
-                  <button type="button" onClick={() => mediaFileRef.current?.click()} disabled={mediaUploading} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}>+ Upload</button>
+          {activePanel === "media" && (() => {
+            const q = mediaSearch.toLowerCase();
+            const filtered = mediaAssets.filter(a =>
+              !q ||
+              (a.originalFilename ?? "").toLowerCase().includes(q) ||
+              (a.altText ?? "").toLowerCase().includes(q) ||
+              (a.description ?? "").toLowerCase().includes(q) ||
+              a.url.toLowerCase().includes(q)
+            );
+            return (
+              <div style={{ display: "flex", gap: 0, height: "100%", minHeight: 0 }}>
+                {/* Left: grid */}
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "1rem", overflowY: "auto", paddingRight: "1.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                    <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0, flexShrink: 0 }}>Media Library</h2>
+                    <input
+                      type="search"
+                      placeholder="Search by name, alt text, or URL…"
+                      value={mediaSearch}
+                      onChange={e => setMediaSearch(e.target.value)}
+                      style={{ ...INPUT, flex: 1, minWidth: 180, fontSize: "0.82rem" }}
+                    />
+                    <input ref={mediaFileRef} type="file" accept="image/*" onChange={handleMediaUpload} style={{ display: "none" }} />
+                    <button type="button" onClick={() => mediaFileRef.current?.click()} disabled={mediaUploading} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>{mediaUploading ? "Uploading…" : "+ Upload"}</button>
+                  </div>
+                  {mediaLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : filtered.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>{mediaSearch ? "No results." : "No images yet."}</p> : (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "0.6rem" }}>
+                      {filtered.map(asset => (
+                        <div key={asset._id}
+                          onClick={() => { setInspectAsset(asset); setInspectAltText(asset.altText ?? ""); setUrlCopied(false); }}
+                          style={{ cursor: "pointer", borderRadius: 4, overflow: "hidden", border: `2px solid ${inspectAsset?._id === asset._id ? CRIMSON : BORDER}`, background: "white", transition: "border-color 0.1s" }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`${asset.url}?w=280&h=160&fit=crop&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-              {mediaLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : mediaAssets.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images yet.</p> : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.75rem" }}>
-                  {mediaAssets.map(asset => (
-                    <div key={asset._id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={`${asset.url}?w=320&h=200&fit=crop&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", cursor: "pointer" }} onClick={() => { setInspectAsset(asset); setInspectAltText(asset.altText ?? ""); }} />
-                      <div style={{ padding: "0.4rem 0.5rem" }}>
-                        <div style={{ display: "flex", gap: "0.35rem" }}>
-                          <button type="button" onClick={() => { const caption = asset.title || (asset.originalFilename ? asset.originalFilename.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ") : ""); setImageAssetId(asset._id); setImagePreview("existing"); setImageCaption(caption); setActivePanel("editor"); }} style={{ flex: 1, background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 3, padding: "0.3rem 0", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: TEXT_DARK }}>Use in post</button>
-                          <button type="button" onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(asset._id).then(() => setMediaAssets(prev => prev.filter(a => a._id !== asset._id))).catch(() => {}); }} style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 3, padding: "0.3rem 0.4rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer", color: CRIMSON }}>✕</button>
+
+                {/* Right: detail panel */}
+                {inspectAsset && (
+                  <div style={{ width: 280, flexShrink: 0, borderLeft: `1px solid ${BORDER}`, paddingLeft: "1.5rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`${inspectAsset.url}?w=560&auto=format`} alt="" style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", borderRadius: 4 }} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                      <div>
+                        <label style={LABEL}>Alt text</label>
+                        <textarea style={{ ...INPUT, minHeight: 52, resize: "vertical" }} value={inspectAltText} onChange={e => setInspectAltText(e.target.value)} onBlur={() => updateMediaAsset(inspectAsset._id, { altText: inspectAltText }).catch(() => {})} placeholder="Describe for screen readers" />
+                      </div>
+                      <div>
+                        <label style={LABEL}>Caption &amp; credit</label>
+                        <textarea style={{ ...INPUT, minHeight: 60, resize: "vertical" }} defaultValue={inspectAsset.description ?? ""} key={inspectAsset._id + "_desc"} onBlur={e => updateMediaAsset(inspectAsset._id, { description: e.target.value }).catch(() => {})} />
+                      </div>
+                      <div>
+                        <label style={LABEL}>Date added</label>
+                        <p style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED, margin: 0 }}>{new Date(inspectAsset._createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
+                      </div>
+                      <div>
+                        <label style={LABEL}>Recently used in</label>
+                        {(inspectAsset.usedIn ?? []).length === 0
+                          ? <p style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED, margin: 0 }}>—</p>
+                          : (inspectAsset.usedIn ?? []).map(p => (
+                            <a key={p.slug} href={`/stories/${p.slug}`} target="_blank" rel="noreferrer" style={{ display: "block", fontFamily: FONT, fontSize: "0.82rem", color: CRIMSON, textDecoration: "none", marginBottom: "0.2rem" }}>{p.headline || p.slug}</a>
+                          ))
+                        }
+                      </div>
+                      <div>
+                        <label style={LABEL}>Image URL</label>
+                        <div style={{ display: "flex", gap: "0.4rem" }}>
+                          <input readOnly style={{ ...INPUT, flex: 1, color: TEXT_MUTED, fontSize: "0.72rem" }} value={inspectAsset.url} />
+                          <button type="button" onClick={() => { navigator.clipboard.writeText(inspectAsset.url).catch(() => {}); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }} style={{ background: urlCopied ? "#6a0000" : CRIMSON, border: "none", borderRadius: 4, padding: "0 0.65rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: "white", whiteSpace: "nowrap", transition: "background 0.15s" }}>{urlCopied ? "Copied!" : "Copy"}</button>
                         </div>
                       </div>
+                      <button type="button" onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(inspectAsset._id).then(() => { const next = mediaAssets.filter(a => a._id !== inspectAsset._id); setMediaAssets(next); setInspectAsset(next[0] ?? null); setInspectAltText(next[0]?.altText ?? ""); }).catch(() => {}); }} style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 4, padding: "0.4rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: CRIMSON, alignSelf: "flex-start" }}>Delete image</button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* COMMENTS */}
           {activePanel === "comments" && (
