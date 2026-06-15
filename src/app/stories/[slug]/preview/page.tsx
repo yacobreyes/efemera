@@ -27,7 +27,7 @@ function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) 
 
 export default async function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin");
+  if (!authed) redirect("/admin/imago");
 
   const { slug } = await params;
   const post = await client.fetch<SanityPost | null>(QUERY, { slug }, { cache: "no-store" });
