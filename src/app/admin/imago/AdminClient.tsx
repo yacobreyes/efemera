@@ -109,10 +109,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
+    setMounted(true);
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
@@ -259,6 +261,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       </div>
     );
   }
+
+  if (!mounted) return <div style={{ minHeight: "100vh", background: "white" }} />;
 
   const drafts = posts.filter(p => p.status === "draft");
   const scheduled = posts.filter(p => p.status === "scheduled");
