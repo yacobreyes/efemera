@@ -97,6 +97,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
   const [inspectAsset, setInspectAsset] = useState<MediaAsset | null>(null);
   const [inspectAltText, setInspectAltText] = useState("");
+  const [urlCopied, setUrlCopied] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   type AdminComment = { _id: string; name: string; text: string; slug: string; _createdAt: string };
@@ -344,7 +345,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false }
                 <label style={LABEL}>Image URL</label>
                 <div style={{ display: "flex", gap: "0.4rem" }}>
                   <input readOnly style={{ ...INPUT, flex: 1, color: TEXT_MUTED, fontSize: "0.78rem" }} value={inspectAsset.url} />
-                  <button type="button" onClick={() => navigator.clipboard.writeText(inspectAsset.url).catch(() => {})} style={{ background: "#f5f8fa", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_DARK, whiteSpace: "nowrap" }}>Copy</button>
+                  <button type="button" onClick={() => { navigator.clipboard.writeText(inspectAsset.url).catch(() => {}); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }} style={{ background: urlCopied ? "#e6f4ea" : "#f5f8fa", border: `1px solid ${urlCopied ? "#4caf50" : BORDER}`, borderRadius: 4, padding: "0 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: urlCopied ? "#2e7d32" : TEXT_DARK, whiteSpace: "nowrap", transition: "all 0.15s" }}>{urlCopied ? "Copied!" : "Copy"}</button>
                 </div>
               </div>
               <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.25rem" }}>
