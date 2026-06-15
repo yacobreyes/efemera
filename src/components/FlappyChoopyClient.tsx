@@ -14,7 +14,9 @@ const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), {
   // the game's JS downloads (it sits hidden under the loading overlay anyway).
   loading: () => (
     <div style={{ background: "#0a0a0a", border: "2px solid #FFD700", borderRadius: 6, overflow: "hidden", boxShadow: "0 0 24px rgba(255,215,0,0.15)" }}>
-      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid rgba(255,215,0,0.25)", height: 34, boxSizing: "border-box" }} />
+      <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid rgba(255,215,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#FFD700", textShadow: "0 0 8px rgba(255,215,0,0.5)" }}>Flappy Choopy</span>
+      </div>
       <div style={{ width: "100%", aspectRatio: `${W}/${H}`, background: "#000" }} />
     </div>
   ),
@@ -48,7 +50,7 @@ export default function FlappyChoopyClient() {
           <div style={{ padding: "0.6rem 0.85rem", borderBottom: "1px solid rgba(255,215,0,0.25)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.72rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#FFD700", textShadow: "0 0 8px rgba(255,215,0,0.5)" }}>Flappy Choopy</span>
           </div>
-          <div style={{ flex: 1, width: "100%", aspectRatio: `${W}/${H}`, background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.25rem" }}>
+          <div style={{ width: "100%", aspectRatio: `${W}/${H}`, background: "#000", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "1.25rem" }}>
             <style>{`
               @keyframes fc-fill { from { width: 0% } to { width: 100% } }
               .fc-bar { animation: fc-fill ${DURATION_MS}ms linear forwards; }
