@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
+import { logout } from "../auth";
 import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -60,6 +61,15 @@ type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" |
 export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
   const router = useRouter();
   const [auth] = useState(initialAuth);
+
+  // Sign-out has to clear both auth paths: the NextAuth Google session AND
+  // the legacy password cookie set by ../auth's login() — clearing only one
+  // left the other still valid, so isAuthed() kept returning true.
+  async function signOutEverywhere() {
+    await logout();
+    const { signOut } = await import("next-auth/react");
+    await signOut({ callbackUrl: "/admin/imago" });
+  }
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [activePanel, setActivePanel] = useState<Panel>(initialPanel);
@@ -450,7 +460,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           </div>
           {/* Sign out */}
           <div style={{ padding: "0.75rem 0.4rem", borderTop: `1px solid ${BORDER}` }}>
-            <button onClick={async () => { const { signOut } = await import("next-auth/react"); await signOut({ callbackUrl: "/admin/imago" }); }} className="admin-nav-btn" title={!sidebarOpen ? "Sign out" : undefined}>
+            <button onClick={signOutEverywhere} className="admin-nav-btn" title={!sidebarOpen ? "Sign out" : undefined}>
               <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </span>
@@ -601,7 +611,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   ))}
                 </div>
                 <div style={{ padding: "1rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
-                  <button onClick={async () => { const { signOut } = await import("next-auth/react"); await signOut({ callbackUrl: "/admin/imago" }); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
+                  <button onClick={signOutEverywhere} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Sign out</button>
                 </div>
               </div>
             </div>
