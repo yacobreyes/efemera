@@ -12,6 +12,10 @@ const CRIMSON = "#8B0000";
 const TEXT_DARK = "#1c2938";
 const TEXT_MUTED = "#526270";
 
+// Email clients (and the preview iframe) can't load a relative path, so the
+// masthead image needs an absolute URL to match the in-app editor's wordmark.
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
+
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
@@ -104,7 +108,7 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:92%;">
         <tr><td style="background:${CRIMSON};border-radius:4px;padding:24px;text-align:center;">
-          <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:0.02em;">efemera</div>
+          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="180" style="height:36px;width:auto;display:inline-block;" />
           <div style="font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-top:8px;">${date}</div>
         </td></tr>
         <tr><td style="height:12px;"></td></tr>
