@@ -14,7 +14,16 @@ export default async function EditNewsletterPage({ params }: { params: Promise<{
 
   const { id } = await params;
 
-  const draft = await client.fetch(`*[_id == $id][0]{ ${NL_FIELDS} }`, { id }, { cache: "no-store" });
+  // Both queries only need the id, so run them concurrently instead of
+  // waiting on the draft fetch before starting the versions fetch.
+  const [draft, rawVersions] = await Promise.all([
+    client.fetch(`*[_id == $id][0]{ ${NL_FIELDS} }`, { id }, { cache: "no-store" }),
+    client.fetch(
+      `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0...20]{ "id": _id, createdAt, subject, preview, author, wordCount, cards }`,
+      { id },
+      { cache: "no-store" }
+    ),
+  ]);
 
   const initial: InitialNewsletter = draft
     ? {
@@ -27,13 +36,7 @@ export default async function EditNewsletterPage({ params }: { params: Promise<{
       }
     : null;
 
-  const versions: NlVersion[] = draft
-    ? (await client.fetch(
-        `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0...20]{ "id": _id, createdAt, subject, preview, author, wordCount, cards }`,
-        { id },
-        { cache: "no-store" }
-      )) ?? []
-    : [];
+  const versions: NlVersion[] = rawVersions ?? [];
 
   return <NewsletterEditorClient newsletterId={id} initial={initial} initialVersions={versions} />;
 }
