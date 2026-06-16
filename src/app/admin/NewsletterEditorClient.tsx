@@ -87,6 +87,8 @@ export default function NewsletterEditorClient({
   const nlMoveStartYRef = useRef(0);
   const nlCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const nlPrevTops = useRef<Record<string, number> | null>(null);
+  const nlCardsRef = useRef<NlEditorCard[]>([]);
+  nlCardsRef.current = nlCards;
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -103,9 +105,31 @@ export default function NewsletterEditorClient({
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlMovingId(null); };
     // Position the floating card via direct DOM writes (not React state) so
     // it tracks the cursor every frame without re-rendering the whole list.
+    // Reorder is recomputed from cursor Y on every move (not mouseenter),
+    // so cards swap the instant the cursor crosses a neighbor's midpoint —
+    // even if that neighbor just slid out from under a stationary cursor.
+    let lastTo: number | null = null;
     const onMove = (e: MouseEvent) => {
       const el = nlMoveChipRef.current;
       if (el) el.style.top = `${e.clientY - 18}px`;
+
+      const cards = nlCardsRef.current;
+      const from = cards.findIndex(c => c.id === nlMovingId);
+      if (from === -1) return;
+      let to = 0;
+      for (let idx = 0; idx < cards.length; idx++) {
+        if (idx === from) continue;
+        const cardEl = nlCardRefs.current[cards[idx].id];
+        if (!cardEl) continue;
+        const rect = cardEl.getBoundingClientRect();
+        if (rect.top + rect.height / 2 < e.clientY) to++;
+      }
+      if (to === from || to === lastTo) return;
+      lastTo = to;
+      const tops: Record<string, number> = {};
+      for (const c of cards) { const ce = nlCardRefs.current[c.id]; if (ce) tops[c.id] = ce.getBoundingClientRect().top; }
+      nlPrevTops.current = tops;
+      nlMoveCard(from, to);
     };
     window.addEventListener("mouseup", drop);
     window.addEventListener("keydown", onKey);
@@ -433,15 +457,6 @@ export default function NewsletterEditorClient({
 
               <div className="nl-card" draggable={false}
                 ref={el => { nlCardRefs.current[card.id] = el; }}
-                onMouseEnter={() => {
-                  if (!nlMovingId || nlMovingId === card.id) return;
-                  const from = nlCards.findIndex(c => c.id === nlMovingId);
-                  if (from === -1 || from === i) return;
-                  const tops: Record<string, number> = {};
-                  for (const c of nlCards) { const el = nlCardRefs.current[c.id]; if (el) tops[c.id] = el.getBoundingClientRect().top; }
-                  nlPrevTops.current = tops;
-                  nlMoveCard(from, i);
-                }}
                 onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                 style={nlMovingId === card.id
                   ? { height: 0, padding: 0, margin: 0, border: "none", overflow: "hidden", transition: "height 0.12s ease" }
