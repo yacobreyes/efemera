@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect, useRef } from "react";
+import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -128,8 +128,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   type NlEditorCard = { id: string; headline: string; doc: JSONContent };
   const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
   const [nlCards, setNlCards] = useState<NlEditorCard[]>(() => [newNlCard(), newNlCard()]);
-  const [nlSaving, setNlSaving] = useState(false);
-  const [nlSuccess, setNlSuccess] = useState("");
+  const [nlSaveStatus, setNlSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const [nlLoaded, setNlLoaded] = useState(false);
+  const nlLastSaved = useRef<string>("");
   type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[] };
   type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; cards?: NlCard[]; card1?: NlCard; card2?: NlCard };
   const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
@@ -219,12 +220,54 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     setIsDirty(JSON.stringify(form) !== JSON.stringify(savedForm));
   }, [form, savedForm]);
 
-  function refreshNlVersions() {
-    fetch("/api/newsletter").then(r => r.json()).then(d => { if (Array.isArray(d)) setNlVersions(d); }).catch(() => {});
-  }
+  // Build the serializable newsletter payload (cards bodies → portable text)
+  const nlPayload = () => ({
+    subject: nlSubject, preview: nlPreview, author: nlAuthor,
+    wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
+    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc) })),
+  });
+
+  const nlSave = useCallback(async (payload: object) => {
+    setNlSaveStatus("saving");
+    try {
+      const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (Array.isArray(data?.versions)) setNlVersions(data.versions);
+      nlLastSaved.current = JSON.stringify(payload);
+      setNlSaveStatus("saved");
+    } catch { setNlSaveStatus("unsaved"); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load draft + versions when entering the newsletter panel
   useEffect(() => {
-    if (activePanel === "newsletter") refreshNlVersions();
-  }, [activePanel]);
+    if (activePanel !== "newsletter" || nlLoaded) return;
+    setNlLoaded(true);
+    fetch("/api/newsletter").then(r => r.json()).then(d => {
+      if (Array.isArray(d?.versions)) setNlVersions(d.versions);
+      const draft = d?.draft;
+      if (draft) {
+        setNlSubject(draft.subject ?? "");
+        setNlPreview(draft.preview ?? "");
+        setNlAuthor(draft.author ?? "Yacob Reyes");
+        if (Array.isArray(draft.cards) && draft.cards.length) {
+          setNlCards(draft.cards.map((c: NlCard) => ({ ...newNlCard(), headline: c.headline ?? "", doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC })));
+        }
+        nlLastSaved.current = JSON.stringify({ subject: draft.subject ?? "", preview: draft.preview ?? "", author: draft.author ?? "Yacob Reyes", wordCount: draft.wordCount, cards: draft.cards ?? [] });
+      }
+    }).catch(() => {});
+  }, [activePanel, nlLoaded]);
+
+  // Auto-save every 3s when dirty (matches the story editor)
+  useEffect(() => {
+    if (activePanel !== "newsletter" || !nlLoaded) return;
+    const payload = nlPayload();
+    if (JSON.stringify(payload) === nlLastSaved.current) return;
+    setNlSaveStatus("unsaved");
+    const timer = setTimeout(() => { nlSave(payload); }, 3000);
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nlSubject, nlPreview, nlAuthor, nlCards, activePanel, nlLoaded]);
 
   function restoreNlVersion(v: NlVersion) {
     if (!confirm("Restore this version? Your current text will be replaced.")) return;
@@ -896,20 +939,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 )}
 
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSuccess}</span>}
+                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
                   <button
                     disabled={!nlSubject}
-                    onClick={async () => {
-                      setNlSaving(true);
-                      const nlWordCount = nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length;
-                      try {
-                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, wordCount: nlWordCount, cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc) })) }) });
-                        setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
-                        refreshNlVersions();
-                      } catch { setError("Save failed"); } finally { setNlSaving(false); }
-                    }}
+                    onClick={() => nlSave(nlPayload())}
                     style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject ? 0.5 : 1 }}>
-                    {nlSaving ? "Saving…" : "Publish"}
+                    Publish
                   </button>
                 </div>
               </div>
