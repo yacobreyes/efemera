@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const FONT = "'Inter', sans-serif";
+const FONT = "var(--font-inter), sans-serif";
 const BORDER = "#e1e8ed";
 const TEXT_MUTED = "#526270";
 

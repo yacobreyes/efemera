@@ -58,22 +58,22 @@ function TweetCard({ post }: { post: SanityPost; index: number }) {
   return (
     <div style={{ padding: "1.1rem 1rem", background: "white", borderBottom: "1px solid #e1e8ed" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
           {post.section}
         </span>
-        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem", color: "#657786" }}>
           {formatDate(post.date)}
         </span>
       </div>
 
       <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={storyHref} prefetch={true} className="card-headline" style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+        <Link href={storyHref} prefetch={true} className="card-headline" style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
           {post.headline}
         </Link>
       </h2>
 
       {post.subheadline && (
-        <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
           {post.subheadline}
         </p>
       )}
@@ -90,11 +90,11 @@ function TweetCard({ post }: { post: SanityPost; index: number }) {
         </div>
       )}
 
-      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+      <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
         {displayText}
       </p>
 
-      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+      <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
         {post.byline} · {readingTime(plainText)} min read
       </div>
 
@@ -103,7 +103,7 @@ function TweetCard({ post }: { post: SanityPost; index: number }) {
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
-          <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
+          <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
         </Link>
         <LikeButton slug={post.slug} />
         <ShareButton slug={post.slug} headline={post.headline} />
@@ -123,11 +123,11 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
 
   return (
     <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
-      {groups.size === 0 && <p style={{ fontFamily: "'Inter', sans-serif", color: "#657786" }}>Nothing here yet.</p>}
+      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
+      {groups.size === 0 && <p style={{ fontFamily: "var(--font-inter), sans-serif", color: "#657786" }}>Nothing here yet.</p>}
       {[...groups.entries()].map(([month, monthPosts]) => (
         <div key={month} style={{ marginBottom: "1.8rem" }}>
-          <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
+          <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
             {month}
           </h2>
           {monthPosts.map(post => {
@@ -137,10 +137,10 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
                 <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
                   {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
                 </span>
-                <span className="archive-title" style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
+                <span className="archive-title" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
                   {post.headline}
                 </span>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                   {post.section}
                 </span>
               </Link>
@@ -157,9 +157,9 @@ function AboutPage({ paragraphs }: { paragraphs: string[] }) {
 
   return (
     <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
+      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
       {content.map((p, i) => (
-            <p key={i} style={{ fontFamily: "'Inter', sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
+            <p key={i} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
           ))
       }
     </div>
@@ -220,7 +220,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
     <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <style>{`
         .feed-nav { display: flex; gap: 2rem; align-items: center; }
-        .feed-nav button { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
+        .feed-nav button { font-family: var(--font-inter), sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
         .archive-title { color: #1c2938; transition: color 0.15s; }
         .archive-title:hover { color: #8B0000; }
         .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
@@ -258,7 +258,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
             {sectionsOpen && (
               <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
                 {(["Micro-Memoirs", "Narratives"] as SectionTab[]).map(s => (
-                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "'Inter', sans-serif", fontSize: "0.88rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.88rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
                     onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
                     onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
                     {s}
@@ -287,12 +287,12 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search posts…"
-                style={{ width: "100%", fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
+                style={{ width: "100%", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
               />
             </div>
 
             {visiblePosts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "'Inter', sans-serif", color: "#657786", fontSize: "1rem" }}>
+              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "var(--font-inter), sans-serif", color: "#657786", fontSize: "1rem" }}>
                 {query ? `No results for "${query}"` : "No posts yet."}
               </div>
             ) : (
@@ -309,12 +309,12 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
             {(welcome?.headline || welcome?.body) && (
               <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
                 {welcome?.headline && (
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
                     {welcome.headline}
                   </p>
                 )}
                 {welcome?.body && (
-                  <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
+                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
                     {welcome.body}
                   </p>
                 )}

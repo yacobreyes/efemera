@@ -43,7 +43,7 @@ export default function CommentSection({ slug }: { slug: string }) {
   }
 
   const S: React.CSSProperties = {
-    fontFamily: "'Inter', sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "0.9rem",
     padding: "0.5rem 0.7rem",
     border: "1px solid #e1e8ed",
@@ -56,7 +56,7 @@ export default function CommentSection({ slug }: { slug: string }) {
   return (
     <section id="comments" style={{ width: "100%", maxWidth: 600, margin: "0 auto 3rem", padding: "0 0", scrollMarginTop: "4rem" }}>
       <div style={{ borderTop: "2px solid #e1e8ed", paddingTop: "1.5rem", marginTop: "0.5rem" }}>
-        <h2 style={{ fontFamily: "'Inter', sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "0 0 1.2rem" }}>
+        <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "0 0 1.2rem" }}>
           {comments.length === 0 ? "Leave a comment" : `${comments.length} comment${comments.length === 1 ? "" : "s"}`}
         </h2>
 
@@ -64,15 +64,15 @@ export default function CommentSection({ slug }: { slug: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
             {comments.map(c => (
               <div key={c._id} style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.75rem 1rem" }}>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontWeight: 600, fontSize: "0.78rem", color: "#8B0000", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.name}</p>
-                <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.95rem", lineHeight: 1.6, color: "#2d2d2d", margin: 0 }}>{c.text}</p>
+                <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 600, fontSize: "0.78rem", color: "#8B0000", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.name}</p>
+                <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", lineHeight: 1.6, color: "#2d2d2d", margin: 0 }}>{c.text}</p>
               </div>
             ))}
           </div>
         )}
 
         {submitted ? (
-          <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", color: "#2e7d32" }}>Comment posted!</p>
+          <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", color: "#2e7d32" }}>Comment posted!</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
             <input
@@ -94,7 +94,7 @@ export default function CommentSection({ slug }: { slug: string }) {
               <button
                 onClick={submit}
                 disabled={!name.trim() || !text.trim() || submitting}
-                style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "white", background: "#8B0000", border: "none", borderRadius: 3, cursor: "pointer", padding: "0.4rem 1rem", opacity: (!name.trim() || !text.trim() || submitting) ? 0.5 : 1 }}>
+                style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 600, color: "white", background: "#8B0000", border: "none", borderRadius: 3, cursor: "pointer", padding: "0.4rem 1rem", opacity: (!name.trim() || !text.trim() || submitting) ? 0.5 : 1 }}>
                 {submitting ? "Posting…" : "Post"}
               </button>
             </div>

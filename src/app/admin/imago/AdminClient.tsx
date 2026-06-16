@@ -14,7 +14,7 @@ const CRIMSON = "#8B0000";
 const BORDER = "#e1e8ed";
 const TEXT_DARK = "#1c2938";
 const TEXT_MUTED = "#526270";
-const FONT = "'Inter', sans-serif";
+const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
   fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem",
@@ -1101,8 +1101,8 @@ function PostRow({ post, onClick }: { post: SanityPost; onClick: () => void }) {
   return (
     <div className="post-row" onClick={onClick}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline}</p>
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{post.section} · {post.date}</p>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline}</p>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{post.section} · {post.date}</p>
       </div>
     </div>
   );

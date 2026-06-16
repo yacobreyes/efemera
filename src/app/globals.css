@@ -52,25 +52,6 @@ body {
   user-select: none;
 }
 
-.wordmark-title {
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
-  font-size: clamp(5rem, 15vw, 12rem);
-  color: white;
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  text-shadow: 0 4px 32px rgba(0,0,0,0.3);
-}
-
-.wordmark-subtitle {
-  font-family: 'Libre Baskerville', serif;
-  font-size: clamp(0.7rem, 2vw, 1.1rem);
-  letter-spacing: 0.35em;
-  color: rgba(255,255,255,0.85);
-  text-transform: uppercase;
-  margin-top: 0.5rem;
-}
-
 .enter-hint {
   font-family: var(--font-inter), sans-serif;
   font-size: 0.75rem;
@@ -97,40 +78,6 @@ body {
   padding: 1.5rem 2rem 1rem;
   text-align: center;
   background: var(--cream);
-}
-
-.newspaper-masthead {
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
-  font-size: clamp(3rem, 8vw, 7rem);
-  color: var(--crimson);
-  letter-spacing: -0.02em;
-  line-height: 0.9;
-  display: inline-block;
-  position: relative;
-}
-
-.newspaper-tagline {
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--rule);
-  margin-top: 0.25rem;
-}
-
-.newspaper-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.4rem 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  margin-top: 0.5rem;
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
-  color: var(--ink);
 }
 
 .newspaper-columns {
@@ -164,93 +111,12 @@ body {
 
 @media (max-width: 640px) { .article-lead { grid-template-columns: 1fr; } }
 
-.article-kicker {
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--crimson);
-  margin-bottom: 0.3rem;
-  font-weight: 700;
-}
-
-.article-headline {
-  font-family: 'Playfair Display', serif;
-  font-weight: 700;
-  color: var(--ink);
-  line-height: 1.15;
-  margin-bottom: 0.4rem;
-}
-
-.article-headline.large {
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  font-weight: 900;
-}
-
-.article-headline.medium { font-size: clamp(1.1rem, 2vw, 1.5rem); }
-.article-headline.small  { font-size: 1rem; }
-
-.article-byline {
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  color: #666;
-  margin-bottom: 0.5rem;
-  font-style: italic;
-}
-
-.article-body {
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.82rem;
-  line-height: 1.7;
-  color: var(--ink);
-  text-align: justify;
-  hyphens: auto;
-}
-
-.article-body p:first-child::first-letter {
-  font-family: 'Playfair Display', serif;
-  font-size: 3.5em;
-  font-weight: 900;
-  float: left;
-  line-height: 0.75;
-  margin: 0.05em 0.07em 0 0;
-  color: var(--crimson);
-}
-
 .article-image {
   width: 100%;
   aspect-ratio: 4/3;
   overflow: hidden;
   margin-bottom: 0.5rem;
   background: var(--crimson);
-}
-
-.pull-quote {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.05rem;
-  font-style: italic;
-  font-weight: 700;
-  border-top: 2px solid var(--rule);
-  border-bottom: 2px solid var(--rule);
-  padding: 0.6rem 0;
-  margin: 1rem 0;
-  color: var(--crimson);
-  text-align: center;
-  line-height: 1.4;
-}
-
-.section-label {
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
-  font-size: 0.65rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: white;
-  background: var(--rule);
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  margin: 0 2rem;
 }
 
 .section-rule {
@@ -270,27 +136,6 @@ body {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.nav-bar {
-  background: var(--crimson);
-  padding: 0.5rem 2rem;
-  display: flex;
-  gap: 1.5rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.nav-bar a {
-  font-family: 'Libre Baskerville', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.8);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.nav-bar a:hover { color: white; }
 
 /* thin horizontal rules between column articles */
 .article-card + .article-card {

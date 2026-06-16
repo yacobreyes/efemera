@@ -28,7 +28,7 @@ export default function ShareButton({ slug, headline }: { slug: string; headline
           <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
         </svg>
       )}
-      <span style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.8rem" }}>{copied ? "Copied!" : "Share"}</span>
+      <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem" }}>{copied ? "Copied!" : "Share"}</span>
     </button>
   );
 }

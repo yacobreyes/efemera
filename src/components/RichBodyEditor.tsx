@@ -12,7 +12,7 @@ import type { JSONContent } from "@tiptap/react";
 const CRIMSON = "#8B0000";
 const TEXT_DARK = "#1c2938";
 const BORDER = "#e1e8ed";
-const FONT = "'Inter', sans-serif";
+const FONT = "var(--font-inter), sans-serif";
 
 export interface ToolbarHandles {
   openLink: () => void;

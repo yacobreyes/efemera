@@ -6,7 +6,7 @@ function MaybeLink({ url, children }: { url?: string; children: React.ReactNode 
   return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>;
 }
 
-const FONT = "'Inter', sans-serif";
+const FONT = "var(--font-inter), sans-serif";
 const BORDER = "#e1e8ed";
 const CRIMSON = "#8B0000";
 const TEXT_DARK = "#1c2938";

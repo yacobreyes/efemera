@@ -7,7 +7,7 @@ const CRIMSON = "#8B0000";
 const BORDER = "#e1e8ed";
 const TEXT_DARK = "#1c2938";
 const TEXT_MUTED = "#526270";
-const FONT = "'Inter', sans-serif";
+const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
   fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem",
