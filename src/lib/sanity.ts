@@ -1,5 +1,4 @@
 import { createClient } from "next-sanity";
-import imageUrlBuilder from "@sanity/image-url";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SanityImageSource = any;
 
@@ -17,10 +16,10 @@ export const client = createClient({
   token,
 });
 
-const builder = imageUrlBuilder(client);
-export function urlFor(source: SanityImageSource) {
-  return builder.image(source);
-}
+// Re-exported for server-side call sites — client components should import
+// from "@/lib/sanityImage" directly so they don't pull in next-sanity's
+// createClient (this file) just to build an image URL.
+export { urlFor } from "./sanityImage";
 
 export interface SanityPost {
   _id: string;

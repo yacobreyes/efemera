@@ -7,7 +7,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import { PortableText } from "@portabletext/react";
 import type { SanityPost, SanityLately } from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
+import { urlFor } from "@/lib/sanityImage";
 import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
 import { renderInline } from "@/lib/renderInline";
