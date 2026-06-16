@@ -394,16 +394,6 @@ export default function NewsletterEditorClient({
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", opacity: nlCards.length > 1 ? 1 : 0.4 }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-                    <button type="button" title="Move up" disabled={i === 0} onClick={() => nlMoveCard(i, i - 1)}
-                      style={{ width: 36, height: 30, borderRadius: "8px 8px 0 0", background: "white", border: `1px solid ${BORDER}`, borderBottom: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: i === 0 ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: i === 0 ? 0.4 : 1 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="18 15 12 9 6 15"/></svg>
-                    </button>
-                    <button type="button" title="Move down" disabled={i === nlCards.length - 1} onClick={() => nlMoveCard(i, i + 1)}
-                      style={{ width: 36, height: 30, borderRadius: "0 0 8px 8px", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: i === nlCards.length - 1 ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: i === nlCards.length - 1 ? 0.4 : 1 }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-                    </button>
-                  </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: "0.75rem" }}>
                   <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
