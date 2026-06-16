@@ -990,7 +990,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />
                     </div>
                     <div>
-                      <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line <span style={{ color: CRIMSON }}>*</span></label>
+                      <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line<span style={{ color: CRIMSON }}>*</span></label>
                       <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} placeholder="Add a subject line" style={INPUT} />
                     </div>
                     <div>
