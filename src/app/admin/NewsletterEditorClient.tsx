@@ -23,6 +23,14 @@ const INPUT: React.CSSProperties = {
 
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 
+function ptPlainText(blocks?: { _type?: string; children?: { text?: string }[] }[]): string {
+  if (!blocks?.length) return "";
+  return blocks
+    .filter(b => b._type === "block")
+    .flatMap(b => (b.children ?? []).map(c => c.text ?? ""))
+    .join(" ");
+}
+
 function formatVersionTime(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
@@ -364,7 +372,10 @@ export default function NewsletterEditorClient({
   const findFiltered = findPosts.filter(p => {
     const isDraftOrScheduled = p.status === "draft" || p.status === "scheduled";
     if (findShowDraftScheduled ? !isDraftOrScheduled : isDraftOrScheduled) return false;
-    return !findQuery.trim() || p.headline.toLowerCase().includes(findQuery.trim().toLowerCase());
+    const q = findQuery.trim().toLowerCase();
+    if (!q) return true;
+    const bodyText = ptPlainText(p.body as { _type?: string; children?: { text?: string }[] }[]).toLowerCase();
+    return p.headline.toLowerCase().includes(q) || p.byline?.toLowerCase().includes(q) || p.section?.toLowerCase().includes(q) || bodyText.includes(q);
   });
 
   return (
@@ -430,7 +441,7 @@ export default function NewsletterEditorClient({
               <button type="button" title="Close" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
             </div>
             <div style={{ padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem", borderBottom: `1px solid ${BORDER}` }}>
-              <input value={findQuery} onChange={e => setFindQuery(e.target.value)} placeholder="Search by headline" style={INPUT} />
+              <input value={findQuery} onChange={e => setFindQuery(e.target.value)} placeholder="Search by headline, byline, or content" style={INPUT} />
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }} onClick={() => setFindShowDraftScheduled(v => !v)}>
                 <span style={{ width: 32, height: 18, borderRadius: 10, background: findShowDraftScheduled ? CRIMSON : "#ccd3d8", position: "relative", transition: "background 0.15s", flexShrink: 0 }}>
                   <span style={{ position: "absolute", top: 2, left: findShowDraftScheduled ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "white", transition: "left 0.15s" }} />
