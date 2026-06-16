@@ -128,6 +128,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [editorTab, setEditorTab] = useState<"content" | "metadata">("content");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<"lastEdited" | "dateCreated">("lastEdited");
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -166,6 +169,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showCreateMenu]);
+
+  useEffect(() => {
+    if (!showSortMenu) return;
+    const handler = (e: MouseEvent) => { if (sortMenuRef.current && !sortMenuRef.current.contains(e.target as Node)) setShowSortMenu(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showSortMenu]);
 
   useEffect(() => {
     try { localStorage.removeItem(LS_KEY); } catch {}
@@ -483,7 +493,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 {activePanel === "dashboard" && (
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search for stories…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 )}
               </div>
@@ -570,7 +580,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 <div style={{ padding: "0 1rem 0.6rem" }}>
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 </div>
               )}
@@ -634,10 +644,29 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 }) : nlList;
                 const total = filtered.length + nlFiltered.length;
                 const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled item" : "published item";
+                const sortKey = (dateA?: string, createdA?: string) => sortBy === "dateCreated" ? (createdA ?? dateA ?? "") : (dateA ?? createdA ?? "");
+                const sortedNl = [...nlFiltered].sort((a, b) => sortKey(a.updatedAt, a.createdAt).localeCompare(sortKey(b.updatedAt, b.createdAt)) * -1);
+                const sortedPosts = [...filtered].sort((a, b) => sortKey(a._updatedAt, a._createdAt).localeCompare(sortKey(b._updatedAt, b._createdAt)) * -1);
+                const sortLabel = sortBy === "lastEdited" ? "Last edited" : "Date created";
                 return (
                   <>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
                       <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, paddingLeft: "1rem" }}>{total} {total === 1 ? label : label + "s"}</p>
+                      <div ref={sortMenuRef} style={{ position: "relative" }}>
+                        <button onClick={() => setShowSortMenu(v => !v)} style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, padding: "0.25rem 0.5rem" }}>
+                          Sort by: {sortLabel}
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        {showSortMenu && (
+                          <div style={{ position: "absolute", right: 0, top: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 20, minWidth: 160 }}>
+                            {(["lastEdited", "dateCreated"] as const).map(opt => (
+                              <button key={opt} onClick={() => { setSortBy(opt); setShowSortMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: sortBy === opt ? "#f5f8fa" : "none", border: "none", cursor: "pointer", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK, padding: "0.55rem 0.85rem" }}>
+                                {opt === "lastEdited" ? "Last edited" : "Date created"}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                     {/* Table header */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem" }}>
@@ -652,7 +681,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       </div>
                     ) : (
                       <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginTop: "0.25rem" }}>
-                        {nlFiltered.map(n => (
+                        {sortedNl.map(n => (
                           <div key={n._id}
                             onClick={() => openNewsletter(n)}
                             onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, kind: "newsletter", newsletter: n }); }}
@@ -670,7 +699,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                             <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{(n.createdAt ?? n.updatedAt ?? "").slice(0, 10) || "—"}</span>
                           </div>
                         ))}
-                        {filtered.map(post => (
+                        {sortedPosts.map(post => (
                           <div key={post._id}
                             onClick={() => startEdit(post)}
                             onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, kind: "post", post }); }}

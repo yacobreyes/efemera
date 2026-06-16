@@ -24,6 +24,7 @@ export { urlFor } from "./sanityImage";
 export interface SanityPost {
   _id: string;
   _updatedAt?: string;
+  _createdAt?: string;
   slug: string;
   section: "Micro-Memoir" | "Narratives";
   headline: string;
@@ -48,6 +49,7 @@ const POST_FIELDS = `
   byline,
   date,
   _updatedAt,
+  _createdAt,
   body,
   image { asset, caption, alt },
   status,
