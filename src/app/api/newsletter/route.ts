@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
 
-const DRAFT_ID = "newsletter-draft";
-
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
@@ -25,63 +23,105 @@ async function mutate(mutations: unknown[]) {
   return res.json();
 }
 
-export async function GET() {
-  const draft = await client.fetch(
-    `*[_id == $id][0]`,
-    { id: DRAFT_ID },
+const NL_FIELDS = `_id, subject, preview, author, wordCount, cards, status, scheduledAt, createdAt, updatedAt, sentAt`;
+
+async function versionsFor(newsletterId: string) {
+  const raw: ({ _id: string } & Record<string, unknown>)[] = await client.fetch(
+    `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0...20]{ _id, createdAt, subject, preview, author, wordCount, cards }`,
+    { id: newsletterId },
     { cache: "no-store" }
   );
-  const rawVersions: ({ _id: string } & Record<string, unknown>)[] = await client.fetch(
-    `*[_type == "newsletterVersion"] | order(createdAt desc)[0...20]{ _id, createdAt, subject, preview, author, wordCount, cards }`,
+  return (raw ?? []).map(({ _id, ...rest }) => ({ id: _id, ...rest }));
+}
+
+// GET            → list all newsletters (for the dashboard)
+// GET ?id=<id>   → a single newsletter draft + its version history
+export async function GET(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (id) {
+    const draft = await client.fetch(`*[_id == $id][0]{ ${NL_FIELDS} }`, { id }, { cache: "no-store" });
+    const versions = await versionsFor(id);
+    return NextResponse.json({ draft: draft ?? null, versions });
+  }
+  const list = await client.fetch(
+    `*[_type == "newsletter"] | order(coalesce(updatedAt, createdAt) desc){ ${NL_FIELDS} }`,
     {},
     { cache: "no-store" }
   );
-  const versions = (rawVersions ?? []).map(({ _id, ...rest }) => ({ id: _id, ...rest }));
-  return NextResponse.json({ draft: draft ?? null, versions });
+  return NextResponse.json({ newsletters: list ?? [] });
 }
 
+// POST { id?, subject, preview, author, wordCount, cards, status?, scheduledAt? }
+// Creates or updates a newsletter document, then snapshots a version (deduped).
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const now = new Date().toISOString();
+  const id: string = body.id || `newsletter-${Date.now()}`;
 
-  // Upsert draft
-  const draftDoc = { _id: DRAFT_ID, _type: "newsletter", ...body, updatedAt: now };
-  await mutate([{ createOrReplace: draftDoc }]);
-
-  // Check last version to dedupe
-  const latest = await client.fetch(
-    `*[_type == "newsletterVersion"] | order(createdAt desc)[0]{ subject, preview, author, wordCount, cards }`,
-    {},
+  // Preserve createdAt / status across updates.
+  const existing = await client.fetch(
+    `*[_id == $id][0]{ createdAt, status }`,
+    { id },
     { cache: "no-store" }
   );
 
+  const draftDoc: Record<string, unknown> = {
+    _id: id,
+    _type: "newsletter",
+    subject: body.subject ?? "",
+    preview: body.preview ?? "",
+    author: body.author ?? "Yacob Reyes",
+    wordCount: body.wordCount ?? 0,
+    cards: body.cards ?? [],
+    status: body.status ?? existing?.status ?? "draft",
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+    ...(body.scheduledAt ? { scheduledAt: body.scheduledAt } : {}),
+  };
+  await mutate([{ createOrReplace: draftDoc }]);
+
+  // Snapshot a version unless nothing changed since the latest.
+  const latest = await client.fetch(
+    `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0]{ subject, preview, author, wordCount, cards }`,
+    { id },
+    { cache: "no-store" }
+  );
   const sameAsLast = latest &&
     JSON.stringify({ subject: latest.subject, preview: latest.preview, author: latest.author, wordCount: latest.wordCount, cards: latest.cards }) ===
     JSON.stringify({ subject: body.subject, preview: body.preview, author: body.author, wordCount: body.wordCount, cards: body.cards });
 
   if (!sameAsLast) {
-    const versionId = `nl-version-${Date.now()}`;
-    const versionDoc = { _id: versionId, _type: "newsletterVersion", createdAt: now, ...body };
-
-    // Prune versions beyond 20
+    const versionDoc = {
+      _id: `nlv-${id}-${Date.now()}`,
+      _type: "newsletterVersion",
+      newsletterId: id,
+      createdAt: now,
+      subject: body.subject ?? "",
+      preview: body.preview ?? "",
+      author: body.author ?? "Yacob Reyes",
+      wordCount: body.wordCount ?? 0,
+      cards: body.cards ?? [],
+    };
     const stale: string[] = await client.fetch(
-      `*[_type == "newsletterVersion"] | order(createdAt desc)[19...100]._id`,
-      {},
+      `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[19...100]._id`,
+      { id },
       { cache: "no-store" }
     );
-
-    await mutate([
-      { createOrReplace: versionDoc },
-      ...stale.map(id => ({ delete: { id } })),
-    ]);
+    await mutate([{ createOrReplace: versionDoc }, ...stale.map(sid => ({ delete: { id: sid } }))]);
   }
 
-  const rawVersions2: ({ _id: string } & Record<string, unknown>)[] = await client.fetch(
-    `*[_type == "newsletterVersion"] | order(createdAt desc)[0...20]{ _id, createdAt, subject, preview, author, wordCount, cards }`,
-    {},
+  return NextResponse.json({ ok: true, id, versions: await versionsFor(id) }, { status: 200 });
+}
+
+// DELETE ?id=<id> → remove a newsletter and its versions
+export async function DELETE(req: NextRequest) {
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "missing id" }, { status: 400 });
+  const versionIds: string[] = await client.fetch(
+    `*[_type == "newsletterVersion" && newsletterId == $id]._id`,
+    { id },
     { cache: "no-store" }
   );
-  const versions = (rawVersions2 ?? []).map(({ _id, ...rest }) => ({ id: _id, ...rest }));
-
-  return NextResponse.json({ ok: true, versions }, { status: 200 });
+  await mutate([{ delete: { id } }, ...versionIds.map(vid => ({ delete: { id: vid } }))]);
+  return NextResponse.json({ ok: true });
 }
