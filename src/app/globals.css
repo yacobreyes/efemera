@@ -10,7 +10,10 @@
 
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
-html { background: #8B0000; }
+/* Match the page content backdrop (#f5f8fa) so client-side navigation
+   between pages doesn't flash the crimson body between unmount/paint.
+   Headers, the footer, and the intro overlay set their own crimson. */
+html { background: #f5f8fa; }
 
 .paper-bg {
   background-color: #f5f8fa;
@@ -19,7 +22,7 @@ html { background: #8B0000; }
 .card-headline:hover { color: #8B0000 !important; transition: color 0.15s; }
 
 body {
-  background: #8B0000;
+  background: #f5f8fa;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
