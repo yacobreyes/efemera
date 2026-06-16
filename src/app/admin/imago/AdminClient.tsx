@@ -351,12 +351,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       {/* Photo picker modal */}
       {showPhotoPicker && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 1100, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }} onClick={e => { if (e.target === e.currentTarget) setShowPhotoPicker(false); }}>
-          <div style={{ background: "white", borderRadius: 6, width: "100%", maxWidth: 720, padding: "1.5rem" }}>
+          <div style={{ background: "white", borderRadius: 8, width: "100%", maxWidth: 720, padding: "1.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.1rem", color: TEXT_DARK, margin: 0 }}>Choose from library</h2>
               <button onClick={() => setShowPhotoPicker(false)} style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
             </div>
-            {photoPickerLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : photoPickerAssets.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images yet.</p> : (
+            {photoPickerLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : photoPickerAssets.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images in library yet.</p> : (
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "0.6rem" }}>
                 {photoPickerAssets.map(asset => (
                   <div key={asset._id} onClick={() => {
@@ -380,7 +380,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       {/* Preview modal */}
       {showPreview && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 1000, display: "flex", alignItems: "flex-start", justifyContent: "center", overflowY: "auto", padding: "2rem 1rem" }} onClick={e => { if (e.target === e.currentTarget) setShowPreview(false); }}>
-          <div style={{ background: "white", borderRadius: 6, maxWidth: 680, width: "100%", padding: "2.5rem", position: "relative" }}>
+          <div style={{ background: "white", borderRadius: 8, maxWidth: 680, width: "100%", padding: "2.5rem", position: "relative" }}>
             <button onClick={() => setShowPreview(false)} style={{ position: "absolute", top: "1rem", right: "1rem", background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
             <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, color: TEXT_MUTED, textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 0.5rem" }}>{form.section}</p>
             <h1 style={{ fontFamily: FONT, fontSize: "1.8rem", color: TEXT_DARK, margin: "0 0 0.5rem", lineHeight: 1.25 }}>{form.headline || <em style={{ color: TEXT_MUTED }}>No headline</em>}</h1>
@@ -508,8 +508,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     </button>
                     {showCreateMenu && (
                       <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 140, zIndex: 300, overflow: "hidden" }}>
-                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Story</button>
-                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard?")) return; createNewNewsletter(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Newsletter</button>
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Story</button>
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; createNewNewsletter(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Newsletter</button>
                       </div>
                     )}
                   </div>
@@ -661,11 +661,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
               <div style={{ border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.35rem 0.5rem", background: "#fafafa", borderBottom: `1px solid ${BORDER}` }}>
-                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor?.isActive("bold") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1rem", fontFamily: FONT }}>B</button>
-                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor?.isActive("italic") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1rem", fontFamily: FONT }}>I</button>
-                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor?.isActive("heading", { level: 2 }) ? "#efefef" : "none", border: "none", borderRadius: 3, padding: "0 6px", height: 30, cursor: "pointer", color: aboutEditor?.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.85rem", fontFamily: FONT }}>H2</button>
+                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor?.isActive("bold") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1rem", fontFamily: FONT }}>B</button>
+                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor?.isActive("italic") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1rem", fontFamily: FONT }}>I</button>
+                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor?.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 30, cursor: "pointer", color: aboutEditor?.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.85rem", fontFamily: FONT }}>H2</button>
                   <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.25rem" }} />
-                  <button type="button" title="Link" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor?.isActive("link") ? "#efefef" : "none", border: "none", borderRadius: 3, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor?.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+                  <button type="button" title="Link" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor?.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor?.isActive("link") ? CRIMSON : TEXT_MUTED }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                   </button>
                 </div>
@@ -790,7 +790,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       <input ref={mediaFileRef} type="file" accept="image/*" onChange={handleMediaUpload} style={{ display: "none" }} />
                       <button type="button" onClick={() => mediaFileRef.current?.click()} disabled={mediaUploading} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>{mediaUploading ? "Uploading…" : "+ Upload"}</button>
                     </div>
-                    {mediaLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : filtered.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>{mediaSearch ? "No results." : "No images yet."}</p> : (
+                    {mediaLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : filtered.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>{mediaSearch ? "No results." : "No images in library yet."}</p> : (
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.5rem" }}>
                         {filtered.map(asset => (
                           <div key={asset._id}
@@ -837,7 +837,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: "#2d2d2d", margin: 0, lineHeight: 1.6 }}>{c.text}</p>
                       </div>
                       <button
-                        onClick={() => { if (!confirm("Delete this comment?")) return; startTransition(async () => { await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c._id }) }); setAdminComments(prev => prev.filter(x => x._id !== c._id)); }); }}
+                        onClick={() => { if (!confirm("Delete this comment? This cannot be undone.")) return; startTransition(async () => { await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c._id }) }); setAdminComments(prev => prev.filter(x => x._id !== c._id)); }); }}
                         style={{ flexShrink: 0, background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.3rem 0.6rem", fontFamily: FONT, fontSize: "0.78rem", color: CRIMSON, cursor: "pointer" }}
                       >Delete</button>
                     </div>
@@ -856,7 +856,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 {/* Top bar */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
                   {/* Left: go back */}
-                  <button type="button" onClick={() => { if (!isDirty || confirm("Discard?")) { setActivePanel("dashboard"); setEditing(null); setIsDirty(false); } }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+                  <button type="button" onClick={() => { if (!isDirty || confirm("Discard unsaved changes?")) { setActivePanel("dashboard"); setEditing(null); setIsDirty(false); } }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                     Go back
                   </button>

@@ -445,7 +445,10 @@ export default function NewsletterEditorClient({
                   <div key={v.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
                     <div style={{ minWidth: 0 }}>
                       <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatVersionTime(v.createdAt)}</p>
-                      <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.15rem 0 0" }}>{v.wordCount ?? 0} words</p>
+                      <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.15rem 0 0" }}>
+                        {v.type === "publish" ? "Published" : "Auto-saved"}
+                        {v.wordCount ? ` · ${v.wordCount} words` : ""}
+                      </p>
                     </div>
                     <div style={{ position: "relative", flexShrink: 0 }}>
                       <button type="button" onClick={() => setNlVersionMenu(nlVersionMenu === v.id ? null : v.id)}

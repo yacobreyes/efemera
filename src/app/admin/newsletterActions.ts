@@ -29,6 +29,7 @@ async function mutate(mutations: unknown[]) {
 export type NlVersion = {
   id: string;
   createdAt: string;
+  type?: "autosave" | "publish";
   author?: string;
   subject?: string;
   preview?: string;
@@ -38,7 +39,7 @@ export type NlVersion = {
 
 async function versionsFor(newsletterId: string): Promise<NlVersion[]> {
   const raw: ({ _id: string } & Record<string, unknown>)[] = await client.fetch(
-    `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0...20]{ _id, createdAt, subject, preview, author, wordCount, cards }`,
+    `*[_type == "newsletterVersion" && newsletterId == $id] | order(createdAt desc)[0...20]{ _id, createdAt, type, subject, preview, author, wordCount, cards }`,
     { id: newsletterId },
     { cache: "no-store" }
   );
@@ -99,6 +100,7 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
       _type: "newsletterVersion",
       newsletterId: id,
       createdAt: now,
+      type: draftDoc.status === "published" ? "publish" : "autosave",
       subject: payload.subject ?? "",
       preview: payload.preview ?? "",
       author: payload.author ?? "Yacob Reyes",
