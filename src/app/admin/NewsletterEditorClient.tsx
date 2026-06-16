@@ -255,7 +255,9 @@ export default function NewsletterEditorClient({
     });
   }
 
-  // Build the serializable newsletter payload (card bodies → portable text)
+  // Build the serializable newsletter payload (card bodies → portable text).
+  // Expensive (converts every card's doc), so only call this right before
+  // an actual save — not on every render just to check if something changed.
   const nlPayload = useCallback(() => ({
     id: newsletterId,
     status: nlStatus,
@@ -267,31 +269,40 @@ export default function NewsletterEditorClient({
     cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null })),
   }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
 
-  const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>) => {
+  // Cheap dirty-check signature (raw tiptap docs, no portable-text conversion)
+  // so typing doesn't re-run the expensive conversion above on every keystroke.
+  const nlSignature = useCallback(() => JSON.stringify({
+    status: nlStatus, scheduledAt: nlScheduledAt, subject: nlSubject, preview: nlPreview, author: nlAuthor,
+    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null })),
+  }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
+
+  const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
     if (nlDeleting.current) return;
     setNlSaveStatus("saving");
     try {
       const data = await saveNewsletter(payload);
       if (Array.isArray(data?.versions)) setNlVersions(data.versions);
-      nlLastSaved.current = JSON.stringify(payload);
+      nlLastSaved.current = signature ?? JSON.stringify(payload);
       setNlSaveStatus("saved");
     } catch { setNlSaveStatus("unsaved"); }
   }, []);
 
   // Seed the dedupe baseline so opening an existing newsletter doesn't immediately re-save.
   useEffect(() => {
-    nlLastSaved.current = JSON.stringify(nlPayload());
+    nlLastSaved.current = nlSignature();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-save every 3s when dirty (matches the story editor)
+  // Auto-save every 3s when dirty (matches the story editor). Uses the cheap
+  // signature to detect changes on every render, and only pays for the
+  // expensive portable-text conversion once the debounce actually fires.
   useEffect(() => {
-    const payload = nlPayload();
-    if (JSON.stringify(payload) === nlLastSaved.current) return;
+    const signature = nlSignature();
+    if (signature === nlLastSaved.current) return;
     setNlSaveStatus("unsaved");
-    const timer = setTimeout(() => { nlSave(payload); }, 3000);
+    const timer = setTimeout(() => { nlSave(nlPayload(), signature); }, 3000);
     return () => clearTimeout(timer);
-  }, [nlPayload, nlSave]);
+  }, [nlSignature, nlPayload, nlSave]);
 
   function exit() { window.location.href = "/admin/imago"; }
 
