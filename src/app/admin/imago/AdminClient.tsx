@@ -192,9 +192,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, []);
 
   // The newsletter editor now lives at its own route (/admin/imago/newsletters/[id]),
-  // mirroring the story editor. The dashboard just navigates into it.
+  // mirroring the story editor. /newsletters/new creates the doc on the server
+  // before redirecting, so the draft exists (and shows up in the dashboard)
+  // immediately instead of waiting on the editor's autosave.
   function createNewNewsletter() {
-    router.push(`/admin/imago/newsletters/newsletter-${Date.now()}`);
+    router.push("/admin/imago/newsletters/new");
   }
   function openNewsletter(item: NlListItem) {
     router.push(`/admin/imago/newsletters/${item._id}`);

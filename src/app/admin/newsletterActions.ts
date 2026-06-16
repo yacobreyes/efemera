@@ -45,6 +45,30 @@ async function versionsFor(newsletterId: string): Promise<NlVersion[]> {
   return (raw ?? []).map(({ _id, ...rest }) => ({ id: _id, ...rest })) as NlVersion[];
 }
 
+// Creates the newsletter doc synchronously so it exists in Sanity (and shows
+// up in the dashboard) the instant "New Newsletter" is clicked — mirrors
+// createDraft() for stories instead of waiting on the editor's autosave.
+export async function createNewsletterDraft(): Promise<{ id: string }> {
+  await requireAuth();
+  const id = `newsletter-${Date.now()}`;
+  const now = new Date().toISOString();
+  await mutate([{
+    createOrReplace: {
+      _id: id,
+      _type: "newsletter",
+      subject: "",
+      preview: "",
+      author: "Yacob Reyes",
+      wordCount: 0,
+      cards: [],
+      status: "draft",
+      createdAt: now,
+      updatedAt: now,
+    },
+  }]);
+  return { id };
+}
+
 export type NlPayload = {
   id: string;
   subject?: string;
