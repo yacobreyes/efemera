@@ -131,8 +131,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlCard2Doc, setNlCard2Doc] = useState<JSONContent>(EMPTY_DOC);
   const [nlSaving, setNlSaving] = useState(false);
   const [nlSuccess, setNlSuccess] = useState("");
-  type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; wordCount?: number };
+  type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[] };
+  type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; card1?: NlCard; card2?: NlCard };
   const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
+  const [nlVersionMenu, setNlVersionMenu] = useState<string | null>(null);
   // Shared toolbar drives whichever card is focused (like the story editor)
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -205,6 +207,21 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   useEffect(() => {
     if (activePanel === "newsletter") refreshNlVersions();
   }, [activePanel]);
+
+  function restoreNlVersion(v: NlVersion) {
+    if (!confirm("Restore this version? Your current text will be replaced.")) return;
+    setNlSubject(v.subject ?? "");
+    setNlPreview(v.preview ?? "");
+    setNlAuthor(v.author ?? "Yacob Reyes");
+    setNlCard1Headline(v.card1?.headline ?? "");
+    setNlCard2Headline(v.card2?.headline ?? "");
+    const doc1 = v.card1?.body?.length ? portableTextToTiptap(v.card1.body) : EMPTY_DOC;
+    const doc2 = v.card2?.body?.length ? portableTextToTiptap(v.card2.body) : EMPTY_DOC;
+    setNlCard1Doc(doc1);
+    setNlCard2Doc(doc2);
+    nlCard1Editor.current?.commands.setContent(doc1);
+    nlCard2Editor.current?.commands.setContent(doc2);
+  }
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => { if (isDirty) { e.preventDefault(); e.returnValue = ""; } };
@@ -943,7 +960,23 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                               <span style={{ fontFamily: FONT, fontSize: "0.92rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap" }}>{v.author || "Yacob Reyes"}</span>
                               <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>{formatVersionTime(v.createdAt)}</span>
                             </div>
-                            <span style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{v.wordCount ?? 0} words</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                              <span style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{v.wordCount ?? 0} words</span>
+                              <div style={{ position: "relative", flexShrink: 0 }}>
+                                <button type="button" onClick={() => setNlVersionMenu(nlVersionMenu === v.id ? null : v.id)}
+                                  style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+                                </button>
+                                {nlVersionMenu === v.id && (
+                                  <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, overflow: "hidden" }}>
+                                    <button type="button" onClick={() => { setNlVersionMenu(null); restoreNlVersion(v); }}
+                                      style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}>
+                                      Restore this version
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
