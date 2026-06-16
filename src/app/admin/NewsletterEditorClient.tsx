@@ -6,6 +6,7 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { saveNewsletter, deleteNewsletter, sendNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
+import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
 
@@ -91,8 +92,6 @@ export default function NewsletterEditorClient({
   const [nlImgPickerCard, setNlImgPickerCard] = useState<string | null>(null);
   const [showNlEllipsis, setShowNlEllipsis] = useState(false);
   const [showNlScheduler, setShowNlScheduler] = useState(false);
-  const [calViewYear, setCalViewYear] = useState(() => new Date().getFullYear());
-  const [calViewMonth, setCalViewMonth] = useState(() => new Date().getMonth());
   const [showNlPreview, setShowNlPreview] = useState(false);
 
   const [showFindContent, setShowFindContent] = useState(false);
@@ -404,111 +403,15 @@ export default function NewsletterEditorClient({
       )}
 
       {/* Schedule modal */}
-      {showNlScheduler && (() => {
-        const selDate = nlScheduledAt ? new Date(nlScheduledAt) : null;
-        const selYear = selDate ? selDate.getFullYear() : null;
-        const selMonth = selDate ? selDate.getMonth() : null;
-        const selDay = selDate ? selDate.getDate() : null;
-        const rawHour = selDate ? selDate.getHours() : new Date().getHours();
-        const rawMin = selDate ? selDate.getMinutes() : new Date().getMinutes();
-        const isPm = rawHour >= 12;
-        const displayHour = rawHour % 12 === 0 ? 12 : rawHour % 12;
-        const displayMin = String(rawMin).padStart(2, "0");
-
-        const setDateTime = (year: number, month: number, day: number, hour24: number, min: number) => {
-          const d = new Date(year, month, day, hour24, min);
-          const pad = (n: number) => String(n).padStart(2, "0");
-          setNlScheduledAt(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
-        };
-
-        const baseYear = selYear ?? new Date().getFullYear();
-        const baseMonth = selMonth ?? new Date().getMonth();
-        const baseDay = selDay ?? new Date().getDate();
-
-        const firstDow = new Date(calViewYear, calViewMonth, 1).getDay();
-        const daysInMonth = new Date(calViewYear, calViewMonth + 1, 0).getDate();
-        const cells: (number | null)[] = [...Array(firstDow).fill(null), ...Array.from({ length: daysInMonth }, (_, i) => i + 1)];
-        while (cells.length % 7 !== 0) cells.push(null);
-
-        const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-        const today = new Date();
-
-        const formatLabel = () => {
-          if (!selDate) return "—";
-          const timePart = selDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
-          const datePart = selDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-          return `${timePart} on ${datePart}`;
-        };
-
-        const nudgeHour = (delta: number) => setDateTime(selYear ?? baseYear, selMonth ?? baseMonth, selDay ?? baseDay, (rawHour + delta + 24) % 24, rawMin);
-        const nudgeMin = (delta: number) => setDateTime(selYear ?? baseYear, selMonth ?? baseMonth, selDay ?? baseDay, rawHour, (rawMin + delta + 60) % 60);
-        const toggleAmPm = () => setDateTime(selYear ?? baseYear, selMonth ?? baseMonth, selDay ?? baseDay, isPm ? rawHour - 12 : rawHour + 12, rawMin);
-        const pickDay = (day: number) => setDateTime(calViewYear, calViewMonth, day, rawHour, rawMin);
-
-        return (
-          <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowNlScheduler(false)}>
-            <div style={{ background: "white", borderRadius: 12, padding: "1.5rem", width: 500, maxWidth: "95vw", boxShadow: "0 8px 40px rgba(0,0,0,0.18)" }} onClick={e => e.stopPropagation()}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-                <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1.05rem", color: TEXT_DARK }}>Schedule</span>
-                <button type="button" onClick={() => setShowNlScheduler(false)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "1.3rem", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
-              </div>
-              <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, margin: "0 0 0.5rem" }}>Are you sure you want to schedule this newsletter?</p>
-              <p style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED, margin: "0 0 1.25rem" }}>
-                <strong style={{ color: TEXT_DARK }}>Send &amp; Publish at:</strong> {formatLabel()}
-              </p>
-              <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-                <div style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.75rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
-                    <button type="button" onClick={() => { const d = new Date(calViewYear, calViewMonth - 1); setCalViewMonth(d.getMonth()); setCalViewYear(d.getFullYear()); }} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, fontSize: "1rem", padding: "0 0.25rem" }}>‹</button>
-                    <span style={{ fontFamily: FONT, fontWeight: 600, fontSize: "0.85rem", color: TEXT_DARK }}>{monthNames[calViewMonth]} {calViewYear}</span>
-                    <button type="button" onClick={() => { const d = new Date(calViewYear, calViewMonth + 1); setCalViewMonth(d.getMonth()); setCalViewYear(d.getFullYear()); }} style={{ background: "#e8f0fe", border: "none", cursor: "pointer", color: TEXT_DARK, fontSize: "1rem", padding: "0 0.25rem", borderRadius: 4 }}>›</button>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center", gap: "2px" }}>
-                    {["S","M","T","W","T","F","S"].map((d, i) => (
-                      <span key={i} style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 600, color: TEXT_MUTED, padding: "0.15rem 0" }}>{d}</span>
-                    ))}
-                    {cells.map((day, i) => {
-                      if (!day) return <span key={i} />;
-                      const isSelected = day === selDay && calViewMonth === selMonth && calViewYear === selYear;
-                      const isToday = day === today.getDate() && calViewMonth === today.getMonth() && calViewYear === today.getFullYear();
-                      return (
-                        <button key={i} type="button" onClick={() => pickDay(day)} style={{ fontFamily: FONT, fontSize: "0.78rem", padding: "0.3rem 0", border: "none", borderRadius: "50%", cursor: "pointer", background: isSelected ? CRIMSON : "none", color: isSelected ? "white" : isToday ? CRIMSON : TEXT_DARK, fontWeight: isToday || isSelected ? 700 : 400 }}>
-                          {day}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.75rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-                    <button type="button" onClick={() => nudgeHour(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED }}>▲</button>
-                    <span style={{ fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK, minWidth: 28, textAlign: "center" }}>{String(displayHour).padStart(2, "0")}</span>
-                    <button type="button" onClick={() => nudgeHour(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED }}>▼</button>
-                  </div>
-                  <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1.1rem", color: TEXT_DARK }}>:</span>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "0.25rem" }}>
-                    <button type="button" onClick={() => nudgeMin(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED }}>▲</button>
-                    <span style={{ fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK, minWidth: 28, textAlign: "center" }}>{displayMin}</span>
-                    <button type="button" onClick={() => nudgeMin(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED }}>▼</button>
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginLeft: "0.5rem" }}>
-                    {["AM", "PM"].map(period => (
-                      <label key={period} style={{ display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK }}>
-                        <input type="radio" name="nl-ampm" checked={(period === "PM") === isPm} onChange={toggleAmPm} style={{ accentColor: CRIMSON }} />
-                        {period}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
-                <button type="button" onClick={() => setShowNlScheduler(false)} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.5rem 1.25rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "white", color: TEXT_DARK, cursor: "pointer" }}>Cancel</button>
-                <button type="button" disabled={!nlScheduledAt} onClick={scheduleNewsletter} style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, padding: "0.5rem 1.25rem", border: "none", borderRadius: 20, background: CRIMSON, color: "white", cursor: "pointer", opacity: nlScheduledAt ? 1 : 0.5 }}>Yes, schedule it</button>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
+      {showNlScheduler && (
+        <ScheduleModal
+          value={nlScheduledAt}
+          onChange={setNlScheduledAt}
+          onConfirm={scheduleNewsletter}
+          onClose={() => setShowNlScheduler(false)}
+          label="newsletter"
+        />
+      )}
 
       {/* Preview modal — renders the actual email HTML */}
       {showNlPreview && (
