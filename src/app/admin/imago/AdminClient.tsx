@@ -912,8 +912,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
                     <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
                       <RichBodyEditor initialContent={nlCard1Doc} onChange={setNlCard1Doc}
-                        onEditor={ed => { nlCard1Editor.current = ed; }}
-                        onToolbar={tb => { nlCard1Toolbar.current = tb; }} />
+                        onEditor={ed => { nlCard1Editor.current = ed; if (ed) setNlActiveEditor(prev => prev ?? ed); }}
+                        onToolbar={tb => { nlCard1Toolbar.current = tb; setNlActiveToolbar(prev => prev ?? tb); }} />
                     </div>
                   </div>
 
