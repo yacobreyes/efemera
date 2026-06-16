@@ -77,43 +77,44 @@ function renderBody(blocks: PortableTextBlock[]): string {
   return out.join("");
 }
 
-export function renderNewsletterHtml({ subject, preview, cards }: { subject: string; preview: string; cards: NlCard[] }): string {
+export function renderNewsletterHtml({ subject, preview, author, cards }: { subject: string; preview: string; author?: string; cards: NlCard[] }): string {
   const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   const cardHtml = cards
     .map((card, idx) => {
-      const num = idx + 1;
-      const numColor = idx === 0 ? CRIMSON : TEXT_DARK;
       const img = card.image?.url
         ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;border-radius:6px;margin:0 0 12px;" />${card.image.caption ? `<p style="font-family:Arial,sans-serif;font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0 0 12px;">${esc(card.image.caption)}</p>` : ""}`
         : "";
+      const divider = idx > 0 ? `<tr><td style="padding:0 0 24px;"><div style="border-top:1px solid #e1e8ed;"></div></td></tr>` : "";
       return `
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e1e8ed;border-radius:4px;margin:0 0 12px;">
-        <tr><td style="padding:24px;">
-          <h1 style="font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:${TEXT_DARK};margin:0 0 14px;">
-            <span style="color:${numColor};">${num}.</span> ${esc(card.headline ?? "")}
-          </h1>
-          ${img}
-          ${renderBody(card.body ?? [])}
-        </td></tr>
-      </table>`;
+      ${divider}
+      <tr><td style="padding:0 0 28px;">
+        <h1 style="font-family:Georgia,serif;font-size:21px;font-weight:700;color:${TEXT_DARK};margin:0 0 14px;">${esc(card.headline ?? "")}</h1>
+        ${img}
+        ${renderBody(card.body ?? [])}
+      </td></tr>`;
     })
     .join("");
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f5f8fa;">
+<body style="margin:0;padding:0;background:#ffffff;">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preview)}</span>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;padding:24px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;padding:32px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:92%;">
-        <tr><td style="background:${CRIMSON};border-radius:4px;padding:24px;text-align:center;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="180" style="height:36px;width:auto;display:inline-block;" />
-          <div style="font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-top:8px;">${date}</div>
+        <tr><td style="padding:0 0 24px;">
+          <span style="display:inline-block;background:${CRIMSON};border-radius:3px;padding:6px 10px;">
+            <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="100" style="height:18px;width:auto;display:block;" />
+          </span>
         </td></tr>
-        <tr><td style="height:12px;"></td></tr>
-        <tr><td>${cardHtml}</td></tr>
-        <tr><td style="padding:16px 24px;text-align:center;font-family:Arial,sans-serif;font-size:12px;color:${TEXT_MUTED};">
+        <tr><td style="padding:0 0 28px;border-bottom:2px solid ${TEXT_DARK};">
+          <h1 style="font-family:Georgia,serif;font-size:30px;font-weight:700;color:${TEXT_DARK};margin:0 0 10px;line-height:1.25;">${esc(subject)}</h1>
+          <div style="font-family:Arial,sans-serif;font-size:13px;color:${TEXT_MUTED};">${author ? `By ${esc(author)} &nbsp;&middot;&nbsp; ` : ""}${date}</div>
+        </td></tr>
+        <tr><td style="height:24px;"></td></tr>
+        <tr><td><table width="100%" cellpadding="0" cellspacing="0">${cardHtml}</table></td></tr>
+        <tr><td style="padding:16px 0;text-align:center;border-top:1px solid #e1e8ed;font-family:Arial,sans-serif;font-size:12px;color:${TEXT_MUTED};">
           You're receiving this because you subscribed to efemera.
         </td></tr>
       </table>

@@ -36,8 +36,8 @@ async function sanityQuery(q: string) {
 async function sendDueNewsletters(): Promise<number> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.NEWSLETTER_FROM;
-  const due: { _id: string; subject?: string; preview?: string; cards?: NlCard[] }[] =
-    (await sanityQuery(`*[_type == "newsletter" && status == "scheduled" && scheduledAt <= now()]{ _id, subject, preview, cards }`)) ?? [];
+  const due: { _id: string; subject?: string; preview?: string; author?: string; cards?: NlCard[] }[] =
+    (await sanityQuery(`*[_type == "newsletter" && status == "scheduled" && scheduledAt <= now()]{ _id, subject, preview, author, cards }`)) ?? [];
   if (!due.length) return 0;
 
   const subscribers: { email: string }[] = (await sanityQuery(`*[_type == "subscriber" && status == "active"]{ email }`)) ?? [];
@@ -45,7 +45,7 @@ async function sendDueNewsletters(): Promise<number> {
 
   for (const nl of due) {
     if (apiKey && from && emails.length) {
-      const html = renderNewsletterHtml({ subject: nl.subject ?? "", preview: nl.preview ?? "", cards: nl.cards ?? [] });
+      const html = renderNewsletterHtml({ subject: nl.subject ?? "", preview: nl.preview ?? "", author: nl.author, cards: nl.cards ?? [] });
       for (let i = 0; i < emails.length; i += 50) {
         await fetch("https://api.resend.com/emails", {
           method: "POST",

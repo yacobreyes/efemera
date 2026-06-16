@@ -12,12 +12,13 @@ export default async function NewsletterPreviewPage({ params }: { params: Promis
   if (!authed) redirect("/admin/imago");
 
   const { id } = await params;
-  const nl = await client.fetch(`*[_id == $id][0]{ subject, preview, cards }`, { id }, { cache: "no-store" });
+  const nl = await client.fetch(`*[_id == $id][0]{ subject, preview, author, cards }`, { id }, { cache: "no-store" });
   if (!nl) notFound();
 
   const html = renderNewsletterHtml({
     subject: nl.subject ?? "",
     preview: nl.preview ?? "",
+    author: nl.author,
     cards: (nl.cards ?? []) as NlCard[],
   });
 

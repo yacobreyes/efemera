@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
   const html = renderNewsletterHtml({
     subject: nl.subject,
     preview: nl.preview ?? "",
+    author: nl.author,
     cards: (nl.cards ?? []) as NlCard[],
   });
 
