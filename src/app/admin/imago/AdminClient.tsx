@@ -192,11 +192,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, []);
 
   // The newsletter editor now lives at its own route (/admin/imago/newsletters/[id]),
-  // mirroring the story editor. /newsletters/new creates the doc on the server
-  // before redirecting, so the draft exists (and shows up in the dashboard)
-  // immediately instead of waiting on the editor's autosave.
+  // mirroring the story editor. Route to an in-memory id so the editor opens
+  // instantly; the first autosave persists the doc. (Eager server-side
+  // creation added a write+redirect+fetch round-trip that showed a blank/lag.)
   function createNewNewsletter() {
-    router.push("/admin/imago/newsletters/new");
+    router.push(`/admin/imago/newsletters/newsletter-${Date.now()}`);
   }
   function openNewsletter(item: NlListItem) {
     router.push(`/admin/imago/newsletters/${item._id}`);
@@ -216,9 +216,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
   function startNew() {
-    // /posts/new creates the Sanity doc synchronously before redirecting, so
-    // the draft shows up in the dashboard immediately (same as newsletters).
-    router.push("/admin/imago/posts/new");
+    // Route to an in-memory placeholder so the editor opens instantly; the
+    // first autosave persists the doc. (Eager server-side creation added a
+    // write+redirect+fetch round-trip that showed a blank/lag.)
+    router.push(`/admin/imago/posts/untitled-${Date.now()}`);
   }
 
   function startEdit(post: SanityPost) {

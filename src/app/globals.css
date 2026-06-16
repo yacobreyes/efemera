@@ -10,10 +10,10 @@
 
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
-/* Match the page content backdrop (#f5f8fa) so client-side navigation
-   between pages doesn't flash the crimson body between unmount/paint.
-   Headers, the footer, and the intro overlay set their own crimson. */
-html { background: #f5f8fa; }
+/* html stays crimson so the overscroll/bounce area is crimson, but body
+   matches the page content backdrop (#f5f8fa) so client-side navigation
+   doesn't flash crimson in the frame between unmount and paint. */
+html { background: #8B0000; }
 
 .paper-bg {
   background-color: #f5f8fa;
