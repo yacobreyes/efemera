@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   const sameAsLast = last && JSON.stringify({ ...last, id: undefined, createdAt: undefined }) === JSON.stringify({ ...snapshot, id: undefined, createdAt: undefined });
   if (!sameAsLast) {
     store.versions.unshift(snapshot);
-    store.versions = store.versions.slice(0, 50); // cap history
+    store.versions = store.versions.slice(0, 20); // cap history, matching the story editor
   }
 
   await mkdir(DATA_DIR, { recursive: true });
