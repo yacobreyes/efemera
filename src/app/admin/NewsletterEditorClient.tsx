@@ -97,10 +97,10 @@ export default function NewsletterEditorClient({
     const drop = () => setNlMovingId(null);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlMovingId(null); };
     const onMove = (e: MouseEvent) => setNlMovePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("click", drop);
+    window.addEventListener("mouseup", drop);
     window.addEventListener("keydown", onKey);
     window.addEventListener("mousemove", onMove);
-    return () => { window.removeEventListener("click", drop); window.removeEventListener("keydown", onKey); window.removeEventListener("mousemove", onMove); };
+    return () => { window.removeEventListener("mouseup", drop); window.removeEventListener("keydown", onKey); window.removeEventListener("mousemove", onMove); };
   }, [nlMovingId]);
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
@@ -400,7 +400,7 @@ export default function NewsletterEditorClient({
                 {/* Hover-side controls — hidden while a card is picked up */}
                 {!nlMovingId && (
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                  <button type="button" title="Move card" onClick={e => { e.stopPropagation(); setNlMovingId(card.id); }}
+                  <button type="button" title="Hold and drag to move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); setNlMovePos({ x: e.clientX, y: e.clientY }); setNlMovingId(card.id); }}
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                   </button>
