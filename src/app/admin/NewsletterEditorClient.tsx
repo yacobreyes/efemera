@@ -395,10 +395,13 @@ export default function NewsletterEditorClient({
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlDragging ? 0 : "0.75rem" }}>
                   <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
                   <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
                 </div>
+                {/* Body (image + editor) collapses while dragging so the list
+                    condenses to headline bars — kept mounted via display:none. */}
+                <div style={{ display: nlDragging ? "none" : "block" }}>
                 {card.image ? (
                   <div style={{ marginBottom: "0.85rem" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -420,6 +423,7 @@ export default function NewsletterEditorClient({
                     onChange={doc => nlUpdateCard(card.id, { doc })}
                     onEditor={ed => { nlEditors.current[card.id] = ed; if (ed && i === 0) setNlActiveEditor(prev => prev ?? ed); }}
                     onToolbar={tb => { nlToolbars.current[card.id] = tb; if (tb && i === 0) setNlActiveToolbar(prev => prev ?? tb); }} />
+                </div>
                 </div>
               </div>
 
