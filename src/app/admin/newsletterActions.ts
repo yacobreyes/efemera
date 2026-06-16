@@ -202,7 +202,7 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
       from,
       to: [email],
       subject: nl.subject,
-      html: `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}" width="1" height="1" alt="" style="display:none" />`,
+      html: `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}&nid=${encodeURIComponent(id)}" width="1" height="1" alt="" style="display:none" />`,
     }));
     const res = await fetch("https://api.resend.com/emails/batch", {
       method: "POST",
