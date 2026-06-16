@@ -386,6 +386,11 @@ export default function NewsletterEditorClient({
         .nl-add-zone:hover .nl-add-line, .nl-add-zone:hover .nl-add-label { opacity: 1; }
         .nl-card-controls { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
         .nl-card:hover .nl-card-controls, .nl-card-controls:hover { opacity: 1; pointer-events: auto; }
+        .nl-find-panel { scrollbar-width: thin; scrollbar-color: ${BORDER} transparent; }
+        .nl-find-panel::-webkit-scrollbar { width: 8px; }
+        .nl-find-panel::-webkit-scrollbar-track { background: transparent; }
+        .nl-find-panel::-webkit-scrollbar-thumb { background: ${BORDER}; border-radius: 4px; }
+        .nl-find-panel::-webkit-scrollbar-thumb:hover { background: ${TEXT_MUTED}; }
       `}</style>
 
       {nlImgPickerCard && (
@@ -435,7 +440,7 @@ export default function NewsletterEditorClient({
 
       {/* Find content panel — pull a story in as a new card */}
       {showFindContent && (
-        <div style={{ position: "fixed", top: 64, left: 12, height: "calc(100% - 76px)", width: 296, maxWidth: "88vw", zIndex: 400, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="nl-find-panel" style={{ position: "fixed", top: 64, left: 12, height: "calc(100% - 76px)", width: 296, maxWidth: "88vw", zIndex: 400, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
               <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Find content</span>
               <button type="button" title="Close" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
