@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
-import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, type Subscriber } from "../newsletterActions";
+import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
@@ -136,6 +136,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [subscribersLoading, setSubscribersLoading] = useState(false);
+  const [removingSubscriber, setRemovingSubscriber] = useState<string | null>(null);
+
+  function removeSub(email: string) {
+    if (!confirm(`Remove ${email} from the subscriber list? This cannot be undone.`)) return;
+    setRemovingSubscriber(email);
+    removeSubscriber(email)
+      .then(() => setSubscribers(prev => prev.filter(s => s.email !== email)))
+      .catch(() => alert("Failed to remove subscriber."))
+      .finally(() => setRemovingSubscriber(null));
+  }
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
@@ -679,7 +689,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 </div>
                 <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
                   <p style={LABEL}>Active</p>
-                  <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: CRIMSON, margin: 0 }}>{subscribers.filter(s => (s.status ?? "active") === "active").length}</p>
+                  <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: CRIMSON, margin: 0 }}>{subscribers.filter(s => s.status === "active").length}</p>
                 </div>
               </div>
               {subscribersLoading ? (
@@ -694,8 +704,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     <div key={s.email + i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.email}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
-                        <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: (s.status ?? "active") === "active" ? "#2e7d32" : TEXT_MUTED }}>{s.status ?? "active"}</span>
+                        <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: s.status === "active" ? "#2e7d32" : TEXT_MUTED }}>{s.status ?? "pending"}</span>
                         <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{s.createdAt ? s.createdAt.slice(0, 10) : "—"}</span>
+                        <button type="button" onClick={() => removeSub(s.email)} disabled={removingSubscriber === s.email}
+                          style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.7rem", fontFamily: FONT, fontSize: "0.72rem", cursor: removingSubscriber === s.email ? "default" : "pointer", color: TEXT_MUTED, opacity: removingSubscriber === s.email ? 0.5 : 1 }}>
+                          {removingSubscriber === s.email ? "Removing…" : "Remove"}
+                        </button>
                       </div>
                     </div>
                   ))}

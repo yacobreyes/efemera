@@ -44,11 +44,16 @@ export async function POST(req: NextRequest) {
   try {
     await mutate([
       {
-        createOrReplace: {
+        // createIfNotExists, not createOrReplace — resubscribing shouldn't
+        // reset an already-active subscriber's status back to "pending".
+        createIfNotExists: {
           _id: subscriberId(email),
           _type: "subscriber",
           email: email.toLowerCase(),
-          status: "active",
+          // Starts "pending" — only flips to "active" once they open an email
+          // (see /api/track-open), so the dashboard's "Active" count reflects
+          // actually-engaged subscribers, not just signups.
+          status: "pending",
           createdAt: new Date().toISOString(),
         },
       },

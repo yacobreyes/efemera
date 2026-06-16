@@ -118,7 +118,11 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
   return { id, versions: await versionsFor(id) };
 }
 
-export type Subscriber = { email: string; status?: "active" | "unsubscribed"; createdAt?: string };
+export type Subscriber = { email: string; status?: "pending" | "active" | "unsubscribed"; createdAt?: string };
+
+function subscriberId(email: string) {
+  return "subscriber-" + email.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+}
 
 export async function getSubscribers(): Promise<Subscriber[]> {
   await requireAuth();
@@ -127,6 +131,11 @@ export async function getSubscribers(): Promise<Subscriber[]> {
     {},
     { cache: "no-store" }
   );
+}
+
+export async function removeSubscriber(email: string) {
+  await requireAuth();
+  await mutate([{ delete: { id: subscriberId(email) } }]);
 }
 
 export async function getNewsletterVersions(id: string): Promise<NlVersion[]> {
@@ -163,33 +172,44 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   if (!nl) return { ok: false, error: "Newsletter not found" };
   if (!nl.subject?.trim()) return { ok: false, error: "Add a subject line before sending." };
 
+  // Subscribers are sent to until they unsubscribe — "pending" subscribers
+  // haven't opened an email yet and only flip to "active" once they do
+  // (tracked via the open pixel below), so they must still receive sends.
   const subscribers: { email: string }[] = await client.fetch(
-    `*[_type == "subscriber" && status == "active"]{ email }`,
+    `*[_type == "subscriber" && status != "unsubscribed"]{ email }`,
     {},
     { cache: "no-store" }
   );
-  if (!subscribers.length) return { ok: false, error: "No active subscribers to send to yet." };
+  if (!subscribers.length) return { ok: false, error: "No subscribers to send to yet." };
 
-  const html = renderNewsletterHtml({
+  const baseHtml = renderNewsletterHtml({
     subject: nl.subject,
     preview: nl.preview ?? "",
     cards: (nl.cards ?? []) as NlCard[],
   });
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
 
-  // Resend allows up to 50 recipients per call — chunk into bcc batches.
+  // Resend's batch endpoint allows up to 100 distinct emails per call. Each
+  // recipient gets their own open-tracking pixel so we know who's engaged.
   const emails = subscribers.map(s => s.email).filter(Boolean);
   const chunks: string[][] = [];
-  for (let i = 0; i < emails.length; i += 50) chunks.push(emails.slice(i, i + 50));
+  for (let i = 0; i < emails.length; i += 100) chunks.push(emails.slice(i, i + 100));
 
   let sent = 0;
   const errors: string[] = [];
-  for (const bcc of chunks) {
-    const res = await fetch("https://api.resend.com/emails", {
+  for (const chunk of chunks) {
+    const batch = chunk.map(email => ({
+      from,
+      to: [email],
+      subject: nl.subject,
+      html: `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}" width="1" height="1" alt="" style="display:none" />`,
+    }));
+    const res = await fetch("https://api.resend.com/emails/batch", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ from, to: from, bcc, subject: nl.subject, html }),
+      body: JSON.stringify(batch),
     });
-    if (res.ok) sent += bcc.length;
+    if (res.ok) sent += chunk.length;
     else errors.push(await res.text());
   }
 
