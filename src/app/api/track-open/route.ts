@@ -29,9 +29,18 @@ async function mutate(mutations: unknown[]) {
 // a subscriber actually opened (not just whether they opened one, ever).
 const PIXEL = Buffer.from("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", "base64");
 
-// "Regularly opens" = opened at least 2 of the last 3 newsletters sent.
+// "active" = opened at least REQUIRED of the last LOOKBACK sends.
+// "inactive" = opened none of them (despite LOOKBACK sends having gone out).
+// "neutral" = everything in between. Kept consistent with classifyByOpens()
+// in src/app/admin/newsletterActions.ts.
 const LOOKBACK = 3;
 const REQUIRED = 2;
+function classifyByOpens(openedCount: number, lookbackCount: number): "active" | "neutral" | "inactive" {
+  if (lookbackCount === 0) return "neutral";
+  if (openedCount >= REQUIRED) return "active";
+  if (openedCount >= 1) return "neutral";
+  return "inactive";
+}
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get("id");
@@ -39,12 +48,12 @@ export async function GET(req: NextRequest) {
 
   if (id && nid) {
     try {
-      const sub: { status?: string; openedSends?: string[] } | null = await client.fetch(
-        `*[_id == $id][0]{ status, openedSends }`,
+      const sub: { openedSends?: string[] } | null = await client.fetch(
+        `*[_id == $id][0]{ openedSends }`,
         { id },
         { cache: "no-store" }
       );
-      if (sub && sub.status !== "unsubscribed") {
+      if (sub) {
         const openedSends = Array.from(new Set([...(sub.openedSends ?? []), nid])).slice(-20);
 
         const recentSends: string[] = await client.fetch(
@@ -53,12 +62,12 @@ export async function GET(req: NextRequest) {
           { cache: "no-store" }
         );
         const openedRecent = recentSends.filter(sid => openedSends.includes(sid)).length;
-        const status = openedRecent >= REQUIRED ? "active" : "pending";
+        const status = classifyByOpens(openedRecent, recentSends.length);
 
         await mutate([{ patch: { id, set: { status, openedSends, lastOpenedAt: new Date().toISOString() } } }]);
       }
     } catch {
-      // Subscriber may have unsubscribed/been removed since the email was sent — ignore.
+      // Subscriber may have been removed since the email was sent — ignore.
     }
   }
 

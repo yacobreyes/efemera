@@ -118,19 +118,51 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
   return { id, versions: await versionsFor(id) };
 }
 
-export type Subscriber = { email: string; status?: "pending" | "active" | "unsubscribed"; createdAt?: string };
+export type Subscriber = { email: string; status?: "active" | "neutral" | "inactive"; createdAt?: string };
 
 function subscriberId(email: string) {
   return "subscriber-" + email.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
 }
 
+// "active" = opened at least REQUIRED of the last LOOKBACK sends.
+// "inactive" = opened none of them (despite LOOKBACK sends having gone out).
+// "neutral" = everything in between, including brand-new subscribers with
+// no sends yet to judge them by.
+const OPEN_LOOKBACK = 3;
+const OPEN_REQUIRED = 2;
+function classifyByOpens(openedCount: number, lookbackCount: number): "active" | "neutral" | "inactive" {
+  if (lookbackCount === 0) return "neutral";
+  if (openedCount >= OPEN_REQUIRED) return "active";
+  if (openedCount >= 1) return "neutral";
+  return "inactive";
+}
+
 export async function getSubscribers(): Promise<Subscriber[]> {
   await requireAuth();
+  await reconcileSubscriberStatuses();
   return client.fetch(
     `*[_type == "subscriber"] | order(createdAt desc){ email, status, createdAt }`,
     {},
     { cache: "no-store" }
   );
+}
+
+// Recomputes every subscriber's status from their tracked opens, so the
+// dashboard always reflects real engagement rather than whatever status got
+// set at signup or on a stale prior send.
+async function reconcileSubscriberStatuses() {
+  const [subs, recentSends]: [{ _id: string; status?: string; openedSends?: string[] }[], string[]] = await Promise.all([
+    client.fetch(`*[_type == "subscriber"]{ _id, status, openedSends }`, {}, { cache: "no-store" }),
+    client.fetch(`*[_type == "newsletter" && status == "published"] | order(sentAt desc)[0...${OPEN_LOOKBACK}]._id`, {}, { cache: "no-store" }),
+  ]);
+  const patches = subs
+    .map(s => {
+      const openedCount = recentSends.filter(sid => (s.openedSends ?? []).includes(sid)).length;
+      const status = classifyByOpens(openedCount, recentSends.length);
+      return status !== s.status ? { patch: { id: s._id, set: { status } } } : null;
+    })
+    .filter((p): p is { patch: { id: string; set: { status: "active" | "neutral" | "inactive" } } } => p !== null);
+  if (patches.length) await mutate(patches);
 }
 
 export async function removeSubscriber(email: string) {
@@ -176,7 +208,7 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   // haven't opened an email yet and only flip to "active" once they do
   // (tracked via the open pixel below), so they must still receive sends.
   const subscribers: { email: string }[] = await client.fetch(
-    `*[_type == "subscriber" && status != "unsubscribed"]{ email }`,
+    `*[_type == "subscriber"]{ email }`,
     {},
     { cache: "no-store" }
   );
