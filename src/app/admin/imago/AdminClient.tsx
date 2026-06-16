@@ -916,7 +916,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
               {/* Content */}
               <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", padding: "2rem" }}>
-                <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   {/* Wordmark header card */}
                   <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
                     <div style={{ background: CRIMSON, padding: "1.5rem", textAlign: "center" }}>
@@ -930,10 +930,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
                   {/* Cards */}
                   {nlCards.map((card, i) => (
-                    <div key={card.id}>
+                    <div key={card.id} style={{ display: "flex", flexDirection: "column" }}>
                       {/* Hover add divider (above each card) */}
                       <div className="nl-add-zone" onClick={() => nlAddCardAfter(i - 1)}
-                        style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 18, cursor: "pointer", margin: "-0.5rem 0" }}>
+                        style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 26, cursor: "pointer" }}>
                         <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
                         <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add a new card</span>
                         <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
@@ -942,7 +942,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       <div className="nl-card" onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                         style={{ position: "relative", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
                         {/* Hover-side controls */}
-                        <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "calc(100% + 0.75rem)", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                        <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                           <button type="button" title="Delete card" onClick={() => { if (nlCards.length > 1 && confirm("Delete this card?")) nlRemoveCard(card.id); }}
                             style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", opacity: nlCards.length > 1 ? 1 : 0.4 }}>
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -973,7 +973,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       {/* Hover add divider after the last card */}
                       {i === nlCards.length - 1 && (
                         <div className="nl-add-zone" onClick={() => nlAddCardAfter(i)}
-                          style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 18, cursor: "pointer", margin: "-0.5rem 0" }}>
+                          style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 26, cursor: "pointer" }}>
                           <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
                           <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add a new card</span>
                           <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
