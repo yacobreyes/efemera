@@ -83,6 +83,7 @@ export default function NewsletterEditorClient({
   const nlDeleting = useRef(false);
   const [nlMovingId, setNlMovingId] = useState<string | null>(null);
   const [nlMovePos, setNlMovePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [nlMoveRect, setNlMoveRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -371,13 +372,15 @@ export default function NewsletterEditorClient({
             </div>
           </div>
 
-          {/* Floating chip that follows the cursor while a card is picked up */}
+          {/* The picked-up card itself follows the cursor (full-width card bar). */}
           {nlMovingId && (() => {
             const mc = nlCards.find(c => c.id === nlMovingId);
+            const idx = nlCards.findIndex(c => c.id === nlMovingId);
             if (!mc) return null;
             return (
-              <div style={{ position: "fixed", left: nlMovePos.x + 14, top: nlMovePos.y + 14, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "0.5rem 0.85rem", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", maxWidth: 320, fontFamily: FONT, fontSize: "0.95rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {mc.headline?.trim() || "Untitled card"}
+              <div style={{ position: "fixed", left: nlMoveRect.left, top: nlMovePos.y - 18, width: nlMoveRect.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "1.25rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+                <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: CRIMSON, flexShrink: 0 }}>{idx + 1}.</span>
+                <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mc.headline?.trim() || "Untitled card"}</span>
               </div>
             );
           })()}
@@ -396,11 +399,11 @@ export default function NewsletterEditorClient({
               <div className="nl-card" draggable={false}
                 onMouseEnter={() => { if (nlMovingId && nlMovingId !== card.id) { const from = nlCards.findIndex(c => c.id === nlMovingId); if (from !== -1 && from !== i) nlMoveCard(from, i); } }}
                 onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                style={{ position: "relative", background: "white", border: `1px solid ${nlMovingId === card.id ? CRIMSON : BORDER}`, borderRadius: 4, padding: "1.25rem", transition: "border-color 0.1s", cursor: nlMovingId ? (nlMovingId === card.id ? "grabbing" : "pointer") : undefined }}>
+                style={{ position: "relative", background: nlMovingId === card.id ? "#fff5f5" : "white", border: `1px ${nlMovingId === card.id ? "dashed" : "solid"} ${nlMovingId === card.id ? CRIMSON : BORDER}`, borderRadius: 4, padding: "1.25rem", transition: "border-color 0.1s", cursor: nlMovingId ? "grabbing" : undefined }}>
                 {/* Hover-side controls — hidden while a card is picked up */}
                 {!nlMovingId && (
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                  <button type="button" title="Hold and drag to move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); setNlMovePos({ x: e.clientX, y: e.clientY }); setNlMovingId(card.id); }}
+                  <button type="button" title="Hold and drag to move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = (e.currentTarget as HTMLElement).closest(".nl-card")?.getBoundingClientRect(); if (r) setNlMoveRect({ left: r.left, width: r.width }); setNlMovePos({ x: e.clientX, y: e.clientY }); setNlMovingId(card.id); }}
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                   </button>
@@ -410,7 +413,7 @@ export default function NewsletterEditorClient({
                   </button>
                 </div>
                 )}
-                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlMovingId ? 0 : "0.75rem" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlMovingId ? 0 : "0.75rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
                   <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
                   <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
                 </div>
