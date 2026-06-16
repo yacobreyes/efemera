@@ -30,11 +30,6 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function formatVersionTime(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }) + " ET";
-}
-
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const LS_KEY = "efemera_admin_draft";
 

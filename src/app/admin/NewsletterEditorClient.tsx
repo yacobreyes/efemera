@@ -25,7 +25,7 @@ const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] }
 
 function formatVersionTime(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }) + " ET";
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
 }
 
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
@@ -433,36 +433,33 @@ export default function NewsletterEditorClient({
             </div>
           </div>
 
-          {/* Divider + Version history */}
+          {/* Divider + Previous versions — matches story editor's list */}
           <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "1rem 0 0.5rem" }} />
           <div>
-            <h3 style={{ fontFamily: FONT, fontSize: "1.4rem", fontWeight: 700, color: TEXT_DARK, margin: "0 0 1rem" }}>Version history</h3>
+            <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: "0 0 1rem" }}>Previous versions</h3>
             {nlVersions.length === 0 ? (
               <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet.</p>
             ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 {nlVersions.map(v => (
-                  <div key={v.id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
-                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", minWidth: 0 }}>
-                      <span style={{ fontFamily: FONT, fontSize: "0.92rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap" }}>{v.author || "Yacob Reyes"}</span>
-                      <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>{formatVersionTime(v.createdAt)}</span>
+                  <div key={v.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 0", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{formatVersionTime(v.createdAt)}</p>
+                      <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.15rem 0 0" }}>{v.wordCount ?? 0} words</p>
                     </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <span style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{v.wordCount ?? 0} words</span>
-                      <div style={{ position: "relative", flexShrink: 0 }}>
-                        <button type="button" onClick={() => setNlVersionMenu(nlVersionMenu === v.id ? null : v.id)}
-                          style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-                        </button>
-                        {nlVersionMenu === v.id && (
-                          <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, overflow: "hidden" }}>
-                            <button type="button" onClick={() => { setNlVersionMenu(null); restoreNlVersion(v); }}
-                              style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}>
-                              Restore this version
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                    <div style={{ position: "relative", flexShrink: 0 }}>
+                      <button type="button" onClick={() => setNlVersionMenu(nlVersionMenu === v.id ? null : v.id)}
+                        style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+                      </button>
+                      {nlVersionMenu === v.id && (
+                        <div style={{ position: "absolute", right: 0, top: "calc(100% + 4px)", zIndex: 50, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, overflow: "hidden" }}>
+                          <button type="button" onClick={() => { setNlVersionMenu(null); restoreNlVersion(v); }}
+                            style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.85rem", color: TEXT_DARK, cursor: "pointer" }}>
+                            Restore this version
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
