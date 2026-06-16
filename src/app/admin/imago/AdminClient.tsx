@@ -216,7 +216,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   function updateForm(patch: Partial<FormState>) { setForm(prev => ({ ...prev, ...patch })); }
 
   function startNew() {
-    router.push(`/admin/imago/posts/untitled-${Date.now()}`);
+    // /posts/new creates the Sanity doc synchronously before redirecting, so
+    // the draft shows up in the dashboard immediately (same as newsletters).
+    router.push("/admin/imago/posts/new");
   }
 
   function startEdit(post: SanityPost) {
