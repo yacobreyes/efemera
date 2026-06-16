@@ -251,6 +251,16 @@ export default function EditorClient({ post }: { post: SanityPost }) {
         {/* Formatting toolbar — only shown on story content tab, desktop only */}
         {!isMobile && editorTab === "content" && editor && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
+            {/* Undo / Redo */}
+            <button type="button" title="Undo" data-tooltip="Undo" className="tb-btn" disabled={!editor.can().undo()} onMouseDown={e => { e.preventDefault(); editor.chain().focus().undo().run(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: editor.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: editor.can().undo() ? 1 : 0.4 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+            </button>
+            <button type="button" title="Redo" data-tooltip="Redo" className="tb-btn" disabled={!editor.can().redo()} onMouseDown={e => { e.preventDefault(); editor.chain().focus().redo().run(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: editor.can().redo() ? "pointer" : "default", color: TEXT_MUTED, opacity: editor.can().redo() ? 1 : 0.4 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+            </button>
+            <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             {([
               ["B", "Bold", editor.isActive("bold"), () => editor.chain().focus().toggleBold().run(), { fontWeight: 700 }],
               ["I", "Italic", editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],

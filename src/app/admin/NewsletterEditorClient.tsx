@@ -81,6 +81,7 @@ export default function NewsletterEditorClient({
 
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
+  const nlDragIndex = useRef<number | null>(null);
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -261,6 +262,15 @@ export default function NewsletterEditorClient({
         {/* Formatting toolbar — drives the focused card editor */}
         {!isMobile && nlActiveE && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
+            <button type="button" title="Undo" disabled={!nlActiveE.can().undo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().undo().run(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().undo() ? 1 : 0.4 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+            </button>
+            <button type="button" title="Redo" disabled={!nlActiveE.can().redo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().redo().run(); }}
+              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().redo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().redo() ? 1 : 0.4 }}>
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+            </button>
+            <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             {([
               ["B", nlActiveE.isActive("bold"), () => nlActiveE.chain().focus().toggleBold().run(), { fontWeight: 700 }],
               ["I", nlActiveE.isActive("italic"), () => nlActiveE.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
@@ -357,10 +367,19 @@ export default function NewsletterEditorClient({
                 <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
               </div>
 
-              <div className="nl-card" onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
+              <div className="nl-card" draggable={false}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => { e.preventDefault(); if (nlDragIndex.current !== null && nlDragIndex.current !== i) nlMoveCard(nlDragIndex.current, i); nlDragIndex.current = null; }}
+                onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                 style={{ position: "relative", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
                 {/* Hover-side controls */}
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  <button type="button" title="Drag to reorder" draggable
+                    onDragStart={e => { nlDragIndex.current = i; e.dataTransfer.effectAllowed = "move"; }}
+                    onDragEnd={() => { nlDragIndex.current = null; }}
+                    style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", fontSize: "1rem", lineHeight: 1 }}>
+                    ⠿
+                  </button>
                   <button type="button" title="Delete card" onClick={() => { if (nlCards.length > 1 && confirm("Delete this card?")) nlRemoveCard(card.id); }}
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", opacity: nlCards.length > 1 ? 1 : 0.4 }}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>

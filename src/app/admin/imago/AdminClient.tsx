@@ -3,7 +3,8 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
-import { deleteNewsletter as deleteNewsletterDoc } from "../newsletterActions";
+import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, type Subscriber } from "../newsletterActions";
+import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import type { JSONContent, Editor } from "@tiptap/react";
@@ -30,6 +31,16 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+// Plain-text concatenation of PortableText blocks for search matching — doesn't
+// need to preserve markdown syntax, just the words.
+function ptPlainText(blocks?: { _type?: string; children?: { text?: string }[] }[]): string {
+  if (!blocks?.length) return "";
+  return blocks
+    .filter(b => b._type === "block")
+    .flatMap(b => (b.children ?? []).map(c => c.text ?? ""))
+    .join(" ");
+}
+
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const LS_KEY = "efemera_admin_draft";
 
@@ -44,7 +55,7 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments";
+type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments" | "subscribers";
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
   const router = useRouter();
@@ -120,8 +131,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   // Newsletter list (the dashboard mixes these into the story lists).
   // The editor itself lives at /admin/imago/newsletters/[id].
-  type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string };
+  type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string; cards?: NlCard[] };
   const [newsletters, setNewsletters] = useState<NlListItem[]>([]);
+
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [subscribersLoading, setSubscribersLoading] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
@@ -239,6 +253,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     if (panel === "comments") {
       setCommentsLoading(true);
       fetch("/api/comments/all").then(r => r.json()).then(data => { if (Array.isArray(data)) setAdminComments(data); }).catch(() => {}).finally(() => setCommentsLoading(false));
+    }
+    if (panel === "subscribers") {
+      setSubscribersLoading(true);
+      getSubscribers().then(data => { if (Array.isArray(data)) setSubscribers(data); }).catch(() => {}).finally(() => setSubscribersLoading(false));
     }
   }
 
@@ -412,6 +430,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               ["lately", "Lately", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>],
               ["media", "Media Library", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
               ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
+              ["subscribers", "Subscribers", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>],
             ] as [Panel, string, React.ReactNode][]).map(([panel, label, icon]) => (
               <button key={panel} onClick={() => tryNav(panel)} className={`admin-nav-btn${activePanel === panel ? " active" : ""}`} title={!sidebarOpen ? label : undefined}>
                 <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{icon}</span>
@@ -481,7 +500,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "subscribers" ? "Subscribers" : ""}
                   </span>
                 )}
               </div>
@@ -515,7 +534,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : ""}
                   </span>
                 )}
               </div>
@@ -553,7 +572,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"]] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"], ["subscribers", "Subscribers"]] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -575,10 +594,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               {/* Count + sort row */}
               {(() => {
                 const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
-                const filtered = query.trim() ? list.filter(p => p.headline.toLowerCase().includes(query.toLowerCase()) || p.subheadline?.toLowerCase().includes(query.toLowerCase())) : list;
+                const q = query.trim().toLowerCase();
+                const filtered = q ? list.filter(p => {
+                  const bodyText = ptPlainText(p.body as { _type?: string; children?: { text?: string }[] }[]).toLowerCase();
+                  return p.headline.toLowerCase().includes(q) || p.subheadline?.toLowerCase().includes(q) || bodyText.includes(q);
+                }) : list;
                 const nlStatusKey = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled" : "published";
                 const nlList = newsletters.filter(n => (n.status ?? "draft") === nlStatusKey);
-                const nlFiltered = query.trim() ? nlList.filter(n => (n.subject ?? "").toLowerCase().includes(query.toLowerCase())) : nlList;
+                const nlFiltered = q ? nlList.filter(n => {
+                  const cardsText = (n.cards ?? []).map(c => `${c.headline ?? ""} ${ptPlainText(c.body as { _type?: string; children?: { text?: string }[] }[])}`).join(" ").toLowerCase();
+                  return (n.subject ?? "").toLowerCase().includes(q) || cardsText.includes(q);
+                }) : nlList;
                 const total = filtered.length + nlFiltered.length;
                 const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled item" : "published item";
                 return (
@@ -640,6 +666,41 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </>
                 );
               })()}
+            </div>
+          )}
+
+          {/* SUBSCRIBERS */}
+          {activePanel === "subscribers" && (
+            <div style={{ maxWidth: 600 }}>
+              <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem" }}>
+                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+                  <p style={LABEL}>Total subscribers</p>
+                  <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>{subscribers.length}</p>
+                </div>
+                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+                  <p style={LABEL}>Active</p>
+                  <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: CRIMSON, margin: 0 }}>{subscribers.filter(s => (s.status ?? "active") === "active").length}</p>
+                </div>
+              </div>
+              {subscribersLoading ? (
+                <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p>
+              ) : subscribers.length === 0 ? (
+                <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center" }}>
+                  <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>No subscribers yet.</p>
+                </div>
+              ) : (
+                <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                  {subscribers.map((s, i) => (
+                    <div key={s.email + i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
+                      <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.email}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
+                        <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: (s.status ?? "active") === "active" ? "#2e7d32" : TEXT_MUTED }}>{s.status ?? "active"}</span>
+                        <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{s.createdAt ? s.createdAt.slice(0, 10) : "—"}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

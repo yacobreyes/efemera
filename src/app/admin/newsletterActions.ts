@@ -118,6 +118,17 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
   return { id, versions: await versionsFor(id) };
 }
 
+export type Subscriber = { email: string; status?: "active" | "unsubscribed"; createdAt?: string };
+
+export async function getSubscribers(): Promise<Subscriber[]> {
+  await requireAuth();
+  return client.fetch(
+    `*[_type == "subscriber"] | order(createdAt desc){ email, status, createdAt }`,
+    {},
+    { cache: "no-store" }
+  );
+}
+
 export async function getNewsletterVersions(id: string): Promise<NlVersion[]> {
   await requireAuth();
   return versionsFor(id);
