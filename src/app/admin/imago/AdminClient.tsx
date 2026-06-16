@@ -43,7 +43,7 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments";
+type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments" | "newsletter";
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
   const router = useRouter();
@@ -112,6 +112,20 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [searchOpen, setSearchOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const createMenuRef = useRef<HTMLDivElement>(null);
+
+  // Newsletter state
+  const [nlSubject, setNlSubject] = useState("");
+  const [nlPreview, setNlPreview] = useState("");
+  const [nlAuthor, setNlAuthor] = useState("Yacob Reyes");
+  const [nlCard1Headline, setNlCard1Headline] = useState("");
+  const [nlCard1Body, setNlCard1Body] = useState("");
+  const [nlCard2Headline, setNlCard2Headline] = useState("");
+  const [nlCard2Body, setNlCard2Body] = useState("");
+  const [nlSaving, setNlSaving] = useState(false);
+  const [nlSuccess, setNlSuccess] = useState("");
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
@@ -119,6 +133,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    if (!showCreateMenu) return;
+    const handler = (e: MouseEvent) => { if (createMenuRef.current && !createMenuRef.current.contains(e.target as Node)) setShowCreateMenu(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showCreateMenu]);
 
   useEffect(() => {
     try { localStorage.removeItem(LS_KEY); } catch {}
@@ -369,6 +390,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto", overflowX: "hidden" }}>
             {([
               ["dashboard", "Posts", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>],
+              ["newsletter", "Newsletter", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>],
               ["welcome", "Welcome Note", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
               ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>],
               ["lately", "Lately", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>],
@@ -426,13 +448,24 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               {/* Right: Create new (dashboard only) or panel title */}
               <div style={{ width: 280, flexShrink: 0, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
                 {activePanel === "dashboard" ? (
-                  <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-                    + Create new
-                  </button>
+                  <div ref={createMenuRef} style={{ position: "relative" }}>
+                    <button onClick={() => setShowCreateMenu(v => !v)}
+                      style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 0.9rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                      + Create new
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: showCreateMenu ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {showCreateMenu && (
+                      <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 150, zIndex: 100, overflow: "hidden" }}>
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>Story</button>
+                        <button onClick={() => { setShowCreateMenu(false); tryNav("newsletter"); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>Newsletter</button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "newsletter" ? "Newsletter" : ""}
                   </span>
                 )}
               </div>
@@ -451,13 +484,22 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <span style={{ color: CRIMSON }}>i</span>mago
                 </span>
                 {activePanel === "dashboard" ? (
-                  <button onClick={() => { if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.85rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer" }}>
-                    + New
-                  </button>
+                  <div ref={!createMenuRef.current ? createMenuRef : undefined} style={{ position: "relative" }}>
+                    <button onClick={() => setShowCreateMenu(v => !v)}
+                      style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 0.85rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                      + New
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transform: showCreateMenu ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    {showCreateMenu && (
+                      <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 140, zIndex: 300, overflow: "hidden" }}>
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Story</button>
+                        <button onClick={() => { setShowCreateMenu(false); tryNav("newsletter"); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Newsletter</button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : activePanel === "newsletter" ? "Newsletter" : ""}
                   </span>
                 )}
               </div>
@@ -495,7 +537,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"]] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["newsletter", "Newsletter"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"]] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -734,6 +776,68 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               </>
             );
           })()}
+
+          {/* NEWSLETTER */}
+          {activePanel === "newsletter" && (
+            <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {/* Card 1 — header with wordmark */}
+              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ background: CRIMSON, padding: "1.5rem", textAlign: "center" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
+                  <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.7)", margin: "0.5rem 0 0", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                    {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2 — story 1 */}
+              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1 big thing</label>
+                <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
+                <textarea value={nlCard1Body} onChange={e => setNlCard1Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+              </div>
+
+              {/* Card 3 — story 2 */}
+              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2. Also worth knowing</label>
+                <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
+                <textarea value={nlCard2Body} onChange={e => setNlCard2Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+              </div>
+
+              {/* Newsletter info */}
+              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Newsletter info</h3>
+                <div>
+                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Author</label>
+                  <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />
+                </div>
+                <div>
+                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line</label>
+                  <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} placeholder="Add a subject line" style={INPUT} />
+                </div>
+                <div>
+                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Preview text</label>
+                  <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} placeholder="Add preview text" style={INPUT} />
+                </div>
+                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", paddingTop: "0.25rem" }}>
+                  <button
+                    disabled={nlSaving || !nlSubject}
+                    onClick={async () => {
+                      setNlSaving(true);
+                      try {
+                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, card1: { headline: nlCard1Headline, body: nlCard1Body }, card2: { headline: nlCard2Headline, body: nlCard2Body } }) });
+                        setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
+                      } catch { setError("Save failed"); } finally { setNlSaving(false); }
+                    }}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, cursor: nlSaving || !nlSubject ? "not-allowed" : "pointer", opacity: nlSaving || !nlSubject ? 0.6 : 1 }}>
+                    {nlSaving ? "Saving…" : "Save draft"}
+                  </button>
+                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: "#2e7d32" }}>{nlSuccess}</span>}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* COMMENTS */}
           {activePanel === "comments" && (
