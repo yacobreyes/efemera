@@ -81,14 +81,24 @@ export default function NewsletterEditorClient({
 
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
-  const nlDragIndex = useRef<number | null>(null);
-  const [nlDragging, setNlDragging] = useState(false);
-  const [nlDragOver, setNlDragOver] = useState<number | null>(null);
+  const [nlMovingId, setNlMovingId] = useState<string | null>(null);
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
   const nlEditors = useRef<Record<string, Editor | null>>({});
   const nlToolbars = useRef<Record<string, ToolbarHandles | null>>({});
+
+  // While a card is "picked up", a click anywhere drops it; Escape cancels.
+  // The effect runs after the pick-up click has finished bubbling, so the
+  // starting click won't immediately drop it.
+  useEffect(() => {
+    if (!nlMovingId) return;
+    const drop = () => setNlMovingId(null);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlMovingId(null); };
+    window.addEventListener("click", drop);
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("click", drop); window.removeEventListener("keydown", onKey); };
+  }, [nlMovingId]);
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
     setNlCards(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
@@ -370,23 +380,13 @@ export default function NewsletterEditorClient({
               </div>
 
               <div className="nl-card" draggable={false}
+                onMouseEnter={() => { if (nlMovingId && nlMovingId !== card.id) { const from = nlCards.findIndex(c => c.id === nlMovingId); if (from !== -1 && from !== i) nlMoveCard(from, i); } }}
                 onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                style={{ position: "relative", background: "white", border: `1px solid ${nlDragOver === i ? CRIMSON : BORDER}`, borderRadius: 4, padding: "1.25rem", transition: "border-color 0.1s" }}>
-                {/* While a card is being dragged, an overlay catches the drop above the
-                    Tiptap editor (which otherwise swallows native drop events). */}
-                {nlDragging && (
-                  <div
-                    onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; if (nlDragOver !== i) setNlDragOver(i); }}
-                    onDragLeave={() => { if (nlDragOver === i) setNlDragOver(null); }}
-                    onDrop={e => { e.preventDefault(); if (nlDragIndex.current !== null && nlDragIndex.current !== i) nlMoveCard(nlDragIndex.current, i); }}
-                    style={{ position: "absolute", inset: 0, zIndex: 10, borderRadius: 4 }}
-                  />
-                )}
-                {/* Hover-side controls */}
+                style={{ position: "relative", background: "white", border: `1px solid ${nlMovingId === card.id ? CRIMSON : BORDER}`, borderRadius: 4, padding: "1.25rem", transition: "border-color 0.1s", cursor: nlMovingId ? (nlMovingId === card.id ? "grabbing" : "pointer") : undefined }}>
+                {/* Hover-side controls — hidden while a card is picked up */}
+                {!nlMovingId && (
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                  <button type="button" title="Drag to reorder" draggable
-                    onDragStart={e => { nlDragIndex.current = i; setNlDragging(true); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(i)); }}
-                    onDragEnd={() => { nlDragIndex.current = null; setNlDragging(false); setNlDragOver(null); }}
+                  <button type="button" title="Move card" onClick={e => { e.stopPropagation(); setNlMovingId(card.id); }}
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                   </button>
@@ -395,13 +395,14 @@ export default function NewsletterEditorClient({
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
                 </div>
-                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlDragging ? 0 : "0.75rem" }}>
+                )}
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlMovingId ? 0 : "0.75rem" }}>
                   <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
                   <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
                 </div>
                 {/* Body (image + editor) collapses while dragging so the list
                     condenses to headline bars — kept mounted via display:none. */}
-                <div style={{ display: nlDragging ? "none" : "block" }}>
+                <div style={{ display: nlMovingId ? "none" : "block" }}>
                 {card.image ? (
                   <div style={{ marginBottom: "0.85rem" }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
