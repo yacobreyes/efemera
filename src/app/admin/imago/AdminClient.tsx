@@ -908,7 +908,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   {/* Card 1 */}
                   <div onFocusCapture={() => { setNlActiveEditor(nlCard1Editor.current); setNlActiveToolbar(nlCard1Toolbar.current); }}
                     style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1 big thing</label>
+                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1.</label>
                     <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
                     <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
                       <RichBodyEditor initialContent={nlCard1Doc} onChange={setNlCard1Doc}
@@ -920,7 +920,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   {/* Card 2 */}
                   <div onFocusCapture={() => { setNlActiveEditor(nlCard2Editor.current); setNlActiveToolbar(nlCard2Toolbar.current); }}
                     style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2. Also worth knowing</label>
+                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2.</label>
                     <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
                     <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
                       <RichBodyEditor initialContent={nlCard2Doc} onChange={setNlCard2Doc}
