@@ -408,7 +408,9 @@ export default function NewsletterEditorClient({
               <div className="nl-card" draggable={false}
                 onMouseEnter={() => { if (nlMovingId && nlMovingId !== card.id) { const from = nlCards.findIndex(c => c.id === nlMovingId); if (from !== -1 && from !== i) nlMoveCard(from, i); } }}
                 onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                style={{ position: "relative", background: nlMovingId === card.id ? "#fff5f5" : "white", border: `1px ${nlMovingId === card.id ? "dashed" : "solid"} ${nlMovingId === card.id ? CRIMSON : BORDER}`, borderRadius: 4, padding: "1.25rem", transition: "border-color 0.1s", cursor: nlMovingId ? "grabbing" : undefined }}>
+                style={nlMovingId === card.id
+                  ? { height: 0, padding: 0, margin: 0, border: "none", overflow: "hidden", transition: "height 0.12s ease" }
+                  : { position: "relative", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", cursor: nlMovingId ? "pointer" : undefined }}>
                 {/* Hover-side controls — hidden while a card is picked up */}
                 {!nlMovingId && (
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
