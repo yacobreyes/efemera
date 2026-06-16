@@ -264,7 +264,7 @@ body {
   animation: none;
 }
 ::view-transition-new(root) {
-  animation: 80ms ease both vt-fade-in;
+  animation: 220ms cubic-bezier(0.4, 0, 0.2, 1) both vt-fade-in;
 }
 @keyframes vt-fade-in {
   from { opacity: 0; }
