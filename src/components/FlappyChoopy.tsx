@@ -26,7 +26,10 @@ interface Fly { x: number; y: number; eaten: boolean; bobOffset: number; }
 interface Popup { x: number; y: number; life: number; text: string; color: string; }
 interface LeaderEntry { _id: string; name: string; score: number; }
 
-export default function FlappyChoopy() {
+export default function FlappyChoopy({ disabled = false }: { disabled?: boolean }) {
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>("idle");
   const [displayState, setDisplayState] = useState<GameState>("idle");
@@ -227,10 +230,12 @@ export default function FlappyChoopy() {
       vy = FLAP; flapFrame = frame;
     }
 
-    function onTouch(e: TouchEvent) { e.preventDefault(); flap(); }
+    function onTouch(e: TouchEvent) { e.preventDefault(); if (!disabledRef.current) flap(); }
     canvas.addEventListener("touchstart", onTouch, { passive: false });
-    canvas.addEventListener("click", flap);
+    function onClick() { if (!disabledRef.current) flap(); }
+    canvas.addEventListener("click", onClick);
     function onKey(e: KeyboardEvent) {
+      if (disabledRef.current) return;
       if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); flap(); }
     }
     window.addEventListener("keydown", onKey);
@@ -615,7 +620,7 @@ export default function FlappyChoopy() {
     return () => {
       cancelAnimationFrame(animId);
       canvas.removeEventListener("touchstart", onTouch);
-      canvas.removeEventListener("click", flap);
+      canvas.removeEventListener("click", onClick);
       window.removeEventListener("keydown", onKey);
       stopMusic(); actx.close();
     };

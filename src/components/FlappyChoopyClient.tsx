@@ -34,7 +34,7 @@ export default function FlappyChoopyClient() {
 
   return (
     <div style={{ position: "relative" }}>
-      <FlappyChoopy />
+      <FlappyChoopy disabled={!hideOverlay} />
       {!removeOverlay && (
         <div
           style={{
