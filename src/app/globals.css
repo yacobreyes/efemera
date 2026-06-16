@@ -19,7 +19,7 @@ html { background: #8B0000; }
 .card-headline:hover { color: #8B0000 !important; transition: color 0.15s; }
 
 body {
-  background: #8B0000;
+  background: #f5f8fa;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
