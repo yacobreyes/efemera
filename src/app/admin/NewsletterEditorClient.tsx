@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
@@ -85,6 +85,8 @@ export default function NewsletterEditorClient({
   const nlMoveChipRef = useRef<HTMLDivElement | null>(null);
   const nlMoveRectRef = useRef<{ left: number; width: number }>({ left: 0, width: 0 });
   const nlMoveStartYRef = useRef(0);
+  const nlCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const nlPrevTops = useRef<Record<string, number> | null>(null);
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -110,6 +112,30 @@ export default function NewsletterEditorClient({
     window.addEventListener("mousemove", onMove);
     return () => { window.removeEventListener("mouseup", drop); window.removeEventListener("keydown", onKey); window.removeEventListener("mousemove", onMove); };
   }, [nlMovingId]);
+
+  // FLIP-animate the non-moving cards sliding into their new slots whenever
+  // the card order changes mid-drag. nlPrevTops is populated right before
+  // nlMoveCard runs (see the onMouseEnter handler below).
+  useLayoutEffect(() => {
+    const prev = nlPrevTops.current;
+    if (!prev) return;
+    nlPrevTops.current = null;
+    for (const card of nlCards) {
+      if (card.id === nlMovingId) continue;
+      const el = nlCardRefs.current[card.id];
+      const before = prev[card.id];
+      if (!el || before === undefined) continue;
+      const after = el.getBoundingClientRect().top;
+      const delta = before - after;
+      if (!delta) continue;
+      el.style.transition = "none";
+      el.style.transform = `translateY(${delta}px)`;
+      requestAnimationFrame(() => {
+        el.style.transition = "transform 0.15s ease";
+        el.style.transform = "";
+      });
+    }
+  }, [nlCards, nlMovingId]);
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
     setNlCards(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
@@ -406,7 +432,16 @@ export default function NewsletterEditorClient({
               </div>
 
               <div className="nl-card" draggable={false}
-                onMouseEnter={() => { if (nlMovingId && nlMovingId !== card.id) { const from = nlCards.findIndex(c => c.id === nlMovingId); if (from !== -1 && from !== i) nlMoveCard(from, i); } }}
+                ref={el => { nlCardRefs.current[card.id] = el; }}
+                onMouseEnter={() => {
+                  if (!nlMovingId || nlMovingId === card.id) return;
+                  const from = nlCards.findIndex(c => c.id === nlMovingId);
+                  if (from === -1 || from === i) return;
+                  const tops: Record<string, number> = {};
+                  for (const c of nlCards) { const el = nlCardRefs.current[c.id]; if (el) tops[c.id] = el.getBoundingClientRect().top; }
+                  nlPrevTops.current = tops;
+                  nlMoveCard(from, i);
+                }}
                 onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                 style={nlMovingId === card.id
                   ? { height: 0, padding: 0, margin: 0, border: "none", overflow: "hidden", transition: "height 0.12s ease" }
