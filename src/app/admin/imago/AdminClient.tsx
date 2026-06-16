@@ -125,23 +125,41 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlSubject, setNlSubject] = useState("");
   const [nlPreview, setNlPreview] = useState("");
   const [nlAuthor, setNlAuthor] = useState("Yacob Reyes");
-  const [nlCard1Headline, setNlCard1Headline] = useState("");
-  const [nlCard1Doc, setNlCard1Doc] = useState<JSONContent>(EMPTY_DOC);
-  const [nlCard2Headline, setNlCard2Headline] = useState("");
-  const [nlCard2Doc, setNlCard2Doc] = useState<JSONContent>(EMPTY_DOC);
+  type NlEditorCard = { id: string; headline: string; doc: JSONContent };
+  const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
+  const [nlCards, setNlCards] = useState<NlEditorCard[]>(() => [newNlCard(), newNlCard()]);
   const [nlSaving, setNlSaving] = useState(false);
   const [nlSuccess, setNlSuccess] = useState("");
   type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[] };
-  type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; card1?: NlCard; card2?: NlCard };
+  type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; cards?: NlCard[]; card1?: NlCard; card2?: NlCard };
   const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
   const [nlVersionMenu, setNlVersionMenu] = useState<string | null>(null);
   // Shared toolbar drives whichever card is focused (like the story editor)
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
-  const nlCard1Editor = useRef<Editor | null>(null);
-  const nlCard1Toolbar = useRef<ToolbarHandles | null>(null);
-  const nlCard2Editor = useRef<Editor | null>(null);
-  const nlCard2Toolbar = useRef<ToolbarHandles | null>(null);
+  const nlEditors = useRef<Record<string, Editor | null>>({});
+  const nlToolbars = useRef<Record<string, ToolbarHandles | null>>({});
+
+  function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
+    setNlCards(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
+  }
+  function nlAddCardAfter(index: number) {
+    setNlCards(prev => { const next = [...prev]; next.splice(index + 1, 0, newNlCard()); return next; });
+  }
+  function nlRemoveCard(id: string) {
+    setNlCards(prev => prev.length <= 1 ? prev : prev.filter(c => c.id !== id));
+    delete nlEditors.current[id];
+    delete nlToolbars.current[id];
+  }
+  function nlMoveCard(from: number, to: number) {
+    setNlCards(prev => {
+      if (to < 0 || to >= prev.length) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
@@ -213,14 +231,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     setNlSubject(v.subject ?? "");
     setNlPreview(v.preview ?? "");
     setNlAuthor(v.author ?? "Yacob Reyes");
-    setNlCard1Headline(v.card1?.headline ?? "");
-    setNlCard2Headline(v.card2?.headline ?? "");
-    const doc1 = v.card1?.body?.length ? portableTextToTiptap(v.card1.body) : EMPTY_DOC;
-    const doc2 = v.card2?.body?.length ? portableTextToTiptap(v.card2.body) : EMPTY_DOC;
-    setNlCard1Doc(doc1);
-    setNlCard2Doc(doc2);
-    nlCard1Editor.current?.commands.setContent(doc1);
-    nlCard2Editor.current?.commands.setContent(doc2);
+    const srcCards: NlCard[] = v.cards?.length ? v.cards : [v.card1, v.card2].filter(Boolean) as NlCard[];
+    const restored: NlEditorCard[] = (srcCards.length ? srcCards : [{}]).map(c => ({
+      ...newNlCard(),
+      headline: c.headline ?? "",
+      doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
+    }));
+    setNlCards(restored);
   }
 
   useEffect(() => {
@@ -819,6 +836,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
             <div style={{ margin: "-2rem", maxWidth: "none", width: "auto", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
               <style>{`
                 .nl-tb-btn { position: relative; }
+                /* Add-card divider: hidden until the row is hovered */
+                .nl-add-zone .nl-add-line, .nl-add-zone .nl-add-label { opacity: 0; transition: opacity 0.12s; }
+                .nl-add-zone:hover .nl-add-line, .nl-add-zone:hover .nl-add-label { opacity: 1; }
+                /* Side controls: hidden until the card is hovered */
+                .nl-card-controls { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
+                .nl-card:hover .nl-card-controls, .nl-card-controls:hover { opacity: 1; pointer-events: auto; }
               `}</style>
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
@@ -878,9 +901,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     disabled={!nlSubject}
                     onClick={async () => {
                       setNlSaving(true);
-                      const nlWordCount = [nlCard1Doc, nlCard2Doc].flatMap(d => (d.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length;
+                      const nlWordCount = nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length;
                       try {
-                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, wordCount: nlWordCount, card1: { headline: nlCard1Headline, body: tiptapToPortableText(nlCard1Doc) }, card2: { headline: nlCard2Headline, body: tiptapToPortableText(nlCard2Doc) } }) });
+                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, wordCount: nlWordCount, cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc) })) }) });
                         setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
                         refreshNlVersions();
                       } catch { setError("Save failed"); } finally { setNlSaving(false); }
@@ -905,29 +928,59 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     </div>
                   </div>
 
-                  {/* Card 1 */}
-                  <div onFocusCapture={() => { setNlActiveEditor(nlCard1Editor.current); setNlActiveToolbar(nlCard1Toolbar.current); }}
-                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1.</label>
-                    <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
-                    <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
-                      <RichBodyEditor initialContent={nlCard1Doc} onChange={setNlCard1Doc}
-                        onEditor={ed => { nlCard1Editor.current = ed; if (ed) setNlActiveEditor(prev => prev ?? ed); }}
-                        onToolbar={tb => { nlCard1Toolbar.current = tb; setNlActiveToolbar(prev => prev ?? tb); }} />
-                    </div>
-                  </div>
+                  {/* Cards */}
+                  {nlCards.map((card, i) => (
+                    <div key={card.id}>
+                      {/* Hover add divider (above each card) */}
+                      <div className="nl-add-zone" onClick={() => nlAddCardAfter(i - 1)}
+                        style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 18, cursor: "pointer", margin: "-0.5rem 0" }}>
+                        <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
+                        <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add a new card</span>
+                        <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
+                      </div>
 
-                  {/* Card 2 */}
-                  <div onFocusCapture={() => { setNlActiveEditor(nlCard2Editor.current); setNlActiveToolbar(nlCard2Toolbar.current); }}
-                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2.</label>
-                    <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
-                    <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
-                      <RichBodyEditor initialContent={nlCard2Doc} onChange={setNlCard2Doc}
-                        onEditor={ed => { nlCard2Editor.current = ed; }}
-                        onToolbar={tb => { nlCard2Toolbar.current = tb; }} />
+                      <div className="nl-card" onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
+                        style={{ position: "relative", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                        {/* Hover-side controls */}
+                        <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "calc(100% + 0.75rem)", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                          <button type="button" title="Delete card" onClick={() => { if (nlCards.length > 1 && confirm("Delete this card?")) nlRemoveCard(card.id); }}
+                            style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", opacity: nlCards.length > 1 ? 1 : 0.4 }}>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                            <button type="button" title="Move up" disabled={i === 0} onClick={() => nlMoveCard(i, i - 1)}
+                              style={{ width: 36, height: 30, borderRadius: "8px 8px 0 0", background: "white", border: `1px solid ${BORDER}`, borderBottom: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: i === 0 ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: i === 0 ? 0.4 : 1 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+                            </button>
+                            <button type="button" title="Move down" disabled={i === nlCards.length - 1} onClick={() => nlMoveCard(i, i + 1)}
+                              style={{ width: 36, height: 30, borderRadius: "0 0 8px 8px", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: i === nlCards.length - 1 ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: i === nlCards.length - 1 ? 0.4 : 1 }}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                          <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
+                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
+                        </div>
+                        <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
+                          <RichBodyEditor initialContent={card.doc} minHeight={70} placeholder="Type your item"
+                            onChange={doc => nlUpdateCard(card.id, { doc })}
+                            onEditor={ed => { nlEditors.current[card.id] = ed; if (ed && i === 0) setNlActiveEditor(prev => prev ?? ed); }}
+                            onToolbar={tb => { nlToolbars.current[card.id] = tb; if (tb && i === 0) setNlActiveToolbar(prev => prev ?? tb); }} />
+                        </div>
+                      </div>
+
+                      {/* Hover add divider after the last card */}
+                      {i === nlCards.length - 1 && (
+                        <div className="nl-add-zone" onClick={() => nlAddCardAfter(i)}
+                          style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 18, cursor: "pointer", margin: "-0.5rem 0" }}>
+                          <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
+                          <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add a new card</span>
+                          <div className="nl-add-line" style={{ flex: 1, height: 1, background: BORDER }} />
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  ))}
 
                   {/* Newsletter info */}
                   <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>

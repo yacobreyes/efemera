@@ -25,9 +25,11 @@ interface Props {
   onChange: (doc: JSONContent) => void;
   onEditor?: (editor: Editor | null) => void;
   onToolbar?: (handles: ToolbarHandles | null) => void;
+  minHeight?: number;
+  placeholder?: string;
 }
 
-export default function RichBodyEditor({ initialContent, onChange, onEditor, onToolbar }: Props) {
+export default function RichBodyEditor({ initialContent, onChange, onEditor, onToolbar, minHeight = 320, placeholder = "Type your story" }: Props) {
   const [linkModal, setLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [imageModal, setImageModal] = useState(false);
@@ -38,7 +40,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: "Type your story" }),
+      Placeholder.configure({ placeholder }),
       Link.configure({ openOnClick: false, autolink: true }),
       Image.configure({ inline: false }),
       Youtube.configure({ width: 640, height: 360, nocookie: true }),
@@ -50,7 +52,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
     editorProps: {
       attributes: {
         style: [
-          "min-height:320px",
+          "min-height:" + minHeight + "px",
           "padding:0",
           "font-family:" + FONT,
           "font-size:1rem",
