@@ -258,7 +258,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
             {sectionsOpen && (
               <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
                 {(["Micro-Memoirs", "Narratives"] as SectionTab[]).map(s => (
-                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.88rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
                     onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
                     onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
                     {s}
