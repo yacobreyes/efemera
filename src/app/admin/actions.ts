@@ -46,7 +46,7 @@ export async function uploadImage(formData: FormData) {
     throw new Error(`Upload failed (${res.status}): ${body}`);
   }
   const data = await res.json();
-  return { assetId: data.document._id as string };
+  return { assetId: data.document._id as string, url: data.document.url as string };
 }
 
 export async function createDraft(providedSlug?: string): Promise<{ slug: string }> {

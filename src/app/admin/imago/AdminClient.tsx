@@ -125,13 +125,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlSubject, setNlSubject] = useState("");
   const [nlPreview, setNlPreview] = useState("");
   const [nlAuthor, setNlAuthor] = useState("Yacob Reyes");
-  type NlEditorCard = { id: string; headline: string; doc: JSONContent };
+  type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: { assetId: string; url: string } };
   const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
+  const nlImgFileRef = useRef<HTMLInputElement>(null);
+  const nlImgCardId = useRef<string | null>(null);
+  const [nlImgUploading, setNlImgUploading] = useState<string | null>(null);
   const [nlCards, setNlCards] = useState<NlEditorCard[]>(() => [newNlCard(), newNlCard()]);
   const [nlSaveStatus, setNlSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [nlLoaded, setNlLoaded] = useState(false);
   const nlLastSaved = useRef<string>("");
-  type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[] };
+  type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[]; image?: { assetId: string; url: string } | null };
   type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; cards?: NlCard[]; card1?: NlCard; card2?: NlCard };
   const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
   const [nlVersionMenu, setNlVersionMenu] = useState<string | null>(null);
@@ -151,6 +154,22 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     setNlCards(prev => prev.length <= 1 ? prev : prev.filter(c => c.id !== id));
     delete nlEditors.current[id];
     delete nlToolbars.current[id];
+  }
+  function nlPickImage(cardId: string) {
+    nlImgCardId.current = cardId;
+    nlImgFileRef.current?.click();
+  }
+  async function nlHandleImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    const cardId = nlImgCardId.current;
+    e.target.value = "";
+    if (!file || !cardId) return;
+    setNlImgUploading(cardId);
+    try {
+      const fd = new FormData(); fd.set("file", file);
+      const { assetId, url } = await uploadImage(fd);
+      nlUpdateCard(cardId, { image: { assetId, url } });
+    } catch { setError("Image upload failed"); } finally { setNlImgUploading(null); }
   }
   function nlMoveCard(from: number, to: number) {
     setNlCards(prev => {
@@ -224,7 +243,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const nlPayload = () => ({
     subject: nlSubject, preview: nlPreview, author: nlAuthor,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
-    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc) })),
+    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null })),
   });
 
   const nlSave = useCallback(async (payload: object) => {
@@ -251,7 +270,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
         setNlPreview(draft.preview ?? "");
         setNlAuthor(draft.author ?? "Yacob Reyes");
         if (Array.isArray(draft.cards) && draft.cards.length) {
-          setNlCards(draft.cards.map((c: NlCard) => ({ ...newNlCard(), headline: c.headline ?? "", doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC })));
+          setNlCards(draft.cards.map((c: NlCard) => ({ ...newNlCard(), headline: c.headline ?? "", doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC, image: c.image ?? undefined })));
         }
         nlLastSaved.current = JSON.stringify({ subject: draft.subject ?? "", preview: draft.preview ?? "", author: draft.author ?? "Yacob Reyes", wordCount: draft.wordCount, cards: draft.cards ?? [] });
       }
@@ -279,6 +298,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       ...newNlCard(),
       headline: c.headline ?? "",
       doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
+      image: c.image ?? undefined,
     }));
     setNlCards(restored);
   }
@@ -886,6 +906,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 .nl-card-controls { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
                 .nl-card:hover .nl-card-controls, .nl-card-controls:hover { opacity: 1; pointer-events: auto; }
               `}</style>
+              <input ref={nlImgFileRef} type="file" accept="image/*" onChange={nlHandleImage} style={{ display: "none" }} />
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
                 <button onClick={() => tryNav("dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
@@ -997,6 +1018,21 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                           <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
                         </div>
+                        {card.image ? (
+                          <div style={{ marginBottom: "0.85rem" }}>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={card.image.url} alt="" style={{ width: "100%", maxHeight: 260, objectFit: "cover", borderRadius: 6, display: "block" }} />
+                            <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.4rem" }}>
+                              <button type="button" onClick={() => nlPickImage(card.id)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.7rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_MUTED }}>Change</button>
+                              <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_MUTED }}>Remove</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => nlPickImage(card.id)} disabled={nlImgUploading === card.id}
+                            style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, background: "none", border: `1px solid ${CRIMSON}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer", alignSelf: "flex-start", marginBottom: "0.85rem", display: "inline-block" }}>
+                            {nlImgUploading === card.id ? "Uploading…" : "Add a featured image"}
+                          </button>
+                        )}
                         <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
                           <RichBodyEditor initialContent={card.doc} minHeight={70} placeholder="Type your item"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
