@@ -82,8 +82,9 @@ export default function NewsletterEditorClient({
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
   const [nlMovingId, setNlMovingId] = useState<string | null>(null);
-  const [nlMovePos, setNlMovePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [nlMoveRect, setNlMoveRect] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
+  const nlMoveChipRef = useRef<HTMLDivElement | null>(null);
+  const nlMoveRectRef = useRef<{ left: number; width: number }>({ left: 0, width: 0 });
+  const nlMoveStartYRef = useRef(0);
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -95,9 +96,15 @@ export default function NewsletterEditorClient({
   // starting click won't immediately drop it.
   useEffect(() => {
     if (!nlMovingId) return;
+    if (nlMoveChipRef.current) nlMoveChipRef.current.style.top = `${nlMoveStartYRef.current - 18}px`;
     const drop = () => setNlMovingId(null);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlMovingId(null); };
-    const onMove = (e: MouseEvent) => setNlMovePos({ x: e.clientX, y: e.clientY });
+    // Position the floating card via direct DOM writes (not React state) so
+    // it tracks the cursor every frame without re-rendering the whole list.
+    const onMove = (e: MouseEvent) => {
+      const el = nlMoveChipRef.current;
+      if (el) el.style.top = `${e.clientY - 18}px`;
+    };
     window.addEventListener("mouseup", drop);
     window.addEventListener("keydown", onKey);
     window.addEventListener("mousemove", onMove);
@@ -372,13 +379,15 @@ export default function NewsletterEditorClient({
             </div>
           </div>
 
-          {/* The picked-up card itself follows the cursor (full-width card bar). */}
+          {/* The picked-up card itself follows the cursor (full-width card bar).
+              Position is written directly to the DOM node (see mousemove handler
+              above), not via React state, so it tracks the cursor with no lag. */}
           {nlMovingId && (() => {
             const mc = nlCards.find(c => c.id === nlMovingId);
             const idx = nlCards.findIndex(c => c.id === nlMovingId);
             if (!mc) return null;
             return (
-              <div style={{ position: "fixed", left: nlMoveRect.left, top: nlMovePos.y - 18, width: nlMoveRect.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "1.25rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+              <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "1.25rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
                 <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: CRIMSON, flexShrink: 0 }}>{idx + 1}.</span>
                 <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mc.headline?.trim() || "Untitled card"}</span>
               </div>
@@ -403,7 +412,7 @@ export default function NewsletterEditorClient({
                 {/* Hover-side controls — hidden while a card is picked up */}
                 {!nlMovingId && (
                 <div className="nl-card-controls" style={{ position: "absolute", top: 0, left: "100%", paddingLeft: "0.75rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-                  <button type="button" title="Hold and drag to move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = (e.currentTarget as HTMLElement).closest(".nl-card")?.getBoundingClientRect(); if (r) setNlMoveRect({ left: r.left, width: r.width }); setNlMovePos({ x: e.clientX, y: e.clientY }); setNlMovingId(card.id); }}
+                  <button type="button" title="Hold and drag to move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = (e.currentTarget as HTMLElement).closest(".nl-card")?.getBoundingClientRect(); if (r) nlMoveRectRef.current = { left: r.left, width: r.width }; nlMoveStartYRef.current = e.clientY; setNlMovingId(card.id); }}
                     style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
                   </button>
