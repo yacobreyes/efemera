@@ -418,14 +418,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           {/* Toggle button — on the left edge of admin-right = sidebar border */}
           <button
             onClick={() => setSidebarOpen(v => !v)}
-            style={{ position: "absolute", left: -14, top: 26, transform: "translateY(-50%)", background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: isMobile ? "none" : "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, zIndex: 250, boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
+            style={{ position: "absolute", left: -14, top: 26, transform: "translateY(-50%)", background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: isMobile || activePanel === "newsletter" ? "none" : "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, zIndex: 250, boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
             </svg>
           </button>
           {/* Top bar — desktop */}
-          {!isMobile && (
+          {!isMobile && activePanel !== "newsletter" && (
             <div className="admin-mobile-bar">
               {/* Left: search */}
               <div style={{ width: 280, flexShrink: 0 }}>
@@ -464,7 +464,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "newsletter" ? "Newsletter" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : ""}
                   </span>
                 )}
               </div>
@@ -472,7 +472,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           )}
 
           {/* Top bar — mobile */}
-          {isMobile && (
+          {isMobile && activePanel !== "newsletter" && (
             <div style={{ position: "sticky", top: 0, zIndex: 200, background: "white", borderBottom: `1px solid ${BORDER}` }}>
               {/* Row 1: menu | logo | + new */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1rem", height: 52, boxSizing: "border-box" }}>
@@ -498,7 +498,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : activePanel === "newsletter" ? "Newsletter" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : ""}
                   </span>
                 )}
               </div>
