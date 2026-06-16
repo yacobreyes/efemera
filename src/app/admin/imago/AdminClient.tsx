@@ -306,7 +306,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           min-width: ${sidebarOpen ? "220px" : "60px"};
           background: white;
           border-right: 1px solid ${BORDER};
-          display: flex;
+          display: ${activePanel === "newsletter" ? "none" : "flex"};
           flex-direction: column;
           transition: width 0.2s ease, min-width 0.2s ease;
           overflow: hidden;
@@ -778,48 +778,15 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* NEWSLETTER */}
           {activePanel === "newsletter" && (
-            <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {/* Card 1 — header with wordmark */}
-              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ background: CRIMSON, padding: "1.5rem", textAlign: "center" }}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
-                  <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.7)", margin: "0.5rem 0 0", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-                    {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                  </p>
-                </div>
-              </div>
-
-              {/* Card 2 — story 1 */}
-              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1 big thing</label>
-                <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
-                <textarea value={nlCard1Body} onChange={e => setNlCard1Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
-              </div>
-
-              {/* Card 3 — story 2 */}
-              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
-                <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2. Also worth knowing</label>
-                <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
-                <textarea value={nlCard2Body} onChange={e => setNlCard2Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
-              </div>
-
-              {/* Newsletter info */}
-              <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
-                <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Newsletter info</h3>
-                <div>
-                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Author</label>
-                  <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />
-                </div>
-                <div>
-                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line</label>
-                  <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} placeholder="Add a subject line" style={INPUT} />
-                </div>
-                <div>
-                  <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Preview text</label>
-                  <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} placeholder="Add preview text" style={INPUT} />
-                </div>
-                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", paddingTop: "0.25rem" }}>
+            <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
+              {/* Top bar — matches story editor */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
+                <button onClick={() => tryNav("dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                  Go back
+                </button>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: "#2e7d32" }}>{nlSuccess}</span>}
                   <button
                     disabled={nlSaving || !nlSubject}
                     onClick={async () => {
@@ -829,10 +796,61 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
                       } catch { setError("Save failed"); } finally { setNlSaving(false); }
                     }}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, cursor: nlSaving || !nlSubject ? "not-allowed" : "pointer", opacity: nlSaving || !nlSubject ? 0.6 : 1 }}>
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.85rem", fontFamily: FONT, fontSize: "0.85rem", cursor: nlSaving || !nlSubject ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: !nlSubject ? 0.5 : 1 }}>
                     {nlSaving ? "Saving…" : "Save draft"}
                   </button>
-                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: "#2e7d32" }}>{nlSuccess}</span>}
+                  <button
+                    disabled={!nlSubject}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.3rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject ? 0.5 : 1 }}>
+                    Publish
+                  </button>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", padding: "2rem" }}>
+                <div style={{ maxWidth: 600, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  {/* Wordmark header card */}
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
+                    <div style={{ background: CRIMSON, padding: "1.5rem", textAlign: "center" }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
+                      <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "rgba(255,255,255,0.7)", margin: "0.5rem 0 0", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                        {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 1 */}
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1 big thing</label>
+                    <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
+                    <textarea value={nlCard1Body} onChange={e => setNlCard1Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+                  </div>
+
+                  {/* Card 2 */}
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                    <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2. Also worth knowing</label>
+                    <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
+                    <textarea value={nlCard2Body} onChange={e => setNlCard2Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+                  </div>
+
+                  {/* Newsletter info */}
+                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+                    <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Newsletter info</h3>
+                    <div>
+                      <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Author</label>
+                      <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />
+                    </div>
+                    <div>
+                      <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line <span style={{ color: CRIMSON }}>*</span></label>
+                      <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} placeholder="Add a subject line" style={INPUT} />
+                    </div>
+                    <div>
+                      <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Preview text</label>
+                      <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} placeholder="Add preview text" style={INPUT} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
