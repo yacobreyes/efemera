@@ -82,6 +82,7 @@ export default function NewsletterEditorClient({
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
   const [nlMovingId, setNlMovingId] = useState<string | null>(null);
+  const [nlMovePos, setNlMovePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
@@ -95,9 +96,11 @@ export default function NewsletterEditorClient({
     if (!nlMovingId) return;
     const drop = () => setNlMovingId(null);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlMovingId(null); };
+    const onMove = (e: MouseEvent) => setNlMovePos({ x: e.clientX, y: e.clientY });
     window.addEventListener("click", drop);
     window.addEventListener("keydown", onKey);
-    return () => { window.removeEventListener("click", drop); window.removeEventListener("keydown", onKey); };
+    window.addEventListener("mousemove", onMove);
+    return () => { window.removeEventListener("click", drop); window.removeEventListener("keydown", onKey); window.removeEventListener("mousemove", onMove); };
   }, [nlMovingId]);
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
@@ -367,6 +370,17 @@ export default function NewsletterEditorClient({
               </p>
             </div>
           </div>
+
+          {/* Floating chip that follows the cursor while a card is picked up */}
+          {nlMovingId && (() => {
+            const mc = nlCards.find(c => c.id === nlMovingId);
+            if (!mc) return null;
+            return (
+              <div style={{ position: "fixed", left: nlMovePos.x + 14, top: nlMovePos.y + 14, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "0.5rem 0.85rem", boxShadow: "0 6px 20px rgba(0,0,0,0.18)", maxWidth: 320, fontFamily: FONT, fontSize: "0.95rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                {mc.headline?.trim() || "Untitled card"}
+              </div>
+            );
+          })()}
 
           {/* Cards */}
           {nlCards.map((card, i) => (
