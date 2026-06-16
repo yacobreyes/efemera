@@ -29,6 +29,11 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
+function formatVersionTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true }) + " ET";
+}
+
 const EMPTY_DOC: JSONContent = { type: "doc", content: [{ type: "paragraph" }] };
 const LS_KEY = "efemera_admin_draft";
 
@@ -121,11 +126,20 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlPreview, setNlPreview] = useState("");
   const [nlAuthor, setNlAuthor] = useState("Yacob Reyes");
   const [nlCard1Headline, setNlCard1Headline] = useState("");
-  const [nlCard1Body, setNlCard1Body] = useState("");
+  const [nlCard1Doc, setNlCard1Doc] = useState<JSONContent>(EMPTY_DOC);
   const [nlCard2Headline, setNlCard2Headline] = useState("");
-  const [nlCard2Body, setNlCard2Body] = useState("");
+  const [nlCard2Doc, setNlCard2Doc] = useState<JSONContent>(EMPTY_DOC);
   const [nlSaving, setNlSaving] = useState(false);
   const [nlSuccess, setNlSuccess] = useState("");
+  type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; wordCount?: number };
+  const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
+  // Shared toolbar drives whichever card is focused (like the story editor)
+  const [nlActiveEditor, setNlActiveEditor] = useState<Editor | null>(null);
+  const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
+  const nlCard1Editor = useRef<Editor | null>(null);
+  const nlCard1Toolbar = useRef<ToolbarHandles | null>(null);
+  const nlCard2Editor = useRef<Editor | null>(null);
+  const nlCard2Toolbar = useRef<ToolbarHandles | null>(null);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
@@ -184,6 +198,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   useEffect(() => {
     setIsDirty(JSON.stringify(form) !== JSON.stringify(savedForm));
   }, [form, savedForm]);
+
+  function refreshNlVersions() {
+    fetch("/api/newsletter").then(r => r.json()).then(d => { if (Array.isArray(d)) setNlVersions(d); }).catch(() => {});
+  }
+  useEffect(() => {
+    if (activePanel === "newsletter") refreshNlVersions();
+  }, [activePanel]);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => { if (isDirty) { e.preventDefault(); e.returnValue = ""; } };
@@ -778,31 +799,77 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
           {/* NEWSLETTER */}
           {activePanel === "newsletter" && (
-            <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
+            <div style={{ margin: "-2rem", maxWidth: "none", width: "auto", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
+              <style>{`
+                .nl-tb-btn { position: relative; }
+              `}</style>
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
-                <button onClick={() => tryNav("dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>
+                <button onClick={() => tryNav("dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-                  Go back
+                  Save &amp; Exit
                 </button>
+
+                {/* Formatting toolbar — drives the focused card editor */}
+                {!isMobile && nlActiveEditor && (
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                    {([
+                      ["B", nlActiveEditor.isActive("bold"), () => nlActiveEditor.chain().focus().toggleBold().run(), { fontWeight: 700 }],
+                      ["I", nlActiveEditor.isActive("italic"), () => nlActiveEditor.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
+                    ] as [string, boolean, () => void, React.CSSProperties][]).map(([label, active, action, style]) => (
+                      <button key={label} type="button" onMouseDown={e => { e.preventDefault(); action(); }}
+                        style={{ background: active ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
+                        {label}
+                      </button>
+                    ))}
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveEditor.chain().focus().toggleBlockquote().run(); }}
+                      style={{ background: nlActiveEditor.isActive("blockquote") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveEditor.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </button>
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveEditor.chain().focus().toggleHeading({ level: 2 }).run(); }}
+                      style={{ background: nlActiveEditor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveEditor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
+                      H2
+                    </button>
+                    <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveEditor.chain().focus().toggleBulletList().run(); }}
+                      style={{ background: nlActiveEditor.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveEditor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    </button>
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveEditor.chain().focus().toggleOrderedList().run(); }}
+                      style={{ background: nlActiveEditor.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveEditor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+                    </button>
+                    <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openLink(); }}
+                      style={{ background: nlActiveEditor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveEditor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </button>
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openImage(); }}
+                      style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </button>
+                    <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openEmbed(); }}
+                      style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    </button>
+                  </div>
+                )}
+
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: "#2e7d32" }}>{nlSuccess}</span>}
-                  <button
-                    disabled={nlSaving || !nlSubject}
-                    onClick={async () => {
-                      setNlSaving(true);
-                      try {
-                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, card1: { headline: nlCard1Headline, body: nlCard1Body }, card2: { headline: nlCard2Headline, body: nlCard2Body } }) });
-                        setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
-                      } catch { setError("Save failed"); } finally { setNlSaving(false); }
-                    }}
-                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.85rem", fontFamily: FONT, fontSize: "0.85rem", cursor: nlSaving || !nlSubject ? "not-allowed" : "pointer", color: TEXT_MUTED, opacity: !nlSubject ? 0.5 : 1 }}>
-                    {nlSaving ? "Saving…" : "Save draft"}
-                  </button>
+                  {nlSuccess && <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSuccess}</span>}
                   <button
                     disabled={!nlSubject}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.3rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject ? 0.5 : 1 }}>
-                    Publish
+                    onClick={async () => {
+                      setNlSaving(true);
+                      const nlWordCount = [nlCard1Doc, nlCard2Doc].flatMap(d => (d.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length;
+                      try {
+                        await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subject: nlSubject, preview: nlPreview, author: nlAuthor, wordCount: nlWordCount, card1: { headline: nlCard1Headline, body: tiptapToPortableText(nlCard1Doc) }, card2: { headline: nlCard2Headline, body: tiptapToPortableText(nlCard2Doc) } }) });
+                        setNlSuccess("Saved!"); setTimeout(() => setNlSuccess(""), 2500);
+                        refreshNlVersions();
+                      } catch { setError("Save failed"); } finally { setNlSaving(false); }
+                    }}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject ? 0.5 : 1 }}>
+                    {nlSaving ? "Saving…" : "Publish"}
                   </button>
                 </div>
               </div>
@@ -822,17 +889,27 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
 
                   {/* Card 1 */}
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                  <div onFocusCapture={() => { setNlActiveEditor(nlCard1Editor.current); setNlActiveToolbar(nlCard1Toolbar.current); }}
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
                     <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.4rem" }}>1 big thing</label>
-                    <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
-                    <textarea value={nlCard1Body} onChange={e => setNlCard1Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+                    <input value={nlCard1Headline} onChange={e => setNlCard1Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
+                    <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
+                      <RichBodyEditor initialContent={nlCard1Doc} onChange={setNlCard1Doc}
+                        onEditor={ed => { nlCard1Editor.current = ed; }}
+                        onToolbar={tb => { nlCard1Toolbar.current = tb; }} />
+                    </div>
                   </div>
 
                   {/* Card 2 */}
-                  <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
+                  <div onFocusCapture={() => { setNlActiveEditor(nlCard2Editor.current); setNlActiveToolbar(nlCard2Toolbar.current); }}
+                    style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem" }}>
                     <label style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, display: "block", marginBottom: "0.4rem" }}>2. Also worth knowing</label>
-                    <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700 }} />
-                    <textarea value={nlCard2Body} onChange={e => setNlCard2Body(e.target.value)} placeholder="Body…" rows={4} style={{ ...INPUT, resize: "vertical", lineHeight: 1.6 } as React.CSSProperties} />
+                    <input value={nlCard2Headline} onChange={e => setNlCard2Headline(e.target.value)} placeholder="Headline" style={{ ...INPUT, marginBottom: "0.75rem", fontSize: "1rem", fontWeight: 700, border: "none", padding: "0.25rem 0" }} />
+                    <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>
+                      <RichBodyEditor initialContent={nlCard2Doc} onChange={setNlCard2Doc}
+                        onEditor={ed => { nlCard2Editor.current = ed; }}
+                        onToolbar={tb => { nlCard2Toolbar.current = tb; }} />
+                    </div>
                   </div>
 
                   {/* Newsletter info */}
@@ -850,6 +927,27 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Preview text</label>
                       <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} placeholder="Add preview text" style={INPUT} />
                     </div>
+                  </div>
+
+                  {/* Divider + Version history */}
+                  <hr style={{ border: "none", borderTop: `1px solid ${BORDER}`, margin: "1rem 0 0.5rem" }} />
+                  <div>
+                    <h3 style={{ fontFamily: FONT, fontSize: "1.4rem", fontWeight: 700, color: TEXT_DARK, margin: "0 0 1rem" }}>Version history</h3>
+                    {nlVersions.length === 0 ? (
+                      <p style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED }}>No saves recorded yet.</p>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                        {nlVersions.map(v => (
+                          <div key={v.id} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem" }}>
+                            <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", minWidth: 0 }}>
+                              <span style={{ fontFamily: FONT, fontSize: "0.92rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap" }}>{v.author || "Yacob Reyes"}</span>
+                              <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_MUTED }}>{formatVersionTime(v.createdAt)}</span>
+                            </div>
+                            <span style={{ fontFamily: FONT, fontSize: "0.88rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{v.wordCount ?? 0} words</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
