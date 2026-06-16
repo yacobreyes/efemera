@@ -53,7 +53,7 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
 
   const formatLabel = () => {
     if (!sel) return "—";
-    const time = sel.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+    const time = sel.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
     const date = sel.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
     return `${time} on ${date}`;
   };
