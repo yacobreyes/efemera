@@ -3,7 +3,6 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
-import { logout } from "../auth";
 import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -62,11 +61,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const router = useRouter();
   const [auth] = useState(initialAuth);
 
-  // Sign-out has to clear both auth paths: the NextAuth Google session AND
-  // the legacy password cookie set by ../auth's login() — clearing only one
-  // left the other still valid, so isAuthed() kept returning true.
   async function signOutEverywhere() {
-    await logout();
     const { signOut } = await import("next-auth/react");
     await signOut({ callbackUrl: "/admin/imago" });
   }
