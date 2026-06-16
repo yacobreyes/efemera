@@ -6,6 +6,7 @@ import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, sa
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
+import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
@@ -143,6 +144,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlActiveToolbar, setNlActiveToolbar] = useState<ToolbarHandles | null>(null);
   const nlEditors = useRef<Record<string, Editor | null>>({});
   const nlToolbars = useRef<Record<string, ToolbarHandles | null>>({});
+  // Newsletter lifecycle (each newsletter is now its own document)
+  type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string };
+  const [nlId, setNlId] = useState<string | null>(null);
+  const [nlStatus, setNlStatus] = useState<"draft" | "published" | "scheduled">("draft");
+  const [nlScheduledAt, setNlScheduledAt] = useState("");
+  const [newsletters, setNewsletters] = useState<NlListItem[]>([]);
+  const [showNlEllipsis, setShowNlEllipsis] = useState(false);
+  const [showNlScheduler, setShowNlScheduler] = useState(false);
+  const [showNlPreview, setShowNlPreview] = useState(false);
+  const [nlSending, setNlSending] = useState(false);
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
     setNlCards(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
@@ -190,6 +201,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   useEffect(() => {
     refreshPosts();
+    refreshNewsletters();
     const retryTimer = setTimeout(refreshPosts, 1500);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
@@ -225,41 +237,113 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   // Build the serializable newsletter payload (cards bodies → portable text)
   const nlPayload = () => ({
+    id: nlId, status: nlStatus, scheduledAt: nlScheduledAt || undefined,
     subject: nlSubject, preview: nlPreview, author: nlAuthor,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
     cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null })),
   });
 
-  const nlSave = useCallback(async (payload: object) => {
+  const refreshNewsletters = useCallback(() => {
+    fetch("/api/newsletter").then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
+  }, []);
+
+  const nlSave = useCallback(async (payload: { id: string | null } & Record<string, unknown>): Promise<string | undefined> => {
     setNlSaveStatus("saving");
     try {
       const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
+      const savedId = data?.id as string | undefined;
+      if (savedId) setNlId(prev => prev ?? savedId);
       if (Array.isArray(data?.versions)) setNlVersions(data.versions);
-      nlLastSaved.current = JSON.stringify(payload);
+      nlLastSaved.current = JSON.stringify(savedId ? { ...payload, id: savedId } : payload);
       setNlSaveStatus("saved");
-    } catch { setNlSaveStatus("unsaved"); }
+      refreshNewsletters();
+      return savedId;
+    } catch { setNlSaveStatus("unsaved"); return undefined; }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refreshNewsletters]);
 
-  // Load draft + versions when entering the newsletter panel
-  useEffect(() => {
-    if (activePanel !== "newsletter" || nlLoaded) return;
+  function resetNlState() {
+    setNlSubject(""); setNlPreview(""); setNlAuthor("Yacob Reyes");
+    setNlCards([newNlCard(), newNlCard()]); setNlVersions([]);
+    setNlStatus("draft"); setNlScheduledAt(""); setNlSaveStatus("saved");
+    nlLastSaved.current = "";
+  }
+
+  // Start a brand-new newsletter (created lazily on first autosave)
+  function createNewNewsletter() {
+    resetNlState();
+    setNlId(null);
     setNlLoaded(true);
-    fetch("/api/newsletter").then(r => r.json()).then(d => {
+    setActivePanel("newsletter");
+  }
+
+  // Open an existing newsletter document for editing
+  function openNewsletter(item: NlListItem) {
+    resetNlState();
+    setNlId(item._id);
+    setNlLoaded(true);
+    setActivePanel("newsletter");
+    fetch(`/api/newsletter?id=${encodeURIComponent(item._id)}`).then(r => r.json()).then(d => {
       if (Array.isArray(d?.versions)) setNlVersions(d.versions);
       const draft = d?.draft;
-      if (draft) {
-        setNlSubject(draft.subject ?? "");
-        setNlPreview(draft.preview ?? "");
-        setNlAuthor(draft.author ?? "Yacob Reyes");
-        if (Array.isArray(draft.cards) && draft.cards.length) {
-          setNlCards(draft.cards.map((c: NlCard) => ({ ...newNlCard(), headline: c.headline ?? "", doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC, image: c.image ?? undefined })));
-        }
-        nlLastSaved.current = JSON.stringify({ subject: draft.subject ?? "", preview: draft.preview ?? "", author: draft.author ?? "Yacob Reyes", wordCount: draft.wordCount, cards: draft.cards ?? [] });
+      if (!draft) return;
+      setNlSubject(draft.subject ?? "");
+      setNlPreview(draft.preview ?? "");
+      setNlAuthor(draft.author ?? "Yacob Reyes");
+      setNlStatus(draft.status ?? "draft");
+      setNlScheduledAt(draft.scheduledAt ? String(draft.scheduledAt).slice(0, 16) : "");
+      if (Array.isArray(draft.cards) && draft.cards.length) {
+        setNlCards(draft.cards.map((c: NlCard) => ({ ...newNlCard(), headline: c.headline ?? "", doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC, image: c.image ?? undefined })));
       }
+      nlLastSaved.current = JSON.stringify({
+        id: item._id, status: draft.status ?? "draft",
+        scheduledAt: draft.scheduledAt ? String(draft.scheduledAt).slice(0, 16) : undefined,
+        subject: draft.subject ?? "", preview: draft.preview ?? "", author: draft.author ?? "Yacob Reyes",
+        wordCount: draft.wordCount ?? 0,
+        cards: (draft.cards ?? []).map((c: NlCard) => ({ headline: c.headline ?? "", body: c.body ?? [], image: c.image ?? null })),
+      });
     }).catch(() => {});
-  }, [activePanel, nlLoaded]);
+  }
+
+  async function publishNewsletter() {
+    if (!nlSubject.trim()) { alert("Add a subject line before publishing."); return; }
+    setNlStatus("published");
+    const savedId = await nlSave({ ...nlPayload(), status: "published" });
+    const sendId = savedId ?? nlId;
+    if (sendId && confirm("Send this newsletter to all subscribers now?")) {
+      setNlSending(true);
+      try {
+        const res = await fetch("/api/newsletter/send", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: sendId }) });
+        const d = await res.json();
+        if (!res.ok) alert(d.error || "Send failed.");
+        else alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}.${d.failed ? ` ${d.failed} failed.` : ""}`);
+      } catch { alert("Send failed."); }
+      finally { setNlSending(false); }
+    }
+  }
+
+  async function unpublishNewsletter() {
+    setNlStatus("draft");
+    await nlSave({ ...nlPayload(), status: "draft" });
+  }
+
+  async function scheduleNewsletter() {
+    if (!nlScheduledAt) return;
+    setNlStatus("scheduled");
+    await nlSave({ ...nlPayload(), status: "scheduled", scheduledAt: nlScheduledAt });
+    setShowNlScheduler(false);
+  }
+
+  async function deleteNewsletter() {
+    if (!confirm("Delete this newsletter? This cannot be undone.")) return;
+    if (nlId) {
+      try { await fetch(`/api/newsletter?id=${encodeURIComponent(nlId)}`, { method: "DELETE" }); } catch {}
+    }
+    refreshNewsletters();
+    setActivePanel("dashboard");
+    router.push("/admin/imago");
+  }
 
   // Auto-save every 3s when dirty (matches the story editor)
   useEffect(() => {
@@ -270,7 +354,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     const timer = setTimeout(() => { nlSave(payload); }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nlSubject, nlPreview, nlAuthor, nlCards, activePanel, nlLoaded]);
+  }, [nlSubject, nlPreview, nlAuthor, nlCards, nlStatus, nlScheduledAt, activePanel, nlLoaded]);
 
   function restoreNlVersion(v: NlVersion) {
     if (!confirm("Restore this version? Your current text will be replaced.")) return;
@@ -559,7 +643,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                       <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 150, zIndex: 100, overflow: "hidden" }}>
                         <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
                           onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>Story</button>
-                        <button onClick={() => { setShowCreateMenu(false); tryNav("newsletter"); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; createNewNewsletter(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
                           onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>Newsletter</button>
                       </div>
                     )}
@@ -594,7 +678,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     {showCreateMenu && (
                       <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 140, zIndex: 300, overflow: "hidden" }}>
                         <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard?")) return; startNew(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Story</button>
-                        <button onClick={() => { setShowCreateMenu(false); tryNav("newsletter"); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Newsletter</button>
+                        <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard?")) return; createNewNewsletter(); }} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>Newsletter</button>
                       </div>
                     )}
                   </div>
@@ -661,25 +745,46 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               {(() => {
                 const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
                 const filtered = query.trim() ? list.filter(p => p.headline.toLowerCase().includes(query.toLowerCase()) || p.subheadline?.toLowerCase().includes(query.toLowerCase())) : list;
-                const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled post" : "published post";
+                const nlStatusKey = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled" : "published";
+                const nlList = newsletters.filter(n => (n.status ?? "draft") === nlStatusKey);
+                const nlFiltered = query.trim() ? nlList.filter(n => (n.subject ?? "").toLowerCase().includes(query.toLowerCase())) : nlList;
+                const total = filtered.length + nlFiltered.length;
+                const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled item" : "published item";
                 return (
                   <>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, paddingLeft: "1rem" }}>{filtered.length} {filtered.length === 1 ? label : label + "s"}</p>
+                      <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0, paddingLeft: "1rem" }}>{total} {total === 1 ? label : label + "s"}</p>
                     </div>
                     {/* Table header */}
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 140px 120px", padding: "0.4rem 1rem" }}>
-                      {["Name", "Section", "Date"].map(h => (
+                      {["Name", "Type", "Date"].map(h => (
                         <span key={h} style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: TEXT_MUTED }}>{h}</span>
                       ))}
                     </div>
                     {/* Rows */}
-                    {filtered.length === 0 ? (
+                    {total === 0 ? (
                       <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center", marginTop: "0.25rem" }}>
                         <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>{query ? `No results for "${query}"` : `No ${label}s yet.`}</p>
                       </div>
                     ) : (
                       <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden", marginTop: "0.25rem" }}>
+                        {nlFiltered.map(n => (
+                          <div key={n._id}
+                            onClick={() => openNewsletter(n)}
+                            style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 100px 80px" : "1fr 140px 120px", gap: isMobile ? "0 0.5rem" : "0 1rem", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                            onMouseLeave={e => (e.currentTarget.style.background = "white")}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={CRIMSON} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+                              <div style={{ minWidth: 0 }}>
+                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.subject || <em style={{ color: TEXT_MUTED, fontWeight: 400 }}>Untitled newsletter</em>}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{n.author || "Yacob Reyes"}</p>
+                              </div>
+                            </div>
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.78rem", fontWeight: 700, color: CRIMSON, letterSpacing: "0.04em", textTransform: "uppercase" }}>Newsletter</span>
+                            <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{(n.createdAt ?? "").slice(0, 10)}</span>
+                          </div>
+                        ))}
                         {filtered.map(post => (
                           <div key={post._id}
                             onClick={() => { if (isDirty && !confirm("Discard?")) return; startEdit(post); }}
@@ -897,6 +1002,35 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   onSelect={img => nlUpdateCard(nlImgPickerCard, { image: img })}
                 />
               )}
+
+              {/* Schedule modal */}
+              {showNlScheduler && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowNlScheduler(false)}>
+                  <div style={{ background: "white", borderRadius: 8, padding: "1.5rem", width: 300, boxShadow: "0 8px 32px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
+                    <p style={{ fontFamily: FONT, fontWeight: 700, margin: "0 0 1rem", color: TEXT_DARK }}>Schedule newsletter</p>
+                    <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 700, color: TEXT_MUTED, letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "0.3rem" }}>Send at</label>
+                    <input type="datetime-local" value={nlScheduledAt} onChange={e => setNlScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.75rem" }} />
+                    <button type="button" disabled={!nlScheduledAt} onClick={scheduleNewsletter} style={{ width: "100%", background: CRIMSON, color: "white", border: "none", borderRadius: 6, padding: "0.5rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", opacity: nlScheduledAt ? 1 : 0.5 }}>Confirm schedule</button>
+                  </div>
+                </div>
+              )}
+
+              {/* Preview modal — renders the actual email HTML */}
+              {showNlPreview && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }} onClick={() => setShowNlPreview(false)}>
+                  <div style={{ background: "white", borderRadius: 8, width: "min(680px, 100%)", height: "90vh", overflow: "hidden", position: "relative", display: "flex", flexDirection: "column" }} onClick={e => e.stopPropagation()}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.85rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
+                      <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Email preview</span>
+                      <button type="button" onClick={() => setShowNlPreview(false)} style={{ background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
+                    </div>
+                    <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
+                      srcDoc={renderNewsletterHtml({
+                        subject: nlSubject, preview: nlPreview,
+                        cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null })),
+                      })} />
+                  </div>
+                </div>
+              )}
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
                 <button onClick={async () => { await nlSave(nlPayload()); setActivePanel("dashboard"); router.push("/admin/imago"); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
@@ -950,13 +1084,31 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 )}
 
                 <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
+                  <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
                   <button
-                    disabled={!nlSubject}
-                    onClick={() => nlSave(nlPayload())}
-                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject ? 0.5 : 1 }}>
-                    Publish
+                    disabled={!nlSubject || nlSending}
+                    onClick={publishNewsletter}
+                    style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject || nlSending ? 0.5 : 1 }}>
+                    {nlStatus === "published" ? "Update & Send" : "Publish"}
                   </button>
+                  {/* Ellipsis menu */}
+                  <div style={{ position: "relative" }}>
+                    <button type="button" onClick={() => setShowNlEllipsis(v => !v)}
+                      style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+                    </button>
+                    {showNlEllipsis && (
+                      <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowNlEllipsis(false)}>
+                        <button type="button" onClick={() => setShowNlPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                        <button type="button" onClick={() => setShowNlScheduler(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                        {nlStatus === "published" && (
+                          <button type="button" onClick={unpublishNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Unpublish</button>
+                        )}
+                        <div style={{ borderTop: `1px solid ${BORDER}` }} />
+                        <button type="button" onClick={deleteNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

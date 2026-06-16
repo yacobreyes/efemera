@@ -1,3 +1,5 @@
+import NewsletterSignup from "./NewsletterSignup";
+
 export default function SiteFooter() {
   return (
     <footer style={{
@@ -9,6 +11,8 @@ export default function SiteFooter() {
       alignItems: "center",
       gap: "1rem",
     }}>
+      <NewsletterSignup />
+
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/wordmark.webp" alt="efemera" width={1772} height={1181} style={{ width: "clamp(150px, 18vw, 180px)", height: "auto", opacity: 0.9 }} />
 

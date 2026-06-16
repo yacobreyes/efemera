@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,45 @@ async function sanityMutate(mutations: unknown[]) {
   );
   if (!res.ok) throw new Error(await res.text());
   return res.json();
+}
+
+async function sanityQuery(q: string) {
+  const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+  const res = await fetch(
+    `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(q)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  const { result } = await res.json();
+  return result;
+}
+
+// Publishes + emails any scheduled newsletters whose time has passed.
+async function sendDueNewsletters(): Promise<number> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.NEWSLETTER_FROM;
+  const due: { _id: string; subject?: string; preview?: string; cards?: NlCard[] }[] =
+    (await sanityQuery(`*[_type == "newsletter" && status == "scheduled" && scheduledAt <= now()]{ _id, subject, preview, cards }`)) ?? [];
+  if (!due.length) return 0;
+
+  const subscribers: { email: string }[] = (await sanityQuery(`*[_type == "subscriber" && status == "active"]{ email }`)) ?? [];
+  const emails = subscribers.map(s => s.email).filter(Boolean);
+
+  for (const nl of due) {
+    if (apiKey && from && emails.length) {
+      const html = renderNewsletterHtml({ subject: nl.subject ?? "", preview: nl.preview ?? "", cards: nl.cards ?? [] });
+      for (let i = 0; i < emails.length; i += 50) {
+        await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({ from, to: from, bcc: emails.slice(i, i + 50), subject: nl.subject, html }),
+        });
+      }
+    }
+    await sanityMutate([{ patch: { id: nl._id, set: { status: "published", sentAt: new Date().toISOString() } } }]);
+  }
+  return due.length;
 }
 
 export async function GET(request: Request) {
@@ -39,14 +79,16 @@ export async function GET(request: Request) {
   );
   const { result } = await res.json();
 
-  if (!result?.length) {
-    return NextResponse.json({ published: 0 });
+  let published = 0;
+  if (result?.length) {
+    const mutations = result.map((doc: { _id: string }) => ({
+      patch: { id: doc._id, set: { status: "published" } },
+    }));
+    await sanityMutate(mutations);
+    published = result.length;
   }
 
-  const mutations = result.map((doc: { _id: string }) => ({
-    patch: { id: doc._id, set: { status: "published" } },
-  }));
+  const newslettersSent = await sendDueNewsletters();
 
-  await sanityMutate(mutations);
-  return NextResponse.json({ published: result.length });
+  return NextResponse.json({ published, newslettersSent });
 }
