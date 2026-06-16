@@ -258,6 +258,19 @@ body {
 
 .col-divider { column-rule: 1px solid rgba(0,0,0,0.2); }
 
+/* ── Very fast crossfade between pages ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 90ms;
+  animation-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0s !important;
+  }
+}
 
 .page-enter {
   animation: pageReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
