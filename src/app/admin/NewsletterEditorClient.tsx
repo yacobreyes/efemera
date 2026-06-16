@@ -585,7 +585,7 @@ export default function NewsletterEditorClient({
             return (
               <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "1.25rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
                 <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: CRIMSON, flexShrink: 0 }}>{idx + 1}.</span>
-                <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mc.headline?.trim() || "Untitled card"}</span>
+                <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mc.headline?.trim() || "Type your headline"}</span>
               </div>
             );
           })()}
