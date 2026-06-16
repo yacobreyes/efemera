@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
+import ImagePickerModal from "@/components/ImagePickerModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
@@ -125,11 +126,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlSubject, setNlSubject] = useState("");
   const [nlPreview, setNlPreview] = useState("");
   const [nlAuthor, setNlAuthor] = useState("Yacob Reyes");
-  type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: { assetId: string; url: string } };
+  type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
+  type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage };
   const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
-  const nlImgFileRef = useRef<HTMLInputElement>(null);
-  const nlImgCardId = useRef<string | null>(null);
-  const [nlImgUploading, setNlImgUploading] = useState<string | null>(null);
+  const [nlImgPickerCard, setNlImgPickerCard] = useState<string | null>(null);
   const [nlCards, setNlCards] = useState<NlEditorCard[]>(() => [newNlCard(), newNlCard()]);
   const [nlSaveStatus, setNlSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [nlLoaded, setNlLoaded] = useState(false);
@@ -154,22 +154,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     setNlCards(prev => prev.length <= 1 ? prev : prev.filter(c => c.id !== id));
     delete nlEditors.current[id];
     delete nlToolbars.current[id];
-  }
-  function nlPickImage(cardId: string) {
-    nlImgCardId.current = cardId;
-    nlImgFileRef.current?.click();
-  }
-  async function nlHandleImage(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    const cardId = nlImgCardId.current;
-    e.target.value = "";
-    if (!file || !cardId) return;
-    setNlImgUploading(cardId);
-    try {
-      const fd = new FormData(); fd.set("file", file);
-      const { assetId, url } = await uploadImage(fd);
-      nlUpdateCard(cardId, { image: { assetId, url } });
-    } catch { setError("Image upload failed"); } finally { setNlImgUploading(null); }
   }
   function nlMoveCard(from: number, to: number) {
     setNlCards(prev => {
@@ -906,10 +890,16 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 .nl-card-controls { opacity: 0; transition: opacity 0.12s; pointer-events: none; }
                 .nl-card:hover .nl-card-controls, .nl-card-controls:hover { opacity: 1; pointer-events: auto; }
               `}</style>
-              <input ref={nlImgFileRef} type="file" accept="image/*" onChange={nlHandleImage} style={{ display: "none" }} />
+              {nlImgPickerCard && (
+                <ImagePickerModal
+                  isMobile={isMobile}
+                  onClose={() => setNlImgPickerCard(null)}
+                  onSelect={img => nlUpdateCard(nlImgPickerCard, { image: img })}
+                />
+              )}
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
-                <button onClick={() => tryNav("dashboard")} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+                <button onClick={async () => { await nlSave(nlPayload()); setActivePanel("dashboard"); router.push("/admin/imago"); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   Save &amp; Exit
                 </button>
@@ -1021,16 +1011,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={card.image.url} alt="" style={{ width: "100%", maxHeight: 260, objectFit: "cover", borderRadius: 6, display: "block" }} />
+                            <img src={card.image.url} alt={card.image.alt ?? ""} style={{ width: "100%", maxHeight: 260, objectFit: "cover", borderRadius: 6, display: "block" }} />
+                            {card.image.caption && <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, fontStyle: "italic", margin: "0.4rem 0 0" }}>{card.image.caption}</p>}
                             <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.4rem" }}>
-                              <button type="button" onClick={() => nlPickImage(card.id)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.7rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_MUTED }}>Change</button>
+                              <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.7rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_MUTED }}>Change</button>
                               <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_MUTED }}>Remove</button>
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => nlPickImage(card.id)} disabled={nlImgUploading === card.id}
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)}
                             style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, background: "none", border: `1px solid ${CRIMSON}`, borderRadius: 20, padding: "0.4rem 1rem", cursor: "pointer", alignSelf: "flex-start", marginBottom: "0.85rem", display: "inline-block" }}>
-                            {nlImgUploading === card.id ? "Uploading…" : "Add a featured image"}
+                            Add a featured image
                           </button>
                         )}
                         <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "0.75rem" }}>

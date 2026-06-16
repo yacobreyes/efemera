@@ -7,6 +7,7 @@ import type { PostVersion } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { ToolbarHandles } from "@/components/RichBodyEditor";
+import ImagePickerModal from "@/components/ImagePickerModal";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
@@ -98,15 +99,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [showImageModal, setShowImageModal] = useState(false);
-  const [imageModalTab, setImageModalTab] = useState<"library" | "upload">("library");
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
-  const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<MediaAsset | null>(null);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [uploadPreviewUrl, setUploadPreviewUrl] = useState("");
-  const [uploadCaption, setUploadCaption] = useState("");
-  const [uploadAlt, setUploadAlt] = useState("");
-  const [uploadingNew, setUploadingNew] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
   const [toolbar, setToolbar] = useState<ToolbarHandles | null>(null);
@@ -202,44 +195,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   }
 
   function openImageModal() {
-    setImageModalTab("library");
-    setSelectedAsset(null);
-    setUploadFile(null);
-    setUploadPreviewUrl("");
-    setUploadCaption(imageCaption);
-    setUploadAlt(imageAlt);
     setShowImageModal(true);
-    // Silently refresh in background; prefetched data already shown
-    fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {});
-  }
-
-  function handleUploadFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; if (!file) return;
-    setUploadFile(file);
-    setUploadPreviewUrl(URL.createObjectURL(file));
-  }
-
-  async function handleUseImage() {
-    if (imageModalTab === "library" && selectedAsset) {
-      setImageAssetId(selectedAsset._id);
-      setImagePreview(selectedAsset.url);
-      setImageCaption(uploadCaption);
-      setImageAlt(uploadAlt);
-      setShowImageModal(false);
-    } else if (imageModalTab === "upload" && uploadFile) {
-      if (!uploadCaption.trim()) { alert("Please add a caption before using this image."); return; }
-      setUploadingNew(true);
-      try {
-        const fd = new FormData(); fd.set("file", uploadFile);
-        const { assetId } = await uploadImage(fd);
-        setImageAssetId(assetId);
-        setImagePreview(uploadPreviewUrl);
-        setImageCaption(uploadCaption);
-        setImageAlt(uploadAlt);
-        setShowImageModal(false);
-      } catch { /* silent */ }
-      finally { setUploadingNew(false); }
-    }
   }
 
   function handlePublishClick() {
@@ -722,93 +678,11 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Featured image modal */}
       {showImageModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 400, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setShowImageModal(false)}>
-          <div style={{ background: "white", borderRadius: isMobile ? 0 : 10, width: isMobile ? "100vw" : "min(880px, 95vw)", height: isMobile ? "100dvh" : "min(600px, 90vh)", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" }} onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div style={{ padding: "1rem 1.5rem", borderBottom: `1px solid ${BORDER}` }}>
-              <p style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1rem", margin: "0 0 0.75rem", color: TEXT_DARK }}>Add featured image</p>
-              <div style={{ display: "flex", gap: 0, borderBottom: `2px solid ${BORDER}`, marginBottom: -1 }}>
-                {(["library", "upload"] as const).map(tab => (
-                  <button key={tab} type="button" onClick={() => setImageModalTab(tab)}
-                    style={{ background: "none", border: "none", borderBottom: `2px solid ${imageModalTab === tab ? CRIMSON : "transparent"}`, marginBottom: -2, padding: "0.4rem 1rem", fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: imageModalTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
-                    {tab === "library" ? "Library" : "Upload new"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Body */}
-            <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
-              {imageModalTab === "library" && (
-                <>
-                  {/* Grid */}
-                  <div style={{ flex: 1, overflowY: "auto", padding: "1rem" }}>
-                    {photoPickerLoading ? (
-                      <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p>
-                    ) : photoPickerAssets.length === 0 ? (
-                      <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>No images in library yet.</p>
-                    ) : (
-                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0.5rem" }}>
-                        {photoPickerAssets.map(a => (
-                          <img key={a._id} src={a.url} alt={a.originalFilename}
-                            onClick={() => { setSelectedAsset(a); setUploadCaption(a.description ?? ""); setUploadAlt(a.altText ?? ""); }}
-                            style={{ width: "100%", height: 100, objectFit: "cover", borderRadius: 4, cursor: "pointer", border: `2px solid ${selectedAsset?._id === a._id ? CRIMSON : "transparent"}`, boxSizing: "border-box" }} />
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {/* Preview panel */}
-                  {selectedAsset && (
-                    <div style={{ width: 260, flexShrink: 0, borderLeft: `1px solid ${BORDER}`, padding: "1rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                      <img src={selectedAsset.url} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 6 }} />
-                      <div><label style={LABEL}>Caption</label><input style={INPUT} value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} placeholder="Add a caption…" /></div>
-                      <div><label style={LABEL}>Alt text</label><input style={INPUT} value={uploadAlt} onChange={e => setUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {imageModalTab === "upload" && (
-                <div style={{ flex: 1, display: "flex", gap: "1.5rem", padding: "1.5rem", overflowY: "auto" }}>
-                  {/* Upload area */}
-                  <div style={{ flex: 1 }}>
-                    {!uploadPreviewUrl ? (
-                      <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${BORDER}`, borderRadius: 8, padding: "2.5rem 1rem", cursor: "pointer", textAlign: "center" }}>
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.5" strokeLinecap="round" style={{ marginBottom: "0.75rem" }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, margin: "0 0 0.25rem", fontWeight: 600 }}>Drag image here or <span style={{ color: CRIMSON }}>click to upload</span></p>
-                        <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, margin: 0 }}>JPEG, PNG, GIF, or WEBP</p>
-                        <input type="file" accept="image/*" onChange={handleUploadFileSelect} style={{ display: "none" }} />
-                      </label>
-                    ) : (
-                      <div>
-                        <img src={uploadPreviewUrl} alt="" style={{ width: "100%", maxHeight: 220, objectFit: "cover", borderRadius: 6, marginBottom: "0.5rem" }} />
-                        <button type="button" onClick={() => { setUploadFile(null); setUploadPreviewUrl(""); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_MUTED, cursor: "pointer", padding: 0 }}>Remove</button>
-                      </div>
-                    )}
-                  </div>
-                  {/* Fields */}
-                  <div style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    <div>
-                      <label style={LABEL}>Caption <span style={{ color: CRIMSON }}>*</span></label>
-                      <input style={INPUT} value={uploadCaption} onChange={e => setUploadCaption(e.target.value)} placeholder="Credit the original source…" />
-                      <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.3rem 0 0" }}>Required before using this image</p>
-                    </div>
-                    <div><label style={LABEL}>Alt text</label><input style={INPUT} value={uploadAlt} onChange={e => setUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#fafbfc" }}>
-              <button type="button" onClick={() => setShowImageModal(false)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer", color: TEXT_DARK }}>Cancel</button>
-              <button type="button" onClick={handleUseImage} disabled={uploadingNew || (imageModalTab === "library" && !selectedAsset) || (imageModalTab === "upload" && (!uploadFile || !uploadCaption.trim()))}
-                style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", opacity: (imageModalTab === "library" && !selectedAsset) || (imageModalTab === "upload" && (!uploadFile || !uploadCaption.trim())) ? 0.5 : 1 }}>
-                {uploadingNew ? "Uploading…" : "Use this image"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ImagePickerModal
+          isMobile={isMobile}
+          onClose={() => setShowImageModal(false)}
+          onSelect={img => { setImageAssetId(img.assetId); setImagePreview(img.url); setImageCaption(img.caption); setImageAlt(img.alt); }}
+        />
       )}
     </div>
   );
