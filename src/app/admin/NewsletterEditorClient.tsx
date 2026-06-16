@@ -396,8 +396,8 @@ export default function NewsletterEditorClient({
         </div>
       )}
 
-      {/* Floating "find content" trigger — fixed to the left edge */}
-      {!isMobile && (
+      {/* Floating "find content" trigger — fixed to the left edge, hidden while the panel is open */}
+      {!isMobile && !showFindContent && (
         <button type="button" title="Find content" onClick={() => setShowFindContent(true)}
           style={{ position: "fixed", top: 80, left: 24, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: CRIMSON, color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -406,12 +406,10 @@ export default function NewsletterEditorClient({
 
       {/* Find content panel — pull a story in as a new card */}
       {showFindContent && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 400 }}>
-          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} onClick={() => setShowFindContent(false)} />
-          <div style={{ position: "absolute", top: 0, right: 0, height: "100%", width: 320, maxWidth: "92vw", background: "white", borderLeft: `1px solid ${BORDER}`, boxShadow: "-4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, height: "100%", width: 320, maxWidth: "92vw", zIndex: 400, background: "white", borderRight: `1px solid ${BORDER}`, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
               <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Find content</span>
-              <button type="button" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
+              <button type="button" title="Close" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
             </div>
             <div style={{ padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem", borderBottom: `1px solid ${BORDER}` }}>
               <input value={findQuery} onChange={e => setFindQuery(e.target.value)} placeholder="Search by headline" style={INPUT} />
@@ -440,7 +438,6 @@ export default function NewsletterEditorClient({
             <div style={{ padding: "0.75rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
               <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: 0 }}>Press and drag a story into the newsletter to add it as a card.</p>
             </div>
-          </div>
         </div>
       )}
 
