@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
 
+export const dynamic = "force-dynamic";
+
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
   const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;

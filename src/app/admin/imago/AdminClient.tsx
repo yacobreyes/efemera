@@ -149,13 +149,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, []);
 
   function refreshPosts() {
-    fetch("/api/posts-admin").then(r => r.json()).then(data => { if (Array.isArray(data)) setPosts(data); }).catch(() => {});
+    fetch("/api/posts-admin", { cache: "no-store" }).then(r => r.json()).then(data => { if (Array.isArray(data)) setPosts(data); }).catch(() => {});
   }
 
   useEffect(() => {
     refreshPosts();
     refreshNewsletters();
-    const retryTimer = setTimeout(refreshPosts, 1500);
+    // One delayed retry to catch any brief read-after-write lag on a fresh load.
+    const retryTimer = setTimeout(() => { refreshPosts(); refreshNewsletters(); }, 1500);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
@@ -189,7 +190,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, [form, savedForm]);
 
   const refreshNewsletters = useCallback(() => {
-    fetch("/api/newsletter").then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
+    fetch("/api/newsletter", { cache: "no-store" }).then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
   }, []);
 
   // The newsletter editor now lives at its own route (/admin/imago/newsletters/[id]),
