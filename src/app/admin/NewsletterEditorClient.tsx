@@ -28,6 +28,12 @@ function formatVersionTime(iso: string) {
   return d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", hour12: true });
 }
 
+function formatFindContentDate(date?: string) {
+  if (!date) return "";
+  const d = date.length === 10 ? new Date(`${date}T12:00:00`) : new Date(date);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
 type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage };
 type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null };
@@ -428,10 +434,16 @@ export default function NewsletterEditorClient({
               ) : findFiltered.map(p => (
                 <div key={p.id} onMouseDown={e => startInsertPost(e, p)}
                   style={{ padding: "0.85rem 1.25rem", borderBottom: `1px solid ${BORDER}`, cursor: "grab", userSelect: "none" }}>
-                  {p.status && p.status !== "published" && (
-                    <span style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.25rem" }}>{p.status}</span>
-                  )}
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.3rem" }}>
+                    <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {p.byline || "Unknown"}{p.section ? ` · ${p.section}` : ""}
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED, marginLeft: "0.5rem" }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                  </div>
                   <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{p.headline || "Untitled"}</p>
+                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.3rem 0 0" }}>
+                    {p.status === "draft" ? "Draft" : p.status === "scheduled" ? `Scheduled for ${formatFindContentDate(p.date)}` : `Published on ${formatFindContentDate(p.date)}`}
+                  </p>
                 </div>
               ))}
             </div>

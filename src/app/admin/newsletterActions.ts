@@ -30,18 +30,22 @@ export type NlPickablePost = {
   id: string;
   slug: string;
   headline: string;
+  byline?: string;
+  section?: string;
+  date?: string;
   status?: "draft" | "published" | "scheduled";
   body?: NlCard["body"];
   image?: { assetId: string; url: string; caption?: string; alt?: string } | null;
 };
 
 // Posts available to pull into a newsletter card. Excludes story-only fields
-// (subheadline, byline, etc.) — only headline/body/image carry over.
+// (subheadline, etc.) — only headline/body/image carry over to the card itself;
+// byline/section/date are fetched just to render the picker list richly.
 export async function getPostsForNewsletter(): Promise<NlPickablePost[]> {
   await requireAuth();
   return client.fetch(
     `*[_type == "post" && !(_id in path("drafts.**")) && status != "trashed"] | order(_updatedAt desc){
-      "id": _id, "slug": slug.current, headline, status, body,
+      "id": _id, "slug": slug.current, headline, byline, section, date, status, body,
       image{ "assetId": asset._ref, "url": asset->url, caption, alt }
     }`,
     {},
