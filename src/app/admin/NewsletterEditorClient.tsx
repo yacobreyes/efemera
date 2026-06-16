@@ -5,7 +5,7 @@ import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert"
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
-import { saveNewsletter, deleteNewsletter, sendNewsletter, type NlVersion } from "@/app/admin/newsletterActions";
+import { saveNewsletter, deleteNewsletter, sendNewsletter, type NlVersion } from "./newsletterActions";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
 

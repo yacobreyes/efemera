@@ -1,8 +1,8 @@
 import { isAuthed } from "@/lib/adminAuth";
 import { redirect } from "next/navigation";
 import { client } from "@/lib/sanity";
-import NewsletterEditorClient, { type InitialNewsletter } from "@/components/NewsletterEditorClient";
-import type { NlVersion } from "@/app/admin/newsletterActions";
+import NewsletterEditorClient, { type InitialNewsletter } from "../../../NewsletterEditorClient";
+import type { NlVersion } from "../../../newsletterActions";
 
 export const dynamic = "force-dynamic";
 
