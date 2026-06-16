@@ -406,7 +406,7 @@ export default function NewsletterEditorClient({
 
       {/* Find content panel — pull a story in as a new card */}
       {showFindContent && (
-        <div style={{ position: "fixed", top: 0, left: 0, height: "100%", width: 320, maxWidth: "92vw", zIndex: 400, background: "white", borderRight: `1px solid ${BORDER}`, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
+        <div style={{ position: "fixed", top: 52, left: 0, height: "calc(100% - 52px)", width: 320, maxWidth: "92vw", zIndex: 400, background: "white", borderRight: `1px solid ${BORDER}`, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
               <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Find content</span>
               <button type="button" title="Close" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
