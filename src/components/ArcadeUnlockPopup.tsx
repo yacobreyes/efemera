@@ -92,7 +92,7 @@ export default function ArcadeUnlockPopup() {
         </p>
 
         <h2 style={{ fontFamily: "monospace", fontSize: "1.15rem", fontWeight: 700, color: "white", margin: "0 0 0.75rem", lineHeight: 1.3 }}>
-          You&apos;ve read 2 articles!<br />
+          You&apos;ve read 2 stories!<br />
           <span style={{ color: "#FFD700" }}>Choopy&apos;s Arcade</span> is now open.
         </h2>
 
