@@ -217,7 +217,6 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   const baseHtml = renderNewsletterHtml({
     subject: nl.subject,
     preview: nl.preview ?? "",
-    author: nl.author,
     cards: (nl.cards ?? []) as NlCard[],
   });
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
