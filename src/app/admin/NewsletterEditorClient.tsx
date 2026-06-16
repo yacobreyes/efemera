@@ -44,7 +44,7 @@ export type InitialNewsletter = {
 const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
 
 function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
-  if (!cards.length) return [newNlCard(), newNlCard()];
+  if (!cards.length) return [newNlCard(), newNlCard(), newNlCard()];
   return cards.map(c => ({
     ...newNlCard(),
     headline: c.headline ?? "",
