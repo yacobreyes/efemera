@@ -5,7 +5,7 @@ import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert"
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
-import { saveNewsletter, deleteNewsletter, sendNewsletter, type NlVersion } from "./newsletterActions";
+import { saveNewsletter, deleteNewsletter, sendNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
 
@@ -78,6 +78,16 @@ export default function NewsletterEditorClient({
   const [showNlEllipsis, setShowNlEllipsis] = useState(false);
   const [showNlScheduler, setShowNlScheduler] = useState(false);
   const [showNlPreview, setShowNlPreview] = useState(false);
+
+  const [showFindContent, setShowFindContent] = useState(false);
+  const [findPosts, setFindPosts] = useState<NlPickablePost[]>([]);
+  const [findLoading, setFindLoading] = useState(false);
+  const [findQuery, setFindQuery] = useState("");
+  const [findShowDraftScheduled, setFindShowDraftScheduled] = useState(false);
+  const [nlInsertingPost, setNlInsertingPost] = useState<NlPickablePost | null>(null);
+  const nlInsertChipRef = useRef<HTMLDivElement | null>(null);
+  const nlInsertStartRef = useRef({ x: 0, y: 0 });
+  const nlInsertAtRef = useRef(0);
 
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
@@ -160,6 +170,63 @@ export default function NewsletterEditorClient({
       });
     }
   }, [nlCards, nlMovingId]);
+
+  // Load pickable posts whenever the "Find content" panel opens.
+  useEffect(() => {
+    if (!showFindContent) return;
+    setFindLoading(true);
+    getPostsForNewsletter().then(setFindPosts).catch(() => setFindPosts([])).finally(() => setFindLoading(false));
+  }, [showFindContent]);
+
+  // Press-and-drag a story out of the find-content panel into the card list.
+  // Mirrors the card-reorder drag above: a floating chip follows the cursor,
+  // and the drop index is recomputed from cursor Y on every move.
+  function startInsertPost(e: React.MouseEvent, post: NlPickablePost) {
+    e.preventDefault();
+    nlInsertStartRef.current = { x: e.clientX, y: e.clientY };
+    setShowFindContent(false);
+    setNlInsertingPost(post);
+  }
+
+  useEffect(() => {
+    if (!nlInsertingPost) return;
+    if (nlInsertChipRef.current) {
+      nlInsertChipRef.current.style.top = `${nlInsertStartRef.current.y - 18}px`;
+      nlInsertChipRef.current.style.left = `${nlInsertStartRef.current.x - 18}px`;
+    }
+    nlInsertAtRef.current = nlCardsRef.current.length;
+    const onMove = (e: MouseEvent) => {
+      const el = nlInsertChipRef.current;
+      if (el) { el.style.top = `${e.clientY - 18}px`; el.style.left = `${e.clientX - 18}px`; }
+      const cards = nlCardsRef.current;
+      let to = cards.length;
+      for (let idx = 0; idx < cards.length; idx++) {
+        const cardEl = nlCardRefs.current[cards[idx].id];
+        if (!cardEl) continue;
+        if (e.clientY < cardEl.getBoundingClientRect().top + cardEl.getBoundingClientRect().height / 2) { to = idx; break; }
+      }
+      nlInsertAtRef.current = to;
+    };
+    const onUp = () => { insertPostAsCard(nlInsertingPost, nlInsertAtRef.current); setNlInsertingPost(null); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setNlInsertingPost(null); };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("keydown", onKey); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nlInsertingPost]);
+
+  // Only headline/body/image carry over — story-only fields like subheadline
+  // have no equivalent on a newsletter card, so they're dropped here.
+  function insertPostAsCard(post: NlPickablePost, at: number) {
+    const card: NlEditorCard = {
+      ...newNlCard(),
+      headline: post.headline ?? "",
+      doc: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
+      image: post.image ?? undefined,
+    };
+    setNlCards(prev => { const next = [...prev]; next.splice(at, 0, card); return next; });
+  }
 
   function nlUpdateCard(id: string, patch: Partial<NlEditorCard>) {
     setNlCards(prev => prev.map(c => c.id === id ? { ...c, ...patch } : c));
@@ -277,6 +344,10 @@ export default function NewsletterEditorClient({
   }
 
   const nlActiveE = nlActiveEditor;
+  const findFiltered = findPosts.filter(p => {
+    if (!findShowDraftScheduled && p.status && p.status !== "published") return false;
+    return !findQuery.trim() || p.headline.toLowerCase().includes(findQuery.trim().toLowerCase());
+  });
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "white" }}>
@@ -322,6 +393,53 @@ export default function NewsletterEditorClient({
                 cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null })),
               })} />
           </div>
+        </div>
+      )}
+
+      {/* Find content panel — pull a story in as a new card */}
+      {showFindContent && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 400 }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.15)" }} onClick={() => setShowFindContent(false)} />
+          <div style={{ position: "absolute", top: 0, right: 0, height: "100%", width: 320, maxWidth: "92vw", background: "white", borderLeft: `1px solid ${BORDER}`, boxShadow: "-4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
+              <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Find content</span>
+              <button type="button" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED }}>×</button>
+            </div>
+            <div style={{ padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem", borderBottom: `1px solid ${BORDER}` }}>
+              <input value={findQuery} onChange={e => setFindQuery(e.target.value)} placeholder="Search by headline" style={INPUT} />
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }} onClick={() => setFindShowDraftScheduled(v => !v)}>
+                <span style={{ width: 32, height: 18, borderRadius: 10, background: findShowDraftScheduled ? CRIMSON : "#ccd3d8", position: "relative", transition: "background 0.15s", flexShrink: 0 }}>
+                  <span style={{ position: "absolute", top: 2, left: findShowDraftScheduled ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "white", transition: "left 0.15s" }} />
+                </span>
+                <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED }}>Show draft and scheduled</span>
+              </div>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto" }}>
+              {findLoading ? (
+                <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, padding: "1rem 1.25rem" }}>Loading…</p>
+              ) : findFiltered.length === 0 ? (
+                <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, padding: "1rem 1.25rem" }}>No stories found.</p>
+              ) : findFiltered.map(p => (
+                <div key={p.id} onMouseDown={e => startInsertPost(e, p)}
+                  style={{ padding: "0.85rem 1.25rem", borderBottom: `1px solid ${BORDER}`, cursor: "grab", userSelect: "none" }}>
+                  {p.status && p.status !== "published" && (
+                    <span style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: CRIMSON, display: "block", marginBottom: "0.25rem" }}>{p.status}</span>
+                  )}
+                  <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0 }}>{p.headline || "Untitled"}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "0.75rem 1.25rem", borderTop: `1px solid ${BORDER}` }}>
+              <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: TEXT_MUTED, margin: 0 }}>Press and drag a story into the newsletter to add it as a card.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating chip for a story being dragged in from the find-content panel */}
+      {nlInsertingPost && (
+        <div ref={nlInsertChipRef} style={{ position: "fixed", top: 0, left: 0, zIndex: 1000, pointerEvents: "none", background: "white", border: `1px solid ${CRIMSON}`, borderRadius: 4, padding: "0.65rem 1rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", maxWidth: 260 }}>
+          <span style={{ fontFamily: FONT, fontSize: "0.92rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>{nlInsertingPost.headline || "Untitled story"}</span>
         </div>
       )}
 
@@ -387,6 +505,10 @@ export default function NewsletterEditorClient({
         )}
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <button type="button" title="Find content" onClick={() => setShowFindContent(true)}
+            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </button>
           <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
           <button
             disabled={!nlSubject || nlSending}
