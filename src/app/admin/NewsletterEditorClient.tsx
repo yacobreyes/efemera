@@ -362,7 +362,8 @@ export default function NewsletterEditorClient({
 
   const nlActiveE = nlActiveEditor;
   const findFiltered = findPosts.filter(p => {
-    if (!findShowDraftScheduled && p.status && p.status !== "published") return false;
+    const isDraftOrScheduled = p.status === "draft" || p.status === "scheduled";
+    if (findShowDraftScheduled ? !isDraftOrScheduled : isDraftOrScheduled) return false;
     return !findQuery.trim() || p.headline.toLowerCase().includes(findQuery.trim().toLowerCase());
   });
 
@@ -434,7 +435,7 @@ export default function NewsletterEditorClient({
                 <span style={{ width: 32, height: 18, borderRadius: 10, background: findShowDraftScheduled ? CRIMSON : "#ccd3d8", position: "relative", transition: "background 0.15s", flexShrink: 0 }}>
                   <span style={{ position: "absolute", top: 2, left: findShowDraftScheduled ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "white", transition: "left 0.15s" }} />
                 </span>
-                <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED }}>Show draft and scheduled</span>
+                <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED }}>Only draft and scheduled</span>
               </div>
             </div>
             <div style={{ flex: 1, overflowY: "auto" }}>
