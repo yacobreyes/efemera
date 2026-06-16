@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const W = 400;
 const H = 380;
-const DURATION_MS = 6000;
+const DURATION_MS = 3500;
 const FADE_MS = 500;
 
 const FlappyChoopy = dynamic(() => import("@/components/FlappyChoopy"), {
