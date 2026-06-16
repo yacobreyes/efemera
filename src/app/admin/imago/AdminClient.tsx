@@ -136,6 +136,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [nlSaveStatus, setNlSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [nlLoaded, setNlLoaded] = useState(false);
   const nlLastSaved = useRef<string>("");
+  const nlDeleting = useRef(false);
   type NlCard = { headline?: string; body?: import("@portabletext/types").PortableTextBlock[]; image?: { assetId: string; url: string } | null };
   type NlVersion = { id: string; createdAt: string; author?: string; subject?: string; preview?: string; wordCount?: number; cards?: NlCard[]; card1?: NlCard; card2?: NlCard };
   const [nlVersions, setNlVersions] = useState<NlVersion[]>([]);
@@ -249,6 +250,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, []);
 
   const nlSave = useCallback(async (payload: { id: string | null } & Record<string, unknown>): Promise<string | undefined> => {
+    if (nlDeleting.current) return undefined;
     setNlSaveStatus("saving");
     try {
       const res = await fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
@@ -265,6 +267,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   }, [refreshNewsletters]);
 
   function resetNlState() {
+    nlDeleting.current = false;
     setNlSubject(""); setNlPreview(""); setNlAuthor("Yacob Reyes");
     setNlCards([newNlCard(), newNlCard()]); setNlVersions([]);
     setNlStatus("draft"); setNlScheduledAt(""); setNlSaveStatus("saved");
@@ -343,10 +346,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   async function deleteNewsletter() {
     if (!confirm("Delete this newsletter? This cannot be undone.")) return;
-    if (nlId) await removeNewsletterById(nlId);
-    refreshNewsletters();
+    // Block any pending/in-flight autosave from resurrecting the doc, then leave the editor.
+    nlDeleting.current = true;
+    setNlLoaded(false);
+    const id = nlId;
     setActivePanel("dashboard");
     router.push("/admin/imago");
+    if (id) await removeNewsletterById(id);
+    refreshNewsletters();
   }
 
   // Auto-save every 3s when dirty (matches the story editor)
@@ -1038,7 +1045,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               )}
               {/* Top bar — matches story editor */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "sticky", top: 0, zIndex: 10 }}>
-                <button onClick={async () => { await nlSave(nlPayload()); setActivePanel("dashboard"); router.push("/admin/imago"); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+                <button onClick={() => { const payload = nlPayload(); if (payload.subject || payload.cards.some(c => c.headline || (c.body && c.body.length))) nlSave(payload); setActivePanel("dashboard"); router.push("/admin/imago"); }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
                   Save &amp; Exit
                 </button>
