@@ -396,6 +396,14 @@ export default function NewsletterEditorClient({
         </div>
       )}
 
+      {/* Floating "find content" trigger — fixed to the left edge */}
+      {!isMobile && (
+        <button type="button" title="Find content" onClick={() => setShowFindContent(true)}
+          style={{ position: "fixed", top: 80, left: 24, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: CRIMSON, color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </button>
+      )}
+
       {/* Find content panel — pull a story in as a new card */}
       {showFindContent && (
         <div style={{ position: "fixed", inset: 0, zIndex: 400 }}>
@@ -505,10 +513,6 @@ export default function NewsletterEditorClient({
         )}
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <button type="button" title="Find content" onClick={() => setShowFindContent(true)}
-            style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </button>
           <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
           <button
             disabled={!nlSubject || nlSending}
