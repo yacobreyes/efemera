@@ -3,449 +3,403 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>efemera — mockup</title>
+<title>efemera — mockup v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #fff; color: #111; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --crimson: #8B0000;
+  --ink:     #111;
+  --muted:   #666;
+  --border:  #e0dbd6;
+  --hed:     'Bodoni Moda', Georgia, serif;
+  --sans:    'Inter', sans-serif;
+}
+body { background: #fff; color: var(--ink); }
 
-  /* ── Type ── */
-  :root {
-    --hed:    'Bodoni Moda', Georgia, serif;
-    --sans:   'Inter', -apple-system, sans-serif;
-    --crimson: #8B0000;
-    --ink:    #111111;
-    --muted:  #666;
-    --border: #d0ccc8;
-  }
+/* ── NAMEPLATE ── */
+.nameplate {
+  background: var(--crimson);
+  padding: 1.4rem 2rem 1.1rem;
+  text-align: center;
+}
+.nameplate-wordmark {
+  font-family: var(--hed);
+  font-weight: 400;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  letter-spacing: -.03em;
+  line-height: 1;
+  color: #fff;
+}
+.nameplate-tagline {
+  font-family: var(--sans);
+  font-size: .6rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+  margin-top: .4rem;
+}
 
-  /* ── Nameplate ── */
-  .nameplate {
-    border-bottom: 1px solid var(--border);
-  }
-  .nameplate-inner {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 0 2rem;
-  }
-  .meta-strip {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: .55rem 0;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--sans);
-    font-size: .6rem;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .meta-strip .tag {
-    color: var(--crimson);
-    font-weight: 700;
-  }
-  .wordmark {
-    text-align: center;
-    padding: 1.1rem 0 .9rem;
-    border-bottom: 3px double var(--ink);
-  }
-  .wordmark h1 {
-    font-family: var(--hed);
-    font-weight: 400;
-    font-size: clamp(3rem, 8vw, 6rem);
-    letter-spacing: -.03em;
-    line-height: 1;
-    color: var(--ink);
-  }
-  .wordmark .tagline {
-    font-family: var(--sans);
-    font-size: .6rem;
-    letter-spacing: .2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: .35rem;
-  }
-  .nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2.25rem;
-    padding: .6rem 0;
-  }
-  .nav a {
-    font-family: var(--sans);
-    font-size: .67rem;
-    font-weight: 600;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .nav a:hover, .nav a.active { color: var(--crimson); }
-  .nav .divider { color: var(--border); font-size: .8rem; }
+/* ── DATELINE + NAV ── */
+.dateline {
+  border-top: 3px double var(--crimson);
+  border-bottom: 1px solid var(--border);
+  padding: .45rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: .58rem;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+.nav-bar {
+  border-bottom: 1px solid var(--border);
+  padding: .55rem 2rem;
+}
+.nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+.nav-inner a {
+  font-family: var(--sans);
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-inner a:hover, .nav-inner a.active { color: var(--crimson); }
 
-  /* ── Page layout ── */
-  .page {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 2rem 2rem 5rem;
-    display: grid;
-    grid-template-columns: minmax(0,1fr) 210px;
-    gap: 3rem;
-    align-items: start;
-  }
+/* ── PAGE SHELL ── */
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem 5rem;
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 200px;
+  gap: 3rem;
+  align-items: start;
+}
 
-  /* ── Lead ── */
-  .lead {
-    padding-bottom: 2rem;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .flag {
-    font-family: var(--sans);
-    font-size: .6rem;
-    font-weight: 700;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--crimson);
-    display: block;
-    margin-bottom: .4rem;
-  }
-  .lead-hed {
-    font-family: var(--hed);
-    font-weight: 700;
-    font-size: clamp(2rem, 4.5vw, 3.2rem);
-    line-height: 1.06;
-    letter-spacing: -.02em;
-    color: var(--ink);
-    margin-bottom: .55rem;
-  }
-  .lead-hed a { color: inherit; text-decoration: none; }
-  .lead-hed a:hover { color: var(--crimson); }
-  .lead-dek {
-    font-family: var(--hed);
-    font-style: italic;
-    font-weight: 400;
-    font-size: 1.15rem;
-    line-height: 1.45;
-    color: var(--muted);
-    margin-bottom: .9rem;
-    max-width: 520px;
-  }
-  .lead-photo {
-    width: 100%;
-    aspect-ratio: 16/9;
-    object-fit: cover;
-    display: block;
-    margin-bottom: .7rem;
-    background: #e8e0d8;
-  }
-  .lead-photo-placeholder {
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: linear-gradient(135deg, #c9b8b0 0%, #e8ddd6 60%, #d4c4bc 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: .7rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .lead-photo-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23b0a09a' fill-opacity='0.18'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
-  }
-  .byline {
-    font-family: var(--sans);
-    font-size: .68rem;
-    letter-spacing: .06em;
-    color: var(--muted);
-    margin-bottom: .85rem;
-  }
-  .byline strong { color: var(--ink); }
-  .lead-body {
-    font-family: var(--sans);
-    font-size: .97rem;
-    line-height: 1.72;
-    color: #222;
-  }
-  .lead-body a {
-    font-weight: 600;
-    color: var(--crimson);
-    text-decoration: none;
-    font-size: .82rem;
-    letter-spacing: .02em;
-  }
+/* ── SECTION LABEL ── */
+.flag {
+  font-family: var(--sans);
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  display: block;
+  margin-bottom: .4rem;
+}
 
-  /* ── Story grid ── */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 2.5rem;
-  }
-  .card {
-    padding-bottom: 1.6rem;
-    margin-bottom: 1.6rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .card:nth-child(odd) {
-    border-right: 1px solid var(--border);
-    padding-right: 2.5rem;
-  }
-  .card-hed {
-    font-family: var(--hed);
-    font-weight: 700;
-    font-size: 1.45rem;
-    line-height: 1.1;
-    letter-spacing: -.01em;
-    color: var(--ink);
-    margin: .25rem 0 .35rem;
-  }
-  .card-hed a { color: inherit; text-decoration: none; }
-  .card-hed a:hover { color: var(--crimson); }
-  .card-dek {
-    font-family: var(--hed);
-    font-style: italic;
-    font-weight: 400;
-    font-size: .92rem;
-    line-height: 1.4;
-    color: var(--muted);
-    margin-bottom: .45rem;
-  }
-  .card-photo {
-    width: 100%;
-    aspect-ratio: 5/3;
-    background: linear-gradient(135deg, #d8ccc6 0%, #ede5e0 100%);
-    display: block;
-    margin: .4rem 0 .6rem;
-  }
-  .card-body {
-    font-family: var(--sans);
-    font-size: .88rem;
-    line-height: 1.65;
-    color: #333;
-    margin-bottom: .55rem;
-  }
-  .card-meta {
-    font-family: var(--sans);
-    font-size: .64rem;
-    letter-spacing: .06em;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+/* ── LEAD ── */
+.lead {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.lead-photo {
+  width: calc(100% + 0px);
+  aspect-ratio: 16/9;
+  background: linear-gradient(160deg, #b08080 0%, #d4a0a0 40%, #8B0000 100%);
+  display: block;
+  margin-bottom: 1.5rem;
+}
+.lead-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: -.02em;
+  color: var(--crimson);
+  margin-bottom: .55rem;
+  text-align: center;
+}
+.lead-hed a { color: inherit; text-decoration: none; }
+.lead-hed a:hover { opacity: .8; }
+.lead-dek {
+  font-family: var(--hed);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.45;
+  color: var(--muted);
+  text-align: center;
+  margin: 0 auto .9rem;
+  max-width: 500px;
+}
+.lead-byline {
+  font-family: var(--sans);
+  font-size: .65rem;
+  letter-spacing: .08em;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 1.1rem;
+}
+.lead-byline strong { color: var(--ink); }
+.rule-center {
+  width: 40px;
+  height: 2px;
+  background: var(--crimson);
+  margin: 0 auto 1.1rem;
+}
+.lead-body {
+  font-family: var(--sans);
+  font-size: .96rem;
+  line-height: 1.72;
+  color: #222;
+  columns: 2;
+  column-gap: 2rem;
+}
+.lead-body a {
+  font-weight: 600;
+  color: var(--crimson);
+  text-decoration: none;
+}
 
-  /* ── Rail ── */
-  .rail {
-    border-left: 1px solid var(--border);
-    padding-left: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-  .rail-section {
-    border-top: 2px solid var(--ink);
-    padding-top: .65rem;
-  }
-  .rail-label {
-    font-family: var(--sans);
-    font-size: .58rem;
-    font-weight: 700;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-    color: var(--crimson);
-    margin-bottom: .75rem;
-  }
-  .rail-welcome-hed {
-    font-family: var(--hed);
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.25;
-    color: var(--ink);
-    margin-bottom: .4rem;
-  }
-  .rail-welcome-body {
-    font-family: var(--sans);
-    font-size: .78rem;
-    line-height: 1.55;
-    color: var(--muted);
-  }
-  .rail-item {
-    padding-bottom: .75rem;
-    margin-bottom: .75rem;
-    border-bottom: 1px solid var(--border);
-  }
-  .rail-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-  .rail-item-label {
-    font-family: var(--sans);
-    font-size: .56rem;
-    font-weight: 700;
-    letter-spacing: .14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: .2rem;
-  }
-  .rail-item-title {
-    font-family: var(--hed);
-    font-size: .9rem;
-    font-weight: 700;
-    color: var(--ink);
-    line-height: 1.2;
-  }
-  .rail-item-sub {
-    font-family: var(--sans);
-    font-size: .72rem;
-    color: var(--muted);
-    margin-top: .15rem;
-  }
+/* ── STORY GRID ── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2rem;
+}
+.card {
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.card:nth-child(odd) {
+  border-right: 1px solid var(--border);
+  padding-right: 2rem;
+}
+.card-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  color: var(--crimson);
+  margin: .25rem 0 .35rem;
+}
+.card-hed a { color: inherit; text-decoration: none; }
+.card-hed a:hover { opacity: .8; }
+.card-dek {
+  font-family: var(--hed);
+  font-style: italic;
+  font-size: .9rem;
+  line-height: 1.4;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+.card-photo {
+  width: 100%;
+  aspect-ratio: 5/3;
+  background: linear-gradient(135deg, #c9a0a0 0%, #e8c8c8 100%);
+  display: block;
+  margin: .4rem 0 .65rem;
+}
+.card-body {
+  font-family: var(--sans);
+  font-size: .87rem;
+  line-height: 1.65;
+  color: #333;
+  margin-bottom: .55rem;
+}
+.card-meta {
+  font-family: var(--sans);
+  font-size: .62rem;
+  letter-spacing: .05em;
+  color: var(--muted);
+}
 
-  /* ── Footer ── */
-  footer {
-    background: var(--crimson);
-    color: white;
-    text-align: center;
-    padding: 1.5rem 2rem;
-    font-family: var(--sans);
-    font-size: .6rem;
-    letter-spacing: .18em;
-    text-transform: uppercase;
-  }
+/* ── RAIL ── */
+.rail {
+  border-left: 1px solid var(--border);
+  padding-left: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.rail-block { }
+.rail-label {
+  font-family: var(--sans);
+  font-size: .56rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-bottom: .6rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--crimson);
+}
+.rail-welcome-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: .95rem;
+  line-height: 1.25;
+  color: var(--ink);
+  margin-bottom: .4rem;
+}
+.rail-welcome-body {
+  font-family: var(--sans);
+  font-size: .76rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.lately-item {
+  display: flex;
+  flex-direction: column;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.lately-item:last-child { border-bottom: none; }
+.lately-type {
+  font-family: var(--sans);
+  font-size: .54rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lately-title {
+  font-family: var(--hed);
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.lately-sub {
+  font-family: var(--sans);
+  font-size: .7rem;
+  color: var(--muted);
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--crimson);
+  color: rgba(255,255,255,.85);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  font-family: var(--sans);
+  font-size: .58rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
 </style>
 </head>
 <body>
 
-<header class="nameplate">
-  <div class="nameplate-inner">
-    <div class="meta-strip">
-      <span>Wednesday, June 18, 2025</span>
-      <span class="tag">A Literary Magazine</span>
-      <span>Est. 2024</span>
-    </div>
-    <div class="wordmark">
-      <h1>efemera</h1>
-      <p class="tagline">Life, in Brief.</p>
-    </div>
-    <nav class="nav">
+<!-- NAMEPLATE -->
+<header>
+  <div class="nameplate">
+    <div class="nameplate-wordmark">efemera</div>
+    <div class="nameplate-tagline">Life, in Brief.</div>
+  </div>
+  <div class="dateline">
+    <span>Wednesday, June 18, 2025</span>
+    <span>A Literary Magazine &nbsp;·&nbsp; Est. 2024</span>
+  </div>
+  <div class="nav-bar">
+    <div class="nav-inner">
       <a href="#" class="active">Home</a>
-      <span class="divider">·</span>
       <a href="#">About</a>
-      <span class="divider">·</span>
       <a href="#">Narratives</a>
-      <span class="divider">·</span>
       <a href="#">Essays</a>
-      <span class="divider">·</span>
       <a href="#">Micro-Memoirs</a>
-      <span class="divider">·</span>
       <a href="#">Archive</a>
-      <span class="divider">·</span>
-      <a href="#" title="Search">&#x2315;</a>
-    </nav>
+    </div>
   </div>
 </header>
 
+<!-- CONTENT -->
 <div class="page">
   <main>
 
-    <!-- Lead story -->
+    <!-- Lead -->
     <article class="lead">
       <span class="flag">Narratives</span>
+      <div class="lead-photo"></div>
       <h2 class="lead-hed"><a href="#">Why I'm Switching Salons</a></h2>
       <p class="lead-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
-      <div class="lead-photo-placeholder"></div>
-      <p class="byline">By <strong>Yacob Reyes</strong> &nbsp;·&nbsp; June 14, 2025 &nbsp;·&nbsp; 4 min read</p>
+      <p class="lead-byline">By <strong>Yacob Reyes</strong> &nbsp;·&nbsp; June 14, 2025 &nbsp;·&nbsp; 4 min read</p>
+      <div class="rule-center"></div>
       <p class="lead-body">
-        The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else. I told her about Marcus. I told her about the apartment. I told her my mother thought I was wasting my life, though I said it the way you say something you've made peace with, which is to say, I hadn't.
+        The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else. I told her about Marcus. I told her about the apartment. I told her my mother thought I was wasting my life, though I said it the way you say something you've made peace with.
         <a href="#">Continue reading →</a>
       </p>
     </article>
 
-    <!-- Story grid -->
+    <!-- Grid -->
     <div class="grid">
-
       <article class="card">
         <span class="flag">Essays</span>
         <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
         <p class="card-dek">On the strange freedom of being genuinely, unapologetically mediocre at something you love.</p>
         <div class="card-photo"></div>
-        <p class="card-body">
-          I have been playing guitar for eleven years. I am not good at it. I know approximately forty chords and use about six of them. My strumming is uneven in a way that sounds like a choice but isn't…
-        </p>
-        <div class="card-meta">
-          <span>By <strong>Yacob Reyes</strong> · May 28</span>
-          <span>3 min</span>
-        </div>
+        <p class="card-body">I have been playing guitar for eleven years. I am not good at it. I know approximately forty chords and use about six of them…</p>
+        <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; May 28 &nbsp;·&nbsp; 3 min</p>
       </article>
 
       <article class="card">
         <span class="flag">Micro-Memoir</span>
         <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
-        <p class="card-body">
-          She was reading a book I had read the year my father died. I almost said something. The gate changed. We went our separate ways, toward separate lives, carrying the same pages.
-        </p>
-        <div class="card-meta">
-          <span>By <strong>Yacob Reyes</strong> · May 10</span>
-          <span>1 min</span>
-        </div>
+        <p class="card-body">She was reading a book I had read the year my father died. I almost said something. The gate changed. We went our separate ways, toward separate lives, carrying the same pages.</p>
+        <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; May 10 &nbsp;·&nbsp; 1 min</p>
       </article>
 
       <article class="card">
         <span class="flag">Narratives</span>
-        <h3 class="card-hed"><a href="#">How to Disappear Completely (and Come Back)</a></h3>
-        <p class="card-dek">A road trip, a broken phone, and what I learned about presence when presence was all I had.</p>
+        <h3 class="card-hed"><a href="#">How to Disappear Completely</a></h3>
+        <p class="card-dek">A road trip, a broken phone, and what I learned about presence.</p>
         <div class="card-photo"></div>
-        <p class="card-body">
-          I drove for six hours without music. Not because I was being ascetic, but because my aux cord had snapped, and I was too proud to buy another one at a gas station…
-        </p>
-        <div class="card-meta">
-          <span>By <strong>Yacob Reyes</strong> · Apr 19</span>
-          <span>6 min</span>
-        </div>
+        <p class="card-body">I drove for six hours without music. Not because I was being ascetic, but because my aux cord had snapped, and I was too proud to buy another at a gas station…</p>
+        <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Apr 19 &nbsp;·&nbsp; 6 min</p>
       </article>
 
       <article class="card">
         <span class="flag">Essays</span>
         <h3 class="card-hed"><a href="#">In Defense of the Long Goodbye</a></h3>
-        <p class="card-dek">American efficiency has made us terrible at endings. A proposal for lingering.</p>
-        <p class="card-body">
-          My grandmother said goodbye for forty-five minutes at every family dinner. It drove my father insane. Standing in the driveway, keys already in hand, she would remember one more thing…
-        </p>
-        <div class="card-meta">
-          <span>By <strong>Yacob Reyes</strong> · Apr 2</span>
-          <span>5 min</span>
-        </div>
+        <p class="card-dek">American efficiency has made us terrible at endings.</p>
+        <p class="card-body">My grandmother said goodbye for forty-five minutes at every family dinner. Standing in the driveway, keys already in hand, she would remember one more thing…</p>
+        <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Apr 2 &nbsp;·&nbsp; 5 min</p>
       </article>
-
     </div>
+
   </main>
 
   <!-- Rail -->
   <aside class="rail">
-    <div class="rail-section">
-      <p class="rail-label">From the Editor</p>
+    <div class="rail-block">
+      <div class="rail-label">From the Editor</div>
       <p class="rail-welcome-hed">Welcome back to efemera.</p>
       <p class="rail-welcome-body">A magazine for the small, true things. New stories every few weeks — on memory, place, and getting it wrong with grace.</p>
     </div>
-
-    <div class="rail-section">
-      <p class="rail-label">Lately</p>
-      <div class="rail-item">
-        <p class="rail-item-label">Reading</p>
-        <p class="rail-item-title">Outline</p>
-        <p class="rail-item-sub">Rachel Cusk</p>
+    <div class="rail-block">
+      <div class="rail-label">Lately</div>
+      <div class="lately-item">
+        <span class="lately-type">Reading</span>
+        <span class="lately-title">Outline</span>
+        <span class="lately-sub">Rachel Cusk</span>
       </div>
-      <div class="rail-item">
-        <p class="rail-item-label">Listening</p>
-        <p class="rail-item-title">Pink Moon</p>
-        <p class="rail-item-sub">Nick Drake</p>
+      <div class="lately-item">
+        <span class="lately-type">Listening</span>
+        <span class="lately-title">Pink Moon</span>
+        <span class="lately-sub">Nick Drake</span>
       </div>
-      <div class="rail-item">
-        <p class="rail-item-label">Watching</p>
-        <p class="rail-item-title">Aftersun</p>
+      <div class="lately-item">
+        <span class="lately-type">Watching</span>
+        <span class="lately-title">Aftersun</span>
       </div>
     </div>
   </aside>
