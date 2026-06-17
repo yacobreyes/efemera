@@ -132,7 +132,9 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:1px solid #e1e8ed;margin:0;">
       ${sectionRow}
       <tr><td style="padding:20px 24px;">
-        <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${TEXT_DARK};margin:0 0 12px;line-height:1.2;letter-spacing:0.01em;text-align:center;border-top:2px solid ${TEXT_DARK};border-bottom:1px solid ${TEXT_DARK};padding:10px 0;">${esc(card.headline ?? "")}</h2>
+        <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
+          <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${TEXT_DARK};margin:0;line-height:1.25;letter-spacing:0.01em;text-align:left;">${esc(card.headline ?? "")}</h2>
+        </div>
         ${img}
         ${renderBody(card.body ?? [])}
       </td></tr>
