@@ -41,11 +41,19 @@ export default function ImagePickerModal({
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setAssets(d); }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  function acceptFile(f: File | undefined | null) {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) { alert("Please choose an image file (JPEG, PNG, GIF, or WEBP)."); return; }
+    setUploadFile(f);
+    setUploadPreviewUrl(URL.createObjectURL(f));
+  }
 
   async function handleUse() {
     if (tab === "library" && selected) {
@@ -59,7 +67,7 @@ export default function ImagePickerModal({
         const { assetId, url } = await uploadImage(fd);
         onSelect({ assetId, url, caption, alt });
         onClose();
-      } catch { alert("Upload failed."); }
+      } catch (err) { alert(err instanceof Error ? err.message : "Upload failed."); }
       finally { setUploading(false); }
     }
   }
@@ -115,11 +123,15 @@ export default function ImagePickerModal({
             <div style={{ flex: 1, display: "flex", gap: "1.5rem", padding: "1.5rem", overflowY: "auto" }}>
               <div style={{ flex: 1 }}>
                 {!uploadPreviewUrl ? (
-                  <label style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${BORDER}`, borderRadius: 8, padding: "2.5rem 1rem", cursor: "pointer", textAlign: "center" }}>
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.5" strokeLinecap="round" style={{ marginBottom: "0.75rem" }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <label
+                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={e => { e.preventDefault(); setDragOver(false); }}
+                    onDrop={e => { e.preventDefault(); setDragOver(false); acceptFile(e.dataTransfer.files?.[0]); }}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `2px dashed ${dragOver ? CRIMSON : BORDER}`, background: dragOver ? "rgba(139,0,0,0.04)" : "transparent", borderRadius: 8, padding: "2.5rem 1rem", cursor: "pointer", textAlign: "center", transition: "border-color 0.15s, background 0.15s" }}>
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={dragOver ? CRIMSON : TEXT_MUTED} strokeWidth="1.5" strokeLinecap="round" style={{ marginBottom: "0.75rem" }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, margin: "0 0 0.25rem", fontWeight: 600 }}>Drag image here or <span style={{ color: CRIMSON }}>click to upload</span></p>
                     <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, margin: 0 }}>JPEG, PNG, GIF, or WEBP</p>
-                    <input type="file" accept="image/*" onChange={e => { const f = e.target.files?.[0]; if (!f) return; setUploadFile(f); setUploadPreviewUrl(URL.createObjectURL(f)); }} style={{ display: "none" }} />
+                    <input type="file" accept="image/*" onChange={e => acceptFile(e.target.files?.[0])} style={{ display: "none" }} />
                   </label>
                 ) : (
                   <div>

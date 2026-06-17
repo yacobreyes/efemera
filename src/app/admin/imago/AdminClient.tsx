@@ -7,6 +7,7 @@ import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscrib
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
+import ImagePickerModal from "@/components/ImagePickerModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
@@ -109,7 +110,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
-  const mediaFileRef = useRef<HTMLInputElement>(null);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [showPhotoPicker, setShowPhotoPicker] = useState(false);
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [photoPickerLoading, setPhotoPickerLoading] = useState(false);
@@ -295,15 +296,22 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     finally { setUploadingImage(false); }
   }
 
-  async function handleMediaUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]; if (!file) return;
+  // After the picker uploads (or selects) an image, persist its caption/alt to
+  // the asset and refresh the library grid, inspecting the chosen asset.
+  async function handleMediaPicked(img: { assetId: string; url: string; caption: string; alt: string }) {
     setMediaUploading(true);
     try {
-      const fd = new FormData(); fd.set("file", file); await uploadImage(fd);
+      if (img.caption || img.alt) {
+        await updateMediaAsset(img.assetId, { description: img.caption, altText: img.alt }).catch(() => {});
+      }
       const data = await fetch("/api/media").then(r => r.json());
-      if (Array.isArray(data)) { setMediaAssets(data); if (data.length > 0) { setInspectAsset(data[0]); setInspectAltText(data[0].altText ?? ""); setUrlCopied(false); } }
+      if (Array.isArray(data)) {
+        setMediaAssets(data);
+        const picked = data.find((a: MediaAsset) => a._id === img.assetId) ?? data[0];
+        if (picked) { setInspectAsset(picked); setInspectAltText(picked.altText ?? ""); setUrlCopied(false); }
+      }
     } catch {}
-    finally { setMediaUploading(false); if (mediaFileRef.current) mediaFileRef.current.value = ""; }
+    finally { setMediaUploading(false); }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -916,8 +924,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "1rem", overflowY: "auto", paddingRight: isMobile ? 0 : "1.5rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
                       <input type="search" placeholder="Search by name, alt text, or URL…" value={mediaSearch} onChange={e => setMediaSearch(e.target.value)} style={{ ...INPUT, flex: 1, minWidth: 140, fontSize: "0.82rem" }} />
-                      <input ref={mediaFileRef} type="file" accept="image/*" onChange={handleMediaUpload} style={{ display: "none" }} />
-                      <button type="button" onClick={() => mediaFileRef.current?.click()} disabled={mediaUploading} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>{mediaUploading ? "Uploading…" : "+ Upload"}</button>
+                      <button type="button" onClick={() => setMediaPickerOpen(true)} disabled={mediaUploading} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>{mediaUploading ? "Uploading…" : "+ Upload"}</button>
                     </div>
                     {mediaLoading ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>Loading…</p> : filtered.length === 0 ? <p style={{ fontFamily: FONT, color: TEXT_MUTED }}>{mediaSearch ? "No results." : "No images in library yet."}</p> : (
                       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: "0.5rem" }}>
@@ -943,6 +950,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               </>
             );
           })()}
+
+          {mediaPickerOpen && (
+            <ImagePickerModal
+              isMobile={isMobile}
+              onClose={() => setMediaPickerOpen(false)}
+              onSelect={img => handleMediaPicked(img)}
+            />
+          )}
 
 
           {/* COMMENTS */}
