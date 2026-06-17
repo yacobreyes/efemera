@@ -87,8 +87,8 @@ const HEADLINE_FONT = "'Georgia', 'Times New Roman', serif";
 
 // Layout constants mirror the in-app editor (NewsletterEditorClient) so the
 // sent email looks identical to the preview the author sees in Imago.
-const PAGE_W = 680;       // editor magazine page max-width
-const PAD = 40;           // editor page horizontal padding (2.5rem)
+const PAGE_W = 600;       // email-safe width (editor page is 680; narrowed for inboxes)
+const PAD = 36;           // page horizontal padding
 const BORDER = "#e1e8ed";
 
 export function renderNewsletterHtml({ subject, preview, intro, author, volume, issue, cards }: { subject: string; preview: string; intro?: string; author?: string; volume?: string; issue?: string; cards: NlCard[] }): string {
