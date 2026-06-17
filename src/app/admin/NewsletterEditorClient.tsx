@@ -579,51 +579,52 @@ export default function NewsletterEditorClient({
         </div>
       </div>
 
+      {/* Floating drag chip */}
+      {nlMovingId && (() => {
+        const mc = nlCards.find(c => c.id === nlMovingId);
+        if (!mc) return null;
+        return (
+          <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `2px solid ${CRIMSON}`, padding: "0.75rem 2rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ fontFamily: "'Georgia', serif", fontSize: "1.1rem", fontWeight: 700, color: CRIMSON }}>{mc.headline?.trim() || "Type your headline"}</span>
+          </div>
+        );
+      })()}
+
       {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", background: "#e8e8e4", padding: "2rem 1rem", marginTop: 52 }}>
+      <div style={{ flex: 1, overflowY: "auto", background: "#e8e8e4", padding: "2rem 1rem 4rem", marginTop: 52 }}>
         {/* Magazine page */}
-        <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 2px 24px rgba(0,0,0,0.13)", position: "relative" }}>
+        <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead */}
-          <div style={{ background: CRIMSON, padding: "2rem 2.5rem 1.5rem", textAlign: "center", borderBottom: "4px solid #5a0000" }}>
+          <div style={{ background: CRIMSON, padding: "1.75rem 2.5rem 1.25rem", textAlign: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ height: 40, width: "auto", display: "inline-block" }} />
-            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.72rem", color: "rgba(255,255,255,0.65)", margin: "0.6rem 0 0", letterSpacing: "0.18em", textTransform: "uppercase" }}>
+            <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", margin: "0.5rem 0 0", letterSpacing: "0.2em", textTransform: "uppercase" }}>
               {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
             </p>
           </div>
+          <div style={{ height: 3, background: "#5a0000" }} />
 
           {/* Subject line as deck */}
-          {nlSubject && (
-            <div style={{ background: "#fafaf8", borderBottom: `1px solid ${BORDER}`, padding: "0.75rem 2.5rem", textAlign: "center" }}>
-              <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.9rem", fontStyle: "italic", color: TEXT_MUTED, margin: 0 }}>{nlSubject}</p>
-            </div>
-          )}
+          <div style={{ background: "#fafaf8", borderBottom: `1px solid ${BORDER}`, padding: "0.7rem 2.5rem", textAlign: "center" }}>
+            {nlSubject ? (
+              <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.88rem", fontStyle: "italic", color: TEXT_MUTED, margin: 0 }}>{nlSubject}</p>
+            ) : (
+              <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.88rem", fontStyle: "italic", color: "#bbb", margin: 0 }}>Subject line will appear here…</p>
+            )}
+          </div>
 
-          {/* The picked-up card chip follows the cursor */}
-          {nlMovingId && (() => {
-            const mc = nlCards.find(c => c.id === nlMovingId);
-            const idx = nlCards.findIndex(c => c.id === nlMovingId);
-            if (!mc) return null;
-            return (
-              <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `2px solid ${CRIMSON}`, padding: "1rem 2.5rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
-                <span style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 700, color: CRIMSON, flexShrink: 0 }}>{idx + 1}.</span>
-                <span style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 700, color: TEXT_DARK, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{mc.headline?.trim() || "Type your headline"}</span>
-              </div>
-            );
-          })()}
-
-          {/* Cards rendered as magazine sections */}
+          {/* Cards */}
           <div style={{ padding: "0 2.5rem 2.5rem" }}>
             {nlCards.map((card, i) => {
               const type = card.cardType ?? (i === 0 ? "feature" : "standard");
               return (
-                <div key={card.id} style={{ display: "flex", flexDirection: "column" }}>
-                  {/* Add zone */}
+                <div key={card.id}>
+                  {/* Add zone between cards */}
                   <div className="nl-add-zone" onClick={() => nlAddCardAfter(i - 1)}
-                    style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 28, cursor: "pointer", margin: "0 -2.5rem" }}>
+                    style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 24, cursor: "pointer" }}>
                     <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
-                    <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add section</span>
+                    <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.7rem", color: TEXT_MUTED, whiteSpace: "nowrap", padding: "0 0.3rem" }}>+ Add section</span>
                     <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
                   </div>
 
@@ -631,58 +632,56 @@ export default function NewsletterEditorClient({
                     ref={el => { nlCardRefs.current[card.id] = el; }}
                     onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                     style={nlMovingId === card.id
-                      ? { height: 0, overflow: "hidden", transition: "height 0.12s ease" }
+                      ? { height: 0, overflow: "hidden" }
                       : { position: "relative", cursor: nlMovingId ? "pointer" : undefined }}>
 
-                    {/* Floating card controls (hover) */}
+                    {/* Card hover toolbar — stays inside card bounds so overflow-y:auto doesn't clip it */}
                     {!nlMovingId && (
-                      <div className="nl-card-controls" style={{ position: "absolute", top: "1.5rem", right: "calc(-2.5rem - 48px)", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                        <button type="button" title="Move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = (e.currentTarget as HTMLElement).closest(".nl-card")?.getBoundingClientRect(); if (r) nlMoveRectRef.current = { left: r.left, width: r.width }; nlMoveStartYRef.current = e.clientY; setNlMovingId(card.id); }}
-                          style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)" }}>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+                      <div className="nl-card-controls" style={{ position: "absolute", top: type === "feature" ? "2rem" : "1.5rem", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10, pointerEvents: "none" }}>
+                        {/* Left: drag + type pills */}
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", pointerEvents: "auto" }}>
+                          <button type="button" title="Move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = nlCardRefs.current[card.id]?.getBoundingClientRect(); if (r) nlMoveRectRef.current = { left: r.left, width: r.width }; nlMoveStartYRef.current = e.clientY; setNlMovingId(card.id); }}
+                            style={{ width: 28, height: 28, borderRadius: 4, background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                          </button>
+                          {(["feature", "standard", "digest"] as const).map(t => {
+                            const active = type === t;
+                            return (
+                              <button key={t} type="button" onClick={() => nlUpdateCard(card.id, { cardType: t })}
+                                style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 600, padding: "0.15rem 0.5rem", borderRadius: 20, border: `1px solid ${active ? CRIMSON : BORDER}`, background: active ? CRIMSON : "white", color: active ? "white" : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
+                                {t.charAt(0).toUpperCase() + t.slice(1)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Right: delete */}
+                        <button type="button" title="Delete" onClick={() => { if (nlCards.length > 1 && confirm("Delete this section?")) nlRemoveCard(card.id); }}
+                          style={{ width: 28, height: 28, borderRadius: 4, background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", opacity: nlCards.length > 1 ? 1 : 0.4, pointerEvents: "auto" }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
-                        <button type="button" title="Delete" onClick={() => { if (nlCards.length > 1 && confirm("Delete this card?")) nlRemoveCard(card.id); }}
-                          style={{ width: 36, height: 36, borderRadius: "50%", background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 4px rgba(0,0,0,0.08)", opacity: nlCards.length > 1 ? 1 : 0.4 }}>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Card type pills (hover) */}
-                    {!nlMovingId && (
-                      <div className="nl-card-controls" style={{ position: "absolute", top: "1.5rem", left: "calc(-2.5rem - 90px)", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-                        {(["feature", "standard", "digest"] as const).map(t => {
-                          const active = type === t;
-                          return (
-                            <button key={t} type="button" onClick={() => nlUpdateCard(card.id, { cardType: t })}
-                              style={{ fontFamily: FONT, fontSize: "0.68rem", fontWeight: 600, padding: "0.2rem 0.55rem", borderRadius: 20, border: `1px solid ${active ? CRIMSON : BORDER}`, background: active ? CRIMSON : "white", color: active ? "white" : TEXT_MUTED, cursor: "pointer", textTransform: "capitalize", whiteSpace: "nowrap" }}>
-                              {t === "feature" ? "Feature" : t === "standard" ? "Standard" : "Digest"}
-                            </button>
-                          );
-                        })}
                       </div>
                     )}
 
                     {/* FEATURE card */}
                     {type === "feature" && (
-                      <div style={{ paddingTop: "2rem", paddingBottom: "1.5rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
+                      <div style={{ paddingTop: "3.5rem", paddingBottom: "2rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
                         {card.image ? (
-                          <div style={{ margin: "0 -2.5rem 1.5rem", position: "relative" }}>
+                          <div style={{ margin: "0 -2.5rem 1.75rem", position: "relative" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={card.image.url} alt={card.image.alt ?? ""} style={{ width: "100%", maxHeight: 380, objectFit: "cover", display: "block" }} />
-                            {card.image.caption && <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, fontStyle: "italic", margin: "0.4rem 1rem 0" }}>{card.image.caption}</p>}
-                            <div className="nl-card-controls" style={{ position: "absolute", top: "0.5rem", right: "0.5rem", display: "flex", gap: "0.4rem" }}>
-                              <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: 4, padding: "0.25rem 0.6rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer" }}>Change</button>
-                              <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: 4, padding: "0.25rem 0.6rem", fontFamily: FONT, fontSize: "0.72rem", cursor: "pointer" }}>Remove</button>
+                            <img src={card.image.url} alt={card.image.alt ?? ""} style={{ width: "100%", maxHeight: 400, objectFit: "cover", display: "block" }} />
+                            {card.image.caption && <p style={{ fontFamily: FONT, fontSize: "0.7rem", color: TEXT_MUTED, fontStyle: "italic", margin: "0.4rem 1rem 0" }}>{card.image.caption}</p>}
+                            <div className="nl-card-controls" style={{ position: "absolute", top: "0.5rem", right: "0.5rem", display: "flex", gap: "0.35rem" }}>
+                              <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "rgba(0,0,0,0.65)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Change</button>
+                              <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "rgba(0,0,0,0.65)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.55rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Remove</button>
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ width: "100%", margin: "0 0 1.5rem", background: "#f5f8fa", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "2.5rem", cursor: "pointer", textAlign: "center" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ display: "block", width: "100%", margin: "0 0 1.75rem", background: "#f5f8fa", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "3rem 0", cursor: "pointer", textAlign: "center", boxSizing: "border-box" }}>
                             + Add a featured image
                           </button>
                         )}
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Feature headline"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "2rem", fontWeight: 700, lineHeight: 1.2, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block" }} />
+                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box" }} />
                         <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; if (ed && i === 0) setNlActiveEditor(prev => prev ?? ed); }}
@@ -692,23 +691,23 @@ export default function NewsletterEditorClient({
 
                     {/* STANDARD card */}
                     {type === "standard" && (
-                      <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "1.5rem", paddingBottom: "1.5rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
-                        <div style={{ display: "flex", alignItems: "baseline", gap: "0.6rem", marginBottom: "0.6rem" }}>
-                          <span style={{ fontFamily: "'Georgia', serif", fontSize: "2rem", fontWeight: 700, color: CRIMSON, lineHeight: 1, flexShrink: 0 }}>{i + 1}</span>
+                      <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "3rem", paddingBottom: "1.75rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
+                        <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "0.75rem" }}>
+                          <span style={{ fontFamily: "'Georgia', serif", fontSize: "2.2rem", fontWeight: 700, color: CRIMSON, lineHeight: 1, flexShrink: 0, minWidth: "1.5rem", textAlign: "right" }}>{i + 1}</span>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Section headline"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.3rem", fontWeight: 700, lineHeight: 1.25, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0 }} />
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.25rem", fontWeight: 700, lineHeight: 1.3, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box" }} />
                         </div>
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={card.image.url} alt={card.image.alt ?? ""} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} />
-                            <div className="nl-card-controls" style={{ position: "absolute", top: "0.4rem", right: "0.4rem", display: "flex", gap: "0.4rem" }}>
-                              <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.5rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Change</button>
-                              <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.5rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Remove</button>
+                            <img src={card.image.url} alt={card.image.alt ?? ""} style={{ width: "100%", maxHeight: 240, objectFit: "cover", display: "block" }} />
+                            <div className="nl-card-controls" style={{ position: "absolute", top: "0.4rem", right: "0.4rem", display: "flex", gap: "0.35rem" }}>
+                              <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "rgba(0,0,0,0.65)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.5rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Change</button>
+                              <button type="button" onClick={() => nlUpdateCard(card.id, { image: undefined })} style={{ background: "rgba(0,0,0,0.65)", color: "white", border: "none", borderRadius: 4, padding: "0.2rem 0.5rem", fontFamily: FONT, fontSize: "0.7rem", cursor: "pointer" }}>Remove</button>
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.5rem", padding: 0, textDecoration: "underline" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "#f5f8fa", border: `1px dashed ${BORDER}`, fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.75rem", padding: "0.6rem 1rem", borderRadius: 4, display: "block", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
                             + Add image
                           </button>
                         )}
@@ -721,34 +720,35 @@ export default function NewsletterEditorClient({
 
                     {/* DIGEST card */}
                     {type === "digest" && (
-                      <div style={{ background: "#f9f8f5", border: `1px solid #e8e5de`, borderRadius: 2, padding: "1.25rem 1.5rem", margin: "0.75rem 0", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
-                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Topic"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.4rem", display: "block" }} />
-                        <RichBodyEditor initialContent={card.doc} minHeight={40} placeholder="Brief…"
-                          onChange={doc => nlUpdateCard(card.id, { doc })}
-                          onEditor={ed => { nlEditors.current[card.id] = ed; }}
-                          onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
+                      <div style={{ paddingTop: "3rem", paddingBottom: "1rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
+                        <div style={{ background: "#f9f8f5", borderLeft: `3px solid ${CRIMSON}`, padding: "1rem 1.25rem" }}>
+                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Topic"
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", fontWeight: 700, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.4rem", display: "block", boxSizing: "border-box" }} />
+                          <RichBodyEditor initialContent={card.doc} minHeight={40} placeholder="Brief…"
+                            onChange={doc => nlUpdateCard(card.id, { doc })}
+                            onEditor={ed => { nlEditors.current[card.id] = ed; }}
+                            onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {/* Add zone after last card */}
-                  {i === nlCards.length - 1 && (
-                    <div className="nl-add-zone" onClick={() => nlAddCardAfter(i)}
-                      style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 28, cursor: "pointer", margin: "0 -2.5rem" }}>
-                      <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
-                      <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>+ Add section</span>
-                      <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
-                    </div>
-                  )}
                 </div>
               );
             })}
+
+            {/* Add zone after last card */}
+            <div className="nl-add-zone" onClick={() => nlAddCardAfter(nlCards.length - 1)}
+              style={{ display: "flex", alignItems: "center", gap: "0.6rem", height: 24, cursor: "pointer", marginTop: "0.5rem" }}>
+              <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
+              <span className="nl-add-label" style={{ fontFamily: FONT, fontSize: "0.7rem", color: TEXT_MUTED, whiteSpace: "nowrap", padding: "0 0.3rem" }}>+ Add section</span>
+              <div className="nl-add-line" style={{ flex: 1, height: 1, background: "#ddd" }} />
+            </div>
           </div>
 
-          {/* Footer rule */}
-          <div style={{ borderTop: `3px double ${BORDER}`, margin: "0 2.5rem", paddingTop: "1rem", paddingBottom: "2rem", textAlign: "center" }}>
-            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.72rem", color: TEXT_MUTED, letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>efemera · unsubscribe</p>
+          {/* Footer */}
+          <div style={{ borderTop: `1px solid ${BORDER}`, margin: "0 2.5rem", paddingTop: "1.25rem", paddingBottom: "2rem", textAlign: "center" }}>
+            <div style={{ width: "100%", borderTop: `1px solid ${BORDER}`, marginBottom: "1rem" }} />
+            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.7rem", color: TEXT_MUTED, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0 }}>efemera · unsubscribe</p>
           </div>
         </div>
 
