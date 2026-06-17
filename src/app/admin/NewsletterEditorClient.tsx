@@ -126,6 +126,14 @@ export default function NewsletterEditorClient({
   const nlInsertStartRef = useRef({ x: 0, y: 0 });
   const nlInsertAtRef = useRef(0);
 
+  const nlIntroRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const el = nlIntroRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [nlIntro]);
+
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
   const [nlMovingId, setNlMovingId] = useState<string | null>(null);
@@ -634,17 +642,17 @@ export default function NewsletterEditorClient({
           </div>
 
           {/* Introduction */}
-          <div style={{ padding: "1.25rem 2.5rem 1.1rem", borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
+          <div style={{ padding: "1.25rem 2.5rem 1.25rem", borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
             <textarea
+              ref={nlIntroRef}
               value={nlIntro}
-              onChange={e => { setNlIntro(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
-              onFocus={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+              onChange={e => setNlIntro(e.target.value)}
               placeholder="A note to readers…"
               rows={1}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
             />
             {nlAuthor && (
-              <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.65rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
+              <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.75rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
             )}
           </div>
 
