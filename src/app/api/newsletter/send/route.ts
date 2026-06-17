@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   if (!id) return NextResponse.json({ error: "missing id" }, { status: 400 });
 
   const nl = await client.fetch(
-    `*[_id == $id][0]{ subject, preview, author, cards }`,
+    `*[_id == $id][0]{ subject, preview, author, volume, issue, intro, cards }`,
     { id },
     { cache: "no-store" }
   );
@@ -37,6 +37,9 @@ export async function POST(req: NextRequest) {
   const html = renderNewsletterHtml({
     subject: nl.subject,
     preview: nl.preview ?? "",
+    intro: nl.intro ?? "",
+    volume: nl.volume ?? "",
+    issue: nl.issue ?? "",
     cards: (nl.cards ?? []) as NlCard[],
   });
 

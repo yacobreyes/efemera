@@ -54,6 +54,9 @@ export type InitialNewsletter = {
   status: "draft" | "published" | "scheduled";
   scheduledAt: string;
   cards: StoredCard[];
+  volume: string;
+  issue: string;
+  intro: string;
 } | null;
 
 const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC, cardType: "essays" });
@@ -98,6 +101,9 @@ export default function NewsletterEditorClient({
   const [nlSubject, setNlSubject] = useState(initial?.subject ?? "");
   const [nlPreview, setNlPreview] = useState(initial?.preview ?? "");
   const [nlAuthor, setNlAuthor] = useState(initial?.author ?? "Yacob Reyes");
+  const [nlVolume, setNlVolume] = useState(initial?.volume ?? "");
+  const [nlIssue, setNlIssue] = useState(initial?.issue ?? "");
+  const [nlIntro, setNlIntro] = useState(initial?.intro ?? "");
   const [nlStatus, setNlStatus] = useState<"draft" | "published" | "scheduled">(initial?.status ?? "draft");
   const [nlScheduledAt, setNlScheduledAt] = useState(initial?.scheduledAt ?? "");
   const [nlCards, setNlCards] = useState<NlEditorCard[]>(() => cardsFromStored(initial?.cards ?? []));
@@ -290,16 +296,20 @@ export default function NewsletterEditorClient({
     subject: nlSubject,
     preview: nlPreview,
     author: nlAuthor,
+    volume: nlVolume,
+    issue: nlIssue,
+    intro: nlIntro,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
     cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType })),
-  }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
+  }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   // Cheap dirty-check signature (raw tiptap docs, no portable-text conversion)
   // so typing doesn't re-run the expensive conversion above on every keystroke.
   const nlSignature = useCallback(() => JSON.stringify({
     status: nlStatus, scheduledAt: nlScheduledAt, subject: nlSubject, preview: nlPreview, author: nlAuthor,
+    volume: nlVolume, issue: nlIssue, intro: nlIntro,
     cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType })),
-  }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
+  }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
     if (nlDeleting.current) return;
@@ -439,7 +449,7 @@ export default function NewsletterEditorClient({
             </div>
             <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
               srcDoc={renderNewsletterHtml({
-                subject: nlSubject, preview: nlPreview,
+                subject: nlSubject, preview: nlPreview, intro: nlIntro, volume: nlVolume, issue: nlIssue,
                 cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType })),
               })} />
           </div>
@@ -611,12 +621,16 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead */}
-          <div style={{ background: CRIMSON, padding: "1.75rem 2.5rem 1.25rem", textAlign: "center" }}>
+          <div style={{ background: CRIMSON, padding: "1.75rem 2.5rem 1.5rem", textAlign: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
-            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", margin: "0.5rem 0 0", letterSpacing: "0.2em", textTransform: "uppercase" }}>
-              {todayLabel}
-            </p>
+            <img src="/Masthead.webp" alt="efemera" style={{ height: 44, width: "auto", display: "inline-block" }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginTop: "0.65rem" }}>
+              <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>{todayLabel}</span>
+              {(nlVolume || nlIssue) && <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 0.6rem", fontSize: "0.55rem" }}>●</span>}
+              {nlVolume && <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Vol. {nlVolume}</span>}
+              {nlVolume && nlIssue && <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 0.6rem", fontSize: "0.55rem" }}>●</span>}
+              {nlIssue && <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>No. {nlIssue}</span>}
+            </div>
           </div>
           <div style={{ height: 3, background: "#5a0000" }} />
 
@@ -627,6 +641,17 @@ export default function NewsletterEditorClient({
             ) : (
               <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.88rem", fontStyle: "italic", color: "#bbb", margin: 0 }}>Subject line will appear here…</p>
             )}
+          </div>
+
+          {/* Introduction */}
+          <div style={{ padding: "1.5rem 2.5rem", borderBottom: `1px solid ${BORDER}` }}>
+            <textarea
+              value={nlIntro}
+              onChange={e => setNlIntro(e.target.value)}
+              placeholder="Write an introduction — a letter from the editor, a note to readers…"
+              rows={4}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block" }}
+            />
           </div>
 
           {/* Cards */}
@@ -776,6 +801,16 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 680, margin: "2rem auto 0" }}>
           <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
             <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Newsletter info</h3>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Volume</label>
+                <input value={nlVolume} onChange={e => setNlVolume(e.target.value)} placeholder="1" style={INPUT} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Issue</label>
+                <input value={nlIssue} onChange={e => setNlIssue(e.target.value)} placeholder="1" style={INPUT} />
+              </div>
+            </div>
             <div>
               <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Author</label>
               <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />

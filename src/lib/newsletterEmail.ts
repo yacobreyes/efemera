@@ -84,7 +84,7 @@ function renderBody(blocks: PortableTextBlock[]): string {
 
 const HEADLINE_FONT = "'Georgia', 'Times New Roman', serif";
 
-export function renderNewsletterHtml({ subject, preview, cards }: { subject: string; preview: string; cards: NlCard[] }): string {
+export function renderNewsletterHtml({ subject, preview, intro, volume, issue, cards }: { subject: string; preview: string; intro?: string; volume?: string; issue?: string; cards: NlCard[] }): string {
   const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   // Determine effective card type, mapping old names forward
@@ -163,10 +163,13 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;padding:24px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
-        <tr><td style="background:${CRIMSON};padding:24px;text-align:center;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="180" style="height:36px;width:auto;display:inline-block;" />
-          <div style="font-family:${FONT};font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-top:8px;">${date}</div>
+        <tr><td style="background:${CRIMSON};padding:28px 24px 24px;text-align:center;">
+          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="220" style="height:44px;width:auto;display:inline-block;" />
+          <div style="font-family:${FONT};font-size:11px;color:rgba(255,255,255,0.65);letter-spacing:0.14em;text-transform:uppercase;margin-top:10px;">
+            ${date}${volume ? ` &nbsp;&#9679;&nbsp; Vol. ${esc(volume)}` : ""}${issue ? ` &nbsp;&#9679;&nbsp; No. ${esc(issue)}` : ""}
+          </div>
         </td></tr>
+        ${intro ? `<tr><td style="padding:24px 24px 20px;border-bottom:1px solid #e1e8ed;"><p style="font-family:${FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0;white-space:pre-line;">${esc(intro)}</p></td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
         <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
           You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>

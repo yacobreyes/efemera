@@ -78,6 +78,9 @@ export type NlPayload = {
   subject?: string;
   preview?: string;
   author?: string;
+  volume?: string;
+  issue?: string;
+  intro?: string;
   wordCount?: number;
   cards?: NlCard[];
   status?: "draft" | "published" | "scheduled";
@@ -102,6 +105,9 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
     subject: payload.subject ?? "",
     preview: payload.preview ?? "",
     author: payload.author ?? "Yacob Reyes",
+    volume: payload.volume ?? "",
+    issue: payload.issue ?? "",
+    intro: payload.intro ?? "",
     wordCount: payload.wordCount ?? 0,
     cards: payload.cards ?? [],
     status: payload.status ?? existing?.status ?? "draft",
@@ -224,7 +230,7 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   if (!id) return { ok: false, error: "missing id" };
 
   const nl = await client.fetch(
-    `*[_id == $id][0]{ subject, preview, author, cards }`,
+    `*[_id == $id][0]{ subject, preview, author, volume, issue, intro, cards }`,
     { id },
     { cache: "no-store" }
   );
@@ -244,6 +250,9 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   const baseHtml = renderNewsletterHtml({
     subject: nl.subject,
     preview: nl.preview ?? "",
+    intro: nl.intro ?? "",
+    volume: nl.volume ?? "",
+    issue: nl.issue ?? "",
     cards: (nl.cards ?? []) as NlCard[],
   });
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
