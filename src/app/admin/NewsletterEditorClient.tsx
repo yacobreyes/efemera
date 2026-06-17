@@ -6,6 +6,7 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { saveNewsletter, deleteNewsletter, sendNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
+import { createPostFromNewsletterCard } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
@@ -44,8 +45,8 @@ function formatFindContentDate(date?: string) {
 }
 
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
-type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "narratives" | "essays" | "micro-memoir"; byline?: string };
-type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest"; byline?: string };
+type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "narratives" | "essays" | "micro-memoir"; byline?: string; sourceSlug?: string };
+type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest"; byline?: string; sourceSlug?: string };
 
 export type InitialNewsletter = {
   subject: string;
@@ -81,6 +82,7 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
     image: c.image ?? undefined,
     cardType: mapStoredCardType(c.cardType),
     byline: c.byline || undefined,
+    sourceSlug: c.sourceSlug || undefined,
   }));
 }
 
@@ -271,6 +273,7 @@ export default function NewsletterEditorClient({
       doc: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
       image: post.image ?? undefined,
       byline: post.byline || undefined,
+      sourceSlug: post.slug || undefined,
     };
     setNlCards(prev => { const next = [...prev]; next.splice(at, 0, card); return next; });
   }
@@ -285,6 +288,28 @@ export default function NewsletterEditorClient({
     setNlCards(prev => prev.length <= 1 ? prev : prev.filter(c => c.id !== id));
     delete nlEditors.current[id];
     delete nlToolbars.current[id];
+  }
+  const [nlCreatingDraft, setNlCreatingDraft] = useState<string | null>(null);
+  // Turn a native newsletter card into a standalone draft post that can be
+  // published on the site. Records the new slug on the card and opens the editor.
+  async function nlCreateDraftFromCard(card: NlEditorCard) {
+    setNlCreatingDraft(card.id);
+    try {
+      const section = card.cardType === "essays" ? "Essays" : "Narratives";
+      const { slug } = await createPostFromNewsletterCard({
+        headline: card.headline,
+        body: tiptapToPortableText(card.doc),
+        byline: card.byline,
+        section,
+        image: card.image ? { assetId: card.image.assetId, caption: card.image.caption, alt: card.image.alt } : null,
+      });
+      nlUpdateCard(card.id, { sourceSlug: slug });
+      window.open(`/admin/imago/posts/${slug}`, "_blank");
+    } catch {
+      alert("Couldn't create the draft. Try again.");
+    } finally {
+      setNlCreatingDraft(null);
+    }
   }
   // Byline row for narrative/essay cards. Populated automatically when a story is
   // pulled in (post.byline); native cards start with no byline and show an
@@ -302,9 +327,32 @@ export default function NewsletterEditorClient({
       <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", justifyContent: align === "center" ? "center" : "flex-start", marginBottom: align === "center" ? "1rem" : "0.85rem" }}>
         <span style={{ fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, color: TEXT_DARK, letterSpacing: "0.02em" }}>By</span>
         <input value={card.byline} onChange={e => nlUpdateCard(card.id, { byline: e.target.value })} placeholder="Author name" autoFocus={!card.byline}
-          style={{ fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, color: TEXT_DARK, letterSpacing: "0.02em", border: "none", outline: "none", background: "transparent", padding: 0, textAlign: align === "center" ? "center" : "left", width: align === "center" ? `${Math.max((card.byline.length || 11), 11)}ch` : "auto", minWidth: "8ch", boxSizing: "content-box" }} />
+          style={{ fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, color: TEXT_DARK, letterSpacing: "0.02em", border: "none", outline: "none", background: "transparent", padding: 0, textAlign: "left", width: `${card.byline.length > 0 ? card.byline.length + 1 : 11}ch`, boxSizing: "content-box" }} />
         <button type="button" title="Remove byline" onClick={() => nlUpdateCard(card.id, { byline: undefined })}
           style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: TEXT_MUTED, fontSize: "1rem", lineHeight: 1 }}>×</button>
+      </div>
+    );
+  }
+  // Footer row for narrative/essay cards: native cards get a button to spin off a
+  // publishable draft post; cards linked to a story show a link to open it.
+  function nlCardDraftRow(card: NlEditorCard, align: "center" | "left") {
+    const justify = align === "center" ? "center" : "flex-start";
+    if (card.sourceSlug) {
+      return (
+        <div style={{ display: "flex", justifyContent: justify, marginTop: "1rem" }}>
+          <a href={`/admin/imago/posts/${card.sourceSlug}`} target="_blank" rel="noreferrer"
+            style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, color: TEXT_MUTED, textDecoration: "none", letterSpacing: "0.02em", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+            Open linked story draft →
+          </a>
+        </div>
+      );
+    }
+    return (
+      <div style={{ display: "flex", justifyContent: justify, marginTop: "1rem" }}>
+        <button type="button" disabled={nlCreatingDraft === card.id} onClick={() => nlCreateDraftFromCard(card)}
+          style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, color: CRIMSON, background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.85rem", cursor: nlCreatingDraft === card.id ? "default" : "pointer", letterSpacing: "0.02em", opacity: nlCreatingDraft === card.id ? 0.6 : 1 }}>
+          {nlCreatingDraft === card.id ? "Creating draft…" : "Create publishable story draft →"}
+        </button>
       </div>
     );
   }
@@ -332,7 +380,7 @@ export default function NewsletterEditorClient({
     issue: nlIssue,
     intro: nlIntro,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
-    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType, byline: card.byline })),
+    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType, byline: card.byline, sourceSlug: card.sourceSlug })),
   }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   // Cheap dirty-check signature (raw tiptap docs, no portable-text conversion)
@@ -340,7 +388,7 @@ export default function NewsletterEditorClient({
   const nlSignature = useCallback(() => JSON.stringify({
     status: nlStatus, scheduledAt: nlScheduledAt, subject: nlSubject, preview: nlPreview, author: nlAuthor,
     volume: nlVolume, issue: nlIssue, intro: nlIntro,
-    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType, byline: c.byline })),
+    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType, byline: c.byline, sourceSlug: c.sourceSlug })),
   }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
@@ -426,6 +474,7 @@ export default function NewsletterEditorClient({
       image: c.image ?? undefined,
       cardType: mapStoredCardType(c.cardType),
       byline: c.byline || undefined,
+      sourceSlug: c.sourceSlug || undefined,
     })));
   }
 
@@ -652,8 +701,9 @@ export default function NewsletterEditorClient({
         );
       })()}
 
-      {/* Content */}
-      <div style={{ flex: 1, overflowY: "auto", background: "#e8e8e4", padding: "2rem 1rem 4rem", marginTop: 52 }}>
+      {/* Content — when the find panel is open on desktop, reserve its width on
+          the left so the centered page never slides underneath it. */}
+      <div style={{ flex: 1, overflowY: "auto", background: "#e8e8e4", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
         {/* Magazine page */}
         <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
@@ -780,6 +830,7 @@ export default function NewsletterEditorClient({
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; if (ed) { setNlActiveEditor(prev => prev && !prev.isDestroyed ? prev : ed); } else { setNlActiveEditor(prev => prev?.isDestroyed ? null : prev); } }}
                           onToolbar={tb => { nlToolbars.current[card.id] = tb; if (tb && i === 0) setNlActiveToolbar(prev => prev ?? tb); }} />
+                        {nlCardDraftRow(card, "center")}
                       </div>
                     )}
 
@@ -809,6 +860,7 @@ export default function NewsletterEditorClient({
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; }}
                           onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
+                        {nlCardDraftRow(card, "left")}
                       </div>
                     )}
 

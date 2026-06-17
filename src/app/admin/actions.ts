@@ -77,6 +77,43 @@ export async function createDraft(providedSlug?: string): Promise<{ slug: string
   return { slug };
 }
 
+// Creates a standalone draft post from a newsletter card so it can be edited and
+// published on its own. Returns the new slug; the caller links to the editor.
+export async function createPostFromNewsletterCard(input: {
+  headline: string;
+  body: unknown[];
+  byline?: string;
+  section?: string;
+  image?: { assetId: string; caption?: string; alt?: string } | null;
+}): Promise<{ slug: string }> {
+  await requireAuth();
+  const base = (input.headline || "untitled")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "untitled";
+  const slug = `${base}-${Date.now().toString(36)}`;
+  const doc: Record<string, unknown> = {
+    _id: `post-${slug}`,
+    _type: "post",
+    headline: input.headline || "",
+    subheadline: "",
+    slug: { _type: "slug", current: slug },
+    section: input.section || "Narratives",
+    byline: input.byline || "Yacob Reyes",
+    date: new Date().toISOString().slice(0, 10),
+    body: Array.isArray(input.body) ? input.body : [],
+    status: "draft",
+  };
+  if (input.image?.assetId) {
+    doc.image = {
+      _type: "image",
+      asset: { _type: "reference", _ref: input.image.assetId },
+      ...(input.image.caption ? { caption: input.image.caption } : {}),
+      ...(input.image.alt ? { alt: input.image.alt } : {}),
+    };
+  }
+  await mutate([{ createOrReplace: doc }]);
+  return { slug };
+}
+
 export async function savePost(formData: FormData) {
   await requireAuth();
   const id = formData.get("id") as string;
