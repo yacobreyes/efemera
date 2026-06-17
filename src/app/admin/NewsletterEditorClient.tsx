@@ -796,8 +796,8 @@ export default function NewsletterEditorClient({
 
           {/* Footer */}
           <div style={{ background: CRIMSON, padding: "1.25rem 2.5rem", textAlign: "center" }}>
-            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "0 0 0.4rem" }}>You're receiving this because you subscribed to efemera</p>
-            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.75)", letterSpacing: "0.18em", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>Unsubscribe</p>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "white", letterSpacing: "0.2em", textTransform: "uppercase", margin: "0 0 0.4rem" }}>You're receiving this because you subscribed to efemera</p>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "white", letterSpacing: "0.18em", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>Unsubscribe</p>
           </div>
         </div>
 

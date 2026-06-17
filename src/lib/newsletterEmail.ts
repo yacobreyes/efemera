@@ -175,8 +175,8 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
         ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.55;color:${TEXT_DARK};margin:0 0 10px;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table></td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
         <tr><td style="background:${CRIMSON};padding:16px 24px;text-align:center;">
-          <p style="font-family:${FONT};font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;">You're receiving this because you subscribed to efemera</p>
-          <a href="{{{UNSUBSCRIBE_URL}}}" style="font-family:${FONT};font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
+          <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;">You're receiving this because you subscribed to efemera</p>
+          <a href="{{{UNSUBSCRIBE_URL}}}" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
         </td></tr>
       </table>
     </td></tr>
