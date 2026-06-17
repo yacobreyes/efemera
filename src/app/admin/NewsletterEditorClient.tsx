@@ -73,11 +73,15 @@ export default function NewsletterEditorClient({
   newsletterId, initial, initialVersions,
 }: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[] }) {
   const [isMobile, setIsMobile] = useState(false);
+  const [todayLabel, setTodayLabel] = useState("");
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 700);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
+  }, []);
+  useEffect(() => {
+    setTodayLabel(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
   }, []);
 
   const [nlSubject, setNlSubject] = useState(initial?.subject ?? "");
@@ -600,7 +604,7 @@ export default function NewsletterEditorClient({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Masthead.webp" alt="efemera" style={{ height: 36, width: "auto", display: "inline-block" }} />
             <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.65rem", color: "rgba(255,255,255,0.6)", margin: "0.5rem 0 0", letterSpacing: "0.2em", textTransform: "uppercase" }}>
-              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+              {todayLabel}
             </p>
           </div>
           <div style={{ height: 3, background: "#5a0000" }} />
@@ -631,14 +635,11 @@ export default function NewsletterEditorClient({
                   <div className="nl-card" draggable={false}
                     ref={el => { nlCardRefs.current[card.id] = el; }}
                     onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                    style={nlMovingId === card.id
-                      ? { height: 0, overflow: "hidden" }
-                      : { position: "relative", cursor: nlMovingId ? "pointer" : undefined }}>
+                    style={{ position: "relative", opacity: nlMovingId === card.id ? 0 : 1, pointerEvents: nlMovingId === card.id ? "none" : undefined, cursor: nlMovingId && nlMovingId !== card.id ? "pointer" : undefined }}>
 
-                    {/* Card hover toolbar — stays inside card bounds so overflow-y:auto doesn't clip it */}
+                    {/* Card hover toolbar */}
                     {!nlMovingId && (
                       <div className="nl-card-controls" style={{ position: "absolute", top: type === "feature" ? "2rem" : "1.5rem", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10, pointerEvents: "none" }}>
-                        {/* Left: drag + type pills */}
                         <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", pointerEvents: "auto" }}>
                           <button type="button" title="Move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = nlCardRefs.current[card.id]?.getBoundingClientRect(); if (r) nlMoveRectRef.current = { left: r.left, width: r.width }; nlMoveStartYRef.current = e.clientY; setNlMovingId(card.id); }}
                             style={{ width: 28, height: 28, borderRadius: 4, background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
@@ -654,7 +655,6 @@ export default function NewsletterEditorClient({
                             );
                           })}
                         </div>
-                        {/* Right: delete */}
                         <button type="button" title="Delete" onClick={() => { if (nlCards.length > 1 && confirm("Delete this section?")) nlRemoveCard(card.id); }}
                           style={{ width: 28, height: 28, borderRadius: 4, background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlCards.length > 1 ? "pointer" : "not-allowed", color: TEXT_MUTED, boxShadow: "0 1px 3px rgba(0,0,0,0.1)", opacity: nlCards.length > 1 ? 1 : 0.4, pointerEvents: "auto" }}>
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -664,7 +664,7 @@ export default function NewsletterEditorClient({
 
                     {/* FEATURE card */}
                     {type === "feature" && (
-                      <div style={{ paddingTop: "3.5rem", paddingBottom: "2rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
+                      <div style={{ paddingTop: "3.5rem", paddingBottom: "2rem" }}>
                         {card.image ? (
                           <div style={{ margin: "0 -2.5rem 1.75rem", position: "relative" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -689,13 +689,12 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* STANDARD card */}
+                    {/* STANDARD card — clean editorial section, no numbers */}
                     {type === "standard" && (
-                      <div style={{ borderTop: `1px solid ${BORDER}`, paddingTop: "3rem", paddingBottom: "1.75rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
-                        <div style={{ display: "flex", alignItems: "baseline", gap: "0.75rem", marginBottom: "0.75rem" }}>
-                          <span style={{ fontFamily: "'Georgia', serif", fontSize: "2.2rem", fontWeight: 700, color: CRIMSON, lineHeight: 1, flexShrink: 0, minWidth: "1.5rem", textAlign: "right" }}>{i + 1}</span>
+                      <div style={{ paddingTop: "3rem", paddingBottom: "1.75rem" }}>
+                        <div style={{ borderTop: `2px solid ${TEXT_DARK}`, paddingTop: "0.75rem", marginBottom: "0.6rem" }}>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Section headline"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.25rem", fontWeight: 700, lineHeight: 1.3, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box" }} />
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.3rem", fontWeight: 700, lineHeight: 1.3, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
@@ -718,16 +717,19 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* DIGEST card */}
+                    {/* DIGEST card — pull quote / brief item style */}
                     {type === "digest" && (
-                      <div style={{ paddingTop: "3rem", paddingBottom: "1rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
-                        <div style={{ background: "#f9f8f5", borderLeft: `3px solid ${CRIMSON}`, padding: "1rem 1.25rem" }}>
-                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Topic"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", fontWeight: 700, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.4rem", display: "block", boxSizing: "border-box" }} />
-                          <RichBodyEditor initialContent={card.doc} minHeight={40} placeholder="Brief…"
-                            onChange={doc => nlUpdateCard(card.id, { doc })}
-                            onEditor={ed => { nlEditors.current[card.id] = ed; }}
-                            onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
+                      <div style={{ paddingTop: "3rem", paddingBottom: "1.25rem" }}>
+                        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
+                          <div style={{ flexShrink: 0, width: 3, alignSelf: "stretch", background: CRIMSON, borderRadius: 2 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Quick hit headline"
+                              style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box" }} />
+                            <RichBodyEditor initialContent={card.doc} minHeight={36} placeholder="One or two sentences…"
+                              onChange={doc => nlUpdateCard(card.id, { doc })}
+                              onEditor={ed => { nlEditors.current[card.id] = ed; }}
+                              onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
+                          </div>
                         </div>
                       </div>
                     )}
