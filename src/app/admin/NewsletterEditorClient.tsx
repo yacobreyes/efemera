@@ -736,8 +736,9 @@ export default function NewsletterEditorClient({
 
                     {/* MICRO-MEMOIR card — intimate, text-only, literary */}
                     {type === "micro-memoir" && (
-                      <div style={{ paddingTop: "1rem", paddingBottom: "1.25rem", background: "#faf9f6", padding: "1rem 2rem 1.5rem" }}>
-                        <div style={{ textAlign: "center", fontFamily: "'Georgia', serif", fontSize: "1.1rem", color: TEXT_MUTED, marginBottom: "0.75rem", letterSpacing: "0.1em" }}>⁂</div>
+                      <div style={{ background: "#faf9f6", padding: "1rem 2rem 1.75rem" }}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 0.75rem", height: 48, width: "auto" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Micro-memoir title"
                           style={{ fontFamily: "'Georgia', serif", fontSize: "1.1rem", fontStyle: "italic", fontWeight: 400, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.75rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem" }}>

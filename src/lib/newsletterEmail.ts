@@ -139,13 +139,13 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
     </table>`;
     }
 
-    // micro-memoir: warm background, italic, centered ornament
+    // micro-memoir: warm background, mayfly kicker, italic headline, body
     return `
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf9f6;border-top:1px solid #e1e8ed;margin:0;">
       ${sectionRow}
       <tr><td style="padding:20px 24px 24px;text-align:center;">
-        <p style="font-family:${HEADLINE_FONT};font-size:18px;font-style:italic;font-weight:400;color:${TEXT_DARK};margin:0 0 10px;text-align:center;">${esc(card.headline ?? "")}</p>
-        <p style="font-family:${HEADLINE_FONT};font-size:16px;color:${TEXT_MUTED};margin:0 0 14px;letter-spacing:0.1em;">⁂</p>
+        <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" width="48" style="height:48px;width:auto;display:block;margin:0 auto 12px;" />
+        <p style="font-family:${HEADLINE_FONT};font-size:18px;font-style:italic;font-weight:400;color:${TEXT_DARK};margin:0 0 14px;text-align:center;">${esc(card.headline ?? "")}</p>
         <div style="font-family:${HEADLINE_FONT};font-size:15px;font-style:italic;color:${TEXT_DARK};text-align:left;">${renderBody(card.body ?? [])}</div>
       </td></tr>
     </table>`;
