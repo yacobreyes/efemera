@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
     return [
       { source: "/narratives", destination: "/?tab=Narratives" },
       { source: "/micro-memoirs", destination: "/?tab=Micro-Memoirs" },
+      { source: "/essays", destination: "/?tab=Essays" },
       { source: "/about", destination: "/?tab=About" },
       { source: "/archive", destination: "/?tab=Archive" },
     ];
