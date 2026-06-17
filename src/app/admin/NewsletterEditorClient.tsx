@@ -680,10 +680,16 @@ export default function NewsletterEditorClient({
                   <div className="nl-card" draggable={false}
                     ref={el => { nlCardRefs.current[card.id] = el; }}
                     onFocusCapture={() => { const ed = nlEditors.current[card.id]; setNlActiveEditor(ed && !ed.isDestroyed ? ed : null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                    style={{ position: "relative", opacity: isDragging ? 0 : 1, pointerEvents: isDragging ? "none" : undefined, cursor: nlMovingId && !isDragging ? "pointer" : undefined }}>
+                    style={{ position: "relative", pointerEvents: isDragging ? "none" : undefined, cursor: nlMovingId && !isDragging ? "pointer" : undefined }}>
 
-                  {/* Collapsed drag-target row — shown instead of full card body while another card is moving */}
-                  {collapsed ? (
+                  {/* Placeholder drop-slot — the dragged card itself, shown as a slim
+                      dashed gap so the rest of the list stays compact while moving. */}
+                  {isDragging ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0.75rem", border: `2px dashed ${CRIMSON}`, borderRadius: 4, background: "rgba(139,0,0,0.04)", margin: "0.25rem 0" }}>
+                      <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
+                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_MUTED, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Drop here</span>
+                    </div>
+                  ) : collapsed ? (
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}` }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
                       <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
