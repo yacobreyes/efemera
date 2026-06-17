@@ -616,9 +616,12 @@ export default function NewsletterEditorClient({
       {nlMovingId && (() => {
         const mc = nlCards.find(c => c.id === nlMovingId);
         if (!mc) return null;
+        const mcType = mc.cardType ?? "essays";
+        const mcLabel = mcType === "narratives" ? "NARRATIVES" : mcType === "essays" ? "ESSAYS" : "MICRO-MEMOIR";
         return (
-          <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `2px solid ${CRIMSON}`, padding: "0.75rem 2rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ fontFamily: "'Georgia', serif", fontSize: "1.1rem", fontWeight: 700, color: CRIMSON }}>{mc.headline?.trim() || "Type your headline"}</span>
+          <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `2px solid ${CRIMSON}`, padding: "0.65rem 0.9rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", gap: "0.6rem", boxSizing: "border-box" }}>
+            <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{mcLabel}</span>
+            <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mc.headline?.trim() || "—"}</span>
           </div>
         );
       })()}
