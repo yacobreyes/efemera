@@ -709,9 +709,9 @@ export default function NewsletterEditorClient({
                     {/* ESSAYS card */}
                     {type === "essays" && (
                       <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
-                        <div style={{ borderTop: `1px solid ${CRIMSON}`, paddingTop: "1rem", marginBottom: "0.75rem" }}>
+                        <div style={{ borderTop: `2px solid ${TEXT_DARK}`, borderBottom: `1px solid ${TEXT_DARK}`, padding: "0.75rem 0", marginBottom: "1rem", textAlign: "center" }}>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.55rem", fontWeight: 400, lineHeight: 1.25, letterSpacing: "0.01em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.65rem", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.01em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block", textAlign: "center" }} />
                         </div>
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
@@ -738,7 +738,7 @@ export default function NewsletterEditorClient({
                     {type === "micro-memoir" && (
                       <div style={{ background: "#faf9f6", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #e8e3d8`, borderBottom: `1px solid #e8e3d8` }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 1.75rem", height: 130, width: "auto" }} />
+                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", height: 300, width: "auto", margin: "-76px auto -129px" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
                           style={{ fontFamily: "'Georgia', serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, textAlign: "center", margin: "0 0 1.5rem" }}>A Micro-Memoir</p>
