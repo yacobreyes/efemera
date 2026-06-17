@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     subject: nl.subject,
     preview: nl.preview ?? "",
     intro: nl.intro ?? "",
+    author: nl.author ?? "",
     volume: nl.volume ?? "",
     issue: nl.issue ?? "",
     cards: (nl.cards ?? []) as NlCard[],

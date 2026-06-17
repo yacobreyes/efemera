@@ -449,7 +449,7 @@ export default function NewsletterEditorClient({
             </div>
             <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
               srcDoc={renderNewsletterHtml({
-                subject: nlSubject, preview: nlPreview, intro: nlIntro, volume: nlVolume, issue: nlIssue,
+                subject: nlSubject, preview: nlPreview, intro: nlIntro, author: nlAuthor, volume: nlVolume, issue: nlIssue,
                 cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType })),
               })} />
           </div>
@@ -621,9 +621,9 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — full-bleed nameplate + dateline strip */}
-          <div style={{ background: CRIMSON, padding: "2rem 2.5rem 1.85rem", textAlign: "center" }}>
+          <div style={{ background: CRIMSON, padding: "1.5rem 2rem", textAlign: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ height: 80, width: "auto", display: "inline-block" }} />
+            <img src="/Masthead.webp" alt="efemera" style={{ width: "100%", height: "auto", display: "block" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           <div style={{ borderTop: `3px solid ${CRIMSON}`, borderBottom: `1px solid #d0d0cc`, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -634,15 +634,18 @@ export default function NewsletterEditorClient({
           </div>
 
           {/* Introduction */}
-          <div style={{ padding: "1.25rem 2.5rem 1.1rem", borderBottom: `1px solid ${BORDER}` }}>
+          <div style={{ padding: "1.25rem 2.5rem 1.1rem", borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
             <textarea
               value={nlIntro}
               onChange={e => { setNlIntro(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
               onFocus={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
               placeholder="A note to readers…"
               rows={1}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic", overflow: "hidden" }}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
             />
+            {nlAuthor && (
+              <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.65rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
+            )}
           </div>
 
           {/* Cards */}

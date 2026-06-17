@@ -84,7 +84,7 @@ function renderBody(blocks: PortableTextBlock[]): string {
 
 const HEADLINE_FONT = "'Georgia', 'Times New Roman', serif";
 
-export function renderNewsletterHtml({ subject, preview, intro, volume, issue, cards }: { subject: string; preview: string; intro?: string; volume?: string; issue?: string; cards: NlCard[] }): string {
+export function renderNewsletterHtml({ subject, preview, intro, author, volume, issue, cards }: { subject: string; preview: string; intro?: string; author?: string; volume?: string; issue?: string; cards: NlCard[] }): string {
   const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   // Determine effective card type, mapping old names forward
@@ -164,7 +164,7 @@ export function renderNewsletterHtml({ subject, preview, intro, volume, issue, c
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
         <tr><td style="background:${CRIMSON};padding:28px 24px 26px;text-align:center;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="400" style="height:80px;width:auto;display:inline-block;" />
+          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="552" style="width:100%;max-width:552px;height:auto;display:block;" />
         </td></tr>
         <tr><td style="border-top:3px solid ${CRIMSON};border-bottom:1px solid #d0d0cc;padding:8px 24px;">
           <table width="100%" cellpadding="0" cellspacing="0"><tr>
@@ -172,7 +172,7 @@ export function renderNewsletterHtml({ subject, preview, intro, volume, issue, c
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
           </tr></table>
         </td></tr>
-        ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0;font-style:italic;white-space:pre-line;">${esc(intro)}</p></td></tr>` : ""}
+        ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0 0 10px;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0;">By ${esc(author)}</p>` : ""}</td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
         <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
           You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>
