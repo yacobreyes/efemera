@@ -5,17 +5,23 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
-import { PortableText } from "@portabletext/react";
 import type { SanityPost, SanityLately } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
 import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
 import { renderInline } from "@/lib/renderInline";
-import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 type SectionTab = "Micro-Memoirs" | "Narratives" | "Essays";
+
+// Bodoni for display heds (vintage editorial), Inter for everything else
+const HED   = "var(--font-bodoni), 'Bodoni Moda', Georgia, serif";
+const BODY  = "var(--font-inter), -apple-system, sans-serif";
+const CRIMSON = "#8B0000";
+const INK     = "#1a1008";
+const MUTED   = "#6b6560";
+const BORDER  = "#d8d0c8";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -29,86 +35,97 @@ function portableToPlainText(blocks: SanityPost["body"]): string {
     .join(" ");
 }
 
-function truncate(text: string, max = 280) {
+function truncate(text: string, max = 260) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
 }
 
 function readingTime(text: string) {
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200));
+  return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200));
 }
 
-
-function TweetCard({ post }: { post: SanityPost; index: number }) {
-  const [commentCount, setCommentCount] = useState(0);
-
-  useEffect(() => {
-    fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
-      .catch(() => {});
-  }, [post.slug]);
-
-  const plainText = portableToPlainText(post.body);
-  const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
-
-  const storyHref = `/stories/${post.slug}`;
-
+// ── Section flag: small crimson small-caps label ──
+function Flag({ label }: { label: string }) {
   return (
-    <div style={{ padding: "1.1rem 1rem", background: "white", borderBottom: "1px solid #e1e8ed" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-          {post.section}
-        </span>
-        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-          {formatDate(post.date)}
-        </span>
-      </div>
+    <span style={{ fontFamily: BODY, fontSize: "0.62rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON }}>
+      {label}
+    </span>
+  );
+}
 
-      <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={storyHref} prefetch={true} className="card-headline" style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
-          {post.headline}
-        </Link>
-      </h2>
-
+// ── Lead story — top of the well, large hed, photo, italic dek ──
+function LeadStory({ post }: { post: SanityPost }) {
+  const plain = portableToPlainText(post.body);
+  const href  = `/stories/${post.slug}`;
+  return (
+    <article style={{ paddingBottom: "2rem", marginBottom: "2rem", borderBottom: `1px solid ${BORDER}` }}>
+      <Flag label={post.section} />
+      <h1 style={{ fontFamily: HED, fontWeight: 700, fontSize: "clamp(2rem, 5vw, 3.2rem)", lineHeight: 1.08, color: INK, margin: "0.4rem 0 0.6rem", letterSpacing: "-0.02em" }}>
+        <Link href={href} prefetch className="lm-hed" style={{ color: "inherit", textDecoration: "none" }}>{post.headline}</Link>
+      </h1>
       {post.subheadline && (
-        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
+        <p style={{ fontFamily: HED, fontStyle: "italic", fontWeight: 400, fontSize: "clamp(1rem, 2.5vw, 1.25rem)", lineHeight: 1.4, color: MUTED, margin: "0 0 1rem", maxWidth: 560 }}>
           {post.subheadline}
         </p>
       )}
-
       {post.image?.asset && (
-        <div style={{ marginBottom: "0.75rem" }}>
+        <Link href={href} prefetch style={{ display: "block", marginBottom: "0.75rem" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
+          <img src={urlFor(post.image.asset).width(1100).height(620).fit("crop").auto("format").url()}
+            alt={post.image.alt ?? post.image.caption ?? ""}
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
+        </Link>
+      )}
+      {post.image?.caption && (
+        <p style={{ fontFamily: BODY, fontSize: "0.7rem", fontStyle: "italic", color: MUTED, margin: "0 0 0.85rem" }}>{post.image.caption}</p>
+      )}
+      <div style={{ fontFamily: BODY, fontSize: "0.7rem", letterSpacing: "0.08em", color: MUTED, marginBottom: "0.85rem" }}>
+        By <strong style={{ color: INK }}>{post.byline}</strong> &nbsp;·&nbsp; {formatDate(post.date)} &nbsp;·&nbsp; {readingTime(plain)} min read
+      </div>
+      <p style={{ fontFamily: BODY, fontSize: "1rem", lineHeight: 1.72, color: INK, margin: 0 }}>
+        {truncate(plain, 380)}{" "}
+        <Link href={href} prefetch style={{ fontFamily: BODY, fontSize: "0.82rem", fontWeight: 600, color: CRIMSON, textDecoration: "none", letterSpacing: "0.02em" }}>Read more →</Link>
+      </p>
+    </article>
+  );
+}
+
+// ── Column story — editorial card, no box shadow ──
+function StoryCard({ post, showImage = true }: { post: SanityPost; showImage?: boolean }) {
+  const plain = portableToPlainText(post.body);
+  const href  = `/stories/${post.slug}`;
+  const isMicro = post.section === "Micro-Memoir";
+  return (
+    <article style={{ paddingBottom: "1.5rem", marginBottom: "1.5rem", borderBottom: `1px solid ${BORDER}` }}>
+      <Flag label={post.section} />
+      <h2 style={{ fontFamily: HED, fontWeight: 700, fontSize: "clamp(1.25rem, 3vw, 1.7rem)", lineHeight: 1.1, color: INK, margin: "0.3rem 0 0.4rem", letterSpacing: "-0.01em" }}>
+        <Link href={href} prefetch className="lm-hed" style={{ color: "inherit", textDecoration: "none" }}>{post.headline}</Link>
+      </h2>
+      {post.subheadline && !isMicro && (
+        <p style={{ fontFamily: HED, fontStyle: "italic", fontWeight: 400, fontSize: "0.95rem", lineHeight: 1.38, color: MUTED, margin: "0 0 0.5rem" }}>{post.subheadline}</p>
+      )}
+      {showImage && post.image?.asset && (
+        <Link href={href} prefetch style={{ display: "block", margin: "0.5rem 0 0.65rem" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={urlFor(post.image.asset).width(700).height(420).fit("crop").auto("format").url()}
             alt={post.image.alt ?? post.image.caption ?? ""}
             loading="lazy"
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
-          />
-        </div>
-      )}
-
-      <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-        {displayText}
-      </p>
-
-      <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {readingTime(plainText)} min read
-      </div>
-
-      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
-        <Link href={`${storyHref}#comments`} prefetch={true} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
+            style={{ width: "100%", aspectRatio: "5/3", objectFit: "cover", display: "block" }} />
         </Link>
-        <LikeButton slug={post.slug} />
-        <ShareButton slug={post.slug} headline={post.headline} />
+      )}
+      <p style={{ fontFamily: BODY, fontSize: "0.93rem", lineHeight: 1.68, color: INK, margin: "0 0 0.6rem" }}>
+        {isMicro ? plain : truncate(plain, 180)}
+      </p>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontFamily: BODY, fontSize: "0.68rem", letterSpacing: "0.06em", color: MUTED }}>
+          By <strong style={{ color: INK }}>{post.byline}</strong> &nbsp;·&nbsp; {formatDate(post.date)}
+        </span>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <LikeButton slug={post.slug} />
+          <ShareButton slug={post.slug} headline={post.headline} />
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -120,29 +137,20 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key)!.push(post);
   }
-
   return (
-    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
-      {groups.size === 0 && <p style={{ fontFamily: "var(--font-inter), sans-serif", color: "#657786" }}>Nothing here yet.</p>}
+    <div style={{ maxWidth: 660, width: "calc(100% - 2rem)", margin: "2.5rem auto" }}>
+      <h1 style={{ fontFamily: HED, fontWeight: 700, fontSize: "2.4rem", color: INK, margin: "0 0 1.75rem", paddingBottom: "0.75rem", borderBottom: `2px solid ${INK}` }}>Archive</h1>
+      {groups.size === 0 && <p style={{ fontFamily: BODY, color: MUTED }}>Nothing here yet.</p>}
       {[...groups.entries()].map(([month, monthPosts]) => (
-        <div key={month} style={{ marginBottom: "1.8rem" }}>
-          <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
-            {month}
-          </h2>
+        <div key={month} style={{ marginBottom: "2rem" }}>
+          <h2 style={{ fontFamily: BODY, fontWeight: 700, fontSize: "0.65rem", letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON, margin: "0 0 0.6rem", paddingBottom: "0.4rem", borderBottom: `1px solid ${BORDER}` }}>{month}</h2>
           {monthPosts.map(post => {
             const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
             return (
-              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.35rem 0" }}>
-                <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
-                  {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
-                </span>
-                <span className="archive-title" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
-                  {post.headline}
-                </span>
-                <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  {post.section}
-                </span>
+              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.4rem 0", borderBottom: `1px solid ${BORDER}` }}>
+                <span style={{ fontFamily: BODY, fontSize: "0.68rem", color: MUTED, flexShrink: 0, minWidth: 48 }}>{d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}</span>
+                <span className="lm-archive" style={{ fontFamily: HED, fontSize: "1rem", fontWeight: 700, lineHeight: 1.3, color: INK }}>{post.headline}</span>
+                <span style={{ fontFamily: BODY, fontSize: "0.6rem", color: MUTED, flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.1em" }}>{post.section}</span>
               </Link>
             );
           })}
@@ -153,185 +161,194 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
 }
 
 function AboutPage({ paragraphs }: { paragraphs: string[] }) {
-  const content = paragraphs;
-
   return (
-    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
-      {content.map((p, i) => (
-            <p key={i} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
-          ))
-      }
+    <div style={{ maxWidth: 660, width: "calc(100% - 2rem)", margin: "2.5rem auto" }}>
+      <h1 style={{ fontFamily: HED, fontWeight: 700, fontSize: "2.4rem", color: INK, margin: "0 0 1.5rem", paddingBottom: "0.75rem", borderBottom: `2px solid ${INK}` }}>About</h1>
+      {paragraphs.map((p, i) => (
+        <p key={i} style={{ fontFamily: BODY, fontSize: "1.05rem", lineHeight: 1.8, color: INK, margin: i < paragraphs.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
+      ))}
     </div>
   );
 }
 
-export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, initialTab = "Home", onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; welcome?: { headline: string; body: string } | null; initialTab?: Tab; onMastheadClick?: () => void }) {
+export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, initialTab = "Home", onMastheadClick }: {
+  posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null;
+  welcome?: { headline: string; body: string } | null; initialTab?: Tab; onMastheadClick?: () => void;
+}) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const sectionsRef = useRef<HTMLDivElement>(null);
-  const HOME_LIMIT = 10;
+  const HOME_LIMIT = 12;
 
   const TAB_PATHS: Record<Tab, string> = {
-    "Home": "/",
-    "About": "/about",
-    "Micro-Memoirs": "/micro-memoirs",
-    "Narratives": "/narratives",
-    "Essays": "/essays",
-    "Archive": "/archive",
+    "Home": "/", "About": "/about", "Micro-Memoirs": "/micro-memoirs",
+    "Narratives": "/narratives", "Essays": "/essays", "Archive": "/archive",
   };
 
   function switchTab(tab: Tab) {
-    setActiveTab(tab);
-    setQuery("");
-    setSectionsOpen(false);
+    setActiveTab(tab); setQuery(""); setSearchOpen(false); setSectionsOpen(false);
     router.replace(TAB_PATHS[tab], { scroll: false });
   }
 
   useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (sectionsRef.current && !sectionsRef.current.contains(e.target as Node)) setSectionsOpen(false);
-    }
-    if (sectionsOpen) document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
+    function onOut(e: MouseEvent) { if (sectionsRef.current && !sectionsRef.current.contains(e.target as Node)) setSectionsOpen(false); }
+    if (sectionsOpen) document.addEventListener("mousedown", onOut);
+    return () => document.removeEventListener("mousedown", onOut);
   }, [sectionsOpen]);
-  const welcome = welcomeProp ?? null;
 
-  const tabFiltered = activeTab === "Home"
-    ? posts
-    : activeTab === "Micro-Memoirs"
-    ? posts.filter(p => p.section === "Micro-Memoir")
-    : activeTab === "Narratives"
-    ? posts.filter(p => p.section === "Narratives")
-    : activeTab === "Essays"
-    ? posts.filter(p => p.section === "Essays")
-    : [];
+  const welcome = welcomeProp ?? null;
+  const isSectionView = activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays";
+
+  const tabFiltered =
+    activeTab === "Home" ? posts :
+    activeTab === "Micro-Memoirs" ? posts.filter(p => p.section === "Micro-Memoir") :
+    activeTab === "Narratives" ? posts.filter(p => p.section === "Narratives") :
+    activeTab === "Essays" ? posts.filter(p => p.section === "Essays") : [];
 
   const filteredPosts = query.trim()
     ? tabFiltered.filter(p => {
         const q = query.toLowerCase();
-        const plain = p.body.filter(b => b._type === "block")
-          .map(b => (b.children as { text: string }[]).map(c => c.text).join("")).join(" ");
+        const plain = portableToPlainText(p.body);
         return p.headline.toLowerCase().includes(q) || (p.subheadline ?? "").toLowerCase().includes(q) || plain.toLowerCase().includes(q);
       })
     : tabFiltered;
+
   const visiblePosts = activeTab === "Home" && !query.trim() ? filteredPosts.slice(0, HOME_LIMIT) : filteredPosts;
+  const [lead, ...rest] = visiblePosts;
 
   return (
-    <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#fff" }}>
       <style>{`
-        .feed-nav { display: flex; gap: 2rem; align-items: center; }
-        .feed-nav button { font-family: var(--font-inter), sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
-        .archive-title { color: #1c2938; transition: color 0.15s; }
-        .archive-title:hover { color: #8B0000; }
-        .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
-        .feed-main { grid-column: 1; grid-row: 1 / span 2; }
-        .sidebar-lately { grid-column: 2; grid-row: 1; }
-        .sidebar-choopy { grid-column: 2; grid-row: 2; }
-        @media (max-width: 860px) {
-          .feed-layout { display: flex; flex-direction: column; align-items: stretch; max-width: 600px; }
-          .sidebar-lately { order: -1; }
-          .sidebar-choopy { width: 220px; align-self: center; }
+        .lm-hed:hover { color: ${CRIMSON} !important; }
+        .lm-archive:hover { color: ${CRIMSON} !important; }
+        .lm-nav-btn { font-family: ${BODY}; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: ${INK}; background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; transition: color 0.12s; }
+        .lm-nav-btn:hover, .lm-nav-btn.active { color: ${CRIMSON}; }
+
+        /* Page layout */
+        .lm-page { max-width: 1100px; margin: 0 auto; width: 100%; padding: 2rem 2rem 4rem; box-sizing: border-box; display: grid; grid-template-columns: minmax(0,1fr) 220px; gap: 3.5rem; align-items: start; }
+        .lm-rail { border-left: 1px solid ${BORDER}; padding-left: 2rem; display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 6rem; }
+
+        /* Story grid below lead: 2 columns */
+        .lm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 2.5rem; }
+        .lm-grid-item { border-right: 1px solid ${BORDER}; padding-right: 2.5rem; }
+        .lm-grid-item:nth-child(even) { border-right: none; padding-right: 0; }
+
+        @media (max-width: 900px) {
+          .lm-page { grid-template-columns: 1fr; gap: 2rem; padding: 1.5rem 1.25rem 3rem; }
+          .lm-rail { position: static; border-left: none; padding-left: 0; border-top: 1px solid ${BORDER}; padding-top: 2rem; flex-direction: row; flex-wrap: wrap; gap: 1.5rem; }
+          .lm-rail > * { flex: 1 1 220px; }
         }
         @media (max-width: 600px) {
-          body { overflow-x: hidden; }
-          .feed-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
-          .feed-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
-          .feed-nav button { font-size: 0.78rem; }
-          .feed-layout { padding: 0 0.75rem; }
+          .lm-grid { grid-template-columns: 1fr; }
+          .lm-grid-item { border-right: none; padding-right: 0; }
         }
       `}</style>
-      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
-        <nav className="feed-nav">
-          {(["Home", "About"] as Tab[]).map(s => (
-            <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
-          ))}
-          {/* Sections dropdown */}
-          <div ref={sectionsRef} style={{ position: "relative" }}>
-            <button
-              onClick={() => setSectionsOpen(v => !v)}
-              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              Sections
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            {sectionsOpen && (
-              <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
-                {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
-                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
-                    onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
-                    onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
+
+      {/* ── Nameplate ── */}
+      <header style={{ background: "#fff", borderBottom: `1px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 2rem", boxSizing: "border-box" }}>
+
+          {/* Top meta strip */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.6rem 0", borderBottom: `1px solid ${BORDER}`, fontFamily: BODY, fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED }}>
+            <span>{new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</span>
+            <span style={{ color: CRIMSON, fontWeight: 700 }}>A Literary Magazine</span>
+            <span>Est. 2024</span>
           </div>
-          <button onClick={() => switchTab("Archive")} style={{ opacity: activeTab === "Archive" ? 1 : 0.7, borderBottom: activeTab === "Archive" ? "1px solid white" : "none" }}>Archive</button>
-        </nav>
+
+          {/* Wordmark — centered, large */}
+          <div style={{ textAlign: "center", padding: "1.1rem 0 0.9rem", borderBottom: `3px double ${INK}` }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/Masthead.webp" alt="efemera" fetchPriority="high" onClick={onMastheadClick}
+              style={{ height: "clamp(40px, 6.5vw, 72px)", width: "auto", display: "inline-block", cursor: onMastheadClick ? "pointer" : "default" }} />
+          </div>
+
+          {/* Navigation */}
+          <nav style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2.25rem", padding: "0.65rem 0" }}>
+            {(["Home", "About"] as Tab[]).map(s => (
+              <button key={s} className={`lm-nav-btn${activeTab === s ? " active" : ""}`} onClick={() => switchTab(s)}>{s}</button>
+            ))}
+            <div ref={sectionsRef} style={{ position: "relative" }}>
+              <button className={`lm-nav-btn${isSectionView ? " active" : ""}`} onClick={() => setSectionsOpen(v => !v)}
+                style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                Sections
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "none" }}><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              {sectionsOpen && (
+                <div style={{ position: "absolute", top: "calc(100% + 0.5rem)", left: "50%", transform: "translateX(-50%)", background: "#fff", border: `1px solid ${BORDER}`, boxShadow: "0 6px 24px rgba(0,0,0,0.1)", minWidth: 160, zIndex: 200 }}>
+                  {(["Narratives", "Essays", "Micro-Memoirs"] as SectionTab[]).map(s => (
+                    <button key={s} onClick={() => switchTab(s)}
+                      style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: BODY, fontSize: "0.68rem", fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: activeTab === s ? CRIMSON : INK, background: "none", border: "none", cursor: "pointer", borderBottom: `1px solid ${BORDER}` }}
+                      onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#fdf5f5"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button className={`lm-nav-btn${activeTab === "Archive" ? " active" : ""}`} onClick={() => switchTab("Archive")}>Archive</button>
+            {/* Search toggle */}
+            <button className="lm-nav-btn" onClick={() => setSearchOpen(v => !v)} title="Search" style={{ display: "flex", alignItems: "center" }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+          </nav>
+
+          {searchOpen && (
+            <div style={{ borderTop: `1px solid ${BORDER}`, padding: "0.65rem 0" }}>
+              <input autoFocus value={query} onChange={e => setQuery(e.target.value)} placeholder="Search…"
+                style={{ width: "100%", fontFamily: BODY, fontSize: "0.95rem", padding: "0.4rem 0", border: "none", borderBottom: `1px solid ${MUTED}`, outline: "none", color: INK, background: "transparent", boxSizing: "border-box" }} />
+            </div>
+          )}
+        </div>
       </header>
 
-      {activeTab === "About" ? (
-        <AboutPage paragraphs={aboutParagraphs} />
-      ) : activeTab === "Archive" ? (
-        <ArchiveTab posts={posts} />
-      ) : (
-        <div className="feed-layout">
-          {/* Main column */}
-          <div className="feed-main">
-            <div style={{ position: "relative", marginBottom: "0.75rem" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                placeholder="Search posts…"
-                style={{ width: "100%", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
-              />
-            </div>
-
-            {visiblePosts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "var(--font-inter), sans-serif", color: "#657786", fontSize: "1rem" }}>
-                {query ? `No results for "${query}"` : "No posts yet."}
-              </div>
-            ) : (
-              <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-                {visiblePosts.map((post, i) => (
-                  <TweetCard key={post._id} post={post} index={i} />
-                ))}
+      {/* ── Content ── */}
+      {activeTab === "About" ? <AboutPage paragraphs={aboutParagraphs} /> :
+       activeTab === "Archive" ? <ArchiveTab posts={posts} /> : (
+        <div className="lm-page">
+          <main style={{ minWidth: 0 }}>
+            {isSectionView && (
+              <div style={{ marginBottom: "1.75rem", paddingBottom: "0.75rem", borderBottom: `2px solid ${INK}` }}>
+                <h1 style={{ fontFamily: HED, fontWeight: 700, fontSize: "2rem", color: INK, margin: 0 }}>{activeTab}</h1>
               </div>
             )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            {visiblePosts.length === 0 ? (
+              <p style={{ fontFamily: BODY, color: MUTED, fontSize: "1rem", textAlign: "center", padding: "4rem 0" }}>
+                {query ? `No results for "${query}"` : "No stories yet."}
+              </p>
+            ) : (
+              <>
+                {lead && !isSectionView && <LeadStory post={lead} />}
+                <div className="lm-grid">
+                  {(isSectionView ? visiblePosts : rest).map(post => (
+                    <div key={post._id} className="lm-grid-item">
+                      <StoryCard post={post} showImage={!isSectionView} />
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </main>
+
+          {/* Right rail */}
+          <aside className="lm-rail">
             {(welcome?.headline || welcome?.body) && (
-              <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
-                {welcome?.headline && (
-                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
-                    {welcome.headline}
-                  </p>
-                )}
-                {welcome?.body && (
-                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
-                    {welcome.body}
-                  </p>
-                )}
+              <div style={{ paddingBottom: "1.5rem", borderBottom: `1px solid ${BORDER}` }}>
+                {welcome.headline && <p style={{ fontFamily: HED, fontWeight: 700, fontSize: "1rem", color: INK, margin: "0 0 0.4rem", lineHeight: 1.3 }}>{welcome.headline}</p>}
+                {welcome.body && <p style={{ fontFamily: BODY, fontSize: "0.82rem", color: MUTED, margin: 0, lineHeight: 1.55 }}>{welcome.body}</p>}
               </div>
             )}
             <Lately data={lately ?? null} />
-          </div>
-          <div className="sidebar-choopy">
             <Choopy />
-          </div>
+          </aside>
         </div>
       )}
 
-      <SiteFooter />
+      <div style={{ marginTop: "auto" }}><SiteFooter /></div>
     </div>
   );
 }
