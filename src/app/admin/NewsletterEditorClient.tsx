@@ -698,7 +698,7 @@ export default function NewsletterEditorClient({
                           </button>
                         )}
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Feature headline"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box" }} />
+                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; if (ed) { setNlActiveEditor(prev => prev && !prev.isDestroyed ? prev : ed); } else { setNlActiveEditor(prev => prev?.isDestroyed ? null : prev); } }}
@@ -734,15 +734,17 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* MICRO-MEMOIR card — intimate, text-only, literary */}
+                    {/* MICRO-MEMOIR card — intimate, literary */}
                     {type === "micro-memoir" && (
-                      <div style={{ background: "#faf9f6", padding: "1rem 2rem 1.75rem" }}>
+                      <div style={{ background: "#faf9f6", padding: "1.5rem 2rem 2rem", borderTop: `1px solid #e8e3d8`, borderBottom: `1px solid #e8e3d8` }}>
+                        {/* Mayfly kicker — large, centered */}
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 0.75rem", height: 48, width: "auto" }} />
+                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 1.25rem", height: 80, width: "auto" }} />
+                        {/* Title — bold, centered, serif, no italic */}
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Micro-memoir title"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.1rem", fontStyle: "italic", fontWeight: 400, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.75rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
-                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem" }}>
-                          <RichBodyEditor initialContent={card.doc} minHeight={60} placeholder="Write intimately…"
+                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.25rem", fontStyle: "normal", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", borderTop: `1px solid #d8d2c6`, paddingTop: "1rem" }}>
+                          <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
                             onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
