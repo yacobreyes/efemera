@@ -884,7 +884,8 @@ export default function NewsletterEditorClient({
                         <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", height: 200, width: "auto", margin: "-35px auto -60px" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
                           style={{ fontFamily: "'Georgia', serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
-                        <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, textAlign: "center", margin: "0 0 1.5rem" }}>A Micro-Memoir</p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, textAlign: "center", margin: "0 0 0.75rem" }}>A Micro-Memoir</p>
+                        {nlBylineField(card, "center")}
                         <div style={{ width: 32, height: 1, background: "#c8c0b0", margin: "0 auto 1.5rem" }} />
                         <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.85 }}>
                           <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
@@ -892,7 +893,6 @@ export default function NewsletterEditorClient({
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
                             onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
                         </div>
-                        {nlBylineField(card, "center")}
                         {nlCardDraftRow(card, "center")}
                       </div>
                     )}
