@@ -7,6 +7,7 @@ export type NlCard = {
   body?: PortableTextBlock[];
   image?: { url?: string; caption?: string; alt?: string } | null;
   cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest";
+  byline?: string;
 };
 
 const CRIMSON = "#8B0000";
@@ -117,7 +118,8 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
         </table>
         ${img}
         <div style="padding:20px 24px 24px;">
-          <h1 style="font-family:${HEADLINE_FONT};font-size:26px;font-weight:700;color:${CRIMSON};margin:0 0 12px;line-height:1.25;text-align:center;">${esc(card.headline ?? "")}</h1>
+          <h1 style="font-family:${HEADLINE_FONT};font-size:26px;font-weight:700;color:${CRIMSON};margin:0 0 ${card.byline ? "6px" : "12px"};line-height:1.25;text-align:center;">${esc(card.headline ?? "")}</h1>
+          ${card.byline ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 14px;text-align:center;">By ${esc(card.byline)}</p>` : ""}
           ${renderBody(card.body ?? [])}
         </div>
       </td></tr>
@@ -135,6 +137,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
         <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
           <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${CRIMSON};margin:0;line-height:1.25;letter-spacing:0.01em;text-align:left;">${esc(card.headline ?? "")}</h2>
         </div>
+        ${card.byline ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 12px;text-align:left;">By ${esc(card.byline)}</p>` : ""}
         ${img}
         ${renderBody(card.body ?? [])}
       </td></tr>

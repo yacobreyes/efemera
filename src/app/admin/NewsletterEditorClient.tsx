@@ -44,8 +44,8 @@ function formatFindContentDate(date?: string) {
 }
 
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
-type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "narratives" | "essays" | "micro-memoir" };
-type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest" };
+type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "narratives" | "essays" | "micro-memoir"; byline?: string };
+type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest"; byline?: string };
 
 export type InitialNewsletter = {
   subject: string;
@@ -80,6 +80,7 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
     doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
     image: c.image ?? undefined,
     cardType: mapStoredCardType(c.cardType),
+    byline: c.byline || undefined,
   }));
 }
 
@@ -269,6 +270,7 @@ export default function NewsletterEditorClient({
       headline: post.headline ?? "",
       doc: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
       image: post.image ?? undefined,
+      byline: post.byline || undefined,
     };
     setNlCards(prev => { const next = [...prev]; next.splice(at, 0, card); return next; });
   }
@@ -283,6 +285,28 @@ export default function NewsletterEditorClient({
     setNlCards(prev => prev.length <= 1 ? prev : prev.filter(c => c.id !== id));
     delete nlEditors.current[id];
     delete nlToolbars.current[id];
+  }
+  // Byline row for narrative/essay cards. Populated automatically when a story is
+  // pulled in (post.byline); native cards start with no byline and show an
+  // "+ Add byline" button that reveals the editable field.
+  function nlBylineField(card: NlEditorCard, align: "center" | "left") {
+    if (card.byline === undefined) {
+      return (
+        <button type="button" onClick={() => nlUpdateCard(card.id, { byline: "" })}
+          style={{ display: "block", margin: align === "center" ? "0 auto 1rem" : "0 0 0.85rem", background: "none", border: "none", padding: 0, fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: CRIMSON, cursor: "pointer", letterSpacing: "0.02em" }}>
+          + Add byline
+        </button>
+      );
+    }
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", justifyContent: align === "center" ? "center" : "flex-start", marginBottom: align === "center" ? "1rem" : "0.85rem" }}>
+        <span style={{ fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, color: TEXT_DARK, letterSpacing: "0.02em" }}>By</span>
+        <input value={card.byline} onChange={e => nlUpdateCard(card.id, { byline: e.target.value })} placeholder="Author name" autoFocus={!card.byline}
+          style={{ fontFamily: FONT, fontSize: "0.8rem", fontWeight: 700, color: TEXT_DARK, letterSpacing: "0.02em", border: "none", outline: "none", background: "transparent", padding: 0, textAlign: align === "center" ? "center" : "left", width: align === "center" ? `${Math.max((card.byline.length || 11), 11)}ch` : "auto", minWidth: "8ch", boxSizing: "content-box" }} />
+        <button type="button" title="Remove byline" onClick={() => nlUpdateCard(card.id, { byline: undefined })}
+          style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: TEXT_MUTED, fontSize: "1rem", lineHeight: 1 }}>×</button>
+      </div>
+    );
   }
   function nlMoveCard(from: number, to: number) {
     setNlCards(prev => {
@@ -308,7 +332,7 @@ export default function NewsletterEditorClient({
     issue: nlIssue,
     intro: nlIntro,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
-    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType })),
+    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType, byline: card.byline })),
   }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   // Cheap dirty-check signature (raw tiptap docs, no portable-text conversion)
@@ -316,7 +340,7 @@ export default function NewsletterEditorClient({
   const nlSignature = useCallback(() => JSON.stringify({
     status: nlStatus, scheduledAt: nlScheduledAt, subject: nlSubject, preview: nlPreview, author: nlAuthor,
     volume: nlVolume, issue: nlIssue, intro: nlIntro,
-    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType })),
+    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType, byline: c.byline })),
   }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
@@ -400,6 +424,8 @@ export default function NewsletterEditorClient({
       headline: c.headline ?? "",
       doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
       image: c.image ?? undefined,
+      cardType: mapStoredCardType(c.cardType),
+      byline: c.byline || undefined,
     })));
   }
 
@@ -749,6 +775,7 @@ export default function NewsletterEditorClient({
                         )}
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Feature headline"
                           style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                        {nlBylineField(card, "center")}
                         <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; if (ed) { setNlActiveEditor(prev => prev && !prev.isDestroyed ? prev : ed); } else { setNlActiveEditor(prev => prev?.isDestroyed ? null : prev); } }}
@@ -763,6 +790,7 @@ export default function NewsletterEditorClient({
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
                             style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
+                        {nlBylineField(card, "left")}
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
