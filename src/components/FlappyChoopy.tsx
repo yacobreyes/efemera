@@ -219,6 +219,9 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     const STEP_MS = 1000 / 60;
     let lastTime = 0;
     let acc = 0;
+    // animFrame drives idle/scores animations at real time (seconds × 60) so
+    // they also look the same at any refresh rate.
+    let animSec = 0;
 
     function pipeSpeed() {
       return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 3) * 0.2, BASE_PIPE_SPEED * 1.6);
@@ -231,6 +234,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       dead = false; spawnCount = 0; flapFrame = -99;
       milestoneHit = new Set(); flashLife = 0;
       acc = 0;
+      // frame is reset to 0 in reset(); animSec keeps counting for idle
     }
 
     function flap() {
@@ -641,10 +645,14 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       // Clamp after a tab switch / long stall so we don't burst dozens of steps.
       if (delta > 250) delta = 250;
 
+      // animSec advances at real 60-units/second regardless of refresh rate,
+      // so idle/score screen animations look the same at 60Hz and 120Hz.
+      animSec += (delta / 1000) * 60;
+
       const state = stateRef.current;
 
-      if (state === "idle") { frame++; drawIdle(); animId = requestAnimationFrame(tick); return; }
-      if (state === "scores") { frame++; drawScores(); animId = requestAnimationFrame(tick); return; }
+      if (state === "idle") { frame = Math.floor(animSec); drawIdle(); animId = requestAnimationFrame(tick); return; }
+      if (state === "scores") { frame = Math.floor(animSec); drawScores(); animId = requestAnimationFrame(tick); return; }
 
       if (state === "playing") {
         acc += delta;

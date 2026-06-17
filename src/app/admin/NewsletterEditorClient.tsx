@@ -663,6 +663,10 @@ export default function NewsletterEditorClient({
             {nlCards.map((card, i) => {
               const type = card.cardType ?? (i === 0 ? "narratives" : "essays");
               const sectionLabel = type === "narratives" ? "NARRATIVES" : type === "essays" ? "ESSAYS" : "MICRO-MEMOIR";
+              const isDragging = nlMovingId === card.id;
+              // While any card is being dragged, collapse all others to a slim handle row
+              // so the cursor only needs to travel a short distance to swap order.
+              const collapsed = !!nlMovingId && !isDragging;
               return (
                 <div key={card.id}>
                   {/* Add zone between cards */}
@@ -676,7 +680,15 @@ export default function NewsletterEditorClient({
                   <div className="nl-card" draggable={false}
                     ref={el => { nlCardRefs.current[card.id] = el; }}
                     onFocusCapture={() => { const ed = nlEditors.current[card.id]; setNlActiveEditor(ed && !ed.isDestroyed ? ed : null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
-                    style={{ position: "relative", opacity: nlMovingId === card.id ? 0 : 1, pointerEvents: nlMovingId === card.id ? "none" : undefined, cursor: nlMovingId && nlMovingId !== card.id ? "pointer" : undefined }}>
+                    style={{ position: "relative", opacity: isDragging ? 0 : 1, pointerEvents: isDragging ? "none" : undefined, cursor: nlMovingId && !isDragging ? "pointer" : undefined }}>
+
+                  {/* Collapsed drag-target row — shown instead of full card body while another card is moving */}
+                  {collapsed ? (
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}` }}>
+                      <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
+                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
+                    </div>
+                  ) : (<>
 
                     {/* Section label — small-caps flag, non-editable */}
                     <div style={{ paddingTop: "1.25rem", fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.18em", color: CRIMSON, marginBottom: "0.4rem" }}>
@@ -780,6 +792,7 @@ export default function NewsletterEditorClient({
                         </div>
                       </div>
                     )}
+                  </>)}
                   </div>
                 </div>
               );
