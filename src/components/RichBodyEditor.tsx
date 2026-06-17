@@ -38,6 +38,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
   const [embedUrl, setEmbedUrl] = useState("");
 
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit,
       Placeholder.configure({ placeholder }),
