@@ -6,7 +6,7 @@ export type NlCard = {
   headline?: string;
   body?: PortableTextBlock[];
   image?: { url?: string; caption?: string; alt?: string } | null;
-  cardType?: "feature" | "standard" | "digest";
+  cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest";
 };
 
 const CRIMSON = "#8B0000";
@@ -87,24 +87,30 @@ const HEADLINE_FONT = "'Georgia', 'Times New Roman', serif";
 export function renderNewsletterHtml({ subject, preview, cards }: { subject: string; preview: string; cards: NlCard[] }): string {
   const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  // Determine effective card type: first card defaults to "feature" if no type set
-  function effectiveType(card: NlCard, idx: number): "feature" | "standard" | "digest" {
-    if (card.cardType) return card.cardType;
-    if (idx === 0) return "feature";
-    return "standard";
+  // Determine effective card type, mapping old names forward
+  function effectiveType(card: NlCard, idx: number): "narratives" | "essays" | "micro-memoir" {
+    const t = card.cardType;
+    if (t === "narratives" || t === "feature") return "narratives";
+    if (t === "essays" || t === "standard") return "essays";
+    if (t === "micro-memoir" || t === "digest") return "micro-memoir";
+    // no type set: first card defaults to narratives
+    if (idx === 0) return "narratives";
+    return "essays";
   }
 
-  const featureCards = cards.filter((c, i) => effectiveType(c, i) === "feature");
-  const standardCards = cards.filter((c, i) => effectiveType(c, i) === "standard");
-  const digestCards = cards.filter((c, i) => effectiveType(c, i) === "digest");
+  // Render cards IN ORDER, each with its own template
+  const bodyHtml = cards.map((card, idx) => {
+    const type = effectiveType(card, idx);
+    const sectionName = type === "narratives" ? "NARRATIVES" : type === "essays" ? "ESSAYS" : "MICRO-MEMOIR";
+    const sectionRow = `<tr><td style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:${CRIMSON};font-weight:700;padding:20px 24px 0;font-family:${FONT};">${sectionName}</td></tr>`;
 
-  // Render feature cards
-  const featureHtml = featureCards.map(card => {
-    const img = card.image?.url
-      ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;display:block;margin:0;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0;padding:6px 24px 0;">${esc(card.image.caption)}</p>` : ""}`
-      : "";
-    return `
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;margin:0 0 0;">
+    if (type === "narratives") {
+      const img = card.image?.url
+        ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;display:block;margin:0;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0;padding:6px 24px 0;">${esc(card.image.caption)}</p>` : ""}`
+        : "";
+      return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;margin:0;">
+      ${sectionRow}
       <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr><td style="padding:0 0 0;border-top:2px solid ${CRIMSON};"></td></tr>
@@ -116,39 +122,34 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
         </div>
       </td></tr>
     </table>`;
-  }).join("");
+    }
 
-  // Render standard cards with sequential numbers
-  const standardHtml = standardCards.map((card, num) => {
-    const img = card.image?.url
-      ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:180px;object-fit:cover;display:block;border-radius:4px;margin:0 0 12px;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0 0 12px;">${esc(card.image.caption)}</p>` : ""}`
-      : "";
-    return `
+    if (type === "essays") {
+      const img = card.image?.url
+        ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:180px;object-fit:cover;display:block;border-radius:4px;margin:0 0 12px;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0 0 12px;">${esc(card.image.caption)}</p>` : ""}`
+        : "";
+      return `
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:1px solid #e1e8ed;margin:0;">
+      ${sectionRow}
       <tr><td style="padding:20px 24px;">
-        <h2 style="font-family:${HEADLINE_FONT};font-size:19px;font-weight:700;color:${TEXT_DARK};margin:0 0 12px;line-height:1.3;">
-          <span style="color:${CRIMSON};">${num + 1}.</span> ${esc(card.headline ?? "")}
-        </h2>
+        <h2 style="font-family:${HEADLINE_FONT};font-size:19px;font-weight:700;color:${TEXT_DARK};margin:0 0 12px;line-height:1.3;border-top:2px solid ${TEXT_DARK};padding-top:10px;">${esc(card.headline ?? "")}</h2>
         ${img}
         ${renderBody(card.body ?? [])}
       </td></tr>
     </table>`;
-  }).join("");
+    }
 
-  // Render digest cards grouped in a "From the editor" block
-  const digestHtml = digestCards.length > 0 ? `
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;border-top:1px solid #e1e8ed;margin:0;">
-      <tr><td style="padding:20px 24px;">
-        <p style="font-family:${FONT};font-size:11px;font-weight:700;color:${TEXT_MUTED};letter-spacing:0.1em;text-transform:uppercase;margin:0 0 14px;">From the editor</p>
-        ${digestCards.map(card => `
-          <div style="margin-bottom:16px;">
-            <p style="font-family:${HEADLINE_FONT};font-size:15px;font-weight:700;color:${TEXT_DARK};margin:0 0 6px;">${esc(card.headline ?? "")}</p>
-            ${renderBody(card.body ?? [])}
-          </div>`).join("")}
+    // micro-memoir: warm background, italic, centered ornament
+    return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf9f6;border-top:1px solid #e1e8ed;margin:0;">
+      ${sectionRow}
+      <tr><td style="padding:20px 24px 24px;text-align:center;">
+        <p style="font-family:${HEADLINE_FONT};font-size:18px;font-style:italic;font-weight:400;color:${TEXT_DARK};margin:0 0 10px;text-align:center;">${esc(card.headline ?? "")}</p>
+        <p style="font-family:${HEADLINE_FONT};font-size:16px;color:${TEXT_MUTED};margin:0 0 14px;letter-spacing:0.1em;">⁂</p>
+        <div style="font-family:${HEADLINE_FONT};font-size:15px;font-style:italic;color:${TEXT_DARK};text-align:left;">${renderBody(card.body ?? [])}</div>
       </td></tr>
-    </table>` : "";
-
-  const bodyHtml = featureHtml + standardHtml + digestHtml;
+    </table>`;
+  }).join("");
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>

@@ -44,8 +44,8 @@ function formatFindContentDate(date?: string) {
 }
 
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
-type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "feature" | "standard" | "digest" };
-type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "feature" | "standard" | "digest" };
+type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "narratives" | "essays" | "micro-memoir" };
+type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "narratives" | "essays" | "micro-memoir" | "feature" | "standard" | "digest" };
 
 export type InitialNewsletter = {
   subject: string;
@@ -56,16 +56,27 @@ export type InitialNewsletter = {
   cards: StoredCard[];
 } | null;
 
-const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC, cardType: "standard" });
+const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC, cardType: "essays" });
+
+function mapStoredCardType(t: StoredCard["cardType"]): "narratives" | "essays" | "micro-memoir" {
+  if (t === "feature" || t === "narratives") return "narratives";
+  if (t === "standard" || t === "essays") return "essays";
+  if (t === "digest" || t === "micro-memoir") return "micro-memoir";
+  return "essays";
+}
 
 function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
-  if (!cards.length) return [newNlCard(), newNlCard(), newNlCard()];
+  if (!cards.length) return [
+    { ...newNlCard(), cardType: "narratives" },
+    { ...newNlCard(), cardType: "essays" },
+    { ...newNlCard(), cardType: "micro-memoir" },
+  ];
   return cards.map(c => ({
     ...newNlCard(),
     headline: c.headline ?? "",
     doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
     image: c.image ?? undefined,
-    cardType: c.cardType,
+    cardType: mapStoredCardType(c.cardType),
   }));
 }
 
@@ -621,7 +632,8 @@ export default function NewsletterEditorClient({
           {/* Cards */}
           <div style={{ padding: "0 2.5rem 2.5rem" }}>
             {nlCards.map((card, i) => {
-              const type = card.cardType ?? (i === 0 ? "feature" : "standard");
+              const type = card.cardType ?? (i === 0 ? "narratives" : "essays");
+              const sectionLabel = type === "narratives" ? "NARRATIVES" : type === "essays" ? "ESSAYS" : "MICRO-MEMOIR";
               return (
                 <div key={card.id}>
                   {/* Add zone between cards */}
@@ -637,20 +649,25 @@ export default function NewsletterEditorClient({
                     onFocusCapture={() => { const ed = nlEditors.current[card.id]; setNlActiveEditor(ed && !ed.isDestroyed ? ed : null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                     style={{ position: "relative", opacity: nlMovingId === card.id ? 0 : 1, pointerEvents: nlMovingId === card.id ? "none" : undefined, cursor: nlMovingId && nlMovingId !== card.id ? "pointer" : undefined }}>
 
+                    {/* Section label — small-caps flag, non-editable */}
+                    <div style={{ paddingTop: "1.25rem", fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.18em", color: CRIMSON, marginBottom: "0.4rem" }}>
+                      {sectionLabel}
+                    </div>
+
                     {/* Card hover toolbar */}
                     {!nlMovingId && (
-                      <div className="nl-card-controls" style={{ position: "absolute", top: type === "feature" ? "2rem" : "1.5rem", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10, pointerEvents: "none" }}>
+                      <div className="nl-card-controls" style={{ position: "absolute", top: "2.5rem", left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "space-between", zIndex: 10, pointerEvents: "none" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", pointerEvents: "auto" }}>
                           <button type="button" title="Move" onMouseDown={e => { e.preventDefault(); e.stopPropagation(); const r = nlCardRefs.current[card.id]?.getBoundingClientRect(); if (r) nlMoveRectRef.current = { left: r.left, width: r.width }; nlMoveStartYRef.current = e.clientY; setNlMovingId(card.id); }}
                             style={{ width: 28, height: 28, borderRadius: 4, background: "white", border: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "grab", color: TEXT_MUTED, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                           </button>
-                          {(["feature", "standard", "digest"] as const).map(t => {
+                          {([["narratives", "Narratives"], ["essays", "Essays"], ["micro-memoir", "Micro-Memoir"]] as const).map(([t, label]) => {
                             const active = type === t;
                             return (
                               <button key={t} type="button" onClick={() => nlUpdateCard(card.id, { cardType: t })}
                                 style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 600, padding: "0.15rem 0.5rem", borderRadius: 20, border: `1px solid ${active ? CRIMSON : BORDER}`, background: active ? CRIMSON : "white", color: active ? "white" : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-                                {t.charAt(0).toUpperCase() + t.slice(1)}
+                                {label}
                               </button>
                             );
                           })}
@@ -662,9 +679,9 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* FEATURE card */}
-                    {type === "feature" && (
-                      <div style={{ paddingTop: "3.5rem", paddingBottom: "2rem" }}>
+                    {/* NARRATIVES card */}
+                    {type === "narratives" && (
+                      <div style={{ paddingTop: "1rem", paddingBottom: "2rem" }}>
                         {card.image ? (
                           <div style={{ margin: "0 -2.5rem 1.75rem", position: "relative" }}>
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -689,9 +706,9 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* STANDARD card — clean editorial section, no numbers */}
-                    {type === "standard" && (
-                      <div style={{ paddingTop: "3rem", paddingBottom: "1.75rem" }}>
+                    {/* ESSAYS card — clean editorial section, no numbers */}
+                    {type === "essays" && (
+                      <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
                         <div style={{ borderTop: `2px solid ${TEXT_DARK}`, paddingTop: "0.75rem", marginBottom: "0.6rem" }}>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Section headline"
                             style={{ fontFamily: "'Georgia', serif", fontSize: "1.3rem", fontWeight: 700, lineHeight: 1.3, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
@@ -717,19 +734,17 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* DIGEST card — pull quote / brief item style */}
-                    {type === "digest" && (
-                      <div style={{ paddingTop: "3rem", paddingBottom: "1.25rem" }}>
-                        <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-                          <div style={{ flexShrink: 0, width: 3, alignSelf: "stretch", background: CRIMSON, borderRadius: 2 }} />
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Quick hit headline"
-                              style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box" }} />
-                            <RichBodyEditor initialContent={card.doc} minHeight={36} placeholder="One or two sentences…"
-                              onChange={doc => nlUpdateCard(card.id, { doc })}
-                              onEditor={ed => { nlEditors.current[card.id] = ed; }}
-                              onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
-                          </div>
+                    {/* MICRO-MEMOIR card — intimate, text-only, literary */}
+                    {type === "micro-memoir" && (
+                      <div style={{ paddingTop: "1rem", paddingBottom: "1.25rem", background: "#faf9f6", padding: "1rem 2rem 1.5rem" }}>
+                        <div style={{ textAlign: "center", fontFamily: "'Georgia', serif", fontSize: "1.1rem", color: TEXT_MUTED, marginBottom: "0.75rem", letterSpacing: "0.1em" }}>⁂</div>
+                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Micro-memoir title"
+                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.1rem", fontStyle: "italic", fontWeight: 400, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.75rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem" }}>
+                          <RichBodyEditor initialContent={card.doc} minHeight={60} placeholder="Write intimately…"
+                            onChange={doc => nlUpdateCard(card.id, { doc })}
+                            onEditor={ed => { nlEditors.current[card.id] = ed; }}
+                            onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
                         </div>
                       </div>
                     )}
