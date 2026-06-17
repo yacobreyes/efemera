@@ -706,12 +706,12 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* ESSAYS card — clean editorial section, no numbers */}
+                    {/* ESSAYS card */}
                     {type === "essays" && (
                       <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
-                        <div style={{ borderTop: `2px solid ${TEXT_DARK}`, paddingTop: "0.75rem", marginBottom: "0.6rem" }}>
-                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Section headline"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.3rem", fontWeight: 700, lineHeight: 1.3, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
+                        <div style={{ borderTop: `1px solid ${CRIMSON}`, paddingTop: "1rem", marginBottom: "0.75rem" }}>
+                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.55rem", fontWeight: 400, lineHeight: 1.25, letterSpacing: "0.01em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
@@ -734,17 +734,17 @@ export default function NewsletterEditorClient({
                       </div>
                     )}
 
-                    {/* MICRO-MEMOIR card — intimate, literary */}
+                    {/* MICRO-MEMOIR card — literary magazine style */}
                     {type === "micro-memoir" && (
-                      <div style={{ background: "#faf9f6", padding: "1.5rem 2rem 2rem", borderTop: `1px solid #e8e3d8`, borderBottom: `1px solid #e8e3d8` }}>
-                        {/* Mayfly kicker — large, centered */}
+                      <div style={{ background: "#faf9f6", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #e8e3d8`, borderBottom: `1px solid #e8e3d8` }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 1.25rem", height: 80, width: "auto" }} />
-                        {/* Title — bold, centered, serif, no italic */}
-                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Micro-memoir title"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.25rem", fontStyle: "normal", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
-                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", borderTop: `1px solid #d8d2c6`, paddingTop: "1rem" }}>
-                          <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Write intimately…"
+                        <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", margin: "0 auto 1.75rem", height: 130, width: "auto" }} />
+                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
+                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                        <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, textAlign: "center", margin: "0 0 1.5rem" }}>A Micro-Memoir</p>
+                        <div style={{ width: 32, height: 1, background: "#c8c0b0", margin: "0 auto 1.5rem" }} />
+                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.85 }}>
+                          <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
                             onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />

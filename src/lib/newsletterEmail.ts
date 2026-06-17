@@ -132,22 +132,23 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:1px solid #e1e8ed;margin:0;">
       ${sectionRow}
       <tr><td style="padding:20px 24px;">
-        <h2 style="font-family:${HEADLINE_FONT};font-size:19px;font-weight:700;color:${TEXT_DARK};margin:0 0 12px;line-height:1.3;border-top:2px solid ${TEXT_DARK};padding-top:10px;">${esc(card.headline ?? "")}</h2>
+        <h2 style="font-family:${HEADLINE_FONT};font-size:22px;font-weight:400;color:${TEXT_DARK};margin:0 0 14px;line-height:1.25;letter-spacing:0.01em;border-top:1px solid ${CRIMSON};padding-top:14px;">${esc(card.headline ?? "")}</h2>
         ${img}
         ${renderBody(card.body ?? [])}
       </td></tr>
     </table>`;
     }
 
-    // micro-memoir: warm background, large mayfly kicker, bold title (no italic), body
+    // micro-memoir: literary magazine style
     return `
     <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf9f6;border-top:1px solid #e8e3d8;border-bottom:1px solid #e8e3d8;margin:0;">
       ${sectionRow}
-      <tr><td style="padding:20px 24px 24px;text-align:center;">
-        <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:80px;width:auto;display:block;margin:0 auto 16px;" />
-        <p style="font-family:${HEADLINE_FONT};font-size:20px;font-style:normal;font-weight:700;color:${TEXT_DARK};margin:0 0 16px;text-align:center;">${esc(card.headline ?? "")}</p>
-        <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #d8d2c6;padding-top:16px;">
-          <div style="font-family:${HEADLINE_FONT};font-size:15px;color:${TEXT_DARK};text-align:left;">${renderBody(card.body ?? [])}</div>
+      <tr><td style="padding:24px 32px 32px;text-align:center;">
+        <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:130px;width:auto;display:block;margin:0 auto 20px;" />
+        <p style="font-family:${HEADLINE_FONT};font-size:28px;font-style:normal;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 6px;text-align:center;">${esc(card.headline ?? "")}</p>
+        <p style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};margin:0 0 20px;text-align:center;">A Micro-Memoir</p>
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #c8c0b0;padding-top:20px;text-align:left;">
+          <div style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.85;color:${TEXT_DARK};">${renderBody(card.body ?? [])}</div>
         </td></tr></table>
       </td></tr>
     </table>`;
