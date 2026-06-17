@@ -164,7 +164,7 @@ export function renderNewsletterHtml({ subject, preview, intro, volume, issue, c
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
         <tr><td style="background:${CRIMSON};padding:28px 24px 26px;text-align:center;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="260" style="height:52px;width:auto;display:inline-block;" />
+          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="400" style="height:80px;width:auto;display:inline-block;" />
         </td></tr>
         <tr><td style="border-top:3px solid ${CRIMSON};border-bottom:1px solid #d0d0cc;padding:8px 24px;">
           <table width="100%" cellpadding="0" cellspacing="0"><tr>

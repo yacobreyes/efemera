@@ -623,7 +623,7 @@ export default function NewsletterEditorClient({
           {/* Masthead — full-bleed nameplate + dateline strip */}
           <div style={{ background: CRIMSON, padding: "2rem 2.5rem 1.85rem", textAlign: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ height: 52, width: "auto", display: "inline-block" }} />
+            <img src="/Masthead.webp" alt="efemera" style={{ height: 80, width: "auto", display: "inline-block" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           <div style={{ borderTop: `3px solid ${CRIMSON}`, borderBottom: `1px solid #d0d0cc`, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
