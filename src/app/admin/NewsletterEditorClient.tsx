@@ -685,9 +685,9 @@ export default function NewsletterEditorClient({
                   {/* Placeholder drop-slot — the dragged card itself, shown as a slim
                       dashed gap so the rest of the list stays compact while moving. */}
                   {isDragging ? (
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0.75rem", border: `2px dashed ${CRIMSON}`, borderRadius: 4, background: "rgba(139,0,0,0.04)", margin: "0.25rem 0" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}`, opacity: 0.5 }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
-                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_MUTED, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Drop here</span>
+                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
                     </div>
                   ) : collapsed ? (
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}` }}>
