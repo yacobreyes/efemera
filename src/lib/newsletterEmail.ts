@@ -114,7 +114,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
       ${sectionRow}
       <tr><td>
         <table width="100%" cellpadding="0" cellspacing="0">
-          <tr><td style="padding:0 0 0;border-top:2px solid ${CRIMSON};"></td></tr>
+          <tr><td style="padding:0 0 16px;border-top:2px solid ${CRIMSON};"></td></tr>
         </table>
         ${img}
         <div style="padding:40px 24px 24px;">
