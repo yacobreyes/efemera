@@ -887,7 +887,7 @@ export default function NewsletterEditorClient({
                         <p style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, textAlign: "center", margin: "0 0 0.75rem" }}>A Micro-Memoir</p>
                         {nlBylineField(card, "center")}
                         <div style={{ width: 32, height: 1, background: "#c8c0b0", margin: "0 auto 1.5rem" }} />
-                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.85 }}>
+                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.85, textAlign: "center" }}>
                           <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}

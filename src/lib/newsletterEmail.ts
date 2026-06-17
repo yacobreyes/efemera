@@ -117,7 +117,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
           <tr><td style="padding:0 0 0;border-top:2px solid ${CRIMSON};"></td></tr>
         </table>
         ${img}
-        <div style="padding:28px 24px 24px;">
+        <div style="padding:40px 24px 24px;">
           <h1 style="font-family:${HEADLINE_FONT};font-size:26px;font-weight:700;color:${CRIMSON};margin:0 0 ${card.byline ? "6px" : "12px"};line-height:1.25;text-align:center;">${esc(card.headline ?? "")}</h1>
           ${card.byline ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 14px;text-align:center;">By ${esc(card.byline)}</p>` : ""}
           ${renderBody(card.body ?? [])}
@@ -153,8 +153,8 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
         <p style="font-family:${HEADLINE_FONT};font-size:28px;font-style:normal;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 6px;text-align:center;">${esc(card.headline ?? "")}</p>
         <p style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};margin:0 0 ${card.byline ? "8px" : "20px"};text-align:center;">A Micro-Memoir</p>
         ${card.byline ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0 0 20px;text-align:center;">By ${esc(card.byline)}</p>` : ""}
-        <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #c8c0b0;padding-top:20px;text-align:left;">
-          <div style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.85;color:${TEXT_DARK};">${renderBody(card.body ?? [])}</div>
+        <table width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #c8c0b0;padding-top:20px;text-align:center;">
+          <div style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.85;color:${TEXT_DARK};text-align:center;">${renderBody(card.body ?? [])}</div>
         </td></tr></table>
       </td></tr>
     </table>`;
