@@ -43,6 +43,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
   const masterGainRef = useRef<GainNode | null>(null);
   const musicSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const musicBufferRef = useRef<AudioBuffer | null>(null);
+  const rawBytesRef = useRef<ArrayBuffer | null>(null);
   const wantsMusicRef = useRef(false);
 
   const leaderboardRef = useRef<LeaderEntry[]>([]);
@@ -100,11 +101,8 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
 
   const startMusic = useCallback(() => {
     wantsMusicRef.current = true;
-    const actx = audioCtxRef.current;
-    const buf = musicBufferRef.current;
-    if (!actx || !buf) return;
 
-    const play = () => {
+    const play = (actx: AudioContext, buf: AudioBuffer) => {
       if (!wantsMusicRef.current) return;
       try { musicSourceRef.current?.stop(); } catch (_) {}
       const src = actx.createBufferSource();
@@ -115,12 +113,30 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       musicSourceRef.current = src;
     };
 
-    if (actx.state === "running") {
-      play();
+    const boot = (actx: AudioContext) => {
+      // AudioBuffer already decoded — play immediately
+      if (musicBufferRef.current) { play(actx, musicBufferRef.current); return; }
+      // Raw bytes already fetched — decode then play
+      if (rawBytesRef.current) {
+        actx.decodeAudioData(rawBytesRef.current.slice(0))
+          .then(buf => { musicBufferRef.current = buf; if (wantsMusicRef.current) play(actx, buf); })
+          .catch(() => {});
+        return;
+      }
+      // Nothing ready yet — play() will be called from the fetch .then() below
+    };
+
+    // Create AudioContext inside the user-gesture call stack so iOS doesn't suspend it
+    if (!audioCtxRef.current) {
+      const actx = new AudioContext();
+      const master = actx.createGain();
+      master.gain.value = mutedRef.current ? 0 : 0.6;
+      master.connect(actx.destination);
+      masterGainRef.current = master;
+      audioCtxRef.current = actx;
+      boot(actx);
     } else {
-      actx.resume().then(play).catch(() => {
-        setTimeout(() => actx.resume().then(play).catch(() => {}), 300);
-      });
+      boot(audioCtxRef.current);
     }
   }, []);
 
@@ -176,18 +192,13 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
   useEffect(() => {
     fetchLeaderboard();
 
-    const actx = new AudioContext();
-    audioCtxRef.current = actx;
-    const master = actx.createGain();
-    master.gain.value = mutedRef.current ? 0 : 0.6;
-    master.connect(actx.destination);
-    masterGainRef.current = master;
-
+    // Just fetch raw bytes — AudioContext is created lazily on first tap
+    // so iOS treats it as born inside a user gesture and never suspends it.
     fetch("/teenage-dirtbag-chiptune.wav")
       .then(r => r.arrayBuffer())
-      .then(ab => actx.decodeAudioData(ab))
-      .then(buf => {
-        musicBufferRef.current = buf;
+      .then(ab => {
+        rawBytesRef.current = ab;
+        // If the user already tapped before the file arrived, start now
         if (wantsMusicRef.current && !musicSourceRef.current) startMusic();
       })
       .catch(() => {});
@@ -231,7 +242,6 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
         stateRef.current = "idle"; setDisplayState("idle"); return;
       }
       if (state === "idle") {
-        actx.resume();
         stateRef.current = "playing"; setDisplayState("playing");
         reset(); vy = FLAP; flapFrame = frame;
         startMusic();
@@ -644,7 +654,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       if (isTouch) canvas.removeEventListener("touchstart", onTouch);
       else canvas.removeEventListener("click", onClick);
       window.removeEventListener("keydown", onKey);
-      stopMusic(); actx.close();
+      stopMusic(); audioCtxRef.current?.close();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startMusic, stopMusic, playHitSound, playMilestoneSound, fetchLeaderboard]);
