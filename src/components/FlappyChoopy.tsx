@@ -100,15 +100,29 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
 
   const startMusic = useCallback(() => {
     wantsMusicRef.current = true;
-    if (!audioCtxRef.current || !musicBufferRef.current) return;
-    audioCtxRef.current.resume();
-    try { musicSourceRef.current?.stop(); } catch (_) {}
-    const src = audioCtxRef.current.createBufferSource();
-    src.buffer = musicBufferRef.current;
-    src.loop = true;
-    src.connect(masterGainRef.current!);
-    src.start(0);
-    musicSourceRef.current = src;
+    const ctx = audioCtxRef.current;
+    if (!ctx || !musicBufferRef.current) return;
+
+    const begin = () => {
+      if (!wantsMusicRef.current || !audioCtxRef.current || !musicBufferRef.current) return;
+      try { musicSourceRef.current?.stop(); } catch (_) {}
+      const src = audioCtxRef.current.createBufferSource();
+      src.buffer = musicBufferRef.current;
+      src.loop = true;
+      src.connect(masterGainRef.current!);
+      src.start(0);
+      musicSourceRef.current = src;
+    };
+
+    // iOS Safari hands back a suspended context (it was created on mount, not in
+    // a gesture). Starting a source before resume() lands is silent there, so
+    // wait for the resume to settle. Desktop contexts are already running and
+    // take the synchronous path, matching the behavior that worked before.
+    if (ctx.state === "suspended") {
+      ctx.resume().then(begin).catch(begin);
+    } else {
+      begin();
+    }
   }, []);
 
   const stopMusic = useCallback(() => {
@@ -198,6 +212,14 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     let milestoneHit = new Set<number>();
     let flashLife = 0;
 
+    // Fixed-timestep accumulator: the simulation advances at a constant 60
+    // steps/sec no matter the display refresh rate. Without this, a 120Hz phone
+    // runs the rAF loop twice as often as a 60Hz monitor and the game plays at
+    // double speed with double effective gravity.
+    const STEP_MS = 1000 / 60;
+    let lastTime = 0;
+    let acc = 0;
+
     function pipeSpeed() {
       return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 3) * 0.2, BASE_PIPE_SPEED * 1.6);
     }
@@ -208,6 +230,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       scoreRef.current = 0; flyScoreRef.current = 0;
       dead = false; spawnCount = 0; flapFrame = -99;
       milestoneHit = new Set(); flashLife = 0;
+      acc = 0;
     }
 
     function flap() {
@@ -566,53 +589,69 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
         popups.push({ x: W / 2, y: H / 3, life: 40, text: "⚡ FASTER!", color: "rgb(255,80,80)" });
     }
 
-    function tick() {
+    // One fixed simulation step (1/60s of game time).
+    function step() {
       frame++;
+      const speed = pipeSpeed();
+      if (frame % PIPE_INTERVAL === 0) {
+        const gap = PIPE_GAP + (Math.random() - 0.5) * 110;
+        const margin = IS_MOBILE ? 28 : 32;
+        const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - gap - margin * 2);
+        pipes.push({ x: W + 10, gapY, gap, scored: false });
+        spawnCount++;
+        if (spawnCount % 2 === 0) {
+          const nearTop = Math.random() < 0.5;
+          const flyY = nearTop ? gapY + 24 : gapY + gap - 24;
+          flies.push({ x: W + 10 + PIPE_WIDTH / 2, y: flyY, eaten: false, bobOffset: Math.random() * Math.PI * 2 });
+        }
+      }
+      pipes = pipes.map(p => ({ ...p, x: p.x - speed })).filter(p => p.x > -PIPE_WIDTH - 10);
+      flies = flies.map(f => ({ ...f, x: f.x - speed })).filter(f => f.x > -FLY_SIZE);
+      popups = popups.map(p => ({ ...p, life: p.life - 1 })).filter(p => p.life > 0);
+      pipes.forEach(p => {
+        if (!p.scored && p.x + PIPE_WIDTH < CHOOPY_X) {
+          p.scored = true; scoreRef.current++;
+          checkMilestones(scoreRef.current);
+        }
+      });
+      vy += GRAVITY; y += vy;
+      checkEat(y);
+      if (!dead && checkCollision(y)) {
+        dead = true; stateRef.current = "scores"; setDisplayState("scores");
+        stopMusic(); playHitSound();
+        const total = scoreRef.current + flyScoreRef.current * BONUS_PER_FLY;
+        const nb = Math.max(total, bestRef.current);
+        bestRef.current = nb; setBest(nb);
+        localStorage.setItem("flappy_choopy_best", String(nb));
+        if (total >= 3) {
+          pendingScoreRef.current = total;
+          setSubmitted(false);
+          setSubmitName("");
+          submitNameRef.current = "";
+          setNameInputActive(true);
+        }
+        fetchLeaderboard();
+      }
+    }
+
+    function tick(now: number) {
+      if (lastTime === 0) lastTime = now;
+      let delta = now - lastTime;
+      lastTime = now;
+      // Clamp after a tab switch / long stall so we don't burst dozens of steps.
+      if (delta > 250) delta = 250;
+
       const state = stateRef.current;
 
-      if (state === "idle") { drawIdle(); animId = requestAnimationFrame(tick); return; }
-      if (state === "scores") { drawScores(); animId = requestAnimationFrame(tick); return; }
+      if (state === "idle") { frame++; drawIdle(); animId = requestAnimationFrame(tick); return; }
+      if (state === "scores") { frame++; drawScores(); animId = requestAnimationFrame(tick); return; }
 
       if (state === "playing") {
-        const speed = pipeSpeed();
-        if (frame % PIPE_INTERVAL === 0) {
-          const gap = PIPE_GAP + (Math.random() - 0.5) * 110;
-          const margin = IS_MOBILE ? 28 : 32;
-          const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - gap - margin * 2);
-          pipes.push({ x: W + 10, gapY, gap, scored: false });
-          spawnCount++;
-          if (spawnCount % 2 === 0) {
-            const nearTop = Math.random() < 0.5;
-            const flyY = nearTop ? gapY + 24 : gapY + gap - 24;
-            flies.push({ x: W + 10 + PIPE_WIDTH / 2, y: flyY, eaten: false, bobOffset: Math.random() * Math.PI * 2 });
-          }
-        }
-        pipes = pipes.map(p => ({ ...p, x: p.x - speed })).filter(p => p.x > -PIPE_WIDTH - 10);
-        flies = flies.map(f => ({ ...f, x: f.x - speed })).filter(f => f.x > -FLY_SIZE);
-        popups = popups.map(p => ({ ...p, life: p.life - 1 })).filter(p => p.life > 0);
-        pipes.forEach(p => {
-          if (!p.scored && p.x + PIPE_WIDTH < CHOOPY_X) {
-            p.scored = true; scoreRef.current++;
-            checkMilestones(scoreRef.current);
-          }
-        });
-        vy += GRAVITY; y += vy;
-        checkEat(y);
-        if (!dead && checkCollision(y)) {
-          dead = true; stateRef.current = "scores"; setDisplayState("scores");
-          stopMusic(); playHitSound();
-          const total = scoreRef.current + flyScoreRef.current * BONUS_PER_FLY;
-          const nb = Math.max(total, bestRef.current);
-          bestRef.current = nb; setBest(nb);
-          localStorage.setItem("flappy_choopy_best", String(nb));
-          if (total >= 3) {
-            pendingScoreRef.current = total;
-            setSubmitted(false);
-            setSubmitName("");
-            submitNameRef.current = "";
-            setNameInputActive(true);
-          }
-          fetchLeaderboard();
+        acc += delta;
+        while (acc >= STEP_MS) {
+          step();
+          acc -= STEP_MS;
+          if (dead) { acc = 0; break; }
         }
         drawBackground();
         pipes.forEach(p => drawPipe(p.x, p.gapY, p.gapY + p.gap));
