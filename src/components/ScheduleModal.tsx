@@ -129,29 +129,37 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
 
             {/* Time picker — bordered box equal width to calendar, content centered */}
             <div style={{ flex: 1, minWidth: 0, border: `1px solid ${BORDER}`, borderRadius: 8, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               {/* Hour column */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                <button type="button" onClick={() => nudgeH(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▲</button>
-                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 36, height: 34, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
-                  {String(dispH).padStart(2, "0")}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+                <button type="button" onClick={() => nudgeH(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, width: 30, height: 28, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 500, fontSize: "0.9rem", color: TEXT_DARK }}>
+                  {dispH}
                 </div>
-                <button type="button" onClick={() => nudgeH(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▼</button>
+                <button type="button" onClick={() => nudgeH(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
               </div>
-              <span style={{ fontFamily: FONT, fontWeight: 700, fontSize: "1.3rem", color: TEXT_DARK, marginTop: 2, userSelect: "none" }}>:</span>
+              <span style={{ fontFamily: FONT, fontWeight: 600, fontSize: "1rem", color: TEXT_DARK, userSelect: "none" }}>:</span>
               {/* Minute column */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                <button type="button" onClick={() => nudgeM(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▲</button>
-                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 36, height: 34, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+                <button type="button" onClick={() => nudgeM(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                </button>
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 5, width: 30, height: 28, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 500, fontSize: "0.9rem", color: TEXT_DARK }}>
                   {dispM}
                 </div>
-                <button type="button" onClick={() => nudgeM(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▼</button>
+                <button type="button" onClick={() => nudgeM(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
               </div>
               {/* AM/PM */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginLeft: "0.5rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginLeft: "0.6rem" }}>
                 {(["AM","PM"] as const).map(p => (
-                  <label key={p} style={{ display: "flex", alignItems: "center", gap: "0.35rem", cursor: "pointer", fontFamily: FONT, fontSize: "0.83rem", color: TEXT_DARK, userSelect: "none" }}>
-                    <input type="radio" name="schedule-ampm" checked={(p === "PM") === isPm} onChange={toggleAmPm} style={{ accentColor: CRIMSON, margin: 0, width: 15, height: 15 }} />
+                  <label key={p} style={{ display: "flex", alignItems: "center", gap: "0.35rem", cursor: "pointer", fontFamily: FONT, fontSize: "0.8rem", color: TEXT_DARK, userSelect: "none" }}>
+                    <input type="radio" name="schedule-ampm" checked={(p === "PM") === isPm} onChange={toggleAmPm} style={{ accentColor: CRIMSON, margin: 0, width: 14, height: 14 }} />
                     {p}
                   </label>
                 ))}
