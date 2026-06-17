@@ -133,7 +133,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
       ${sectionRow}
       <tr><td style="padding:20px 24px;">
         <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
-          <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${TEXT_DARK};margin:0;line-height:1.25;letter-spacing:0.01em;text-align:left;">${esc(card.headline ?? "")}</h2>
+          <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${CRIMSON};margin:0;line-height:1.25;letter-spacing:0.01em;text-align:left;">${esc(card.headline ?? "")}</h2>
         </div>
         ${img}
         ${renderBody(card.body ?? [])}
@@ -172,10 +172,11 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
           </tr></table>
         </td></tr>
-        ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0 0 10px;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0;">By ${esc(author)}</p>` : ""}</td></tr>` : ""}
+        ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.55;color:${TEXT_DARK};margin:0 0 10px;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};margin:0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table></td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
-        <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
-          You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>
+        <tr><td style="background:${CRIMSON};padding:16px 24px;text-align:center;">
+          <p style="font-family:${FONT};font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:0.2em;text-transform:uppercase;margin:0 0 4px;">You're receiving this because you subscribed to efemera</p>
+          <a href="{{{UNSUBSCRIBE_URL}}}" style="font-family:${FONT};font-size:10px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
         </td></tr>
       </table>
     </td></tr>

@@ -643,17 +643,19 @@ export default function NewsletterEditorClient({
 
           {/* Introduction */}
           <div style={{ padding: "1.25rem 2.5rem 1.25rem", borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
-            <textarea
-              ref={nlIntroRef}
-              value={nlIntro}
-              onChange={e => setNlIntro(e.target.value)}
-              placeholder="A note to readers…"
-              rows={1}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
-            />
-            {nlAuthor && (
-              <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.75rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
-            )}
+            <div style={{ maxWidth: 440, margin: "0 auto" }}>
+              <textarea
+                ref={nlIntroRef}
+                value={nlIntro}
+                onChange={e => setNlIntro(e.target.value)}
+                placeholder="A note to readers…"
+                rows={1}
+                style={{ fontFamily: "'Georgia', serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
+              />
+              {nlAuthor && (
+                <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.75rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
+              )}
+            </div>
           </div>
 
           {/* Cards */}
@@ -738,7 +740,7 @@ export default function NewsletterEditorClient({
                       <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
                         <div style={{ borderTop: `2px solid ${CRIMSON}`, paddingTop: "0.85rem", marginBottom: "0.85rem" }}>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
+                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
                         {card.image ? (
                           <div style={{ marginBottom: "0.85rem", position: "relative" }}>
@@ -793,9 +795,9 @@ export default function NewsletterEditorClient({
           </div>
 
           {/* Footer */}
-          <div style={{ borderTop: `1px solid ${BORDER}`, margin: "0 2.5rem", paddingTop: "1.25rem", paddingBottom: "2rem", textAlign: "center" }}>
-            <div style={{ width: "100%", borderTop: `1px solid ${BORDER}`, marginBottom: "1rem" }} />
-            <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.7rem", color: TEXT_MUTED, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0 }}>efemera · unsubscribe</p>
+          <div style={{ background: CRIMSON, padding: "1.25rem 2.5rem", textAlign: "center" }}>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.55)", letterSpacing: "0.2em", textTransform: "uppercase", margin: "0 0 0.4rem" }}>You're receiving this because you subscribed to efemera</p>
+            <p style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.75)", letterSpacing: "0.18em", textTransform: "uppercase", margin: 0, fontWeight: 600 }}>Unsubscribe</p>
           </div>
         </div>
 
