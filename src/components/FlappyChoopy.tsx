@@ -331,7 +331,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       ctx.strokeText(`🪰 +${bonus}`, W - 10, 30);
       ctx.fillStyle = "#FFD700"; ctx.fillText(`🪰 +${bonus}`, W - 10, 30);
       if (speed > BASE_PIPE_SPEED + 0.05) {
-        const lvl = Math.floor((speed - BASE_PIPE_SPEED) / 0.12);
+        const lvl = Math.floor((speed - BASE_PIPE_SPEED) / 0.2) + 1;
         ctx.font = "bold 11px monospace"; ctx.textAlign = "left";
         ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 6; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
         ctx.fillStyle = "#FFD700";
