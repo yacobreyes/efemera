@@ -8,7 +8,7 @@ const IS_MOBILE = typeof window !== "undefined" && window.matchMedia("(pointer: 
 const GRAVITY = IS_MOBILE ? 0.64 : 0.64;
 const FLAP = IS_MOBILE ? -9.2 : -9.2;
 const BASE_PIPE_SPEED = IS_MOBILE ? 5.5 : 5.5;
-const PIPE_GAP = IS_MOBILE ? 140 : 132;
+const PIPE_GAP = IS_MOBILE ? 155 : 148;
 const PIPE_INTERVAL = IS_MOBILE ? 42 : 42;
 const PIPE_WIDTH = 52;
 const GROUND_H = 28;
