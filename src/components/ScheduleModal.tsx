@@ -83,7 +83,7 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
           <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem", alignItems: "flex-start" }}>
 
             {/* Calendar */}
-            <div style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.65rem 0.5rem 0.5rem", minWidth: 0 }}>
+            <div style={{ flex: "1 1 0", boxSizing: "border-box", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.65rem 0.5rem 0.5rem", minWidth: 0 }}>
               {/* Month nav */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem", padding: "0 0.25rem" }}>
                 <button type="button" onClick={() => { const d = new Date(calYear, calMonth - 1); setCalMonth(d.getMonth()); setCalYear(d.getFullYear()); }}
@@ -128,7 +128,7 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
             </div>
 
             {/* Time picker — bordered box equal width to calendar, content centered */}
-            <div style={{ flex: 1, minWidth: 0, border: `1px solid ${BORDER}`, borderRadius: 8, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ flex: "1 1 0", boxSizing: "border-box", minWidth: 0, border: `1px solid ${BORDER}`, borderRadius: 8, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               {/* Hour column */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
