@@ -637,10 +637,11 @@ export default function NewsletterEditorClient({
           <div style={{ padding: "1.25rem 2.5rem 1.1rem", borderBottom: `1px solid ${BORDER}` }}>
             <textarea
               value={nlIntro}
-              onChange={e => setNlIntro(e.target.value)}
+              onChange={e => { setNlIntro(e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+              onFocus={e => { e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
               placeholder="A note to readers…"
-              rows={3}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic" }}
+              rows={1}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic", overflow: "hidden" }}
             />
           </div>
 
