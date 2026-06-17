@@ -57,7 +57,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
           <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
         </Link>
         <nav className="story-nav">
-          {(["Home", "About", "Micro-Memoirs", "Narratives"] as const).map(s => (
+          {(["Home", "About", "Micro-Memoirs", "Narratives", "Essays"] as const).map(s => (
             <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
           ))}
           <Link href="/archive" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>Archive</Link>

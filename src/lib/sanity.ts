@@ -26,7 +26,7 @@ export interface SanityPost {
   _updatedAt?: string;
   _createdAt?: string;
   slug: string;
-  section: "Micro-Memoir" | "Narratives";
+  section: "Micro-Memoir" | "Narratives" | "Essays";
   headline: string;
   subheadline: string;
   byline: string;

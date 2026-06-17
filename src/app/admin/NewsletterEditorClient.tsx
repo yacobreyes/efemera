@@ -6,7 +6,7 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { saveNewsletter, deleteNewsletter, sendNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
-import { createPostFromNewsletterCard } from "./actions";
+import { createPostFromNewsletterCard, checkSlugsExist } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
@@ -136,6 +136,19 @@ export default function NewsletterEditorClient({
     el.style.height = "auto";
     el.style.height = el.scrollHeight + "px";
   }, [nlIntro]);
+
+  // On mount, verify that any sourceSlug values still exist in Sanity.
+  // If a post was deleted, clear sourceSlug so the "Create draft" button reappears.
+  useEffect(() => {
+    const slugs = nlCards.map(c => c.sourceSlug).filter((s): s is string => !!s);
+    if (!slugs.length) return;
+    checkSlugsExist(slugs).then(existing => {
+      setNlCards(prev => prev.map(c =>
+        c.sourceSlug && !existing.includes(c.sourceSlug) ? { ...c, sourceSlug: undefined } : c
+      ));
+    }).catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const nlLastSaved = useRef<string>("");
   const nlDeleting = useRef(false);
@@ -295,7 +308,7 @@ export default function NewsletterEditorClient({
   async function nlCreateDraftFromCard(card: NlEditorCard) {
     setNlCreatingDraft(card.id);
     try {
-      const section = card.cardType === "essays" ? "Essays" : "Narratives";
+      const section = card.cardType === "essays" ? "Essays" : card.cardType === "micro-memoir" ? "Micro-Memoir" : "Narratives";
       const { slug } = await createPostFromNewsletterCard({
         headline: card.headline,
         body: tiptapToPortableText(card.doc),
@@ -879,6 +892,8 @@ export default function NewsletterEditorClient({
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
                             onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
                         </div>
+                        {nlBylineField(card, "center")}
+                        {nlCardDraftRow(card, "center")}
                       </div>
                     )}
                   </>)}

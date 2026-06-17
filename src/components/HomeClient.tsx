@@ -13,7 +13,7 @@ const IntroAnimation = dynamic(() => import("@/components/IntroAnimation"), { ss
 // but resets on a full page load (fresh tab, refresh, arriving from Google).
 let hasPlayedThisLoad = false;
 
-type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
 export default function HomeClient({ posts, aboutParagraphs, lately, welcome, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; initialTab: Tab }) {
   const [mounted, setMounted] = useState(false);

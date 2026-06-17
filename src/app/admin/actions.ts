@@ -245,6 +245,17 @@ export async function getVersions(slug: string): Promise<PostVersion[]> {
   );
 }
 
+export async function checkSlugsExist(slugs: string[]): Promise<string[]> {
+  await requireAuth();
+  if (!slugs.length) return [];
+  const found: { slug: string }[] = await client.fetch(
+    `*[_type == "post" && slug.current in $slugs && status != "trashed"]{ "slug": slug.current }`,
+    { slugs },
+    { cache: "no-store" }
+  );
+  return found.map(f => f.slug);
+}
+
 export async function deletePost(id: string) {
   await requireAuth();
   await mutate([{ delete: { id } }]);

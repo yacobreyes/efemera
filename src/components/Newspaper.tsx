@@ -14,8 +14,8 @@ import { renderInline } from "@/lib/renderInline";
 import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
-type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
-type SectionTab = "Micro-Memoirs" | "Narratives";
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
+type SectionTab = "Micro-Memoirs" | "Narratives" | "Essays";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -179,6 +179,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
     "About": "/about",
     "Micro-Memoirs": "/micro-memoirs",
     "Narratives": "/narratives",
+    "Essays": "/essays",
     "Archive": "/archive",
   };
 
@@ -204,6 +205,8 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
     ? posts.filter(p => p.section === "Micro-Memoir")
     : activeTab === "Narratives"
     ? posts.filter(p => p.section === "Narratives")
+    : activeTab === "Essays"
+    ? posts.filter(p => p.section === "Essays")
     : [];
 
   const filteredPosts = query.trim()
@@ -251,13 +254,13 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
           <div ref={sectionsRef} style={{ position: "relative" }}>
             <button
               onClick={() => setSectionsOpen(v => !v)}
-              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
               Sections
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             {sectionsOpen && (
               <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
-                {(["Micro-Memoirs", "Narratives"] as SectionTab[]).map(s => (
+                {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
                   <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
                     onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
                     onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>

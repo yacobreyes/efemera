@@ -4,11 +4,11 @@ import { ptToParagraphs } from "@/lib/parseBody";
 
 export const revalidate = 60;
 
-type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Archive";
+type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams;
-  const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
+  const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Essays", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
 
   const [postsResult, aboutResult, latelyResult, welcomeResult] = await Promise.allSettled([
     getAllPosts(),
