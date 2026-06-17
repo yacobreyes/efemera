@@ -212,11 +212,13 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     let milestoneHit = new Set<number>();
     let flashLife = 0;
 
-    // Fixed-timestep accumulator: the simulation advances at a constant 60
-    // steps/sec no matter the display refresh rate. Without this, a 120Hz phone
-    // runs the rAF loop twice as often as a 60Hz monitor and the game plays at
-    // double speed with double effective gravity.
-    const STEP_MS = 1000 / 60;
+    // Fixed-timestep accumulator: the simulation advances at a constant rate
+    // no matter the display refresh rate. Without this, a 120Hz phone runs the
+    // rAF loop twice as often as a 60Hz monitor and the game plays at double
+    // speed with double effective gravity. The step rate (below 60) also sets
+    // the overall pace — lowering it slows everything uniformly without
+    // rebalancing gravity vs. flap vs. pipe speed.
+    const STEP_MS = 1000 / 54;
     let lastTime = 0;
     let acc = 0;
     // animFrame drives idle/scores animations at real time (seconds × 60) so

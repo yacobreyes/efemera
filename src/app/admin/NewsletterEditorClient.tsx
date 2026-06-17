@@ -546,7 +546,7 @@ export default function NewsletterEditorClient({
             <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
               srcDoc={renderNewsletterHtml({
                 subject: nlSubject, preview: nlPreview, intro: nlIntro, author: nlAuthor, volume: nlVolume, issue: nlIssue,
-                cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType })),
+                cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType, byline: c.byline })),
               })} />
           </div>
         </div>
