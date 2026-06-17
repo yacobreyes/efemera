@@ -163,13 +163,16 @@ export function renderNewsletterHtml({ subject, preview, intro, volume, issue, c
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;padding:24px 0;">
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
-        <tr><td style="background:${CRIMSON};padding:28px 24px 24px;text-align:center;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="220" style="height:44px;width:auto;display:inline-block;" />
-          <div style="font-family:${FONT};font-size:11px;color:rgba(255,255,255,0.65);letter-spacing:0.14em;text-transform:uppercase;margin-top:10px;">
-            ${date}${volume ? ` &nbsp;&#9679;&nbsp; Vol. ${esc(volume)}` : ""}${issue ? ` &nbsp;&#9679;&nbsp; No. ${esc(issue)}` : ""}
-          </div>
+        <tr><td style="background:${CRIMSON};padding:28px 24px 26px;text-align:center;">
+          <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="260" style="height:52px;width:auto;display:inline-block;" />
         </td></tr>
-        ${intro ? `<tr><td style="padding:28px 24px 24px;border-bottom:1px solid #e1e8ed;text-align:center;"><div style="width:40px;height:2px;background:${CRIMSON};margin:0 auto 18px;"></div><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.85;color:${TEXT_DARK};margin:0;font-style:italic;white-space:pre-line;">${esc(intro)}</p><div style="width:40px;height:2px;background:${CRIMSON};margin:18px auto 0;"></div></td></tr>` : ""}
+        <tr><td style="border-top:3px solid ${CRIMSON};border-bottom:1px solid #d0d0cc;padding:8px 24px;">
+          <table width="100%" cellpadding="0" cellspacing="0"><tr>
+            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};">${date}</td>
+            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
+          </tr></table>
+        </td></tr>
+        ${intro ? `<tr><td style="padding:18px 24px 16px;border-bottom:1px solid #e1e8ed;text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0;font-style:italic;white-space:pre-line;">${esc(intro)}</p></td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
         <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
           You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>

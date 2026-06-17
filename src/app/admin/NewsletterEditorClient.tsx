@@ -620,31 +620,28 @@ export default function NewsletterEditorClient({
         {/* Magazine page */}
         <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
-          {/* Masthead */}
-          <div style={{ background: CRIMSON, padding: "1.75rem 2.5rem 1.5rem", textAlign: "center" }}>
+          {/* Masthead — full-bleed nameplate + dateline strip */}
+          <div style={{ background: CRIMSON, padding: "2rem 2.5rem 1.85rem", textAlign: "center" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ height: 44, width: "auto", display: "inline-block" }} />
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginTop: "0.65rem" }}>
-              <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>{todayLabel}</span>
-              {(nlVolume || nlIssue) && <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 0.6rem", fontSize: "0.55rem" }}>●</span>}
-              {nlVolume && <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>Vol. {nlVolume}</span>}
-              {nlVolume && nlIssue && <span style={{ color: "rgba(255,255,255,0.35)", margin: "0 0.6rem", fontSize: "0.55rem" }}>●</span>}
-              {nlIssue && <span style={{ fontFamily: FONT, fontSize: "0.62rem", color: "rgba(255,255,255,0.65)", letterSpacing: "0.16em", textTransform: "uppercase" }}>No. {nlIssue}</span>}
-            </div>
+            <img src="/Masthead.webp" alt="efemera" style={{ height: 52, width: "auto", display: "inline-block" }} />
           </div>
-          <div style={{ height: 3, background: "#5a0000" }} />
+          {/* Dateline strip — white, ruled top and bottom */}
+          <div style={{ borderTop: `3px solid ${CRIMSON}`, borderBottom: `1px solid #d0d0cc`, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>{todayLabel}</span>
+            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>
+              {nlVolume ? `Vol. ${nlVolume}` : ""}{nlVolume && nlIssue ? "  ·  " : ""}{nlIssue ? `No. ${nlIssue}` : ""}
+            </span>
+          </div>
 
-          {/* Introduction — literary letter-from-the-editor */}
-          <div style={{ padding: "2rem 2.5rem 1.75rem", borderBottom: `1px solid ${BORDER}` }}>
-            <div style={{ width: 40, height: 2, background: CRIMSON, margin: "0 auto 1.25rem" }} />
+          {/* Introduction */}
+          <div style={{ padding: "1.25rem 2.5rem 1.1rem", borderBottom: `1px solid ${BORDER}` }}>
             <textarea
               value={nlIntro}
               onChange={e => setNlIntro(e.target.value)}
               placeholder="A note to readers…"
-              rows={5}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", lineHeight: 1.85, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic" }}
+              rows={3}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic" }}
             />
-            <div style={{ width: 40, height: 2, background: CRIMSON, margin: "1.25rem auto 0" }} />
           </div>
 
           {/* Cards */}
