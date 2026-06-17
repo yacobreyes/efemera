@@ -893,7 +893,7 @@ export default function NewsletterEditorClient({
                             <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>
                               by
                               <input value={card.byline} onChange={e => nlUpdateCard(card.id, { byline: e.target.value })} placeholder="author" autoFocus={!card.byline}
-                                style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, border: "none", outline: "none", background: "transparent", padding: 0, textAlign: "left", width: `${card.byline.length > 0 ? card.byline.length + 1 : 7}ch`, boxSizing: "content-box" }} />
+                                style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, border: "none", outline: "none", background: "transparent", padding: 0, textAlign: "left", width: `calc(${card.byline.length > 0 ? card.byline.length + 1 : 7}ch + ${(card.byline.length > 0 ? card.byline.length : 7) * 0.18}em)`, boxSizing: "content-box" }} />
                               <button type="button" title="Remove byline" onClick={() => nlUpdateCard(card.id, { byline: undefined })}
                                 style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1 }}>×</button>
                             </span>
