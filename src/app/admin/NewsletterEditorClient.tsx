@@ -621,7 +621,7 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — full-bleed nameplate + dateline strip */}
-          <div style={{ background: CRIMSON }}>
+          <div style={{ background: CRIMSON, padding: "1.5rem 2.5rem" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Masthead.webp" alt="efemera" style={{ width: "100%", height: "auto", display: "block" }} />
           </div>
