@@ -8,8 +8,8 @@ const IS_MOBILE = typeof window !== "undefined" && window.matchMedia("(pointer: 
 const GRAVITY = IS_MOBILE ? 0.40 : 0.46;
 const FLAP = IS_MOBILE ? -7.0 : -7.4;
 const BASE_PIPE_SPEED = IS_MOBILE ? 5.5 : 6.0;
-const PIPE_GAP = IS_MOBILE ? 148 : 132;
-const PIPE_INTERVAL = IS_MOBILE ? 110 : 95;
+const PIPE_GAP = IS_MOBILE ? 140 : 126;
+const PIPE_INTERVAL = IS_MOBILE ? 42 : 38;
 const PIPE_WIDTH = 52;
 const GROUND_H = 28;
 const WATER_H = 14;
@@ -199,7 +199,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     let flashLife = 0;
 
     function pipeSpeed() {
-      return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
+      return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 3) * 0.2, BASE_PIPE_SPEED * 1.6);
     }
 
     function reset() {
@@ -552,8 +552,8 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
           popups.push({ x: W / 2, y: H / 2, life: 50, text: `🔥 ${m} PIPES!`, color: "rgb(255,100,50)" });
         }
       }
-      const prev = Math.min(BASE_PIPE_SPEED + Math.floor((score - 1) / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
-      const next = Math.min(BASE_PIPE_SPEED + Math.floor(score / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
+      const prev = Math.min(BASE_PIPE_SPEED + Math.floor((score - 1) / 3) * 0.2, BASE_PIPE_SPEED * 1.6);
+      const next = Math.min(BASE_PIPE_SPEED + Math.floor(score / 3) * 0.2, BASE_PIPE_SPEED * 1.6);
       if (next > prev && next < 2.8)
         popups.push({ x: W / 2, y: H / 3, life: 40, text: "⚡ FASTER!", color: "rgb(255,80,80)" });
     }
@@ -568,7 +568,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       if (state === "playing") {
         const speed = pipeSpeed();
         if (frame % PIPE_INTERVAL === 0) {
-          const gap = PIPE_GAP + (Math.random() - 0.5) * 80;
+          const gap = PIPE_GAP + (Math.random() - 0.5) * 110;
           const margin = IS_MOBILE ? 28 : 32;
           const gapY = margin + Math.random() * (H - GROUND_H - WATER_H - gap - margin * 2);
           pipes.push({ x: W + 10, gapY, gap, scored: false });
