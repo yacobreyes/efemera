@@ -501,7 +501,7 @@ export default function NewsletterEditorClient({
         </button>
 
         {/* Formatting toolbar — drives the focused card editor */}
-        {!isMobile && nlActiveE && (
+        {!isMobile && nlActiveE && !nlActiveE.isDestroyed && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
             <button type="button" title="Undo" disabled={!nlActiveE.can().undo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().undo().run(); }}
               style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().undo() ? 1 : 0.4 }}>
@@ -634,7 +634,7 @@ export default function NewsletterEditorClient({
 
                   <div className="nl-card" draggable={false}
                     ref={el => { nlCardRefs.current[card.id] = el; }}
-                    onFocusCapture={() => { setNlActiveEditor(nlEditors.current[card.id] ?? null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
+                    onFocusCapture={() => { const ed = nlEditors.current[card.id]; setNlActiveEditor(ed && !ed.isDestroyed ? ed : null); setNlActiveToolbar(nlToolbars.current[card.id] ?? null); }}
                     style={{ position: "relative", opacity: nlMovingId === card.id ? 0 : 1, pointerEvents: nlMovingId === card.id ? "none" : undefined, cursor: nlMovingId && nlMovingId !== card.id ? "pointer" : undefined }}>
 
                     {/* Card hover toolbar */}
@@ -684,7 +684,7 @@ export default function NewsletterEditorClient({
                           style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box" }} />
                         <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
-                          onEditor={ed => { nlEditors.current[card.id] = ed; if (ed && i === 0) setNlActiveEditor(prev => prev ?? ed); }}
+                          onEditor={ed => { nlEditors.current[card.id] = ed; if (ed) { setNlActiveEditor(prev => prev && !prev.isDestroyed ? prev : ed); } else { setNlActiveEditor(prev => prev?.isDestroyed ? null : prev); } }}
                           onToolbar={tb => { nlToolbars.current[card.id] = tb; if (tb && i === 0) setNlActiveToolbar(prev => prev ?? tb); }} />
                       </div>
                     )}
