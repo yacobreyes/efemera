@@ -3,26 +3,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import LikeButton from "@/components/LikeButton";
+import ShareButton from "@/components/ShareButton";
+import { PortableText } from "@portabletext/react";
 import type { SanityPost, SanityLately } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
 import Lately from "@/components/Lately";
 import Choopy from "@/components/Choopy";
 import { renderInline } from "@/lib/renderInline";
+import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 type SectionTab = "Micro-Memoirs" | "Narratives" | "Essays";
-
-// ── Type system (New-Yorker-ish): Caslon display for heds, Caslon text for
-// body/deks, Archivo for section flags + bylines. ──
-const DISPLAY = "var(--font-caslon-display), 'Libre Caslon Display', Georgia, serif";
-const SERIF = "var(--font-caslon-text), 'Libre Caslon Text', Georgia, serif";
-const SANS = "var(--font-archivo), -apple-system, 'Helvetica Neue', Arial, sans-serif";
-
-const INK = "#1a1008";
-const MUTED = "#6b5d4f";
-const CRIMSON = "#8B0000";
-const RULE = "#2a1a0a";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -46,77 +39,76 @@ function readingTime(text: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
-// ── Lead story: dominant hed, wide photo, excerpt in columns ──
-function LeadStory({ post }: { post: SanityPost }) {
-  const plain = portableToPlainText(post.body);
-  const href = `/stories/${post.slug}`;
+
+function TweetCard({ post }: { post: SanityPost; index: number }) {
+  const [commentCount, setCommentCount] = useState(0);
+
+  useEffect(() => {
+    fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
+      .catch(() => {});
+  }, [post.slug]);
+
+  const plainText = portableToPlainText(post.body);
+  const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
+
+  const storyHref = `/stories/${post.slug}`;
+
   return (
-    <article className="bsf-lead">
-      <div className="bsf-flag" style={{ textAlign: "center" }}>{post.section}</div>
-      <h1 style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(2.4rem, 5.5vw, 4rem)", lineHeight: 1.05, color: INK, textAlign: "center", margin: "0.5rem 0 0.6rem", letterSpacing: "-0.01em" }}>
-        <Link href={href} prefetch className="bsf-hedlink" style={{ color: "inherit", textDecoration: "none" }}>{post.headline}</Link>
-      </h1>
+    <div style={{ padding: "1.1rem 1rem", background: "white", borderBottom: "1px solid #e1e8ed" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
+          {post.section}
+        </span>
+        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem", color: "#657786" }}>
+          {formatDate(post.date)}
+        </span>
+      </div>
+
+      <h2 style={{ margin: "0 0 0.25rem" }}>
+        <Link href={storyHref} prefetch={true} className="card-headline" style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
+          {post.headline}
+        </Link>
+      </h2>
+
       {post.subheadline && (
-        <p style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: "clamp(1.05rem, 2vw, 1.35rem)", lineHeight: 1.45, color: MUTED, textAlign: "center", margin: "0 auto 1rem", maxWidth: 620 }}>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
           {post.subheadline}
         </p>
       )}
-      {post.image?.asset && (
-        <Link href={href} prefetch style={{ display: "block" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={urlFor(post.image.asset).width(1280).height(720).fit("crop").auto("format").url()}
-            alt={post.image.alt ?? post.image.caption ?? ""}
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", marginBottom: "0.35rem" }}
-          />
-        </Link>
-      )}
-      {post.image?.caption && (
-        <p style={{ fontFamily: SANS, fontSize: "0.72rem", color: MUTED, fontStyle: "italic", margin: "0 0 0.9rem" }}>{post.image.caption}</p>
-      )}
-      <div style={{ fontFamily: SANS, fontSize: "0.72rem", letterSpacing: "0.08em", textTransform: "uppercase", color: MUTED, textAlign: "center", margin: "0 0 0.9rem" }}>
-        By {post.byline} &nbsp;·&nbsp; {readingTime(plain)} min read
-      </div>
-      <p className="bsf-lead-body" style={{ fontFamily: SERIF, fontSize: "1.02rem", lineHeight: 1.7, color: INK, margin: 0, textAlign: "justify" }}>
-        {truncate(plain, 520)}{" "}
-        <Link href={href} prefetch style={{ fontFamily: SANS, fontSize: "0.78rem", fontWeight: 600, letterSpacing: "0.04em", color: CRIMSON, textDecoration: "none", whiteSpace: "nowrap" }}>Continue reading →</Link>
-      </p>
-    </article>
-  );
-}
 
-// ── Column item: a single story in the flowing column grid ──
-function ColumnItem({ post }: { post: SanityPost }) {
-  const plain = portableToPlainText(post.body);
-  const href = `/stories/${post.slug}`;
-  const isMicro = post.section === "Micro-Memoir";
-  return (
-    <article className="bsf-item">
-      <div className="bsf-flag">{post.section}</div>
-      <h2 style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: "1.5rem", lineHeight: 1.12, color: INK, margin: "0.2rem 0 0.35rem", letterSpacing: "-0.01em" }}>
-        <Link href={href} prefetch className="bsf-hedlink" style={{ color: "inherit", textDecoration: "none" }}>{post.headline}</Link>
-      </h2>
       {post.image?.asset && (
-        <Link href={href} prefetch style={{ display: "block" }}>
+        <div style={{ marginBottom: "0.75rem" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={urlFor(post.image.asset).width(600).height(360).fit("crop").auto("format").url()}
+            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
             alt={post.image.alt ?? post.image.caption ?? ""}
             loading="lazy"
-            style={{ width: "100%", aspectRatio: "5/3", objectFit: "cover", display: "block", margin: "0 0 0.5rem" }}
+            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
           />
-        </Link>
+        </div>
       )}
-      {post.subheadline && !isMicro && (
-        <p style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: "0.95rem", lineHeight: 1.4, color: MUTED, margin: "0 0 0.4rem" }}>{post.subheadline}</p>
-      )}
-      <p style={{ fontFamily: SERIF, fontSize: "0.92rem", lineHeight: 1.62, color: INK, margin: "0 0 0.5rem", textAlign: "justify" }}>
-        {isMicro ? plain : truncate(plain, 220)}
+
+      <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
+        {displayText}
       </p>
-      <div style={{ fontFamily: SANS, fontSize: "0.66rem", letterSpacing: "0.07em", textTransform: "uppercase", color: MUTED }}>
-        By {post.byline} &nbsp;·&nbsp; {readingTime(plain)} min
+
+      <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
+        {post.byline} · {readingTime(plainText)} min read
       </div>
-    </article>
+
+      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
+        <Link href={`${storyHref}#comments`} prefetch={true} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
+        </Link>
+        <LikeButton slug={post.slug} />
+        <ShareButton slug={post.slug} headline={post.headline} />
+      </div>
+    </div>
   );
 }
 
@@ -130,25 +122,25 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
   }
 
   return (
-    <div style={{ maxWidth: 640, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2.5rem auto", padding: "0 0.5rem" }}>
-      <h1 style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(2rem, 5vw, 2.8rem)", color: INK, margin: "0 0 1.5rem" }}>Archive</h1>
-      {groups.size === 0 && <p style={{ fontFamily: SERIF, color: MUTED }}>Nothing here yet.</p>}
+    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
+      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
+      {groups.size === 0 && <p style={{ fontFamily: "var(--font-inter), sans-serif", color: "#657786" }}>Nothing here yet.</p>}
       {[...groups.entries()].map(([month, monthPosts]) => (
         <div key={month} style={{ marginBottom: "1.8rem" }}>
-          <h2 style={{ fontFamily: SANS, fontWeight: 700, fontSize: "0.72rem", letterSpacing: "0.14em", textTransform: "uppercase", color: CRIMSON, margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: `1px solid ${RULE}` }}>
+          <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
             {month}
           </h2>
           {monthPosts.map(post => {
             const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
             return (
-              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.4rem 0", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
-                <span style={{ fontFamily: SANS, fontSize: "0.7rem", color: MUTED, flexShrink: 0, minWidth: 52 }}>
+              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.35rem 0" }}>
+                <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
                   {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
                 </span>
-                <span className="archive-title" style={{ fontFamily: DISPLAY, fontSize: "1.05rem", fontWeight: 400, lineHeight: 1.3 }}>
+                <span className="archive-title" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
                   {post.headline}
                 </span>
-                <span style={{ fontFamily: SANS, fontSize: "0.62rem", color: MUTED, flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                   {post.section}
                 </span>
               </Link>
@@ -161,12 +153,15 @@ function ArchiveTab({ posts }: { posts: SanityPost[] }) {
 }
 
 function AboutPage({ paragraphs }: { paragraphs: string[] }) {
+  const content = paragraphs;
+
   return (
-    <div style={{ maxWidth: 640, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2.5rem auto", padding: "0 0.5rem" }}>
-      <h1 style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(2rem, 5vw, 2.8rem)", color: INK, margin: "0 0 1.4rem" }}>About Efemera</h1>
-      {paragraphs.map((p, i) => (
-        <p key={i} style={{ fontFamily: SERIF, fontSize: "1.1rem", lineHeight: 1.8, color: INK, margin: i < paragraphs.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
-      ))}
+    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
+      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
+      {content.map((p, i) => (
+            <p key={i} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
+          ))
+      }
     </div>
   );
 }
@@ -175,10 +170,9 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>(initialTab);
   const [query, setQuery] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
   const [sectionsOpen, setSectionsOpen] = useState(false);
   const sectionsRef = useRef<HTMLDivElement>(null);
-  const HOME_LIMIT = 13;
+  const HOME_LIMIT = 10;
 
   const TAB_PATHS: Record<Tab, string> = {
     "Home": "/",
@@ -192,7 +186,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
   function switchTab(tab: Tab) {
     setActiveTab(tab);
     setQuery("");
-    setSearchOpen(false);
     setSectionsOpen(false);
     router.replace(TAB_PATHS[tab], { scroll: false });
   }
@@ -205,8 +198,6 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [sectionsOpen]);
   const welcome = welcomeProp ?? null;
-
-  const todayLabel = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   const tabFiltered = activeTab === "Home"
     ? posts
@@ -228,90 +219,59 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
     : tabFiltered;
   const visiblePosts = activeTab === "Home" && !query.trim() ? filteredPosts.slice(0, HOME_LIMIT) : filteredPosts;
 
-  const [lead, ...rest] = visiblePosts;
-  const isSectionView = activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays";
-
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--cream)" }}>
+    <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <style>{`
-        .bsf-flag { font-family: ${SANS}; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: ${CRIMSON}; }
-        .bsf-hedlink { transition: color 0.15s; }
-        .bsf-hedlink:hover { color: ${CRIMSON}; }
-        .archive-title { color: ${INK}; transition: color 0.15s; }
-        .archive-title:hover { color: ${CRIMSON}; }
-        .bsf-nav button { font-family: ${SANS}; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: ${INK}; background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
-        .bsf-nav button:hover { color: ${CRIMSON}; }
-
-        /* Broadsheet grid: main well + right rail */
-        .bsf-wrap { max-width: 1180px; margin: 0 auto; width: 100%; padding: 1.75rem 2rem 0; box-sizing: border-box; display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 2.5rem; align-items: start; }
-        .bsf-rail { border-left: 1px solid rgba(0,0,0,0.12); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
-
-        /* Lead spans the well; stories below flow into 2 columns w/ column rules */
-        .bsf-lead { padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 3px double ${RULE}; }
-        .bsf-lead-body { column-count: 2; column-gap: 2rem; }
-        .bsf-cols { column-count: 2; column-gap: 2.5rem; column-rule: 1px solid rgba(0,0,0,0.14); }
-        .bsf-item { break-inside: avoid; padding: 0 0 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.14); }
-
-        @media (max-width: 980px) {
-          .bsf-wrap { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.25rem 1.25rem 0; }
-          .bsf-rail { border-left: none; padding-left: 0; border-top: 3px double ${RULE}; padding-top: 1.5rem; flex-direction: row; flex-wrap: wrap; }
-          .bsf-rail > * { flex: 1 1 240px; }
+        .feed-nav { display: flex; gap: 2rem; align-items: center; }
+        .feed-nav button { font-family: var(--font-inter), sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
+        .archive-title { color: #1c2938; transition: color 0.15s; }
+        .archive-title:hover { color: #8B0000; }
+        .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
+        .feed-main { grid-column: 1; grid-row: 1 / span 2; }
+        .sidebar-lately { grid-column: 2; grid-row: 1; }
+        .sidebar-choopy { grid-column: 2; grid-row: 2; }
+        @media (max-width: 860px) {
+          .feed-layout { display: flex; flex-direction: column; align-items: stretch; max-width: 600px; }
+          .sidebar-lately { order: -1; }
+          .sidebar-choopy { width: 220px; align-self: center; }
         }
-        @media (max-width: 620px) {
-          .bsf-lead-body { column-count: 1; }
-          .bsf-cols { column-count: 1; }
+        @media (max-width: 600px) {
+          body { overflow-x: hidden; }
+          .feed-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
+          .feed-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
+          .feed-nav button { font-size: 0.78rem; }
+          .feed-layout { padding: 0 0.75rem; }
         }
       `}</style>
-
-      {/* ── Nameplate ── */}
-      <header style={{ background: "var(--cream)", borderBottom: `1px solid ${RULE}` }}>
-        <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0.9rem 2rem 0", boxSizing: "border-box" }}>
-          {/* top dateline strip */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: SANS, fontSize: "0.62rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, paddingBottom: "0.6rem" }}>
-            <span>{todayLabel}</span>
-            <span style={{ fontWeight: 700, color: INK }}>A Literary Magazine</span>
-            <span>Est. 2024</span>
-          </div>
-          {/* wordmark */}
-          <div style={{ textAlign: "center", borderTop: `1px solid ${RULE}`, paddingTop: "1rem" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick}
-              style={{ height: "clamp(46px, 7vw, 84px)", width: "auto", display: "inline-block", cursor: onMastheadClick ? "pointer" : "default" }} />
-          </div>
-          {/* nav bar */}
-          <nav className="bsf-nav" style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "2rem", borderTop: `3px double ${RULE}`, borderBottom: `1px solid ${RULE}`, marginTop: "1rem", padding: "0.6rem 0" }}>
-            {(["Home", "About"] as Tab[]).map(s => (
-              <button key={s} onClick={() => switchTab(s)} style={{ color: activeTab === s ? CRIMSON : INK }}>{s}</button>
-            ))}
-            <div ref={sectionsRef} style={{ position: "relative" }}>
-              <button onClick={() => setSectionsOpen(v => !v)} style={{ color: isSectionView ? CRIMSON : INK, display: "flex", alignItems: "center", gap: "0.3rem" }}>
-                Sections
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              {sectionsOpen && (
-                <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", left: "50%", transform: "translateX(-50%)", background: "var(--cream)", border: `1px solid ${RULE}`, boxShadow: "0 4px 16px rgba(0,0,0,0.15)", minWidth: 170, zIndex: 100, overflow: "hidden" }}>
-                  {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
-                    <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: SANS, fontSize: "0.72rem", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? CRIMSON : INK, background: "none", border: "none", cursor: "pointer" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.05)"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={() => switchTab("Archive")} style={{ color: activeTab === "Archive" ? CRIMSON : INK }}>Archive</button>
-            <button onClick={() => setSearchOpen(v => !v)} title="Search" style={{ display: "flex", alignItems: "center" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
+        <nav className="feed-nav">
+          {(["Home", "About"] as Tab[]).map(s => (
+            <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
+          ))}
+          {/* Sections dropdown */}
+          <div ref={sectionsRef} style={{ position: "relative" }}>
+            <button
+              onClick={() => setSectionsOpen(v => !v)}
+              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+              Sections
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
             </button>
-          </nav>
-          {searchOpen && (
-            <div style={{ padding: "0.75rem 0", borderBottom: `1px solid ${RULE}` }}>
-              <input autoFocus value={query} onChange={e => setQuery(e.target.value)} placeholder="Search the magazine…"
-                style={{ width: "100%", fontFamily: SERIF, fontSize: "1rem", padding: "0.5rem 0.25rem", border: "none", borderBottom: `1px solid ${MUTED}`, outline: "none", color: INK, background: "transparent", boxSizing: "border-box" }} />
-            </div>
-          )}
-        </div>
+            {sectionsOpen && (
+              <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
+                {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
+                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
+                    onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
+                    onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={() => switchTab("Archive")} style={{ opacity: activeTab === "Archive" ? 1 : 0.7, borderBottom: activeTab === "Archive" ? "1px solid white" : "none" }}>Archive</button>
+        </nav>
       </header>
 
       {activeTab === "About" ? (
@@ -319,46 +279,59 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
       ) : activeTab === "Archive" ? (
         <ArchiveTab posts={posts} />
       ) : (
-        <div className="bsf-wrap">
-          <div style={{ minWidth: 0 }}>
+        <div className="feed-layout">
+          {/* Main column */}
+          <div className="feed-main">
+            <div style={{ position: "relative", marginBottom: "0.75rem" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search posts…"
+                style={{ width: "100%", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
+              />
+            </div>
+
             {visiblePosts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "4rem 0", fontFamily: SERIF, color: MUTED, fontSize: "1.1rem" }}>
-                {query ? `No results for “${query}”` : "No stories yet."}
+              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "var(--font-inter), sans-serif", color: "#657786", fontSize: "1rem" }}>
+                {query ? `No results for "${query}"` : "No posts yet."}
               </div>
             ) : (
-              <>
-                {isSectionView && (
-                  <h1 style={{ fontFamily: DISPLAY, fontWeight: 400, fontSize: "clamp(1.8rem, 4vw, 2.6rem)", color: INK, margin: "0 0 1.25rem", paddingBottom: "0.75rem", borderBottom: `3px double ${RULE}` }}>{activeTab}</h1>
-                )}
-                {lead && !isSectionView && <LeadStory post={lead} />}
-                <div className="bsf-cols">
-                  {(isSectionView ? visiblePosts : rest).map(post => (
-                    <ColumnItem key={post._id} post={post} />
-                  ))}
-                </div>
-              </>
+              <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
+                {visiblePosts.map((post, i) => (
+                  <TweetCard key={post._id} post={post} index={i} />
+                ))}
+              </div>
             )}
           </div>
 
-          {/* Right rail */}
-          <aside className="bsf-rail">
+          {/* Sidebar */}
+          <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             {(welcome?.headline || welcome?.body) && (
-              <div style={{ borderTop: `2px solid ${RULE}`, paddingTop: "0.75rem" }}>
+              <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
                 {welcome?.headline && (
-                  <p style={{ fontFamily: DISPLAY, fontSize: "1.05rem", fontWeight: 400, color: INK, margin: 0, lineHeight: 1.3 }}>{welcome.headline}</p>
+                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
+                    {welcome.headline}
+                  </p>
                 )}
                 {welcome?.body && (
-                  <p style={{ fontFamily: SERIF, fontSize: "0.88rem", color: MUTED, margin: welcome?.headline ? "0.4rem 0 0" : 0, lineHeight: 1.55 }}>{welcome.body}</p>
+                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
+                    {welcome.body}
+                  </p>
                 )}
               </div>
             )}
             <Lately data={lately ?? null} />
+          </div>
+          <div className="sidebar-choopy">
             <Choopy />
-          </aside>
+          </div>
         </div>
       )}
 
-      <div style={{ marginTop: "auto" }}><SiteFooter /></div>
+      <SiteFooter />
     </div>
   );
 }
