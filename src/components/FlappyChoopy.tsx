@@ -103,7 +103,8 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     const actx = audioCtxRef.current;
     const buf = musicBufferRef.current;
     if (!actx || !buf) return;
-    actx.resume().then(() => {
+
+    const play = () => {
       if (!wantsMusicRef.current) return;
       try { musicSourceRef.current?.stop(); } catch (_) {}
       const src = actx.createBufferSource();
@@ -112,7 +113,15 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       src.connect(masterGainRef.current!);
       src.start(0);
       musicSourceRef.current = src;
-    });
+    };
+
+    if (actx.state === "running") {
+      play();
+    } else {
+      actx.resume().then(play).catch(() => {
+        setTimeout(() => actx.resume().then(play).catch(() => {}), 300);
+      });
+    }
   }, []);
 
   const stopMusic = useCallback(() => {
