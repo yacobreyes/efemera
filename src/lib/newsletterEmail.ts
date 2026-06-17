@@ -6,6 +6,7 @@ export type NlCard = {
   headline?: string;
   body?: PortableTextBlock[];
   image?: { url?: string; caption?: string; alt?: string } | null;
+  cardType?: "feature" | "standard" | "digest";
 };
 
 const CRIMSON = "#8B0000";
@@ -81,28 +82,73 @@ function renderBody(blocks: PortableTextBlock[]): string {
   return out.join("");
 }
 
+const HEADLINE_FONT = "'Georgia', 'Times New Roman', serif";
+
 export function renderNewsletterHtml({ subject, preview, cards }: { subject: string; preview: string; cards: NlCard[] }): string {
   const date = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  const cardHtml = cards
-    .map((card, idx) => {
-      const num = idx + 1;
-      const numColor = idx === 0 ? CRIMSON : TEXT_DARK;
-      const img = card.image?.url
-        ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;border-radius:6px;margin:0 0 12px;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0 0 12px;">${esc(card.image.caption)}</p>` : ""}`
-        : "";
-      return `
-      <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e1e8ed;border-radius:4px;margin:0 0 12px;">
-        <tr><td style="padding:24px;">
-          <h1 style="font-family:${FONT};font-size:20px;font-weight:700;color:${TEXT_DARK};margin:0 0 14px;">
-            <span style="color:${numColor};">${num}.</span> ${esc(card.headline ?? "")}
-          </h1>
-          ${img}
+  // Determine effective card type: first card defaults to "feature" if no type set
+  function effectiveType(card: NlCard, idx: number): "feature" | "standard" | "digest" {
+    if (card.cardType) return card.cardType;
+    if (idx === 0) return "feature";
+    return "standard";
+  }
+
+  const featureCards = cards.filter((c, i) => effectiveType(c, i) === "feature");
+  const standardCards = cards.filter((c, i) => effectiveType(c, i) === "standard");
+  const digestCards = cards.filter((c, i) => effectiveType(c, i) === "digest");
+
+  // Render feature cards
+  const featureHtml = featureCards.map(card => {
+    const img = card.image?.url
+      ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;display:block;margin:0;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0;padding:6px 24px 0;">${esc(card.image.caption)}</p>` : ""}`
+      : "";
+    return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;margin:0 0 0;">
+      <tr><td>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="padding:0 0 0;border-top:2px solid ${CRIMSON};"></td></tr>
+        </table>
+        ${img}
+        <div style="padding:20px 24px 24px;">
+          <h1 style="font-family:${HEADLINE_FONT};font-size:26px;font-weight:700;color:${CRIMSON};margin:0 0 12px;line-height:1.25;">${esc(card.headline ?? "")}</h1>
           ${renderBody(card.body ?? [])}
-        </td></tr>
-      </table>`;
-    })
-    .join("");
+        </div>
+      </td></tr>
+    </table>`;
+  }).join("");
+
+  // Render standard cards with sequential numbers
+  const standardHtml = standardCards.map((card, num) => {
+    const img = card.image?.url
+      ? `<img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:180px;object-fit:cover;display:block;border-radius:4px;margin:0 0 12px;" />${card.image.caption ? `<p style="font-family:${FONT};font-size:12px;font-style:italic;color:${TEXT_MUTED};margin:0 0 12px;">${esc(card.image.caption)}</p>` : ""}`
+      : "";
+    return `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border-top:1px solid #e1e8ed;margin:0;">
+      <tr><td style="padding:20px 24px;">
+        <h2 style="font-family:${HEADLINE_FONT};font-size:19px;font-weight:700;color:${TEXT_DARK};margin:0 0 12px;line-height:1.3;">
+          <span style="color:${CRIMSON};">${num + 1}.</span> ${esc(card.headline ?? "")}
+        </h2>
+        ${img}
+        ${renderBody(card.body ?? [])}
+      </td></tr>
+    </table>`;
+  }).join("");
+
+  // Render digest cards grouped in a "From the editor" block
+  const digestHtml = digestCards.length > 0 ? `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;border-top:1px solid #e1e8ed;margin:0;">
+      <tr><td style="padding:20px 24px;">
+        <p style="font-family:${FONT};font-size:11px;font-weight:700;color:${TEXT_MUTED};letter-spacing:0.1em;text-transform:uppercase;margin:0 0 14px;">From the editor</p>
+        ${digestCards.map(card => `
+          <div style="margin-bottom:16px;">
+            <p style="font-family:${HEADLINE_FONT};font-size:15px;font-weight:700;color:${TEXT_DARK};margin:0 0 6px;">${esc(card.headline ?? "")}</p>
+            ${renderBody(card.body ?? [])}
+          </div>`).join("")}
+      </td></tr>
+    </table>` : "";
+
+  const bodyHtml = featureHtml + standardHtml + digestHtml;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -110,15 +156,14 @@ export function renderNewsletterHtml({ subject, preview, cards }: { subject: str
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preview)}</span>
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f8fa;padding:24px 0;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:92%;">
-        <tr><td style="background:${CRIMSON};border-radius:4px;padding:24px;text-align:center;">
+      <table width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;">
+        <tr><td style="background:${CRIMSON};padding:24px;text-align:center;">
           <img src="${SITE_URL}/Masthead.webp" alt="efemera" width="180" style="height:36px;width:auto;display:inline-block;" />
-          <div style="font-family:${FONT};font-size:12px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-top:8px;">${date}</div>
+          <div style="font-family:${FONT};font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.12em;text-transform:uppercase;margin-top:8px;">${date}</div>
         </td></tr>
-        <tr><td style="height:12px;"></td></tr>
-        <tr><td>${cardHtml}</td></tr>
-        <tr><td style="padding:16px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};">
-          You're receiving this because you subscribed to efemera.
+        <tr><td>${bodyHtml}</td></tr>
+        <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
+          You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>
         </td></tr>
       </table>
     </td></tr>

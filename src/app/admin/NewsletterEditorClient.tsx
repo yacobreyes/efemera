@@ -44,8 +44,8 @@ function formatFindContentDate(date?: string) {
 }
 
 type NlImage = { assetId: string; url: string; caption?: string; alt?: string };
-type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage };
-type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null };
+type NlEditorCard = { id: string; headline: string; doc: JSONContent; image?: NlImage; cardType?: "feature" | "standard" | "digest" };
+type StoredCard = { headline?: string; body?: PortableTextBlock[]; image?: NlImage | null; cardType?: "feature" | "standard" | "digest" };
 
 export type InitialNewsletter = {
   subject: string;
@@ -56,7 +56,7 @@ export type InitialNewsletter = {
   cards: StoredCard[];
 } | null;
 
-const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC });
+const newNlCard = (): NlEditorCard => ({ id: `c-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, headline: "", doc: EMPTY_DOC, cardType: "standard" });
 
 function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
   if (!cards.length) return [newNlCard(), newNlCard(), newNlCard()];
@@ -65,6 +65,7 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
     headline: c.headline ?? "",
     doc: c.body?.length ? portableTextToTiptap(c.body) : EMPTY_DOC,
     image: c.image ?? undefined,
+    cardType: c.cardType,
   }));
 }
 
@@ -275,14 +276,14 @@ export default function NewsletterEditorClient({
     preview: nlPreview,
     author: nlAuthor,
     wordCount: nlCards.flatMap(card => (card.doc.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? ""))).join(" ").trim().split(/\s+/).filter(Boolean).length,
-    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null })),
+    cards: nlCards.map(card => ({ headline: card.headline, body: tiptapToPortableText(card.doc), image: card.image ?? null, cardType: card.cardType })),
   }), [newsletterId, nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
 
   // Cheap dirty-check signature (raw tiptap docs, no portable-text conversion)
   // so typing doesn't re-run the expensive conversion above on every keystroke.
   const nlSignature = useCallback(() => JSON.stringify({
     status: nlStatus, scheduledAt: nlScheduledAt, subject: nlSubject, preview: nlPreview, author: nlAuthor,
-    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null })),
+    cards: nlCards.map(c => ({ headline: c.headline, doc: c.doc, image: c.image ?? null, cardType: c.cardType })),
   }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlCards]);
 
   const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
@@ -424,7 +425,7 @@ export default function NewsletterEditorClient({
             <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
               srcDoc={renderNewsletterHtml({
                 subject: nlSubject, preview: nlPreview,
-                cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null })),
+                cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType })),
               })} />
           </div>
         </div>
@@ -637,10 +638,24 @@ export default function NewsletterEditorClient({
                   </button>
                 </div>
                 )}
-                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: nlMovingId ? 0 : "0.75rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", marginBottom: "0.5rem", visibility: nlMovingId === card.id ? "hidden" : "visible" }}>
                   <span style={{ fontFamily: FONT, fontSize: "1.25rem", fontWeight: 700, color: i === 0 ? CRIMSON : TEXT_DARK, flexShrink: 0 }}>{i + 1}.</span>
                   <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Type your headline" style={{ ...INPUT, flex: 1, fontSize: "1.25rem", fontWeight: 700, border: "none", padding: 0, background: "transparent" }} />
                 </div>
+                {/* Card type selector pills */}
+                {!nlMovingId && (
+                  <div style={{ display: "flex", gap: "0.4rem", marginBottom: "0.75rem" }}>
+                    {(["feature", "standard", "digest"] as const).map(type => {
+                      const active = (card.cardType ?? "standard") === type;
+                      return (
+                        <button key={type} type="button" onClick={() => nlUpdateCard(card.id, { cardType: type })}
+                          style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, padding: "0.2rem 0.65rem", borderRadius: 20, border: `1px solid ${active ? CRIMSON : BORDER}`, background: active ? CRIMSON : "white", color: active ? "white" : TEXT_MUTED, cursor: "pointer", textTransform: "capitalize" }}>
+                          {type.charAt(0).toUpperCase() + type.slice(1)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
                 {/* Body (image + editor) collapses while dragging so the list
                     condenses to headline bars — kept mounted via display:none. */}
                 <div style={{ display: nlMovingId ? "none" : "block" }}>
