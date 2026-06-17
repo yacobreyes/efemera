@@ -127,8 +127,8 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
               </div>
             </div>
 
-            {/* Time picker — bordered box, same height as calendar, content centered */}
-            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, width: 160, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {/* Time picker — bordered box equal width to calendar, content centered */}
+            <div style={{ flex: 1, minWidth: 0, border: `1px solid ${BORDER}`, borderRadius: 8, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               {/* Hour column */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
