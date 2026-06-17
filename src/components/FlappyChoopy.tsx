@@ -100,15 +100,19 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
 
   const startMusic = useCallback(() => {
     wantsMusicRef.current = true;
-    if (!audioCtxRef.current || !musicBufferRef.current) return;
-    audioCtxRef.current.resume();
-    try { musicSourceRef.current?.stop(); } catch (_) {}
-    const src = audioCtxRef.current.createBufferSource();
-    src.buffer = musicBufferRef.current;
-    src.loop = true;
-    src.connect(masterGainRef.current!);
-    src.start(0);
-    musicSourceRef.current = src;
+    const actx = audioCtxRef.current;
+    const buf = musicBufferRef.current;
+    if (!actx || !buf) return;
+    actx.resume().then(() => {
+      if (!wantsMusicRef.current) return;
+      try { musicSourceRef.current?.stop(); } catch (_) {}
+      const src = actx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+      src.connect(masterGainRef.current!);
+      src.start(0);
+      musicSourceRef.current = src;
+    });
   }, []);
 
   const stopMusic = useCallback(() => {
