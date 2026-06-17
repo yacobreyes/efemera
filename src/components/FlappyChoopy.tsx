@@ -230,10 +230,17 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
       vy = FLAP; flapFrame = frame;
     }
 
+    // touch-action:none is set via CSS; touchstart fires without the browser's
+    // pan-detection wait. Skip registering click on touch devices to avoid
+    // the synthetic 300ms-delayed click firing a second flap.
     function onTouch(e: TouchEvent) { e.preventDefault(); if (!disabledRef.current) flap(); }
-    canvas.addEventListener("touchstart", onTouch, { passive: false });
     function onClick() { if (!disabledRef.current) flap(); }
-    canvas.addEventListener("click", onClick);
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouch) {
+      canvas.addEventListener("touchstart", onTouch, { passive: false });
+    } else {
+      canvas.addEventListener("click", onClick);
+    }
     function onKey(e: KeyboardEvent) {
       if (disabledRef.current) return;
       if (e.code === "Space" || e.code === "ArrowUp") { e.preventDefault(); flap(); }
@@ -619,8 +626,8 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     animId = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(animId);
-      canvas.removeEventListener("touchstart", onTouch);
-      canvas.removeEventListener("click", onClick);
+      if (isTouch) canvas.removeEventListener("touchstart", onTouch);
+      else canvas.removeEventListener("click", onClick);
       window.removeEventListener("keydown", onKey);
       stopMusic(); actx.close();
     };
@@ -644,7 +651,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
         </div>
       </div>
 
-      <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", cursor: "pointer", background: "#000" }} />
+      <canvas ref={canvasRef} width={W} height={H} style={{ display: "block", width: "100%", cursor: "pointer", background: "#000", touchAction: "none" }} />
 
       {/* Score submission — shown below canvas after death */}
       {displayState === "scores" && nameInputActive && pendingScoreRef.current !== null && !submitted && (
