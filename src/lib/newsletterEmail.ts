@@ -169,7 +169,7 @@ export function renderNewsletterHtml({ subject, preview, intro, volume, issue, c
             ${date}${volume ? ` &nbsp;&#9679;&nbsp; Vol. ${esc(volume)}` : ""}${issue ? ` &nbsp;&#9679;&nbsp; No. ${esc(issue)}` : ""}
           </div>
         </td></tr>
-        ${intro ? `<tr><td style="padding:24px 24px 20px;border-bottom:1px solid #e1e8ed;"><p style="font-family:${FONT};font-size:15px;line-height:1.8;color:${TEXT_DARK};margin:0;white-space:pre-line;">${esc(intro)}</p></td></tr>` : ""}
+        ${intro ? `<tr><td style="padding:28px 24px 24px;border-bottom:1px solid #e1e8ed;text-align:center;"><div style="width:40px;height:2px;background:${CRIMSON};margin:0 auto 18px;"></div><p style="font-family:${HEADLINE_FONT};font-size:15px;line-height:1.85;color:${TEXT_DARK};margin:0;font-style:italic;white-space:pre-line;">${esc(intro)}</p><div style="width:40px;height:2px;background:${CRIMSON};margin:18px auto 0;"></div></td></tr>` : ""}
         <tr><td>${bodyHtml}</td></tr>
         <tr><td style="padding:20px 24px;text-align:center;font-family:${FONT};font-size:12px;color:${TEXT_MUTED};border-top:1px solid #e1e8ed;">
           You're receiving this because you subscribed to efemera. <a href="{{{UNSUBSCRIBE_URL}}}" style="color:${TEXT_MUTED};">Unsubscribe</a>

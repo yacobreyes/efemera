@@ -634,24 +634,17 @@ export default function NewsletterEditorClient({
           </div>
           <div style={{ height: 3, background: "#5a0000" }} />
 
-          {/* Subject line as deck */}
-          <div style={{ background: "#fafaf8", borderBottom: `1px solid ${BORDER}`, padding: "0.7rem 2.5rem", textAlign: "center" }}>
-            {nlSubject ? (
-              <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.88rem", fontStyle: "italic", color: TEXT_MUTED, margin: 0 }}>{nlSubject}</p>
-            ) : (
-              <p style={{ fontFamily: "'Georgia', serif", fontSize: "0.88rem", fontStyle: "italic", color: "#bbb", margin: 0 }}>Subject line will appear here…</p>
-            )}
-          </div>
-
-          {/* Introduction */}
-          <div style={{ padding: "1.5rem 2.5rem", borderBottom: `1px solid ${BORDER}` }}>
+          {/* Introduction — literary letter-from-the-editor */}
+          <div style={{ padding: "2rem 2.5rem 1.75rem", borderBottom: `1px solid ${BORDER}` }}>
+            <div style={{ width: 40, height: 2, background: CRIMSON, margin: "0 auto 1.25rem" }} />
             <textarea
               value={nlIntro}
               onChange={e => setNlIntro(e.target.value)}
-              placeholder="Write an introduction — a letter from the editor, a note to readers…"
-              rows={4}
-              style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.8, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block" }}
+              placeholder="A note to readers…"
+              rows={5}
+              style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", lineHeight: 1.85, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", fontStyle: "italic" }}
             />
+            <div style={{ width: 40, height: 2, background: CRIMSON, margin: "1.25rem auto 0" }} />
           </div>
 
           {/* Cards */}
