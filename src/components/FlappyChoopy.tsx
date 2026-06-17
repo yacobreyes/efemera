@@ -199,7 +199,7 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
     let flashLife = 0;
 
     function pipeSpeed() {
-      return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 5) * 0.12, 2.8);
+      return Math.min(BASE_PIPE_SPEED + Math.floor(scoreRef.current / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
     }
 
     function reset() {
@@ -552,8 +552,8 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
           popups.push({ x: W / 2, y: H / 2, life: 50, text: `🔥 ${m} PIPES!`, color: "rgb(255,100,50)" });
         }
       }
-      const prev = Math.min(BASE_PIPE_SPEED + Math.floor((score - 1) / 5) * 0.12, 2.8);
-      const next = Math.min(BASE_PIPE_SPEED + Math.floor(score / 5) * 0.12, 2.8);
+      const prev = Math.min(BASE_PIPE_SPEED + Math.floor((score - 1) / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
+      const next = Math.min(BASE_PIPE_SPEED + Math.floor(score / 5) * 0.18, BASE_PIPE_SPEED * 1.5);
       if (next > prev && next < 2.8)
         popups.push({ x: W / 2, y: H / 3, life: 40, text: "⚡ FASTER!", color: "rgb(255,80,80)" });
     }
