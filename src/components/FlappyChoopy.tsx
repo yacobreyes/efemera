@@ -43,7 +43,6 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
   const masterGainRef = useRef<GainNode | null>(null);
   const musicSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const musicBufferRef = useRef<AudioBuffer | null>(null);
-  const rawBytesRef = useRef<ArrayBuffer | null>(null);
   const wantsMusicRef = useRef(false);
 
   const leaderboardRef = useRef<LeaderEntry[]>([]);
@@ -101,43 +100,15 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
 
   const startMusic = useCallback(() => {
     wantsMusicRef.current = true;
-
-    const play = (actx: AudioContext, buf: AudioBuffer) => {
-      if (!wantsMusicRef.current) return;
-      try { musicSourceRef.current?.stop(); } catch (_) {}
-      const src = actx.createBufferSource();
-      src.buffer = buf;
-      src.loop = true;
-      src.connect(masterGainRef.current!);
-      src.start(0);
-      musicSourceRef.current = src;
-    };
-
-    const boot = (actx: AudioContext) => {
-      // AudioBuffer already decoded — play immediately
-      if (musicBufferRef.current) { play(actx, musicBufferRef.current); return; }
-      // Raw bytes already fetched — decode then play
-      if (rawBytesRef.current) {
-        actx.decodeAudioData(rawBytesRef.current.slice(0))
-          .then(buf => { musicBufferRef.current = buf; if (wantsMusicRef.current) play(actx, buf); })
-          .catch(() => {});
-        return;
-      }
-      // Nothing ready yet — play() will be called from the fetch .then() below
-    };
-
-    // Create AudioContext inside the user-gesture call stack so iOS doesn't suspend it
-    if (!audioCtxRef.current) {
-      const actx = new AudioContext();
-      const master = actx.createGain();
-      master.gain.value = mutedRef.current ? 0 : 0.6;
-      master.connect(actx.destination);
-      masterGainRef.current = master;
-      audioCtxRef.current = actx;
-      boot(actx);
-    } else {
-      boot(audioCtxRef.current);
-    }
+    if (!audioCtxRef.current || !musicBufferRef.current) return;
+    audioCtxRef.current.resume();
+    try { musicSourceRef.current?.stop(); } catch (_) {}
+    const src = audioCtxRef.current.createBufferSource();
+    src.buffer = musicBufferRef.current;
+    src.loop = true;
+    src.connect(masterGainRef.current!);
+    src.start(0);
+    musicSourceRef.current = src;
   }, []);
 
   const stopMusic = useCallback(() => {
@@ -192,13 +163,18 @@ export default function FlappyChoopy({ disabled = false }: { disabled?: boolean 
   useEffect(() => {
     fetchLeaderboard();
 
-    // Just fetch raw bytes — AudioContext is created lazily on first tap
-    // so iOS treats it as born inside a user gesture and never suspends it.
+    const actx = new AudioContext();
+    audioCtxRef.current = actx;
+    const master = actx.createGain();
+    master.gain.value = mutedRef.current ? 0 : 0.6;
+    master.connect(actx.destination);
+    masterGainRef.current = master;
+
     fetch("/teenage-dirtbag-chiptune.wav")
       .then(r => r.arrayBuffer())
-      .then(ab => {
-        rawBytesRef.current = ab;
-        // If the user already tapped before the file arrived, start now
+      .then(ab => actx.decodeAudioData(ab))
+      .then(buf => {
+        musicBufferRef.current = buf;
         if (wantsMusicRef.current && !musicSourceRef.current) startMusic();
       })
       .catch(() => {});
