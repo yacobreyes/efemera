@@ -19,11 +19,10 @@ const DISPLAY = "var(--font-caslon-display), 'Libre Caslon Display', Georgia, se
 const SERIF = "var(--font-caslon-text), 'Libre Caslon Text', Georgia, serif";
 const SANS = "var(--font-archivo), -apple-system, 'Helvetica Neue', Arial, sans-serif";
 
-const INK = "#111111";
-const MUTED = "#666666";
+const INK = "#1a1008";
+const MUTED = "#6b5d4f";
 const CRIMSON = "#8B0000";
-const RULE = "#111111";
-const PAPER = "#ffffff";
+const RULE = "#2a1a0a";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -233,7 +232,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
   const isSectionView = activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays";
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: PAPER }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--cream)" }}>
       <style>{`
         .bsf-flag { font-family: ${SANS}; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: ${CRIMSON}; }
         .bsf-hedlink { transition: color 0.15s; }
@@ -245,13 +244,13 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
 
         /* Broadsheet grid: main well + right rail */
         .bsf-wrap { max-width: 1180px; margin: 0 auto; width: 100%; padding: 1.75rem 2rem 0; box-sizing: border-box; display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 2.5rem; align-items: start; }
-        .bsf-rail { border-left: 1px solid ${RULE}; padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .bsf-rail { border-left: 1px solid rgba(0,0,0,0.12); padding-left: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
 
         /* Lead spans the well; stories below flow into 2 columns w/ column rules */
         .bsf-lead { padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 3px double ${RULE}; }
         .bsf-lead-body { column-count: 2; column-gap: 2rem; }
-        .bsf-cols { column-count: 2; column-gap: 2.5rem; column-rule: 1px solid ${RULE}; }
-        .bsf-item { break-inside: avoid; padding: 0 0 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.22); }
+        .bsf-cols { column-count: 2; column-gap: 2.5rem; column-rule: 1px solid rgba(0,0,0,0.14); }
+        .bsf-item { break-inside: avoid; padding: 0 0 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px solid rgba(0,0,0,0.14); }
 
         @media (max-width: 980px) {
           .bsf-wrap { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.25rem 1.25rem 0; }
@@ -265,7 +264,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
       `}</style>
 
       {/* ── Nameplate ── */}
-      <header style={{ background: PAPER, borderBottom: `1px solid ${RULE}` }}>
+      <header style={{ background: "var(--cream)", borderBottom: `1px solid ${RULE}` }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "0.9rem 2rem 0", boxSizing: "border-box" }}>
           {/* top dateline strip */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontFamily: SANS, fontSize: "0.62rem", letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, paddingBottom: "0.6rem" }}>
@@ -290,7 +289,7 @@ export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeP
                 <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
               </button>
               {sectionsOpen && (
-                <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", left: "50%", transform: "translateX(-50%)", background: PAPER, border: `1px solid ${RULE}`, boxShadow: "0 4px 16px rgba(0,0,0,0.15)", minWidth: 170, zIndex: 100, overflow: "hidden" }}>
+                <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", left: "50%", transform: "translateX(-50%)", background: "var(--cream)", border: `1px solid ${RULE}`, boxShadow: "0 4px 16px rgba(0,0,0,0.15)", minWidth: 170, zIndex: 100, overflow: "hidden" }}>
                   {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
                     <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: SANS, fontSize: "0.72rem", letterSpacing: "0.1em", textTransform: "uppercase", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? CRIMSON : INK, background: "none", border: "none", cursor: "pointer" }}
                       onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.05)"; }}
