@@ -107,7 +107,11 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
 
   // Section flag — small-caps crimson label above every card (matches editor).
   const sectionLabel = (name: string) =>
-    `<div style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};padding-top:20px;margin-bottom:6px;">${name}</div>`;
+    `<div style="font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin-bottom:6px;">${name}</div>`;
+
+  // Wrapper adds uniform top spacing between cards.
+  const cardWrap = (idx: number, inner: string) =>
+    `<div style="margin-top:${idx === 0 ? 20 : 32}px;">${inner}</div>`;
 
   // Render cards IN ORDER, each with its own template — div-based to mirror the editor.
   const bodyHtml = cards.map((card, idx) => {
@@ -121,14 +125,14 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
              ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 16px 0;">${esc(card.image.caption)}</p>` : ""}
            </div>`
         : "";
-      return `
+      return cardWrap(idx, `
     ${sectionLabel(sectionName)}
-    <div style="padding-top:16px;padding-bottom:32px;">
+    <div style="padding-bottom:32px;">
       ${img}
       <h1 style="font-family:${HEADLINE_FONT};font-size:30px;font-weight:700;color:${CRIMSON};line-height:1.15;text-align:center;margin:0 0 16px;">${esc(card.headline ?? "")}</h1>
       ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};text-align:center;margin:0 0 16px;">By ${esc(card.byline)}</p>` : ""}
       ${renderBody(card.body ?? [])}
-    </div>`;
+    </div>`);
     }
 
     if (type === "essays") {
@@ -138,20 +142,20 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
              ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 0 0;">${esc(card.image.caption)}</p>` : ""}
            </div>`
         : "";
-      return `
+      return cardWrap(idx, `
     ${sectionLabel(sectionName)}
-    <div style="padding-top:16px;padding-bottom:28px;">
+    <div style="padding-bottom:32px;">
       <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
         <h2 style="font-family:${HEADLINE_FONT};font-size:24px;font-weight:400;color:${CRIMSON};line-height:1.25;text-align:left;margin:0;">${esc(card.headline ?? "")}</h2>
       </div>
       ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${TEXT_DARK};text-align:left;margin:0 0 14px;">By ${esc(card.byline)}</p>` : ""}
       ${img}
       ${renderBody(card.body ?? [])}
-    </div>`;
+    </div>`);
     }
 
     // micro-memoir: literary magazine style — beige inset box
-    return `
+    return cardWrap(idx, `
     ${sectionLabel(sectionName)}
     <div style="background:#faf9f6;border-top:1px solid #e8e3d8;border-bottom:1px solid #e8e3d8;padding:32px;text-align:center;margin:6px -${PAD}px 0;">
       <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:200px;width:auto;display:block;margin:-35px auto -60px;" />
@@ -159,7 +163,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
       <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:center;margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
       <div style="width:32px;height:1px;background:#c8c0b0;margin:0 auto 24px;"></div>
       <div style="text-align:center;">${renderBody(card.body ?? [])}</div>
-    </div>`;
+    </div>`);
   }).join("");
 
   return `<!DOCTYPE html>
