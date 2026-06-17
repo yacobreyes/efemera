@@ -717,8 +717,8 @@ export default function NewsletterEditorClient({
       {/* Content — when the find panel is open on desktop, reserve its width on
           the left so the centered page never slides underneath it. */}
       <div style={{ flex: 1, overflowY: "auto", background: "#e8e8e4", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
-        {/* Magazine page */}
-        <div style={{ maxWidth: 680, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
+        {/* Magazine page — 600px to match the email's inbox-safe width */}
+        <div style={{ maxWidth: 600, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — full-bleed nameplate + dateline strip */}
           <div style={{ background: CRIMSON, padding: "1.5rem 2.5rem" }}>
@@ -932,7 +932,7 @@ export default function NewsletterEditorClient({
         </div>
 
         {/* Newsletter metadata — sits below the page */}
-        <div style={{ maxWidth: 680, margin: "2rem auto 0" }}>
+        <div style={{ maxWidth: 600, margin: "2rem auto 0" }}>
           <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
             <h3 style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>Newsletter info</h3>
             <div style={{ display: "flex", gap: "0.75rem" }}>
