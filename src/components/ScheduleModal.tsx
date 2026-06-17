@@ -127,12 +127,13 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
               </div>
             </div>
 
-            {/* Time picker — no surrounding border, matches reference */}
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", paddingTop: "1.5rem" }}>
+            {/* Time picker — bordered box, same height as calendar, content centered */}
+            <div style={{ border: `1px solid ${BORDER}`, borderRadius: 8, width: 160, alignSelf: "stretch", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               {/* Hour column */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                 <button type="button" onClick={() => nudgeH(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▲</button>
-                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 42, height: 38, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 36, height: 34, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
                   {String(dispH).padStart(2, "0")}
                 </div>
                 <button type="button" onClick={() => nudgeH(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▼</button>
@@ -141,7 +142,7 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
               {/* Minute column */}
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                 <button type="button" onClick={() => nudgeM(1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▲</button>
-                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 42, height: 38, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
+                <div style={{ border: `1px solid ${BORDER}`, borderRadius: 6, width: 36, height: 34, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontWeight: 600, fontSize: "1.1rem", color: TEXT_DARK }}>
                   {dispM}
                 </div>
                 <button type="button" onClick={() => nudgeM(-1)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: "2px 8px" }}>▼</button>
@@ -155,7 +156,7 @@ export default function ScheduleModal({ value, onChange, onConfirm, onClose, lab
                   </label>
                 ))}
               </div>
-            </div>
+            </div></div>
           </div>
 
           {/* Buttons */}
