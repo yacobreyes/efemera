@@ -3,221 +3,269 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>efemera — mockup v3</title>
+<title>efemera — mockup v4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --crimson: #8B0000;
-  --ink:     #111;
-  --muted:   #777;
-  --border:  #ddd;
+  --ink:     #1a1a1a;
+  --muted:   #888;
+  --border:  #e8e8e8;
   --hed:     'Bodoni Moda', Georgia, serif;
   --sans:    'Inter', sans-serif;
 }
-body { background: #fff; color: var(--ink); }
+body { background: #fafaf8; color: var(--ink); }
 
 /* ── NAMEPLATE ── */
 .nameplate {
-  background: #fff;
-  padding: 1.5rem 2rem 1.1rem;
+  background: #fafaf8;
+  padding: 2rem 2rem 1.25rem;
   text-align: center;
-  border-bottom: 2px solid var(--crimson);
+  border-bottom: 1px solid var(--border);
 }
 .nameplate-sub {
   font-family: var(--sans);
-  font-size: .58rem;
-  letter-spacing: .22em;
+  font-size: .55rem;
+  font-weight: 400;
+  letter-spacing: .28em;
   text-transform: uppercase;
-  color: var(--crimson);
-  margin-top: .5rem;
+  color: var(--muted);
+  margin-top: .6rem;
 }
 
 /* ── NAV ── */
 .nav-wrap {
   border-bottom: 1px solid var(--border);
+  background: #fafaf8;
 }
 .nav-inner {
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .nav-links {
   display: flex;
-  gap: 1.75rem;
-  padding: .6rem 0;
+  gap: 2rem;
+  padding: .7rem 0;
 }
 .nav-links a {
   font-family: var(--sans);
-  font-size: .65rem;
-  font-weight: 600;
-  letter-spacing: .13em;
+  font-size: .6rem;
+  font-weight: 500;
+  letter-spacing: .14em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--muted);
   text-decoration: none;
+  transition: color .15s;
 }
-.nav-links a:hover { color: var(--crimson); }
+.nav-links a:hover { color: var(--ink); }
 .nav-links a.active { color: var(--crimson); }
 .nav-date {
   font-family: var(--sans);
-  font-size: .58rem;
+  font-size: .55rem;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--border);
+  color: #ccc;
 }
 
 /* ── PAGE ── */
 .page {
-  max-width: 960px;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 5rem;
+  padding: 3.5rem 2rem 6rem;
 }
 
 /* ── FLAG ── */
 .flag {
   font-family: var(--sans);
-  font-size: .58rem;
-  font-weight: 700;
-  letter-spacing: .2em;
+  font-size: .52rem;
+  font-weight: 600;
+  letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
   display: block;
-  margin-bottom: .3rem;
+  margin-bottom: .45rem;
 }
 
-/* ── LEAD — NYer split layout ── */
+/* ── LEAD ── */
 .lead {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2.5rem;
-  align-items: start;
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--border);
+  gap: 0;
+  align-items: stretch;
+  margin-bottom: 4rem;
+  border: 1px solid var(--border);
 }
 .lead-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  height: 100%;
+  min-height: 380px;
   object-fit: cover;
   display: block;
-  background: linear-gradient(160deg, #b08080 0%, #c89090 50%, #8B0000 100%);
+  background: linear-gradient(160deg, #c4a0a0 0%, #a06060 50%, #6b0000 100%);
 }
-.lead-text { padding-top: .25rem; }
+.lead-text {
+  padding: 2.5rem 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff;
+}
 .lead-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
-  line-height: 1.08;
-  letter-spacing: -.02em;
-  color: var(--crimson);
-  margin: .3rem 0 .6rem;
+  font-size: clamp(1.8rem, 2.8vw, 2.6rem);
+  line-height: 1.06;
+  letter-spacing: -.025em;
+  color: var(--ink);
+  margin: .4rem 0 .9rem;
 }
 .lead-hed a { color: inherit; text-decoration: none; }
-.lead-hed a:hover { opacity: .75; }
+.lead-hed a:hover { color: var(--crimson); }
 .lead-dek {
   font-family: var(--hed);
   font-style: italic;
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.5;
-  color: var(--muted);
-  margin-bottom: .85rem;
+  color: #555;
+  margin-bottom: 1.25rem;
 }
 .lead-byline {
   font-family: var(--sans);
-  font-size: .62rem;
-  letter-spacing: .07em;
+  font-size: .58rem;
+  font-weight: 400;
+  letter-spacing: .06em;
   color: var(--muted);
-  margin-bottom: .9rem;
-  padding-bottom: .9rem;
+  margin-bottom: 1.1rem;
+  padding-bottom: 1.1rem;
   border-bottom: 1px solid var(--border);
 }
-.lead-byline strong { color: var(--ink); }
 .lead-body {
   font-family: var(--sans);
-  font-size: .92rem;
-  line-height: 1.72;
-  color: #222;
+  font-size: .88rem;
+  line-height: 1.78;
+  color: #333;
+  font-weight: 300;
 }
 .lead-body a {
-  font-weight: 600;
+  font-weight: 500;
   font-size: .82rem;
   color: var(--crimson);
   text-decoration: none;
-  letter-spacing: .02em;
+  border-bottom: 1px solid rgba(139,0,0,.25);
+  padding-bottom: 1px;
+}
+
+/* ── GRID LABEL ── */
+.section-label {
+  font-family: var(--sans);
+  font-size: .52rem;
+  font-weight: 600;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ── 3-COLUMN GRID ── */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0 2rem;
+  gap: 0;
 }
 .card {
-  padding-bottom: 1.75rem;
-  margin-bottom: 1.75rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0 2rem 2.5rem 0;
+  margin-bottom: 2.5rem;
   border-right: 1px solid var(--border);
-  padding-right: 2rem;
+  border-bottom: 1px solid var(--border);
 }
 .card:nth-child(3n) {
   border-right: none;
   padding-right: 0;
 }
+.card:nth-child(n+4) {
+  padding-top: 2.5rem;
+}
 .card-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/2;
   object-fit: cover;
   display: block;
-  margin-bottom: .65rem;
-  background: linear-gradient(135deg, #c9a0a0 0%, #e8d0d0 100%);
+  margin-bottom: .9rem;
+  background: linear-gradient(135deg, #d4b0b0 0%, #eedada 100%);
 }
 .card-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.25rem;
-  line-height: 1.1;
+  font-size: 1.2rem;
+  line-height: 1.12;
   letter-spacing: -.01em;
-  color: var(--crimson);
-  margin: .25rem 0 .35rem;
+  color: var(--ink);
+  margin: .3rem 0 .45rem;
 }
 .card-hed a { color: inherit; text-decoration: none; }
-.card-hed a:hover { opacity: .75; }
+.card-hed a:hover { color: var(--crimson); }
 .card-dek {
   font-family: var(--hed);
   font-style: italic;
-  font-size: .88rem;
-  line-height: 1.4;
-  color: var(--muted);
-  margin-bottom: .5rem;
+  font-size: .85rem;
+  line-height: 1.45;
+  color: #666;
+  margin-bottom: .6rem;
 }
 .card-body {
   font-family: var(--sans);
-  font-size: .85rem;
-  line-height: 1.65;
-  color: #333;
-  margin-bottom: .5rem;
+  font-size: .82rem;
+  line-height: 1.7;
+  color: #444;
+  font-weight: 300;
+  margin-bottom: .6rem;
 }
 .card-meta {
   font-family: var(--sans);
-  font-size: .6rem;
-  letter-spacing: .05em;
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .07em;
   color: var(--muted);
+}
+.card-meta .read-link {
+  color: var(--crimson);
+  text-decoration: none;
+  margin-left: .75rem;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(139,0,0,.3);
+  padding-bottom: 1px;
 }
 
 /* ── FOOTER ── */
 footer {
+  border-top: 2px solid var(--crimson);
   background: var(--crimson);
-  color: rgba(255,255,255,.8);
+  color: rgba(255,255,255,.7);
   text-align: center;
-  padding: 1.5rem 2rem;
+  padding: 2rem 2rem;
   font-family: var(--sans);
-  font-size: .57rem;
-  letter-spacing: .2em;
+  font-size: .52rem;
+  font-weight: 400;
+  letter-spacing: .25em;
   text-transform: uppercase;
 }
 </style>
@@ -226,7 +274,7 @@ footer {
 
 <header>
   <div class="nameplate">
-    <img src="/Crimson%20Wordmark.png" alt="efemera" style="height:clamp(48px,8vw,92px);width:auto;display:inline-block;" />
+    <img src="/Crimson%20Wordmark.png" alt="efemera" style="height:clamp(44px,7vw,80px);width:auto;display:inline-block;" />
     <p class="nameplate-sub">A Literary Magazine &nbsp;·&nbsp; Est. 2024</p>
   </div>
   <div class="nav-wrap">
@@ -246,22 +294,23 @@ footer {
 
 <div class="page">
 
-  <!-- Lead story — NYer split -->
+  <!-- Lead story -->
   <article class="lead">
     <div class="lead-img"></div>
     <div class="lead-text">
       <span class="flag">Narratives</span>
       <h2 class="lead-hed"><a href="#">Why I'm Switching Salons</a></h2>
       <p class="lead-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
-      <p class="lead-byline">By <strong>Yacob Reyes</strong> &nbsp;·&nbsp; June 14, 2025 &nbsp;·&nbsp; 4 min read</p>
+      <p class="lead-byline">By Yacob Reyes &nbsp;·&nbsp; June 14, 2025 &nbsp;·&nbsp; 4 min read</p>
       <p class="lead-body">
         The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.
-        <a href="#">Continue reading →</a>
+        <br><br><a href="#">Continue reading →</a>
       </p>
     </div>
   </article>
 
-  <!-- 3-column grid -->
+  <!-- Latest entries -->
+  <div class="section-label">Latest</div>
   <div class="grid">
 
     <article class="card">
@@ -270,7 +319,7 @@ footer {
       <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
       <p class="card-dek">On the strange freedom of being mediocre at something you love.</p>
       <p class="card-body">I have been playing guitar for eleven years. I am not good at it. I know approximately forty chords and use about six of them…</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; May 28 &nbsp;·&nbsp; 3 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; May 28 &nbsp;·&nbsp; 3 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
     <article class="card">
@@ -279,14 +328,14 @@ footer {
       <h3 class="card-hed"><a href="#">How to Disappear Completely</a></h3>
       <p class="card-dek">A road trip, a broken phone, and what I learned about presence.</p>
       <p class="card-body">I drove for six hours without music. Not because I was being ascetic, but because my aux cord had snapped, and I was too proud to buy another at a gas station…</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Apr 19 &nbsp;·&nbsp; 6 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Apr 19 &nbsp;·&nbsp; 6 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
     <article class="card">
       <span class="flag">Micro-Memoir</span>
       <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
       <p class="card-body">She was reading a book I had read the year my father died. I almost said something. The gate changed. We went our separate ways, toward separate lives, carrying the same pages.</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; May 10 &nbsp;·&nbsp; 1 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; May 10 &nbsp;·&nbsp; 1 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
     <article class="card">
@@ -295,7 +344,7 @@ footer {
       <h3 class="card-hed"><a href="#">In Defense of the Long Goodbye</a></h3>
       <p class="card-dek">American efficiency has made us terrible at endings.</p>
       <p class="card-body">My grandmother said goodbye for forty-five minutes at every family dinner. Standing in the driveway, keys already in hand, she would remember one more thing…</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Apr 2 &nbsp;·&nbsp; 5 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Apr 2 &nbsp;·&nbsp; 5 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
     <article class="card">
@@ -304,14 +353,14 @@ footer {
       <h3 class="card-hed"><a href="#">On Not Finishing Things</a></h3>
       <p class="card-dek">A partial inventory of abandoned projects, and what they say about hope.</p>
       <p class="card-body">There is a half-knitted scarf in a drawer in my childhood bedroom. I started it when I was sixteen, convinced I would become someone who knitted…</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Mar 15 &nbsp;·&nbsp; 4 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Mar 15 &nbsp;·&nbsp; 4 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
     <article class="card">
       <span class="flag">Micro-Memoir</span>
       <h3 class="card-hed"><a href="#">The Last Voicemail</a></h3>
       <p class="card-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up. I have listened to it two hundred and twelve times since the funeral.</p>
-      <p class="card-meta">By Yacob Reyes &nbsp;·&nbsp; Feb 28 &nbsp;·&nbsp; 1 min</p>
+      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Feb 28 &nbsp;·&nbsp; 1 min<a href="#" class="read-link">Read →</a></p>
     </article>
 
   </div>
