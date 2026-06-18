@@ -155,12 +155,15 @@ nav {
 }
 .hcard {
   position: absolute;
-  background: var(--card-bg);
-  border: 1px solid rgba(0,0,0,.08);
+  background: var(--card-bg) center/cover no-repeat;
+  border: none;
   padding: 1.5rem 1.5rem 1.25rem;
   width: 220px;
-  box-shadow: 2px 4px 18px rgba(0,0,0,.09);
+  box-shadow: 3px 5px 20px rgba(0,0,0,.13);
 }
+.hcard:nth-child(2) { background-image: url('/Paper%20Texture%201.png'); }
+.hcard:nth-child(3) { background-image: url('/Paper%20Texture%202.png'); }
+.hcard:nth-child(4) { background-image: url('/Paper%20Texture%204.png'); }
 .hcard-photo {
   width: 100%;
   height: 120px;
@@ -295,14 +298,15 @@ nav {
   align-items: start;
 }
 .paper-card {
-  background: var(--card-bg);
-  border: 1px solid rgba(0,0,0,.07);
+  background: var(--card-bg) center/cover no-repeat;
+  border: none;
   padding: 1.5rem 1.35rem 1.35rem;
-  box-shadow: 1px 3px 14px rgba(0,0,0,.07);
+  box-shadow: 2px 4px 18px rgba(0,0,0,.12);
   position: relative;
 }
-.paper-card:nth-child(2) { transform: rotate(.4deg); }
-.paper-card:nth-child(3) { transform: rotate(-.6deg); }
+.paper-card:nth-child(1) { background-image: url('/Paper%20Texture%201.png'); }
+.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%203.png'); transform: rotate(.4deg); }
+.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%204.png'); transform: rotate(-.6deg); }
 .paper-cat {
   font-family: var(--sans);
   font-size: .46rem;
