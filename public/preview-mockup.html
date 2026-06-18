@@ -3,272 +3,575 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>efemera — mockup v4</title>
+<title>efemera — mockup v5</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500;600&family=Caveat:wght@400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --crimson: #8B0000;
-  --ink:     #1a1a1a;
+  --ink:     #1c1a17;
   --muted:   #888;
-  --border:  #e8e8e8;
+  --bg:      #ede9e2;
+  --card-bg: #f5f1ea;
+  --border:  #d8d3c9;
   --hed:     'Bodoni Moda', Georgia, serif;
   --sans:    'Inter', sans-serif;
+  --hand:    'Caveat', cursive;
 }
-body { background: #fafaf8; color: var(--ink); }
-
-/* ── NAMEPLATE ── */
-.nameplate {
-  background: #fafaf8;
-  padding: 2rem 2rem 1.25rem;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-.nameplate-sub {
-  font-family: var(--sans);
-  font-size: .55rem;
-  font-weight: 400;
-  letter-spacing: .28em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-top: .6rem;
-}
+body { background: var(--bg); color: var(--ink); }
 
 /* ── NAV ── */
-.nav-wrap {
-  border-bottom: 1px solid var(--border);
-  background: #fafaf8;
-}
-.nav-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 0 2rem;
+nav {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  gap: 2rem;
+}
+.nav-wordmark img {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+.nav-tagline {
+  font-family: var(--sans);
+  font-size: .48rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-top: .2rem;
 }
 .nav-links {
   display: flex;
-  gap: 2rem;
-  padding: .7rem 0;
+  gap: 1.75rem;
+  list-style: none;
+  flex: 1;
+  justify-content: center;
 }
 .nav-links a {
   font-family: var(--sans);
-  font-size: .6rem;
+  font-size: .58rem;
   font-weight: 500;
-  letter-spacing: .14em;
+  letter-spacing: .12em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink);
   text-decoration: none;
-  transition: color .15s;
 }
-.nav-links a:hover { color: var(--ink); }
-.nav-links a.active { color: var(--crimson); }
-.nav-date {
+.nav-links a:hover { color: var(--crimson); }
+.nav-right {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.nav-right a {
   font-family: var(--sans);
-  font-size: .55rem;
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-right .submit {
+  color: var(--crimson);
+  border-bottom: 1px solid var(--crimson);
+  padding-bottom: 1px;
+}
+
+/* ── HERO ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  min-height: 480px;
+  padding: 4rem 2.5rem 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  align-items: center;
+}
+.hero-left { padding-right: 3rem; }
+.hero-rule {
+  width: 2rem;
+  height: 2px;
+  background: var(--crimson);
+  margin-bottom: 1.5rem;
+}
+.hero-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -.025em;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.hero-sub {
+  font-family: var(--sans);
+  font-size: .88rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 2rem;
+}
+.hero-btns {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: var(--crimson);
+  color: #fff;
+  font-family: var(--sans);
+  font-size: .62rem;
+  font-weight: 500;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--border);
-  color: #ccc;
+  text-decoration: none;
+  padding: .75rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
 }
-
-/* ── PAGE ── */
-.page {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 3.5rem 2rem 6rem;
-}
-
-/* ── FLAG ── */
-.flag {
+.btn-secondary {
   font-family: var(--sans);
-  font-size: .52rem;
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .05em;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.35);
+  padding-bottom: 1px;
+}
+
+/* Hero card stack */
+.hero-right {
+  position: relative;
+  height: 360px;
+}
+.hcard {
+  position: absolute;
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,.08);
+  padding: 1.5rem 1.5rem 1.25rem;
+  width: 220px;
+  box-shadow: 2px 4px 18px rgba(0,0,0,.09);
+}
+.hcard-photo {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+  margin-bottom: 1rem;
+  background: linear-gradient(160deg, #a07050 0%, #705030 100%);
+}
+.hcard-cat {
+  font-family: var(--sans);
+  font-size: .46rem;
   font-weight: 600;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
-  display: block;
-  margin-bottom: .45rem;
-}
-
-/* ── LEAD ── */
-.lead {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  align-items: stretch;
-  margin-bottom: 4rem;
-  border: 1px solid var(--border);
-}
-.lead-img {
-  width: 100%;
-  height: 100%;
-  min-height: 380px;
-  object-fit: cover;
-  display: block;
-  background: linear-gradient(160deg, #c4a0a0 0%, #a06060 50%, #6b0000 100%);
-}
-.lead-text {
-  padding: 2.5rem 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: #fff;
-}
-.lead-hed {
-  font-family: var(--hed);
-  font-weight: 700;
-  font-size: clamp(1.8rem, 2.8vw, 2.6rem);
-  line-height: 1.06;
-  letter-spacing: -.025em;
-  color: var(--ink);
-  margin: .4rem 0 .9rem;
-}
-.lead-hed a { color: inherit; text-decoration: none; }
-.lead-hed a:hover { color: var(--crimson); }
-.lead-dek {
-  font-family: var(--hed);
-  font-style: italic;
-  font-size: 1.05rem;
-  line-height: 1.5;
-  color: #555;
-  margin-bottom: 1.25rem;
-}
-.lead-byline {
-  font-family: var(--sans);
-  font-size: .58rem;
-  font-weight: 400;
-  letter-spacing: .06em;
-  color: var(--muted);
-  margin-bottom: 1.1rem;
-  padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--border);
-}
-.lead-body {
-  font-family: var(--sans);
-  font-size: .88rem;
-  line-height: 1.78;
-  color: #333;
-  font-weight: 300;
-}
-.lead-body a {
-  font-weight: 500;
-  font-size: .82rem;
-  color: var(--crimson);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.25);
-  padding-bottom: 1px;
-}
-
-/* ── LATEST — header row ── */
-.latest-head {
-  display: flex;
-  align-items: baseline;
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-.latest-head .label {
-  font-family: var(--sans);
-  font-size: .55rem;
-  font-weight: 600;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-.latest-head .viewall {
-  font-family: var(--sans);
-  font-size: .58rem;
-  letter-spacing: .04em;
-  color: var(--muted);
-  text-decoration: none;
-}
-.latest-head .viewall:hover { color: var(--crimson); }
-
-/* ── HORIZONTAL CARD RAIL ── */
-.rail {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(220px, 1fr);
-  gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  border-top: 1px solid var(--border);
-}
-.rail::-webkit-scrollbar { display: none; }
-.card {
-  background: #fff;
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 1.5rem 1.5rem 1.75rem;
-  display: flex;
-  flex-direction: column;
-}
-.card-detail {
   display: flex;
   align-items: center;
-  gap: .5rem;
-  margin-bottom: 1.1rem;
+  gap: .35rem;
+  margin-bottom: .6rem;
 }
-.card-detail .ico {
-  font-size: .85rem;
-  color: var(--crimson);
-  opacity: .65;
-}
-.card-detail .cat {
-  font-family: var(--sans);
-  font-size: .5rem;
-  font-weight: 600;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--crimson);
-}
-.card-hed {
+.hcard-cat .fly { font-size: .75rem; }
+.hcard-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.15rem;
-  line-height: 1.14;
-  letter-spacing: -.01em;
+  font-size: 1.05rem;
+  line-height: 1.15;
   color: var(--ink);
-  margin: 0 0 .55rem;
+  margin-bottom: .45rem;
 }
-.card-hed a { color: inherit; text-decoration: none; }
-.card-hed a:hover { color: var(--crimson); }
-.card-author {
-  font-family: var(--sans);
-  font-size: .68rem;
-  color: #555;
-  margin-bottom: 1rem;
+.hcard-author {
+  font-family: var(--hed);
+  font-style: italic;
+  font-size: .75rem;
+  color: #666;
+  margin-bottom: .6rem;
 }
-.card-readtime {
+.hcard-meta {
   font-family: var(--sans);
-  font-size: .5rem;
-  font-weight: 500;
+  font-size: .48rem;
+  font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: #aaa;
-  margin-bottom: 1.25rem;
+  margin-bottom: .8rem;
 }
-.card-body {
+.hcard-body {
   font-family: var(--sans);
-  font-size: .8rem;
-  line-height: 1.65;
-  color: #444;
+  font-size: .75rem;
+  line-height: 1.55;
+  color: #555;
   font-weight: 300;
-  margin-top: auto;
+  margin-bottom: .85rem;
+}
+.hcard-link {
+  font-family: var(--sans);
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+/* stack positions */
+.hcard:nth-child(1) { top: 30px; left: 20px; transform: rotate(-3deg); z-index: 1; }
+.hcard:nth-child(2) { top: 0;    left: 130px; transform: rotate(1.5deg); z-index: 2; }
+.hcard:nth-child(3) { top: 50px; left: 250px; transform: rotate(-1deg); z-index: 1; }
+/* dragonfly decoration */
+.dfly-hero {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  font-size: 2.2rem;
+  color: var(--crimson);
+  opacity: .7;
+  transform: rotate(15deg);
 }
 
-/* ── FOOTER ── */
-footer {
-  border-top: 2px solid var(--crimson);
+/* ── SECTION DIVIDER ── */
+.sec-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ── LATEST ── */
+.latest {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+.latest-intro {}
+.latest-label {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: .6rem;
+}
+.latest-rule {
+  width: 2rem;
+  height: 2px;
   background: var(--crimson);
-  color: rgba(255,255,255,.7);
-  text-align: center;
-  padding: 2rem 2rem;
+  margin: .75rem 0;
+}
+.latest-desc {
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #666;
+  margin-bottom: 1.25rem;
+}
+.latest-more {
+  font-family: var(--sans);
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+.latest-more:hover { opacity: .7; }
+
+/* Card rail */
+.card-rail {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.paper-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,.07);
+  padding: 1.5rem 1.35rem 1.35rem;
+  box-shadow: 1px 3px 14px rgba(0,0,0,.07);
+  position: relative;
+}
+.paper-card:nth-child(2) { transform: rotate(.4deg); }
+.paper-card:nth-child(3) { transform: rotate(-.6deg); }
+.paper-cat {
+  font-family: var(--sans);
+  font-size: .46rem;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-bottom: .75rem;
+}
+.paper-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.12;
+  color: var(--ink);
+  margin-bottom: .5rem;
+}
+.paper-hed a { color: inherit; text-decoration: none; }
+.paper-hed a:hover { color: var(--crimson); }
+.paper-author {
+  font-family: var(--hed);
+  font-style: italic;
+  font-size: .8rem;
+  color: #666;
+  margin-bottom: .55rem;
+}
+.paper-meta {
+  font-family: var(--sans);
+  font-size: .48rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: .9rem;
+}
+.paper-body {
+  font-family: var(--sans);
+  font-size: .78rem;
+  line-height: 1.6;
+  color: #555;
+  font-weight: 300;
+}
+
+/* ── ONE-SITTING ── */
+.onesit-wrap {
+  background: #e8e3db;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.onesit {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.onesit-intro .os-label {
   font-family: var(--sans);
   font-size: .52rem;
+  font-weight: 600;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: .6rem;
+}
+.onesit-intro .os-rule {
+  width: 2rem;
+  height: 2px;
+  background: var(--crimson);
+  margin: .6rem 0 .8rem;
+}
+.onesit-intro .os-desc {
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: #666;
+}
+.os-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.os-circles {
+  display: flex;
+  gap: 1rem;
+}
+.os-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1.5px solid #aaa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+}
+.os-circle.active {
+  background: var(--crimson);
+  border-color: var(--crimson);
+}
+.os-circle .num {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--ink);
+}
+.os-circle.active .num { color: #fff; }
+.os-circle .unit {
+  font-family: var(--sans);
+  font-size: .45rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-top: .15rem;
+}
+.os-circle.active .unit { color: rgba(255,255,255,.7); }
+.os-handnote {
+  position: relative;
+  margin-left: .5rem;
+}
+.os-handnote span {
+  font-family: var(--hand);
+  font-size: 1.05rem;
+  color: #888;
+  display: block;
+  line-height: 1.3;
+  transform: rotate(-3deg);
+}
+.os-handnote::before {
+  content: '↙';
+  position: absolute;
+  top: -18px;
+  left: 10px;
+  font-size: .9rem;
+  color: #aaa;
+  transform: scaleX(-1);
+}
+
+/* ── BY FORM ── */
+.byform {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3.5rem 2.5rem;
+  display: grid;
+  grid-template-columns: 220px repeat(3, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+.byform-intro .bf-label {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--ink);
+  margin-bottom: .5rem;
+}
+.byform-intro .bf-rule {
+  width: 2rem;
+  height: 2px;
+  background: var(--crimson);
+  margin: .75rem 0;
+}
+.byform-intro .bf-desc {
+  font-family: var(--sans);
+  font-size: .8rem;
+  font-weight: 300;
+  line-height: 1.6;
+  color: #666;
+}
+.form-item {}
+.form-fly {
+  font-size: 1.25rem;
+  color: var(--crimson);
+  margin-bottom: .55rem;
+  display: block;
+}
+.form-name {
+  font-family: var(--sans);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--ink);
+  margin-bottom: .45rem;
+}
+.form-desc {
+  font-family: var(--sans);
+  font-size: .78rem;
+  font-weight: 300;
+  line-height: 1.55;
+  color: #666;
+  margin-bottom: .9rem;
+}
+.form-link {
+  font-family: var(--sans);
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+
+/* ── ABOUT FOOTER ── */
+.about-wrap {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.about {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 2.5rem 3.5rem;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+.about-fly {
+  font-size: 5rem;
+  color: var(--crimson);
+  opacity: .8;
+  line-height: 1;
+}
+.about-content {}
+.about-hed {
+  font-family: var(--hed);
+  font-weight: 700;
+  font-size: 1.35rem;
+  color: var(--ink);
+  margin-bottom: .6rem;
+}
+.about-rule {
+  width: 2rem;
+  height: 2px;
+  background: var(--crimson);
+  margin: .6rem 0 .8rem;
+}
+.about-body {
+  font-family: var(--sans);
+  font-size: .82rem;
+  font-weight: 300;
+  line-height: 1.7;
+  color: #555;
+  margin-bottom: .5rem;
+}
+.about-link {
+  font-family: var(--sans);
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+
+footer {
+  background: var(--crimson);
+  color: rgba(255,255,255,.65);
+  text-align: center;
+  padding: 1.5rem;
+  font-family: var(--sans);
+  font-size: .5rem;
   font-weight: 400;
   letter-spacing: .25em;
   text-transform: uppercase;
@@ -277,90 +580,171 @@ footer {
 </head>
 <body>
 
-<header>
-  <div class="nameplate">
-    <img src="/Crimson%20Wordmark.png" alt="efemera" style="height:clamp(44px,7vw,80px);width:auto;display:inline-block;" />
-    <p class="nameplate-sub">A Literary Magazine &nbsp;·&nbsp; Est. 2024</p>
+<!-- NAV -->
+<nav>
+  <div class="nav-wordmark">
+    <img src="/Crimson%20Wordmark.png" alt="efemera">
+    <div class="nav-tagline">Life, in Brief.</div>
   </div>
-  <div class="nav-wrap">
-    <div class="nav-inner">
-      <nav class="nav-links">
-        <a href="#" class="active">Home</a>
-        <a href="#">About</a>
-        <a href="#">Narratives</a>
-        <a href="#">Essays</a>
-        <a href="#">Micro-Memoirs</a>
-        <a href="#">Archive</a>
-      </nav>
-      <span class="nav-date">June 18, 2025</span>
+  <ul class="nav-links">
+    <li><a href="#">Narratives</a></li>
+    <li><a href="#">Micro-Memoir</a></li>
+    <li><a href="#">Essays</a></li>
+    <li><a href="#">Archive</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#">Issues</a>
+    <a href="#">About</a>
+    <a href="#" class="submit">Submit</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section style="background:var(--bg); border-bottom:1px solid var(--border);">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-rule"></div>
+      <h1 class="hero-hed">True stories for the time you actually have.</h1>
+      <p class="hero-sub">Narratives, micro-memoir, and essays from everyday life.</p>
+      <div class="hero-btns">
+        <a href="#" class="btn-primary">Read the latest &nbsp;→</a>
+        <a href="#" class="btn-secondary">Pick a one-sitting read</a>
+      </div>
+    </div>
+    <div class="hero-right">
+  <img src="/mayfly-icon.webp" class="dfly-hero" style="width:48px;height:48px;image-rendering:pixelated;opacity:.75;filter:sepia(1) saturate(3) hue-rotate(-10deg);" alt="">
+      <div class="hcard" style="top:20px;left:0;transform:rotate(-4deg);z-index:1;">
+        <div class="hcard-photo"></div>
+        <div class="hcard-cat"><img src="/mayfly-icon.webp" class="fly" style="width:12px;height:12px;image-rendering:pixelated;opacity:.8;" alt=""> One-Sitting Read</div>
+        <div class="hcard-hed">The Message I Haven't Deleted</div>
+        <div class="hcard-author">Yacob Reyes</div>
+        <div class="hcard-meta">3 min read</div>
+        <div class="hcard-body">It's 42 seconds long and I know every pause.</div>
+        <a href="#" class="hcard-link">Read the story →</a>
+      </div>
+      <div class="hcard" style="top:10px;left:160px;transform:rotate(2deg);z-index:2;">
+        <div class="hcard-cat"><img src="/mayfly-icon.webp" class="fly" style="width:12px;height:12px;image-rendering:pixelated;opacity:.8;" alt=""> Narrative</div>
+        <div class="hcard-hed">Why I'm Switching Salons</div>
+        <div class="hcard-author">Yacob Reyes</div>
+        <div class="hcard-meta">4 min read</div>
+        <div class="hcard-body">A meditation on small betrayals and the grief of losing a hairdresser.</div>
+        <a href="#" class="hcard-link">Read the story →</a>
+      </div>
+      <div class="hcard" style="top:60px;left:310px;transform:rotate(-1.5deg);z-index:1;opacity:.85;">
+        <div class="hcard-cat"><img src="/mayfly-icon.webp" class="fly" style="width:12px;height:12px;image-rendering:pixelated;opacity:.8;" alt=""> Essay</div>
+        <div class="hcard-hed">In Defense of the Long Goodbye</div>
+        <div class="hcard-author">Yacob Reyes</div>
+        <div class="hcard-meta">5 min read</div>
+      </div>
     </div>
   </div>
-</header>
+</section>
 
-<div class="page">
+<hr class="sec-divider">
 
-  <!-- Lead story -->
-  <article class="lead">
-    <div class="lead-img"></div>
-    <div class="lead-text">
-      <span class="flag">Narratives</span>
-      <h2 class="lead-hed"><a href="#">Why I'm Switching Salons</a></h2>
-      <p class="lead-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
-      <p class="lead-byline">By Yacob Reyes &nbsp;·&nbsp; June 14, 2025 &nbsp;·&nbsp; 4 min read</p>
-      <p class="lead-body">
-        The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.
-        <br><br><a href="#">Continue reading →</a>
-      </p>
+<!-- LATEST FROM THE TABLE -->
+<section>
+  <div class="latest">
+    <div class="latest-intro">
+      <div class="latest-label">Latest from<br>the Table</div>
+      <div class="latest-rule"></div>
+      <p class="latest-desc">New narratives, micro-memoirs, and essays from the collective.</p>
+      <a href="#" class="latest-more">See more →</a>
     </div>
-  </article>
-
-  <!-- Latest entries -->
-  <div class="latest-head">
-    <span class="label">Latest Entries</span>
-    <a href="#" class="viewall">View all</a>
+    <div class="card-rail">
+      <article class="paper-card">
+        <div class="paper-cat"><span>✦</span> Narrative</div>
+        <h3 class="paper-hed"><a href="#">Why I'm Switching Salons</a></h3>
+        <p class="paper-author">Yacob Reyes</p>
+        <p class="paper-meta">4 min read</p>
+        <p class="paper-body">There is a particular vulnerability in salons that makes you say things you wouldn't say anywhere else.</p>
+      </article>
+      <article class="paper-card">
+        <div class="paper-cat"><span>✦</span> Micro-Memoir</div>
+        <h3 class="paper-hed"><a href="#">Airport, 6 A.M.</a></h3>
+        <p class="paper-author">Yacob Reyes</p>
+        <p class="paper-meta">1 min read</p>
+        <p class="paper-body">She was reading a book I had read the year my father died. I almost said something.</p>
+      </article>
+      <article class="paper-card">
+        <div class="paper-cat"><span>✦</span> Essay</div>
+        <h3 class="paper-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
+        <p class="paper-author">Yacob Reyes</p>
+        <p class="paper-meta">3 min read</p>
+        <p class="paper-body">I've built a life around goodbyes that didn't take.</p>
+      </article>
+    </div>
   </div>
-  <div class="rail">
+</section>
 
-    <article class="card">
-      <div class="card-detail"><span class="ico">✦</span><span class="cat">Essays</span></div>
-      <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-readtime">3 min read</p>
-      <p class="card-body">I have been playing guitar for eleven years. I am not good at it.</p>
-    </article>
+<hr class="sec-divider">
 
-    <article class="card">
-      <div class="card-detail"><span class="ico">☼</span><span class="cat">Narratives</span></div>
-      <h3 class="card-hed"><a href="#">How to Disappear Completely</a></h3>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-readtime">6 min read</p>
-      <p class="card-body">I drove for six hours without music. My aux cord had snapped.</p>
-    </article>
+<!-- ONE-SITTING READS -->
+<div class="onesit-wrap">
+  <div class="onesit">
+    <div class="onesit-intro">
+      <div class="os-label">One-Sitting Reads</div>
+      <div class="os-rule"></div>
+      <p class="os-desc">True stories for the time you actually have.</p>
+    </div>
+    <div class="os-right">
+      <div class="os-circles">
+        <div class="os-circle"><span class="num">3</span><span class="unit">min</span></div>
+        <div class="os-circle active"><span class="num">5</span><span class="unit">min</span></div>
+        <div class="os-circle"><span class="num">8</span><span class="unit">min</span></div>
+        <div class="os-circle"><span class="num">12</span><span class="unit">min</span></div>
+      </div>
+      <div class="os-handnote">
+        <span>Pick your<br>reading window.</span>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <article class="card">
-      <div class="card-detail"><span class="ico">✶</span><span class="cat">Micro-Memoir</span></div>
-      <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-readtime">1 min read</p>
-      <p class="card-body">She was reading a book I had read the year my father died.</p>
-    </article>
+<hr class="sec-divider">
 
-    <article class="card">
-      <div class="card-detail"><span class="ico">❧</span><span class="cat">Essays</span></div>
-      <h3 class="card-hed"><a href="#">In Defense of the Long Goodbye</a></h3>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-readtime">5 min read</p>
-      <p class="card-body">My grandmother said goodbye for forty-five minutes at every dinner.</p>
-    </article>
+<!-- BY FORM -->
+<section>
+  <div class="byform">
+    <div class="byform-intro">
+      <div class="bf-label">By Form</div>
+      <div class="bf-rule"></div>
+      <p class="bf-desc">Find the kind of story you're in the mood for.</p>
+    </div>
+    <div class="form-item">
+      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+      <div class="form-name">Narratives</div>
+      <p class="form-desc">Longer scenes, turning points, lived moments.</p>
+      <a href="#" class="form-link">Explore →</a>
+    </div>
+    <div class="form-item">
+      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+      <div class="form-name">Micro-Memoir</div>
+      <p class="form-desc">Small true pieces with a pulse.</p>
+      <a href="#" class="form-link">Explore →</a>
+    </div>
+    <div class="form-item">
+      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+      <div class="form-name">Essays</div>
+      <p class="form-desc">Reflections, arguments, observations, reckonings.</p>
+      <a href="#" class="form-link">Explore →</a>
+    </div>
+  </div>
+</section>
 
-    <article class="card">
-      <div class="card-detail"><span class="ico">◷</span><span class="cat">Narratives</span></div>
-      <h3 class="card-hed"><a href="#">On Not Finishing Things</a></h3>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-readtime">4 min read</p>
-      <p class="card-body">There is a half-knitted scarf in a drawer in my childhood bedroom.</p>
-    </article>
+<hr class="sec-divider">
 
+<!-- ABOUT -->
+<div class="about-wrap">
+  <div class="about">
+    <img src="/mayfly-icon.webp" class="about-fly" style="width:80px;height:80px;image-rendering:pixelated;" alt="">
+    <div class="about-content">
+      <div class="about-hed">About Efemera</div>
+      <div class="about-rule"></div>
+      <p class="about-body">Efemera is a literary magazine — a shared table for short, true stories from everyday life.</p>
+      <p class="about-body">Founded by Yacob Reyes.</p>
+      <a href="#" class="about-link">More about us →</a>
+    </div>
   </div>
 </div>
 
