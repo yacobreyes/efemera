@@ -160,14 +160,14 @@ nav {
   background-size: cover;
   background-position: center;
   background-blend-mode: multiply;
+  background-image: url('/Paper%20Texture%204.png');
+  -webkit-mask: url('/Paper%20Texture%204.png') center/100% 100% no-repeat;
+  mask: url('/Paper%20Texture%204.png') center/100% 100% no-repeat;
   border: none;
-  padding: 1.6rem 1.5rem;
-  width: 220px;
-  box-shadow: 2px 5px 16px rgba(0,0,0,.18);
+  padding: 2.2rem 1.9rem 2.6rem;
+  width: 240px;
+  filter: drop-shadow(2px 5px 9px rgba(0,0,0,.2));
 }
-.hcard:nth-child(2) { background-image: url('/Paper%20Texture%204.png'); }
-.hcard:nth-child(3) { background-image: url('/Paper%20Texture%204.png'); }
-.hcard:nth-child(4) { background-image: url('/Paper%20Texture%204.png'); }
 .hcard-photo {
   width: 100%;
   height: 120px;
@@ -326,13 +326,17 @@ nav {
   background-position: center;
   background-blend-mode: multiply;
   border: none;
-  padding: 1.6rem 1.5rem;
-  box-shadow: 2px 4px 14px rgba(0,0,0,.14);
+  padding: 2.4rem 2rem 2.8rem;
   position: relative;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  filter: drop-shadow(2px 4px 7px rgba(0,0,0,.16));
 }
-.paper-card:nth-child(1) { background-image: url('/Paper%20Texture%204.png'); }
-.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%204.png'); transform: rotate(.4deg); }
-.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%204.png'); transform: rotate(-.6deg); }
+.paper-card:nth-child(1) { background-image: url('/Paper%20Texture%204.png'); -webkit-mask-image: url('/Paper%20Texture%204.png'); mask-image: url('/Paper%20Texture%204.png'); }
+.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%201.png'); -webkit-mask-image: url('/Paper%20Texture%201.png'); mask-image: url('/Paper%20Texture%201.png'); transform: rotate(.4deg); }
+.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%202.png'); -webkit-mask-image: url('/Paper%20Texture%202.png'); mask-image: url('/Paper%20Texture%202.png'); transform: rotate(-.6deg); }
 .paper-cat {
   font-family: var(--sans);
   font-size: .46rem;
