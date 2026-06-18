@@ -155,16 +155,18 @@ nav {
 }
 .hcard {
   position: absolute;
-  background-color: transparent;
+  background-color: var(--card-bg);
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
   border: none;
-  padding: 1.75rem 1.6rem 2rem;
+  padding: 1.6rem 1.5rem;
   width: 220px;
-  filter: drop-shadow(2px 5px 10px rgba(0,0,0,.22));
+  box-shadow: 2px 5px 16px rgba(0,0,0,.18);
 }
 .hcard:nth-child(2) { background-image: url('/Paper%20Texture%204.png'); }
-.hcard:nth-child(3) { background-image: url('/Paper%20Texture%202.png'); }
+.hcard:nth-child(3) { background-image: url('/Paper%20Texture%204.png'); }
 .hcard:nth-child(4) { background-image: url('/Paper%20Texture%204.png'); }
 .hcard-photo {
   width: 100%;
@@ -318,17 +320,19 @@ nav {
   align-items: start;
 }
 .paper-card {
-  background-color: transparent;
+  background-color: var(--card-bg);
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
   border: none;
-  padding: 1.85rem 1.6rem 2.4rem;
-  filter: drop-shadow(2px 4px 9px rgba(0,0,0,.18));
+  padding: 1.6rem 1.5rem;
+  box-shadow: 2px 4px 14px rgba(0,0,0,.14);
   position: relative;
 }
 .paper-card:nth-child(1) { background-image: url('/Paper%20Texture%204.png'); }
-.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%202.png'); transform: rotate(.4deg); }
-.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%201.png'); transform: rotate(-.6deg); }
+.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%204.png'); transform: rotate(.4deg); }
+.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%204.png'); transform: rotate(-.6deg); }
 .paper-cat {
   font-family: var(--sans);
   font-size: .46rem;
