@@ -163,96 +163,101 @@ body { background: #fafaf8; color: var(--ink); }
   padding-bottom: 1px;
 }
 
-/* ── GRID LABEL ── */
-.section-label {
-  font-family: var(--sans);
-  font-size: .52rem;
-  font-weight: 600;
-  letter-spacing: .28em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1.75rem;
-  padding-bottom: .75rem;
-  border-bottom: 1px solid var(--border);
+/* ── LATEST — header row ── */
+.latest-head {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  align-items: baseline;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
-.section-label::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--border);
+.latest-head .label {
+  font-family: var(--sans);
+  font-size: .55rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
+.latest-head .viewall {
+  font-family: var(--sans);
+  font-size: .58rem;
+  letter-spacing: .04em;
+  color: var(--muted);
+  text-decoration: none;
+}
+.latest-head .viewall:hover { color: var(--crimson); }
 
-/* ── 3-COLUMN GRID ── */
-.grid {
+/* ── HORIZONTAL CARD RAIL ── */
+.rail {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(220px, 1fr);
   gap: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid var(--border);
 }
+.rail::-webkit-scrollbar { display: none; }
 .card {
-  padding: 0 2rem 2.5rem 0;
-  margin-bottom: 2.5rem;
+  background: #fff;
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  padding: 1.5rem 1.5rem 1.75rem;
+  display: flex;
+  flex-direction: column;
 }
-.card:nth-child(3n) {
-  border-right: none;
-  padding-right: 0;
+.card-detail {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1.1rem;
 }
-.card:nth-child(n+4) {
-  padding-top: 2.5rem;
+.card-detail .ico {
+  font-size: .85rem;
+  color: var(--crimson);
+  opacity: .65;
 }
-.card-img {
-  width: 100%;
-  aspect-ratio: 3/2;
-  object-fit: cover;
-  display: block;
-  margin-bottom: .9rem;
-  background: linear-gradient(135deg, #d4b0b0 0%, #eedada 100%);
+.card-detail .cat {
+  font-family: var(--sans);
+  font-size: .5rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--crimson);
 }
 .card-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.2rem;
-  line-height: 1.12;
+  font-size: 1.15rem;
+  line-height: 1.14;
   letter-spacing: -.01em;
   color: var(--ink);
-  margin: .3rem 0 .45rem;
+  margin: 0 0 .55rem;
 }
 .card-hed a { color: inherit; text-decoration: none; }
 .card-hed a:hover { color: var(--crimson); }
-.card-dek {
-  font-family: var(--hed);
-  font-style: italic;
-  font-size: .85rem;
-  line-height: 1.45;
-  color: #666;
-  margin-bottom: .6rem;
+.card-author {
+  font-family: var(--sans);
+  font-size: .68rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+.card-readtime {
+  font-family: var(--sans);
+  font-size: .5rem;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 1.25rem;
 }
 .card-body {
   font-family: var(--sans);
-  font-size: .82rem;
-  line-height: 1.7;
+  font-size: .8rem;
+  line-height: 1.65;
   color: #444;
   font-weight: 300;
-  margin-bottom: .6rem;
-}
-.card-meta {
-  font-family: var(--sans);
-  font-size: .55rem;
-  font-weight: 500;
-  letter-spacing: .07em;
-  color: var(--muted);
-}
-.card-meta .read-link {
-  color: var(--crimson);
-  text-decoration: none;
-  margin-left: .75rem;
-  font-weight: 500;
-  border-bottom: 1px solid rgba(139,0,0,.3);
-  padding-bottom: 1px;
+  margin-top: auto;
 }
 
 /* ── FOOTER ── */
@@ -310,57 +315,50 @@ footer {
   </article>
 
   <!-- Latest entries -->
-  <div class="section-label">Latest</div>
-  <div class="grid">
+  <div class="latest-head">
+    <span class="label">Latest Entries</span>
+    <a href="#" class="viewall">View all</a>
+  </div>
+  <div class="rail">
 
     <article class="card">
-      <div class="card-img"></div>
-      <span class="flag">Essays</span>
+      <div class="card-detail"><span class="ico">✦</span><span class="cat">Essays</span></div>
       <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
-      <p class="card-dek">On the strange freedom of being mediocre at something you love.</p>
-      <p class="card-body">I have been playing guitar for eleven years. I am not good at it. I know approximately forty chords and use about six of them…</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; May 28 &nbsp;·&nbsp; 3 min<a href="#" class="read-link">Read →</a></p>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-readtime">3 min read</p>
+      <p class="card-body">I have been playing guitar for eleven years. I am not good at it.</p>
     </article>
 
     <article class="card">
-      <div class="card-img"></div>
-      <span class="flag">Narratives</span>
+      <div class="card-detail"><span class="ico">☼</span><span class="cat">Narratives</span></div>
       <h3 class="card-hed"><a href="#">How to Disappear Completely</a></h3>
-      <p class="card-dek">A road trip, a broken phone, and what I learned about presence.</p>
-      <p class="card-body">I drove for six hours without music. Not because I was being ascetic, but because my aux cord had snapped, and I was too proud to buy another at a gas station…</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Apr 19 &nbsp;·&nbsp; 6 min<a href="#" class="read-link">Read →</a></p>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-readtime">6 min read</p>
+      <p class="card-body">I drove for six hours without music. My aux cord had snapped.</p>
     </article>
 
     <article class="card">
-      <span class="flag">Micro-Memoir</span>
+      <div class="card-detail"><span class="ico">✶</span><span class="cat">Micro-Memoir</span></div>
       <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
-      <p class="card-body">She was reading a book I had read the year my father died. I almost said something. The gate changed. We went our separate ways, toward separate lives, carrying the same pages.</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; May 10 &nbsp;·&nbsp; 1 min<a href="#" class="read-link">Read →</a></p>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-readtime">1 min read</p>
+      <p class="card-body">She was reading a book I had read the year my father died.</p>
     </article>
 
     <article class="card">
-      <div class="card-img"></div>
-      <span class="flag">Essays</span>
+      <div class="card-detail"><span class="ico">❧</span><span class="cat">Essays</span></div>
       <h3 class="card-hed"><a href="#">In Defense of the Long Goodbye</a></h3>
-      <p class="card-dek">American efficiency has made us terrible at endings.</p>
-      <p class="card-body">My grandmother said goodbye for forty-five minutes at every family dinner. Standing in the driveway, keys already in hand, she would remember one more thing…</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Apr 2 &nbsp;·&nbsp; 5 min<a href="#" class="read-link">Read →</a></p>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-readtime">5 min read</p>
+      <p class="card-body">My grandmother said goodbye for forty-five minutes at every dinner.</p>
     </article>
 
     <article class="card">
-      <div class="card-img"></div>
-      <span class="flag">Narratives</span>
+      <div class="card-detail"><span class="ico">◷</span><span class="cat">Narratives</span></div>
       <h3 class="card-hed"><a href="#">On Not Finishing Things</a></h3>
-      <p class="card-dek">A partial inventory of abandoned projects, and what they say about hope.</p>
-      <p class="card-body">There is a half-knitted scarf in a drawer in my childhood bedroom. I started it when I was sixteen, convinced I would become someone who knitted…</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Mar 15 &nbsp;·&nbsp; 4 min<a href="#" class="read-link">Read →</a></p>
-    </article>
-
-    <article class="card">
-      <span class="flag">Micro-Memoir</span>
-      <h3 class="card-hed"><a href="#">The Last Voicemail</a></h3>
-      <p class="card-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up. I have listened to it two hundred and twelve times since the funeral.</p>
-      <p class="card-meta">Yacob Reyes &nbsp;·&nbsp; Feb 28 &nbsp;·&nbsp; 1 min<a href="#" class="read-link">Read →</a></p>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-readtime">4 min read</p>
+      <p class="card-body">There is a half-knitted scarf in a drawer in my childhood bedroom.</p>
     </article>
 
   </div>
