@@ -346,25 +346,28 @@ export default function Feed({
         .ef-circle span { display: block; }
 
         /* FOOTER */
-        .ef-footer { padding: 46px 7vw 34px; background: #fbf6ee; }
-        .ef-footer-row {
-          display: grid;
-          grid-template-columns: auto 1fr auto;
+        .ef-footer {
+          padding: 46px 7vw 34px;
+          background: #fbf6ee;
+          display: flex;
+          flex-direction: column;
           align-items: center;
-          gap: 30px;
-          padding-bottom: 34px;
+          text-align: center;
         }
+        .ef-footer-fly { margin-bottom: 20px; }
         .ef-footer-fly img {
-          height: 28px;
+          height: 34px;
           width: auto;
           image-rendering: pixelated;
           filter: brightness(0);
           opacity: .65;
+          display: block;
         }
         .ef-footer-links {
           display: flex;
           gap: 34px;
           justify-content: center;
+          flex-wrap: wrap;
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 800;
@@ -488,7 +491,6 @@ export default function Feed({
           .ef-circle strong { font-size: 26px; height: 26px; }
 
           .ef-footer { padding: 36px 24px 28px; }
-          .ef-footer-row { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 20px; }
           .ef-footer-links { justify-content: center; flex-wrap: wrap; gap: 24px; }
 
           .ef-section-tabs {
@@ -655,16 +657,13 @@ export default function Feed({
 
       {/* FOOTER */}
       <footer className="ef-footer">
-        <div className="ef-footer-row">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <div className="ef-footer-fly"><img src="/mayfly-icon.webp" alt="" /></div>
-          <nav className="ef-footer-links">
-            <Link href="/?tab=About">Masthead</Link>
-            <a href="mailto:hello@efemera.co">Submit</a>
-            <a href="#subscribe">Subscribe</a>
-          </nav>
-          <div />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div className="ef-footer-fly"><img src="/mayfly-icon.webp" alt="" /></div>
+        <nav className="ef-footer-links">
+          <Link href="/?tab=About">Masthead</Link>
+          <a href="mailto:hello@efemera.co">Submit</a>
+          <a href="#subscribe">Subscribe</a>
+        </nav>
         <p className="ef-footer-copy">© 2026 Efemera. A Literary Collective by Yacob Reyes.</p>
       </footer>
     </>
