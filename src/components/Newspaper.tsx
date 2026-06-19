@@ -524,7 +524,7 @@ export default function Feed({
       <header className={`ef-nav${menuOpen ? " open" : ""}`}>
         <nav className="ef-nav-group">
           <Link href="/?tab=About">About</Link>
-          <Link href="/?tab=Narratives">Sections</Link>
+          <Link href="/">The Latest</Link>
           <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
         </nav>
 
@@ -540,7 +540,7 @@ export default function Feed({
 
         <nav className="ef-nav-group right">
           <Link href="/?tab=Archive">Archive</Link>
-          <a href="/stories">Stories</a>
+          <a href="/store">Store</a>
           <a href="#subscribe" className="ef-nav-cta">Subscribe</a>
         </nav>
 
