@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
@@ -44,8 +45,10 @@ export default function Feed({
   initialTab: Tab;
   onMastheadClick?: () => void;
 }) {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMin, setActiveMin] = useState(5);
+  const [searchQ, setSearchQ] = useState("");
 
   const published = posts.filter(p =>
     !p.status || p.status === "published" ||
@@ -435,6 +438,29 @@ export default function Feed({
             padding: 16px 4px;
             display: block;
           }
+          .ef-drawer-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 4px;
+            padding: 12px 4px;
+          }
+          .ef-drawer-search input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+          }
+          .ef-drawer-search input::placeholder {
+            color: var(--line);
+            font-weight: 500;
+          }
+          .ef-drawer-search svg { flex-shrink: 0; color: var(--ink); }
           .ef-nav.open .ef-drawer { display: flex; }
           .ef-nav.open .ef-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
           .ef-nav.open .ef-toggle span:nth-child(2) { opacity: 0; }
@@ -528,6 +554,16 @@ export default function Feed({
         </button>
         <a href="#subscribe" className="ef-mob-sub">Subscribe</a>
         <div className="ef-drawer">
+          <form className="ef-drawer-search" onSubmit={e => { e.preventDefault(); if (searchQ.trim()) { router.push(`/?q=${encodeURIComponent(searchQ.trim())}`); setMenuOpen(false); setSearchQ(""); } }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input
+              type="search"
+              placeholder="Search stories…"
+              value={searchQ}
+              onChange={e => setSearchQ(e.target.value)}
+              autoComplete="off"
+            />
+          </form>
           <Link href="/?tab=About" onClick={() => setMenuOpen(false)}>About</Link>
           <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
           <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
