@@ -565,8 +565,10 @@ export default function Feed({
             />
           </form>
           <Link href="/?tab=About" onClick={() => setMenuOpen(false)}>About</Link>
+          <Link href="/" onClick={() => setMenuOpen(false)}>The Latest</Link>
           <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
           <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
+          <a href="/store">Store</a>
         </div>
       </header>
 
