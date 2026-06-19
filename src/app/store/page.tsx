@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+"use client";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
-
-export const metadata: Metadata = {
-  title: "Store — Efemera",
-  description: "Print issues, merchandise, and ephemera from Efemera.",
-};
+import SubscribeButton from "@/components/SubscribeButton";
 
 export default function StorePage() {
   return (
@@ -34,7 +30,7 @@ export default function StorePage() {
         .store-cta {
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
-          background: #8e0d0d; color: #fff; text-decoration: none;
+          background: #8e0d0d; color: #fff; border: none; cursor: pointer;
           padding: 14px 26px; border-radius: 2px;
         }
         .store-fly { width: 64px; height: auto; opacity: .85; margin-bottom: 28px; }
@@ -48,7 +44,7 @@ export default function StorePage() {
         <p className="store-body">
           Print issues, prints, and ephemera are on the way. Join the newsletter to hear first.
         </p>
-        <a href="/#subscribe" className="store-cta">Subscribe for updates</a>
+        <SubscribeButton className="store-cta">Join the Newsletter</SubscribeButton>
       </main>
       <MagFooter />
     </div>
