@@ -154,6 +154,7 @@ export default function Feed({
           line-height: .92;
           letter-spacing: -.05em;
           color: #fff;
+          text-shadow: 0 2px 24px rgba(0,0,0,.7), 0 1px 6px rgba(0,0,0,.5);
           transition: color .15s;
         }
         .ef-h1:hover { color: var(--red); }
@@ -163,7 +164,8 @@ export default function Feed({
           font-size: 25px;
           line-height: 1.35;
           font-style: italic;
-          color: rgba(247,241,231,.85);
+          color: rgba(255,255,255,.85);
+          text-shadow: 0 1px 10px rgba(0,0,0,.5);
         }
         .ef-meta {
           display: flex;
@@ -174,14 +176,15 @@ export default function Feed({
           font-weight: 800;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: rgba(247,241,231,.9);
+          color: rgba(255,255,255,.75);
         }
         .ef-read-link {
           display: inline-block;
           margin-top: 32px;
           color: #fff;
           font-size: 23px;
-          border-bottom: 1px solid rgba(255,255,255,.6);
+          border-bottom: 1px solid rgba(255,255,255,.5);
+          text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
 
         /* CARDS SECTION */
@@ -340,7 +343,8 @@ export default function Feed({
           height: 28px;
           width: auto;
           image-rendering: pixelated;
-          opacity: .7;
+          filter: invert(1) brightness(0);
+          opacity: .55;
         }
         .ef-footer-links {
           display: flex;
