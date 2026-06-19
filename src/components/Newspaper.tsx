@@ -148,8 +148,7 @@ export default function Feed({
           right: 44px;
           height: 80px;
           width: auto;
-          image-rendering: pixelated;
-          opacity: .85;
+          opacity: .9;
           z-index: 3;
         }
         .ef-kicker {
@@ -358,9 +357,7 @@ export default function Feed({
         .ef-footer-fly img {
           height: 46px;
           width: auto;
-          image-rendering: pixelated;
-          filter: brightness(0);
-          opacity: .65;
+          opacity: .8;
           display: block;
         }
         .ef-footer-links {
@@ -580,7 +577,7 @@ export default function Feed({
           style={heroImg ? { backgroundImage: `linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%), url(${heroImg})` } : undefined}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mayfly-icon.webp" alt="" className="ef-hero-fly" />
+          <img src="/mayfly-silhouette-cream.png" alt="" className="ef-hero-fly" />
           <div className="ef-hero-inner">
             <div className="ef-kicker">Worth Your Time</div>
             <Link href={`/stories/${hero.slug}`} style={{ outline: "none" }}>
@@ -658,7 +655,7 @@ export default function Feed({
       {/* FOOTER */}
       <footer className="ef-footer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <div className="ef-footer-fly"><img src="/mayfly-icon.webp" alt="" /></div>
+        <div className="ef-footer-fly"><img src="/mayfly-silhouette.png" alt="" /></div>
         <nav className="ef-footer-links">
           <Link href="/?tab=About">Masthead</Link>
           <a href="mailto:hello@efemera.co">Submit</a>
