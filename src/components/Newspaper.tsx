@@ -72,14 +72,18 @@ export default function Feed({
           --line: #cfc3b3;
         }
         * { box-sizing: border-box; }
+        html { background: #fbf6ee; }
         body {
           margin: 0;
           background: var(--paper);
           color: var(--ink);
           font-family: "Cormorant Garamond", Georgia, serif;
           -webkit-font-smoothing: antialiased;
+          overscroll-behavior-y: none;
         }
         a { color: inherit; text-decoration: none; }
+        .ef-h1 a:focus { outline: none; }
+        .ef-hero a:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 4px; }
 
         /* NAV */
         .ef-nav {
@@ -349,7 +353,6 @@ export default function Feed({
           align-items: center;
           gap: 30px;
           padding-bottom: 34px;
-          border-bottom: 1px solid var(--line);
         }
         .ef-footer-fly img {
           height: 28px;
@@ -519,7 +522,7 @@ export default function Feed({
           <img src="/mayfly-icon.webp" alt="" className="ef-hero-fly" />
           <div className="ef-hero-inner">
             <div className="ef-kicker">Worth Your Time</div>
-            <Link href={`/stories/${hero.slug}`}>
+            <Link href={`/stories/${hero.slug}`} style={{ outline: "none" }}>
               <h1 className="ef-h1">{hero.headline}</h1>
             </Link>
             {hero.subheadline && <p className="ef-dek">{hero.subheadline}</p>}
