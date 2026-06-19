@@ -145,6 +145,7 @@ export default function Feed({
           letter-spacing: .22em;
           text-transform: uppercase;
           color: #fff;
+          text-shadow: 0 1px 8px rgba(0,0,0,.5);
           margin-bottom: 22px;
         }
         .ef-h1 {
@@ -164,7 +165,7 @@ export default function Feed({
           font-size: 25px;
           line-height: 1.35;
           font-style: italic;
-          color: rgba(255,255,255,.85);
+          color: #fff;
           text-shadow: 0 1px 10px rgba(0,0,0,.5);
         }
         .ef-meta {
@@ -176,7 +177,8 @@ export default function Feed({
           font-weight: 800;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: rgba(255,255,255,.75);
+          color: #fff;
+          text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
         .ef-read-link {
           display: inline-block;
