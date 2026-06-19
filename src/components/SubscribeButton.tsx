@@ -80,10 +80,16 @@ export default function SubscribeButton({
             >×</button>
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Cream Mayfly.png" alt="" style={{ height: 56, width: "auto", opacity: .9, marginBottom: 18 }} />
+            <img src="/Cream Mayfly.png" alt="" style={{ height: 52, width: "auto", opacity: .9, marginBottom: 22 }} />
 
-            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 22, lineHeight: 1.45, opacity: .96, margin: "0 0 26px" }}>
-              Each month, we publish a chapbook featuring narratives, essays, and micro-memoirs. Subscribe now to receive the first one.
+            <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", opacity: .75, marginBottom: 16 }}>
+              The Chapbook
+            </div>
+            <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
+              A literary journal, delivered.
+            </h2>
+            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
+              Each month, we publish a chapbook of narratives, essays, and micro-memoirs. Subscribe to receive the first one.
             </p>
 
             {status === "done" ? (
