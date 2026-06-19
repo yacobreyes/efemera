@@ -398,16 +398,16 @@
     @media (max-width: 900px) {
       .nav {
         height: auto;
-        padding: 28px 24px;
+        padding: 22px 24px;
         grid-template-columns: 1fr;
-        gap: 22px;
+        gap: 18px;
         text-align: center;
       }
 
       .nav-group,
       .nav-group.right {
         justify-content: center;
-        gap: 20px;
+        gap: 18px;
         flex-wrap: wrap;
       }
 
@@ -416,39 +416,101 @@
       }
 
       .logo img {
+        height: 46px;
         margin: 0 auto;
       }
 
       .hero {
         grid-template-columns: 1fr;
-        padding: 56px 28px;
+        gap: 28px;
+        padding: 44px 24px;
+        min-height: 0;
+      }
+
+      h1 {
+        font-size: clamp(44px, 13vw, 60px);
+      }
+
+      .dek {
+        font-size: 20px;
+        margin: 20px 0 24px;
+      }
+
+      .read-link {
+        margin-top: 26px;
+        font-size: 20px;
       }
 
       .hero-art {
-        height: 240px;
+        height: 220px;
+        order: -1;
+      }
+
+      .section {
+        padding: 48px 24px 56px;
+      }
+
+      .section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+      }
+
+      .section-head h2 {
+        font-size: 30px;
       }
 
       .grid {
         grid-template-columns: 1fr;
+        gap: 28px;
       }
 
       .card {
         border-right: 0;
         border-bottom: 1px solid var(--line);
-        padding: 0 0 34px;
+        padding: 0 0 28px;
+      }
+
+      .card:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .card h3 {
+        font-size: 27px;
       }
 
       .reads {
         grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 44px 24px;
+      }
+
+      .reads h2 {
+        font-size: 32px;
       }
 
       .time-circles {
+        gap: 16px;
         flex-wrap: wrap;
+      }
+
+      .circle {
+        width: 74px;
+        height: 74px;
+      }
+
+      .circle strong {
+        font-size: 28px;
       }
 
       .footer-row {
         grid-template-columns: 1fr;
+        justify-items: center;
         text-align: center;
+        gap: 24px;
       }
 
       .footer-links,
