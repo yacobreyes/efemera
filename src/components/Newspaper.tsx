@@ -642,7 +642,7 @@ export default function Feed({
           <h2>True stories for the time you have.</h2>
         </div>
         <div className="ef-circles">
-          {[3, 5, 8, 12].map(m => (
+          {[1, 3, 5, 7].map(m => (
             <button
               key={m}
               className={`ef-circle${activeMin === m ? " active" : ""}`}
