@@ -505,7 +505,6 @@ export default function Feed({
           <Link href="/?tab=Narratives" onClick={() => setMenuOpen(false)}>Sections</Link>
           <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
           <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
-          <a href="/stories">Stories</a>
         </div>
       </header>
 
