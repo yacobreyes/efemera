@@ -82,14 +82,8 @@ export default function SubscribeButton({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Cream Mayfly.png" alt="" style={{ height: 56, width: "auto", opacity: .9, marginBottom: 18 }} />
 
-            <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", opacity: .85, marginBottom: 14 }}>
-              The Newsletter
-            </div>
-            <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 38, lineHeight: 1.02, letterSpacing: "-.025em", margin: "0 0 12px" }}>
-              New stories in your inbox.
-            </h2>
-            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 20, fontStyle: "italic", lineHeight: 1.4, opacity: .92, margin: "0 0 26px" }}>
-              Short, true, and worth your time.
+            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 22, lineHeight: 1.45, opacity: .96, margin: "0 0 26px" }}>
+              Each month, we publish a chapbook featuring narratives, essays, and micro-memoirs. Subscribe now to receive the first one.
             </p>
 
             {status === "done" ? (
