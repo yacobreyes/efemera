@@ -225,7 +225,14 @@
       font-size: 29px;
       line-height: 1.05;
       letter-spacing: -.025em;
+      transition: color .15s;
+      cursor: pointer;
     }
+
+    .card h3:hover, .card h3:focus { color: var(--red); }
+
+    h1 { transition: color .15s; }
+    h1:hover { color: var(--red); cursor: pointer; }
 
     .byline {
       margin-bottom: 14px;
