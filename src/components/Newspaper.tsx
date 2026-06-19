@@ -158,7 +158,7 @@ export default function Feed({
           text-shadow: 0 2px 24px rgba(0,0,0,.7), 0 1px 6px rgba(0,0,0,.5);
           transition: color .15s;
         }
-        .ef-h1:hover { color: var(--red); }
+        .ef-h1:hover { color: #fff; }
         .ef-dek {
           max-width: 560px;
           margin: 26px 0 30px;
