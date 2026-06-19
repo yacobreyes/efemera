@@ -6,7 +6,7 @@
 <title>efemera</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,7 +20,7 @@
   --display: 'Bodoni Moda', Georgia, serif;
   --read: 'Newsreader', Georgia, serif;
   --label: 'Inter', system-ui, sans-serif;
-  --hand: 'Caveat', cursive;
+  --content: 1120px;
 }
 
 html { background: var(--crimson); }
@@ -29,42 +29,32 @@ body {
   color: var(--ink);
   font-family: var(--read);
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-.wrap { max-width: 1120px; margin: 0 auto; padding: 0 2.5rem; }
 
 .label {
   font-family: var(--label);
   font-size: .56rem;
   font-weight: 600;
-  letter-spacing: .24em;
+  letter-spacing: .22em;
   text-transform: uppercase;
 }
 
-/* ─── MASTHEAD + NAV ─── */
+/* ─── MASTHEAD ─── */
 .masthead {
   border-bottom: 1px solid var(--rule);
   background: var(--bg);
 }
-.masthead .wrap {
+.masthead-inner {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 0 2.5rem;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding-top: 1.4rem;
-  padding-bottom: 1.4rem;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
   gap: 2rem;
-}
-.masthead-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .5rem;
-}
-.masthead-logo img.wordmark { height: 52px; width: auto; display: block; }
-.masthead-fly {
-  width: 22px; height: 22px;
-  image-rendering: pixelated;
-  opacity: .75;
-  margin-top: -4px;
 }
 .nav-left {
   display: flex;
@@ -80,7 +70,7 @@ body {
 }
 .masthead a {
   font-family: var(--label);
-  font-size: .58rem;
+  font-size: .54rem;
   font-weight: 500;
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -90,76 +80,39 @@ body {
 }
 .masthead a:hover { color: var(--crimson); }
 .masthead a.submit { color: var(--crimson); font-weight: 600; }
+.masthead-logo img { height: 48px; width: auto; display: block; margin: 0 auto; }
 
 /* ─── HERO ─── */
 .hero {
-  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 520px;
   border-bottom: 1px solid var(--rule);
 }
-.hero-img {
-  width: 100%;
-  aspect-ratio: 21 / 9;
-  object-fit: cover;
-  display: block;
-}
-.hero-img-placeholder {
-  width: 100%;
-  aspect-ratio: 21 / 9;
-  background: #b8ad9e;
-  position: relative;
-  overflow: hidden;
-  display: block;
-}
-.hero-img-placeholder::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/Paper%20card%202.jpg') center/cover;
-  opacity: .6;
-  mix-blend-mode: multiply;
-}
-.hero-img-placeholder::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(33,29,24,.55) 100%);
-}
-.hero-fly {
-  position: absolute;
-  top: 1.5rem;
-  right: 2rem;
-  width: 42px; height: 42px;
-  image-rendering: pixelated;
-  opacity: .85;
-  z-index: 2;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,.4));
-}
 .hero-text {
-  padding: 2.5rem 0 2.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3.5rem 4rem calc((100vw - var(--content)) / 2 + 2.5rem);
+  padding-left: max(2.5rem, calc((100vw - var(--content)) / 2 + 2.5rem));
+  border-right: 1px solid var(--rule);
 }
-.hero-text .wrap {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 3rem;
-  align-items: end;
-}
-.hero-left { max-width: 640px; }
 .hero-kicker {
   color: var(--crimson);
   display: flex;
   align-items: center;
   gap: .5rem;
-  margin-bottom: .9rem;
+  margin-bottom: 1rem;
 }
 .hero-kicker img {
-  width: 14px; height: 14px;
+  width: 13px; height: 13px;
   image-rendering: pixelated;
   opacity: .8;
 }
 .hero-hed {
   font-family: var(--display);
   font-weight: 900;
-  font-size: clamp(2.6rem, 4.5vw, 4.25rem);
+  font-size: clamp(2.4rem, 4vw, 3.75rem);
   line-height: .97;
   letter-spacing: -.03em;
   margin-bottom: 1rem;
@@ -167,145 +120,166 @@ body {
 .hero-dek {
   font-family: var(--read);
   font-style: italic;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.5;
   color: var(--muted);
   margin-bottom: 1.25rem;
-  max-width: 48ch;
+  max-width: 40ch;
 }
 .hero-byline {
   font-family: var(--label);
-  font-size: .54rem;
+  font-size: .5rem;
   font-weight: 600;
-  letter-spacing: .16em;
+  letter-spacing: .15em;
   text-transform: uppercase;
   color: var(--ink);
+  margin-bottom: 1.5rem;
 }
 .hero-byline .sub { color: var(--muted); font-weight: 500; }
 .hero-more {
-  display: inline-block;
-  margin-top: 1.25rem;
-  font-family: var(--read);
-  font-style: italic;
-  font-size: 1rem;
-  color: var(--crimson);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.3);
-}
-.hero-note {
-  font-family: var(--hand);
-  font-size: 1.25rem;
-  color: var(--muted);
-  line-height: 1.4;
-  max-width: 18ch;
-  text-align: right;
-  padding-bottom: .25rem;
-  opacity: .8;
-}
-
-/* ─── SECTION DIVIDER ─── */
-.divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .9rem;
-  padding: 1.75rem 0;
-}
-.divider-rule { flex: 1; height: 1px; background: var(--rule); }
-.divider-fly {
-  width: 18px; height: 18px;
-  image-rendering: pixelated;
-  opacity: .5;
-}
-
-/* ─── IN THIS ISSUE / PICKS ─── */
-.picks { padding: 0 0 3.5rem; border-bottom: 1px solid var(--rule); }
-.picks-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-bottom: 1.25rem;
-  margin-bottom: 2.25rem;
-  border-bottom: 2px solid var(--ink);
-}
-.picks-title {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.4rem;
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-}
-.picks-title img {
-  width: 16px; height: 16px;
-  image-rendering: pixelated;
-  opacity: .7;
-}
-.picks-more {
   font-family: var(--read);
   font-style: italic;
   font-size: .95rem;
   color: var(--crimson);
   text-decoration: none;
   border-bottom: 1px solid rgba(139,0,0,.3);
+  align-self: flex-start;
+}
+.hero-img {
+  position: relative;
+  overflow: hidden;
+}
+.hero-img-placeholder {
+  position: absolute;
+  inset: 0;
+  background: #b8ad9e;
+}
+.hero-img-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/Paper%20card%202.jpg') center/cover;
+  opacity: .7;
+  mix-blend-mode: multiply;
+}
+.hero-fly {
+  position: absolute;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  width: 36px; height: 36px;
+  image-rendering: pixelated;
+  opacity: .75;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.3));
+}
+
+/* ─── SECTION HEADER ─── */
+.section-hd {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 2.5rem 2.5rem 1.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--ink);
+  margin-bottom: 0;
+}
+.section-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+.section-more {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: .92rem;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.3);
+}
+
+/* ─── PICKS (card grid) ─── */
+.picks-wrap {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 0 2.5rem 3.5rem;
+  border-bottom: 1px solid var(--rule);
 }
 .pick-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--rule);
 }
 .pick {
-  padding: 0 2rem;
+  padding: 1.75rem 2rem 0;
   border-right: 1px solid var(--rule);
 }
 .pick:first-child { padding-left: 0; }
 .pick:last-child { border-right: none; padding-right: 0; }
+.pick-thumb {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  background: #c5b9aa;
+  margin-bottom: 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+.pick-thumb::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/Paper%20Card%203.jpg') center/cover;
+  opacity: .55;
+  mix-blend-mode: multiply;
+}
+.pick:nth-child(2) .pick-thumb::after { background-image: url('/Paper%20card%202.jpg'); }
+.pick:nth-child(3) .pick-thumb::after { background-image: url('/Paper%20Card%204.png'); }
 .pick-no {
   font-family: var(--display);
   font-weight: 400;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   color: var(--crimson);
   line-height: 1;
-  margin-bottom: .9rem;
+  margin-bottom: .75rem;
 }
 .pick-cat {
   font-family: var(--label);
-  font-size: .46rem;
+  font-size: .44rem;
   font-weight: 600;
   letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: .55rem;
+  margin-bottom: .5rem;
 }
 .pick-hed {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   line-height: 1.1;
-  margin-bottom: .5rem;
+  margin-bottom: .45rem;
 }
 .pick-hed a { color: inherit; text-decoration: none; }
 .pick-hed a:hover { color: var(--crimson); }
 .pick-author {
   font-family: var(--read);
   font-style: italic;
-  font-size: .95rem;
+  font-size: .9rem;
   color: var(--muted);
-  margin-bottom: .7rem;
+  margin-bottom: .65rem;
 }
 .pick-body {
   font-family: var(--read);
-  font-size: .95rem;
+  font-size: .92rem;
   line-height: 1.6;
   color: #44403a;
 }
 .pick-meta {
   font-family: var(--label);
-  font-size: .44rem;
+  font-size: .42rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: #aaa098;
-  margin-top: .8rem;
+  margin-top: .75rem;
 }
 
 /* ─── ONE-SITTING ─── */
@@ -313,12 +287,14 @@ body {
   background: #e8ddd1;
   border-bottom: 1px solid var(--rule);
 }
-.onesit .wrap {
+.onesit-inner {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 2.75rem 2.5rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 3rem;
   align-items: center;
-  padding: 2.75rem 2.5rem;
 }
 .os-label { color: var(--crimson); margin-bottom: .6rem; }
 .os-line {
@@ -344,40 +320,60 @@ body {
 /* ─── FOOTER ─── */
 footer {
   background: var(--crimson);
-  color: rgba(255,255,255,.5);
-  padding: 2.5rem 2rem 2rem;
+  padding: 2rem 2.5rem;
+}
+.footer-inner {
+  max-width: var(--content);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 .footer-fly {
-  width: 28px; height: 28px;
+  width: 24px; height: 24px;
   image-rendering: pixelated;
-  opacity: .5;
+  opacity: .45;
   filter: brightness(10);
 }
-.footer-text {
+.footer-nav {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.footer-nav a {
   font-family: var(--label);
   font-size: .48rem;
   font-weight: 500;
-  letter-spacing: .26em;
+  letter-spacing: .16em;
   text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  text-decoration: none;
+}
+.footer-nav a:hover { color: rgba(255,255,255,.8); }
+.footer-copy {
+  font-family: var(--label);
+  font-size: .44rem;
+  font-weight: 400;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
 }
 </style>
 </head>
 <body>
 
-<!-- MASTHEAD + NAV -->
+<!-- MASTHEAD -->
 <header class="masthead">
-  <div class="wrap">
+  <div class="masthead-inner">
     <nav class="nav-left">
       <a href="#">Home</a>
       <a href="#">About</a>
       <a href="#">Sections</a>
     </nav>
     <div class="masthead-logo">
-      <img class="wordmark" src="/Crimson%20Wordmark.png" alt="efemera">
+      <img src="/Crimson%20Wordmark.png" alt="efemera">
     </div>
     <nav class="nav-right">
       <a href="#">Gangrey</a>
@@ -388,73 +384,63 @@ footer {
 </header>
 
 <!-- HERO -->
-<div class="hero">
-  <div class="hero-img-placeholder"></div>
-  <img class="hero-fly" src="/mayfly-icon.webp" alt="">
+<section class="hero">
   <div class="hero-text">
-    <div class="wrap">
-      <div class="hero-left" style="grid-column:1/-1">
-        <div class="hero-kicker label">
-          <img src="/mayfly-icon.webp" alt="">
-          The Lead · Narrative
-        </div>
-        <h1 class="hero-hed">Why I'm Switching Salons</h1>
-        <p class="hero-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
-        <p class="hero-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
-        <a href="#" class="hero-more">Continue reading →</a>
-      </div>
+    <div class="hero-kicker label">
+      <img src="/mayfly-icon.webp" alt="">
+      The Lead · Narrative
     </div>
+    <h1 class="hero-hed">Why I'm Switching Salons</h1>
+    <p class="hero-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
+    <p class="hero-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
+    <a href="#" class="hero-more">Continue reading →</a>
   </div>
-</div>
-
-<!-- DIVIDER -->
-<div class="wrap">
-  <div class="divider">
-    <div class="divider-rule"></div>
-    <img class="divider-fly" src="/mayfly-icon.webp" alt="">
-    <div class="divider-rule"></div>
+  <div class="hero-img">
+    <div class="hero-img-placeholder"></div>
+    <img class="hero-fly" src="/mayfly-icon.webp" alt="">
   </div>
-</div>
+</section>
 
 <!-- IN THIS ISSUE -->
-<div class="wrap">
-  <section class="picks">
-    <div class="picks-head">
-      <h2 class="picks-title">In This Issue</h2>
-      <a href="#" class="picks-more">Read the full edition →</a>
-    </div>
-    <div class="pick-grid">
-      <article class="pick">
-        <div class="pick-no">01</div>
-        <div class="pick-cat">Narrative</div>
-        <h3 class="pick-hed"><a href="#">How to Disappear Completely</a></h3>
-        <p class="pick-author">Camille Dungy</p>
-        <p class="pick-body">A road trip, a broken phone, and what I learned about presence when the music stopped.</p>
-        <div class="pick-meta">6 min read</div>
-      </article>
-      <article class="pick">
-        <div class="pick-no">02</div>
-        <div class="pick-cat">Essay</div>
-        <h3 class="pick-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
-        <p class="pick-author">James Tate Hill</p>
-        <p class="pick-body">On the strange freedom of being mediocre at something you love, and loving it anyway.</p>
-        <div class="pick-meta">3 min read</div>
-      </article>
-      <article class="pick">
-        <div class="pick-no">03</div>
-        <div class="pick-cat">Micro-Memoir</div>
-        <h3 class="pick-hed"><a href="#">The Last Voicemail</a></h3>
-        <p class="pick-author">Priya Basil</p>
-        <p class="pick-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
-        <div class="pick-meta">1 min read</div>
-      </article>
-    </div>
-  </section>
+<div class="section-hd">
+  <h2 class="section-title">In This Issue</h2>
+  <a href="#" class="section-more">Read the full edition →</a>
+</div>
+<div class="picks-wrap">
+  <div class="pick-grid">
+    <article class="pick">
+      <div class="pick-thumb"></div>
+      <div class="pick-no">01</div>
+      <div class="pick-cat">Narrative</div>
+      <h3 class="pick-hed"><a href="#">How to Disappear Completely</a></h3>
+      <p class="pick-author">Camille Dungy</p>
+      <p class="pick-body">A road trip, a broken phone, and what I learned about presence when the music stopped.</p>
+      <div class="pick-meta">6 min read</div>
+    </article>
+    <article class="pick">
+      <div class="pick-thumb"></div>
+      <div class="pick-no">02</div>
+      <div class="pick-cat">Essay</div>
+      <h3 class="pick-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
+      <p class="pick-author">James Tate Hill</p>
+      <p class="pick-body">On the strange freedom of being mediocre at something you love, and loving it anyway.</p>
+      <div class="pick-meta">3 min read</div>
+    </article>
+    <article class="pick">
+      <div class="pick-thumb"></div>
+      <div class="pick-no">03</div>
+      <div class="pick-cat">Micro-Memoir</div>
+      <h3 class="pick-hed"><a href="#">The Last Voicemail</a></h3>
+      <p class="pick-author">Priya Basil</p>
+      <p class="pick-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
+      <div class="pick-meta">1 min read</div>
+    </article>
+  </div>
 </div>
 
 <!-- ONE-SITTING -->
 <div class="onesit">
-  <div class="wrap">
+  <div class="onesit-inner">
     <div>
       <div class="os-label label">One-Sitting Reads</div>
       <p class="os-line">True stories for the time you actually have.</p>
@@ -470,8 +456,18 @@ footer {
 
 <!-- FOOTER -->
 <footer>
-  <img class="footer-fly" src="/mayfly-icon.webp" alt="">
-  <span class="footer-text">efemera &nbsp;·&nbsp; a literary magazine by yacob reyes &nbsp;·&nbsp; est. 2024</span>
+  <div class="footer-inner">
+    <img class="footer-fly" src="/mayfly-icon.webp" alt="">
+    <nav class="footer-nav">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Sections</a>
+      <a href="#">Gangrey</a>
+      <a href="#">Archive</a>
+      <a href="#">Submit</a>
+    </nav>
+    <span class="footer-copy">© 2026 efemera · a literary magazine by yacob reyes · est. 2024</span>
+  </div>
 </footer>
 
 </body>
