@@ -308,7 +308,7 @@ export default function Feed({
         .ef-circle {
           width: 92px;
           height: 92px;
-          border: 1px solid rgba(255,255,255,.45);
+          border: 1px solid #fbf6ee;
           border-radius: 50%;
           display: flex;
           flex-direction: column;
@@ -323,7 +323,7 @@ export default function Feed({
           text-transform: uppercase;
           cursor: pointer;
           background: transparent;
-          border: 1px solid rgba(255,255,255,.45);
+          border: 1px solid #fbf6ee;
           color: #fbf6ee;
           transition: all .15s;
         }
