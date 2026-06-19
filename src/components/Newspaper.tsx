@@ -145,7 +145,7 @@ export default function Feed({
           font-weight: 800;
           letter-spacing: .22em;
           text-transform: uppercase;
-          color: var(--red);
+          color: #fff;
           margin-bottom: 22px;
         }
         .ef-h1 {
