@@ -84,25 +84,31 @@ body {
 
 /* ─── HERO ─── */
 .hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 520px;
+  background: linear-gradient(105deg, var(--bg) 0%, #f3e9df 45%, #f0e2dd 100%);
   border-bottom: 1px solid var(--rule);
+}
+.hero-inner {
+  max-width: var(--content);
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+  min-height: 540px;
 }
 .hero-text {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 4rem 3.5rem 4rem calc((100vw - var(--content)) / 2 + 2.5rem);
-  padding-left: max(2.5rem, calc((100vw - var(--content)) / 2 + 2.5rem));
-  border-right: 1px solid var(--rule);
+  padding: 3.5rem 0;
 }
 .hero-kicker {
   color: var(--crimson);
   display: flex;
   align-items: center;
   gap: .5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 .hero-kicker img {
   width: 13px; height: 13px;
@@ -112,19 +118,19 @@ body {
 .hero-hed {
   font-family: var(--display);
   font-weight: 900;
-  font-size: clamp(2.4rem, 4vw, 3.75rem);
-  line-height: .97;
+  font-size: clamp(2.6rem, 4.5vw, 4rem);
+  line-height: .98;
   letter-spacing: -.03em;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 .hero-dek {
   font-family: var(--read);
   font-style: italic;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1.5;
   color: var(--muted);
-  margin-bottom: 1.25rem;
-  max-width: 40ch;
+  margin-bottom: 1.35rem;
+  max-width: 38ch;
 }
 .hero-byline {
   font-family: var(--label);
@@ -133,7 +139,7 @@ body {
   letter-spacing: .15em;
   text-transform: uppercase;
   color: var(--ink);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
 }
 .hero-byline .sub { color: var(--muted); font-weight: 500; }
 .hero-more {
@@ -147,19 +153,20 @@ body {
 }
 .hero-img {
   position: relative;
+  align-self: stretch;
   overflow: hidden;
 }
 .hero-img-placeholder {
   position: absolute;
   inset: 0;
-  background: #b8ad9e;
+  background: #cabfb0;
 }
 .hero-img-placeholder::before {
   content: '';
   position: absolute;
   inset: 0;
   background: url('/Paper%20card%202.jpg') center/cover;
-  opacity: .7;
+  opacity: .8;
   mix-blend-mode: multiply;
 }
 .hero-fly {
@@ -176,17 +183,15 @@ body {
 .section-hd {
   max-width: var(--content);
   margin: 0 auto;
-  padding: 2.5rem 2.5rem 1.5rem;
+  padding: 3.25rem 2.5rem 1.25rem;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  border-bottom: 2px solid var(--ink);
-  margin-bottom: 0;
 }
 .section-title {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.55rem;
 }
 .section-more {
   font-family: var(--read);
@@ -207,17 +212,13 @@ body {
 .pick-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-top: 1px solid var(--rule);
+  gap: 2.25rem;
+  border-top: 1px solid var(--ink);
+  padding-top: 2rem;
 }
-.pick {
-  padding: 1.75rem 2rem 0;
-  border-right: 1px solid var(--rule);
-}
-.pick:first-child { padding-left: 0; }
-.pick:last-child { border-right: none; padding-right: 0; }
 .pick-thumb {
   width: 100%;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4 / 3;
   background: #c5b9aa;
   margin-bottom: 1.1rem;
   position: relative;
@@ -228,32 +229,24 @@ body {
   position: absolute;
   inset: 0;
   background: url('/Paper%20Card%203.jpg') center/cover;
-  opacity: .55;
+  opacity: .65;
   mix-blend-mode: multiply;
 }
 .pick:nth-child(2) .pick-thumb::after { background-image: url('/Paper%20card%202.jpg'); }
 .pick:nth-child(3) .pick-thumb::after { background-image: url('/Paper%20Card%204.png'); }
-.pick-no {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: 1.35rem;
-  color: var(--crimson);
-  line-height: 1;
-  margin-bottom: .75rem;
-}
 .pick-cat {
   font-family: var(--label);
   font-size: .44rem;
   font-weight: 600;
   letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--crimson);
   margin-bottom: .5rem;
 }
 .pick-hed {
   font-family: var(--display);
   font-weight: 700;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   line-height: 1.1;
   margin-bottom: .45rem;
 }
@@ -282,65 +275,61 @@ body {
   margin-top: .75rem;
 }
 
-/* ─── ONE-SITTING ─── */
+/* ─── ONE-SITTING (crimson band) ─── */
 .onesit {
-  background: #e8ddd1;
-  border-bottom: 1px solid var(--rule);
+  background: var(--crimson);
 }
 .onesit-inner {
   max-width: var(--content);
   margin: 0 auto;
-  padding: 2.75rem 2.5rem;
+  padding: 3rem 2.5rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 3rem;
   align-items: center;
 }
-.os-label { color: var(--crimson); margin-bottom: .6rem; }
+.os-label { color: rgba(255,255,255,.55); margin-bottom: .7rem; }
 .os-line {
   font-family: var(--display);
   font-weight: 400;
   font-style: italic;
-  font-size: 1.5rem;
+  font-size: 1.7rem;
   line-height: 1.3;
+  color: #fff;
 }
 .os-circles { display: flex; gap: .9rem; }
 .os-btn {
   width: 70px; height: 70px; border-radius: 50%;
-  border: 1px solid #b3a89c; background: transparent;
+  border: 1px solid rgba(255,255,255,.3); background: transparent;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: pointer; transition: all .2s;
 }
-.os-btn.active { background: var(--crimson); border-color: var(--crimson); }
-.os-btn .n { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1; }
-.os-btn.active .n { color: #fff; }
-.os-btn .u { font-family: var(--label); font-size: .4rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #a99f94; margin-top: .2rem; }
-.os-btn.active .u { color: rgba(255,255,255,.65); }
+.os-btn.active { background: #fff; border-color: #fff; }
+.os-btn .n { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1; color: rgba(255,255,255,.85); }
+.os-btn.active .n { color: var(--crimson); }
+.os-btn .u { font-family: var(--label); font-size: .4rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.45); margin-top: .2rem; }
+.os-btn.active .u { color: var(--crimson); opacity: .6; }
 
-/* ─── FOOTER ─── */
+/* ─── FOOTER (continues crimson) ─── */
 footer {
   background: var(--crimson);
-  padding: 2rem 2.5rem;
+  border-top: 1px solid rgba(255,255,255,.15);
+  padding: 1.75rem 2.5rem 2rem;
 }
 .footer-inner {
   max-width: var(--content);
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.25rem;
 }
-.footer-fly {
-  width: 24px; height: 24px;
-  image-rendering: pixelated;
-  opacity: .45;
-  filter: brightness(10);
+.footer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.5rem;
 }
 .footer-nav {
   display: flex;
   gap: 2rem;
   flex-wrap: wrap;
-  justify-content: center;
 }
 .footer-nav a {
   font-family: var(--label);
@@ -348,17 +337,31 @@ footer {
   font-weight: 500;
   letter-spacing: .16em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.45);
+  color: rgba(255,255,255,.55);
   text-decoration: none;
 }
-.footer-nav a:hover { color: rgba(255,255,255,.8); }
+.footer-nav a:hover { color: #fff; }
+.footer-social { display: flex; gap: 1.25rem; }
+.footer-social a {
+  color: rgba(255,255,255,.55);
+  font-family: var(--label);
+  font-size: .5rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.footer-social a:hover { color: #fff; }
 .footer-copy {
+  text-align: center;
   font-family: var(--label);
   font-size: .44rem;
   font-weight: 400;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: rgba(255,255,255,.3);
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,.12);
 }
 </style>
 </head>
@@ -385,19 +388,21 @@ footer {
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-text">
-    <div class="hero-kicker label">
-      <img src="/mayfly-icon.webp" alt="">
-      The Lead · Narrative
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-kicker label">
+        <img src="/mayfly-icon.webp" alt="">
+        The Lead · Narrative
+      </div>
+      <h1 class="hero-hed">Why I'm Switching Salons</h1>
+      <p class="hero-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
+      <p class="hero-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
+      <a href="#" class="hero-more">Continue reading →</a>
     </div>
-    <h1 class="hero-hed">Why I'm Switching Salons</h1>
-    <p class="hero-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
-    <p class="hero-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
-    <a href="#" class="hero-more">Continue reading →</a>
-  </div>
-  <div class="hero-img">
-    <div class="hero-img-placeholder"></div>
-    <img class="hero-fly" src="/mayfly-icon.webp" alt="">
+    <div class="hero-img">
+      <div class="hero-img-placeholder"></div>
+      <img class="hero-fly" src="/mayfly-icon.webp" alt="">
+    </div>
   </div>
 </section>
 
@@ -410,7 +415,6 @@ footer {
   <div class="pick-grid">
     <article class="pick">
       <div class="pick-thumb"></div>
-      <div class="pick-no">01</div>
       <div class="pick-cat">Narrative</div>
       <h3 class="pick-hed"><a href="#">How to Disappear Completely</a></h3>
       <p class="pick-author">Camille Dungy</p>
@@ -419,7 +423,6 @@ footer {
     </article>
     <article class="pick">
       <div class="pick-thumb"></div>
-      <div class="pick-no">02</div>
       <div class="pick-cat">Essay</div>
       <h3 class="pick-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
       <p class="pick-author">James Tate Hill</p>
@@ -428,7 +431,6 @@ footer {
     </article>
     <article class="pick">
       <div class="pick-thumb"></div>
-      <div class="pick-no">03</div>
       <div class="pick-cat">Micro-Memoir</div>
       <h3 class="pick-hed"><a href="#">The Last Voicemail</a></h3>
       <p class="pick-author">Priya Basil</p>
@@ -457,16 +459,20 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
-    <img class="footer-fly" src="/mayfly-icon.webp" alt="">
-    <nav class="footer-nav">
-      <a href="#">Home</a>
-      <a href="#">About</a>
-      <a href="#">Sections</a>
-      <a href="#">Gangrey</a>
-      <a href="#">Archive</a>
-      <a href="#">Submit</a>
-    </nav>
-    <span class="footer-copy">© 2026 efemera · a literary magazine by yacob reyes · est. 2024</span>
+    <div class="footer-top">
+      <nav class="footer-nav">
+        <a href="#">About</a>
+        <a href="#">Gangrey</a>
+        <a href="#">Subscribe</a>
+        <a href="#">Contact</a>
+      </nav>
+      <div class="footer-social">
+        <a href="#">X</a>
+        <a href="#">IG</a>
+        <a href="#">RSS</a>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 efemera · a literary magazine by yacob reyes · est. 2024</div>
   </div>
 </footer>
 
