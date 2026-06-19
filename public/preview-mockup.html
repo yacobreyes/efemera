@@ -348,28 +348,19 @@
     @media (max-width: 900px) {
       .nav {
         height: auto;
-        padding: 20px 24px;
+        padding: 18px 24px;
         grid-template-columns: 1fr;
-        gap: 14px;
         text-align: center;
       }
 
-      .logo {
-        order: -1;
+      .nav-group,
+      .nav-group.right {
+        display: none;
       }
 
       .logo img {
         height: 42px;
         margin: 0 auto;
-      }
-
-      .nav-group,
-      .nav-group.right {
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-        font-size: 11px;
-        letter-spacing: .13em;
       }
 
       .hero {
