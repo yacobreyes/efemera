@@ -153,7 +153,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
       <nav className="mag-nav-group">
         <Link href="/about">About</Link>
-        <Link href="/">The Latest</Link>
+        <Link href="/latest">The Latest</Link>
         <Link href="/gangrey">Gangrey</Link>
       </nav>
 
@@ -170,7 +170,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       )}
 
       <nav className="mag-nav-group right">
-        <Link href="/archive">Archive</Link>
+        <Link href="/">Current Issue</Link>
         <Link href="/store">Store</Link>
         <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
       </nav>
@@ -194,9 +194,9 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           <input type="search" placeholder="Search stories…" value={searchQ} onChange={e => setSearchQ(e.target.value)} autoComplete="off" />
         </form>
         <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
-        <Link href="/" onClick={() => setMenuOpen(false)}>The Latest</Link>
+        <Link href="/latest" onClick={() => setMenuOpen(false)}>The Latest</Link>
         <Link href="/gangrey" onClick={() => setMenuOpen(false)}>Gangrey</Link>
-        <Link href="/archive" onClick={() => setMenuOpen(false)}>Archive</Link>
+        <Link href="/" onClick={() => setMenuOpen(false)}>Current Issue</Link>
         <Link href="/store" onClick={() => setMenuOpen(false)}>Store</Link>
       </div>
     </header>
