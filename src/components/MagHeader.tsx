@@ -6,7 +6,7 @@ export default function MagHeader() {
     <header className="mag-nav">
       <style>{`
         .mag-nav {
-          height: 92px;
+          height: 100px;
           display: grid;
           grid-template-columns: 1fr auto 1fr;
           align-items: center;
@@ -31,7 +31,7 @@ export default function MagHeader() {
         .mag-nav-group a { color: inherit; text-decoration: none; }
         .mag-nav-group.right { justify-content: flex-end; }
         .mag-logo { display: block; justify-self: center; }
-        .mag-logo img { height: 54px; width: auto; display: block; }
+        .mag-logo img { height: 58px; width: auto; display: block; }
         .mag-nav-cta {
           background: #8e0d0d;
           color: #fff !important;
