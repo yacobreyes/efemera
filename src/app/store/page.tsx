@@ -41,9 +41,6 @@ export default function StorePage() {
         <img src="/Black Mayfly.png" alt="" className="store-fly" />
         <div className="store-kicker">The Store</div>
         <h1 className="store-title">Coming Soon</h1>
-        <p className="store-body">
-          Print issues, prints, and ephemera are on the way. Join the newsletter to hear first.
-        </p>
         <SubscribeButton className="store-cta">Join the Newsletter</SubscribeButton>
       </main>
       <MagFooter />
