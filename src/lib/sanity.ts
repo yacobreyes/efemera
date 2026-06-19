@@ -90,6 +90,23 @@ export async function getAllSlugs(): Promise<string[]> {
   return client.fetch(`*[_type == "post"].slug.current`, {}, { cache: "no-store" });
 }
 
+export interface SanityIssue {
+  _id: string;
+  slug: string;
+  number: number;
+  title: string;
+  description?: string;
+  publishedAt: string;
+  url?: string;
+}
+
+export async function getAllIssues(): Promise<SanityIssue[]> {
+  return client.fetch(
+    `*[_type == "issue"] | order(publishedAt desc) { _id, "slug": slug.current, number, title, description, publishedAt, url }`,
+    {}, { next: { revalidate: 60 } }
+  );
+}
+
 export interface SanityAbout {
   body: import("@portabletext/types").PortableTextBlock[];
 }

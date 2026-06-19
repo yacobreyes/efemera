@@ -170,7 +170,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       )}
 
       <nav className="mag-nav-group right">
-        <Link href="/">Issues</Link>
+        <Link href="/issues">Issues</Link>
         <Link href="/store">Store</Link>
         <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
       </nav>
