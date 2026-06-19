@@ -164,7 +164,7 @@ export default function Feed({
           margin: 0;
           font-size: clamp(56px, 7.5vw, 98px);
           line-height: .92;
-          letter-spacing: -.05em;
+          letter-spacing: -.025em;
           color: #fff;
           text-shadow: 0 2px 24px rgba(0,0,0,.7), 0 1px 6px rgba(0,0,0,.5);
           transition: color .15s;
