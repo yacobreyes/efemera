@@ -348,17 +348,14 @@
     @media (max-width: 900px) {
       .nav {
         height: auto;
-        padding: 18px 24px;
+        padding: 20px 24px;
         grid-template-columns: 1fr;
-        gap: 0;
+        gap: 14px;
         text-align: center;
       }
 
-      /* logo on top, then the two nav groups merged into one row */
       .logo {
         order: -1;
-        padding: 16px 0 14px;
-        border-bottom: 1px solid var(--line);
       }
 
       .logo img {
@@ -369,17 +366,8 @@
       .nav-group,
       .nav-group.right {
         justify-content: center;
-        gap: 22px;
+        gap: 20px;
         flex-wrap: wrap;
-        padding: 12px 0;
-      }
-
-      .nav-group { border-bottom: none; }
-      .nav-group.right { border-top: 1px solid var(--line); }
-
-      /* combine both nav groups visually into one strip */
-      .nav-group,
-      .nav-group.right {
         font-size: 11px;
         letter-spacing: .13em;
       }
