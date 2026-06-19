@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
-import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
@@ -67,7 +66,6 @@ export default function Feed({
           --paper: #f5efe4;
           --paper-dark: #dfd4c4;
           --ink: #171412;
-          --muted: #6f655b;
           --red: #8e0d0d;
           --line: #cfc3b3;
         }
@@ -133,7 +131,6 @@ export default function Feed({
           align-items: flex-end;
           padding: 80px 7vw;
           overflow: hidden;
-          border-bottom: 1px solid var(--line);
           color: #f7f1e7;
           background:
             linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%),
@@ -238,7 +235,7 @@ export default function Feed({
         .ef-thumb {
           aspect-ratio: 1.35 / 1;
           margin-bottom: 24px;
-          background: #d7cdbe;
+          background: var(--paper-dark);
           overflow: hidden;
           display: block;
         }
@@ -266,7 +263,7 @@ export default function Feed({
           margin-bottom: 14px;
           font-size: 20px;
           font-style: italic;
-          color: var(--muted);
+          color: var(--ink);
         }
         .ef-excerpt {
           font-size: 19px;
@@ -557,7 +554,7 @@ export default function Feed({
                     {imgSrc
                       // eslint-disable-next-line @next/next/no-img-element
                       ? <img src={imgSrc} alt={post.image?.alt ?? post.headline} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                      : <div style={{ width: "100%", height: "100%", background: "#d7cdbe" }} />
+                      : <div style={{ width: "100%", height: "100%", background: "var(--paper-dark)" }} />
                     }
                   </Link>
                   <div className="ef-label">{sectionLabel(post.section)}</div>
