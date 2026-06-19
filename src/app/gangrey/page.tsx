@@ -46,7 +46,7 @@ export default async function GangreyPage() {
       <MagHeader />
       <main className="listing-main">
         <div className="listing-head">
-          <div className="listing-kicker">Collection</div>
+          
           <h1 className="listing-title">From Gangrey</h1>
         </div>
         <p className="listing-intro">True stories in the narrative tradition.</p>

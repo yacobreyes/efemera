@@ -40,7 +40,7 @@ export default async function AboutPage() {
       `}</style>
       <MagHeader />
       <main className="about-main">
-        <div className="about-kicker">The Collective</div>
+        
         <h1 className="about-title">About</h1>
         {body.length > 0 ? (
           <div className="about-body">

@@ -39,7 +39,7 @@ export default function StorePage() {
       <main className="store-main">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/Black Mayfly.png" alt="" className="store-fly" />
-        <div className="store-kicker">The Store</div>
+        
         <h1 className="store-title">Coming Soon</h1>
       </main>
       <MagFooter />

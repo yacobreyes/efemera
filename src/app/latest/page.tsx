@@ -40,7 +40,6 @@ export default async function LatestPage() {
       <MagHeader />
       <main className="listing-main">
         <div className="listing-head">
-          <div className="listing-kicker">All Stories</div>
           <h1 className="listing-title">The Latest</h1>
         </div>
         {published.length > 0
