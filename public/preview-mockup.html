@@ -13,7 +13,7 @@
   --crimson: #8B0000;
   --ink:     #1c1a17;
   --muted:   #888;
-  --bg:      #ede9e2;
+  --bg:      #efe6da;
   --border:  #d4cfc6;
   --hed:     'Bodoni Moda', Georgia, serif;
   --sans:    'Inter', sans-serif;
@@ -290,9 +290,9 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
   box-shadow: 1px 3px 10px rgba(0,0,0,.13);
   position: relative;
 }
-.brief-cards .paper-card:nth-child(1) { background-image: url('/Paper%20card.jpg'); }
-.brief-cards .paper-card:nth-child(2) { background-image: url('/Paper%20card%202.jpg'); transform: rotate(.35deg); }
-.brief-cards .paper-card:nth-child(3) { background-image: url('/Paper%20Card%203.jpg'); transform: rotate(-.5deg); }
+.brief-cards .paper-card:nth-child(1) { background-image: url('/Paper%20card%202.jpg'); }
+.brief-cards .paper-card:nth-child(2) { background-image: url('/Paper%20Card%204.png'); transform: rotate(.35deg); }
+.brief-cards .paper-card:nth-child(3) { background-image: url('/Paper%20card%202.jpg'); transform: rotate(-.5deg); }
 .paper-cat {
   font-family: var(--sans);
   font-size: .46rem;
@@ -338,34 +338,39 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
 }
 
 /* ── ONE-SITTING ── */
-.onesit-wrap { background: #e5dfd7; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.onesit-wrap { background: #e5ddd1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .onesit {
-  max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem;
-  display: grid; grid-template-columns: 220px 1fr;
+  max-width: 1100px; margin: 0 auto; padding: 3.5rem 2.5rem;
+  display: grid; grid-template-columns: 260px 1fr;
   gap: 3rem; align-items: center;
 }
 .os-label {
   font-family: var(--sans); font-size: .52rem; font-weight: 600;
   letter-spacing: .28em; text-transform: uppercase; color: var(--ink); margin-bottom: .6rem;
 }
-.os-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .6rem 0 .85rem; }
-.os-desc { font-family: var(--sans); font-size: .8rem; font-weight: 300; line-height: 1.65; color: #666; }
-.os-right { display: flex; align-items: center; gap: 1.75rem; }
-.os-circles { display: flex; gap: 1rem; }
+.os-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .65rem 0 1rem; }
+.os-desc { font-family: var(--hed); font-size: 1rem; font-weight: 400; line-height: 1.5; color: var(--ink); margin-bottom: 1.5rem; }
+.os-surprise {
+  font-family: var(--sans); font-size: .62rem; font-weight: 500; color: var(--ink);
+  text-decoration: none; display: inline-flex; align-items: center; gap: .4rem;
+  border-bottom: 1px solid var(--ink); padding-bottom: 1px;
+}
+.os-right { display: flex; align-items: center; gap: 2rem; }
+.os-circles { display: flex; gap: 1.1rem; }
 .os-circle {
-  width: 68px; height: 68px; border-radius: 50%;
-  border: 1.5px solid #aaa;
+  width: 72px; height: 72px; border-radius: 50%;
+  border: 1.5px solid #b5aca0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   cursor: pointer; background: transparent;
 }
 .os-circle.active { background: var(--crimson); border-color: var(--crimson); }
-.os-circle .num { font-family: var(--hed); font-weight: 700; font-size: 1.3rem; line-height: 1; color: var(--ink); }
+.os-circle .num { font-family: var(--hed); font-weight: 700; font-size: 1.4rem; line-height: 1; color: var(--ink); }
 .os-circle.active .num { color: #fff; }
-.os-circle .unit { font-family: var(--sans); font-size: .45rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-top: .15rem; }
+.os-circle .unit { font-family: var(--sans); font-size: .44rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-top: .18rem; }
 .os-circle.active .unit { color: rgba(255,255,255,.7); }
-.os-handnote { position: relative; margin-left: .5rem; }
-.os-handnote span { font-family: var(--hand); font-size: 1.05rem; color: #888; display: block; line-height: 1.3; transform: rotate(-3deg); }
-.os-handnote::before { content: '↙'; position: absolute; top: -18px; left: 10px; font-size: .9rem; color: #aaa; transform: scaleX(-1); }
+.os-handnote { position: relative; margin-left: .75rem; }
+.os-handnote span { font-family: var(--hand); font-size: 1.1rem; color: #999; display: block; line-height: 1.3; transform: rotate(-4deg); }
+.os-handnote::before { content: '↙'; position: absolute; top: -20px; left: 12px; font-size: .9rem; color: #bbb; transform: scaleX(-1); }
 
 /* ── BY FORM ── */
 .byform {
@@ -411,8 +416,8 @@ footer {
     <div class="nav-tagline">Life, in Brief.</div>
   </div>
   <div class="nav-right">
-    <a href="#">Newsletter</a>
     <a href="#">Gangrey</a>
+    <a href="#">Archive</a>
     <a href="#">About</a>
     <a href="#" class="submit">Submit</a>
   </div>
@@ -496,7 +501,8 @@ footer {
     <div>
       <div class="os-label">One-Sitting Reads</div>
       <div class="os-rule"></div>
-      <p class="os-desc">True stories for the time you actually have.</p>
+      <p class="os-desc">True stories for the time<br>you actually have.</p>
+      <a href="#" class="os-surprise">Surprise me &nbsp;→</a>
     </div>
     <div class="os-right">
       <div class="os-circles">
