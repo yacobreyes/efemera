@@ -502,7 +502,6 @@ export default function Feed({
         <a href="#subscribe" className="ef-mob-sub">Subscribe</a>
         <div className="ef-drawer">
           <Link href="/?tab=About" onClick={() => setMenuOpen(false)}>About</Link>
-          <Link href="/?tab=Narratives" onClick={() => setMenuOpen(false)}>Sections</Link>
           <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
           <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
         </div>
