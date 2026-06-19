@@ -290,23 +290,27 @@
       height: 92px;
       border: 1px solid rgba(255,255,255,.45);
       border-radius: 50%;
-      display: grid;
-      place-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       font-family: Inter, sans-serif;
       font-size: 10px;
       font-weight: 800;
       letter-spacing: .12em;
       text-transform: uppercase;
+      gap: 3px;
     }
 
     .circle strong {
       display: block;
       font-family: "Cormorant Garamond", serif;
-      font-size: 34px;
+      font-size: 32px;
       line-height: 1;
       letter-spacing: 0;
-      margin-bottom: 4px;
+      width: 100%;
+      text-align: center;
     }
 
     .circle.active {
@@ -663,10 +667,10 @@
       </div>
 
       <div class="time-circles">
-        <a class="circle" href="#"><span><strong>3</strong>Min</span></a>
-        <a class="circle active" href="#"><span><strong>5</strong>Min</span></a>
-        <a class="circle" href="#"><span><strong>8</strong>Min</span></a>
-        <a class="circle" href="#"><span><strong>12</strong>Min</span></a>
+        <a class="circle" href="#"><strong>3</strong><span>Min</span></a>
+        <a class="circle active" href="#"><strong>5</strong><span>Min</span></a>
+        <a class="circle" href="#"><strong>8</strong><span>Min</span></a>
+        <a class="circle" href="#"><strong>12</strong><span>Min</span></a>
       </div>
     </section>
   </main>
