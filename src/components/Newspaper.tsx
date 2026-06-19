@@ -80,7 +80,6 @@ export default function Feed({
           color: var(--ink);
           font-family: "Cormorant Garamond", Georgia, serif;
           -webkit-font-smoothing: antialiased;
-          overscroll-behavior-y: none;
         }
         a { color: inherit; text-decoration: none; }
         .ef-h1 a:focus { outline: none; }
