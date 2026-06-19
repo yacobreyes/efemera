@@ -1,52 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Feed from "@/components/Newspaper";
-import ArcadeUnlockPopup from "@/components/ArcadeUnlockPopup";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
-import { useRouter } from "next/navigation";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
 export default function HomeClient({ posts, aboutParagraphs, lately, welcome, initialTab }: { posts: SanityPost[]; aboutParagraphs: string[]; lately: SanityLately | null; welcome: SanityWelcome | null; initialTab: Tab }) {
-  const [arcadeUnlocked, setArcadeUnlocked] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    function check() {
-      try { setArcadeUnlocked(sessionStorage.getItem("arcade_popup_shown") === "1"); } catch {}
-    }
-    check();
-    window.addEventListener("arcade-unlocked", check);
-    return () => window.removeEventListener("arcade-unlocked", check);
-  }, []);
-
   return (
-    <>
-      <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} />
-      <ArcadeUnlockPopup />
-
-      {/* Persistent arcade button — only after popup has been seen and dismissed */}
-      {arcadeUnlocked && <button
-        onClick={() => router.push("/arcade")}
-        title="Choopy's Arcade"
-        style={{
-          position: "fixed", bottom: "1.25rem", right: "1.25rem",
-          zIndex: 9000,
-          background: "#0a0a0a",
-          border: "2px solid #FFD700",
-          borderRadius: "50%",
-          width: 44, height: 44,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          cursor: "pointer",
-          boxShadow: "0 0 12px rgba(255,215,0,0.25)",
-          padding: 0,
-        }}
-        aria-label="Open Choopy's Arcade"
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/mayfly-icon.webp" alt="" width={24} height={24} style={{ display: "block", imageRendering: "pixelated" }} />
-      </button>}
-    </>
+    <Feed posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} />
   );
 }

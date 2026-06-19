@@ -46,6 +46,7 @@ export default function Feed({
   initialTab: Tab;
   onMastheadClick?: () => void;
 }) {
+  const [activeMin, setActiveMin] = useState(5);
 
   const published = posts.filter(p =>
     !p.status || p.status === "published" ||
@@ -239,6 +240,39 @@ export default function Feed({
           text-transform: uppercase;
         }
 
+        /* ONE-SITTING */
+        .ef-reads {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          gap: 50px;
+          padding: 58px 7vw;
+          background: var(--red);
+          color: #fbf6ee;
+        }
+        .ef-reads-label {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+        .ef-reads h2 { margin: 0; max-width: 520px; font-size: 42px; line-height: 1.08; letter-spacing: -.025em; }
+        .ef-circles { display: flex; gap: 28px; }
+        .ef-circle {
+          width: 92px; height: 92px; border-radius: 50%;
+          border: 1px solid #fbf6ee; background: transparent; color: #fbf6ee;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 3px; text-align: center;
+          font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
+          letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .15s;
+        }
+        .ef-circle.active { background: #fbf6ee; color: var(--ink); border-color: #fbf6ee; }
+        .ef-circle strong {
+          display: flex; align-items: flex-end; justify-content: center;
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 32px; line-height: 1; letter-spacing: 0; font-weight: 700; height: 32px; width: 100%;
+        }
+        .ef-circle span { display: block; }
+
         /* FOOTER */
         .ef-footer {
           padding: 46px 7vw 34px;
@@ -329,6 +363,11 @@ export default function Feed({
             white-space: nowrap;
           }
           .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
+          .ef-reads { grid-template-columns: 1fr; gap: 28px; padding: 40px 24px; }
+          .ef-reads h2 { font-size: 30px; }
+          .ef-circles { gap: 12px; justify-content: center; }
+          .ef-circle { width: 76px; height: 76px; }
+          .ef-circle strong { font-size: 26px; height: 26px; }
         }
       `}</style>
 
@@ -395,6 +434,26 @@ export default function Feed({
           </div>
         </section>
       )}
+
+      {/* ONE-SITTING READS */}
+      <section className="ef-reads">
+        <div>
+          <div className="ef-reads-label">One-Sitting Reads</div>
+          <h2>True stories for the time you have.</h2>
+        </div>
+        <div className="ef-circles">
+          {[1, 3, 5, 7].map(m => (
+            <button
+              key={m}
+              className={`ef-circle${activeMin === m ? " active" : ""}`}
+              onClick={() => setActiveMin(m)}
+            >
+              <strong>{m}</strong>
+              <span>Min</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       {/* FOOTER */}
       <footer className="ef-footer">
