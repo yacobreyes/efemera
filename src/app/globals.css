@@ -10,11 +10,11 @@
 
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
-/* html and body are both crimson so the overscroll/bounce area is crimson
-   AND there's no color difference between them during client-side
-   navigation (a mismatch there is what caused the flash). Each page's own
-   root wrapper paints the actual #f5f8fa/white content backdrop on top. */
-html, body { background: #8B0000; }
+/* html and body share one background so the overscroll/bounce area matches
+   the site chrome AND there's no color difference between them during
+   client-side navigation (a mismatch there is what caused the flash). Each
+   page's own root wrapper paints the actual content backdrop on top. */
+html, body { background: #fbf6ee; }
 
 .paper-bg {
   background-color: #f5f8fa;
