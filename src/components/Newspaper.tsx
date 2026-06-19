@@ -120,6 +120,7 @@ export default function Feed({
           cursor: pointer;
         }
         .ef-toggle { display: none; }
+        .ef-section-tabs { display: none; }
         .ef-drawer { display: none; }
         .ef-mob-sub { display: none; }
 
@@ -464,6 +465,32 @@ export default function Feed({
           .ef-footer { padding: 36px 24px 28px; }
           .ef-footer-row { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 20px; }
           .ef-footer-links { justify-content: center; flex-wrap: wrap; gap: 24px; }
+
+          .ef-section-tabs {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--paper);
+            border-bottom: 1px solid var(--line);
+          }
+          .ef-section-tabs::-webkit-scrollbar { display: none; }
+          .ef-section-tabs a {
+            flex-shrink: 0;
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--ink);
+            white-space: nowrap;
+          }
+          .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
         }
       `}</style>
 
@@ -506,6 +533,15 @@ export default function Feed({
           <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
         </div>
       </header>
+
+      {/* Mobile section pill tabs */}
+      <nav className="ef-section-tabs">
+        <Link href="/?tab=Narratives">Narratives</Link>
+        <Link href="/?tab=Essays">Essays</Link>
+        <Link href="/?tab=Micro-Memoirs">Micro-Memoirs</Link>
+        <Link href="/?tab=Archive">Archive</Link>
+        <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
+      </nav>
 
       {/* HERO */}
       {hero && (
