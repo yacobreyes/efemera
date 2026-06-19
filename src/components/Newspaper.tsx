@@ -372,7 +372,7 @@ export default function Feed({
           margin-top: 26px;
           text-align: center;
           font-size: 16px;
-          color: var(--muted);
+          color: var(--ink);
         }
 
         /* MOBILE */
@@ -603,7 +603,7 @@ export default function Feed({
           </nav>
           <div />
         </div>
-        <p className="ef-footer-copy">© 2026 Efemera. A literary magazine by Yacob Reyes.</p>
+        <p className="ef-footer-copy">© 2026 Efemera. A Literary Collective by Yacob Reyes.</p>
       </footer>
     </>
   );
