@@ -171,7 +171,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
       <nav className="mag-nav-group right">
         <Link href="/issues">Issues</Link>
-        <Link href="/store">Store</Link>
+        <Link href="/store">Shop</Link>
         <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
       </nav>
 
@@ -197,7 +197,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         <Link href="/latest" onClick={() => setMenuOpen(false)}>The Latest</Link>
         <Link href="/gangrey" onClick={() => setMenuOpen(false)}>Gangrey</Link>
         <Link href="/" onClick={() => setMenuOpen(false)}>Issues</Link>
-        <Link href="/store" onClick={() => setMenuOpen(false)}>Store</Link>
+        <Link href="/store" onClick={() => setMenuOpen(false)}>Shop</Link>
       </div>
     </header>
   );
