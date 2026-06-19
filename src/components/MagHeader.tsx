@@ -53,8 +53,8 @@ export default function MagHeader() {
         <img src="/Crimson Wordmark.png" alt="efemera" />
       </Link>
       <nav className="mag-nav-group right">
-        <Link href="/?tab=Archive">Archive</Link>
-        <a href="/store">Store</a>
+        <Link href="/archive">Archive</Link>
+        <Link href="/store">Store</Link>
         <Link href="/#subscribe" className="mag-nav-cta">Subscribe</Link>
       </nav>
     </header>

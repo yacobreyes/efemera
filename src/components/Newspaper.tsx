@@ -49,6 +49,27 @@ export default function Feed({
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMin, setActiveMin] = useState(5);
   const [searchQ, setSearchQ] = useState("");
+  const [subEmail, setSubEmail] = useState("");
+  const [subState, setSubState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [subMsg, setSubMsg] = useState("");
+
+  async function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault();
+    if (subState === "loading") return;
+    setSubState("loading"); setSubMsg("");
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: subEmail }),
+      });
+      const data = await res.json();
+      if (res.ok) { setSubState("done"); setSubMsg("You're on the list."); setSubEmail(""); }
+      else { setSubState("error"); setSubMsg(data.error || "Something went wrong."); }
+    } catch {
+      setSubState("error"); setSubMsg("Something went wrong.");
+    }
+  }
 
   const published = posts.filter(p =>
     !p.status || p.status === "published" ||
@@ -344,6 +365,48 @@ export default function Feed({
         }
         .ef-circle span { display: block; }
 
+        /* SUBSCRIBE */
+        .ef-subscribe {
+          background: var(--red);
+          color: #fbf6ee;
+          padding: 80px 7vw;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .ef-sub-kicker {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
+          color: #fbf6ee; opacity: .85; margin-bottom: 16px;
+        }
+        .ef-sub-title {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: clamp(34px, 5vw, 52px); line-height: 1.02; letter-spacing: -.025em;
+          margin: 0 0 14px; max-width: 600px;
+        }
+        .ef-sub-dek {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 21px; font-style: italic; line-height: 1.4;
+          color: #fbf6ee; opacity: .9; max-width: 520px; margin: 0 0 30px;
+        }
+        .ef-sub-form { display: flex; gap: 10px; width: 100%; max-width: 460px; }
+        .ef-sub-form input {
+          flex: 1; min-width: 0;
+          font-family: Inter, system-ui, sans-serif; font-size: 15px;
+          padding: 13px 16px; border: none; border-radius: 2px; outline: none;
+          background: #fbf6ee; color: #171412;
+        }
+        .ef-sub-form button {
+          font-family: Inter, system-ui, sans-serif; font-size: 12px; font-weight: 800;
+          letter-spacing: .14em; text-transform: uppercase;
+          background: #171412; color: #fbf6ee; border: none; border-radius: 2px;
+          padding: 0 22px; cursor: pointer; white-space: nowrap;
+        }
+        .ef-sub-form button:disabled { opacity: .6; }
+        .ef-sub-done { font-family: "Cormorant Garamond", Georgia, serif; font-size: 24px; font-style: italic; margin: 0; }
+        .ef-sub-err { font-family: Inter, system-ui, sans-serif; font-size: 13px; margin: 12px 0 0; opacity: .9; }
+
         /* FOOTER */
         .ef-footer {
           padding: 46px 7vw 34px;
@@ -487,6 +550,9 @@ export default function Feed({
           .ef-circle { width: 76px; height: 76px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
 
+          .ef-subscribe { padding: 56px 24px; }
+          .ef-sub-form { flex-direction: column; }
+          .ef-sub-form button { padding: 13px; }
           .ef-footer { padding: 36px 24px 28px; }
           .ef-footer-links { justify-content: center; flex-wrap: wrap; gap: 24px; }
 
@@ -523,7 +589,7 @@ export default function Feed({
         <nav className="ef-nav-group">
           <Link href="/?tab=About">About</Link>
           <Link href="/">The Latest</Link>
-          <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
+          <Link href="/gangrey">Gangrey</Link>
         </nav>
 
         <button
@@ -537,8 +603,8 @@ export default function Feed({
         </button>
 
         <nav className="ef-nav-group right">
-          <Link href="/?tab=Archive">Archive</Link>
-          <a href="/store">Store</a>
+          <Link href="/archive">Archive</Link>
+          <Link href="/store">Store</Link>
           <a href="#subscribe" className="ef-nav-cta">Subscribe</a>
         </nav>
 
@@ -564,9 +630,9 @@ export default function Feed({
           </form>
           <Link href="/?tab=About" onClick={() => setMenuOpen(false)}>About</Link>
           <Link href="/" onClick={() => setMenuOpen(false)}>The Latest</Link>
-          <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
-          <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
-          <a href="/store">Store</a>
+          <Link href="/gangrey" onClick={() => setMenuOpen(false)}>Gangrey</Link>
+          <Link href="/archive" onClick={() => setMenuOpen(false)}>Archive</Link>
+          <Link href="/store" onClick={() => setMenuOpen(false)}>Store</Link>
         </div>
       </header>
 
@@ -650,6 +716,28 @@ export default function Feed({
             </button>
           ))}
         </div>
+      </section>
+
+      {/* SUBSCRIBE */}
+      <section id="subscribe" className="ef-subscribe">
+        <div className="ef-sub-kicker">The Newsletter</div>
+        <h2 className="ef-sub-title">New stories in your inbox.</h2>
+        <p className="ef-sub-dek">Short, true, and worth your time. No spam — just the latest from the collective.</p>
+        {subState === "done" ? (
+          <p className="ef-sub-done">{subMsg}</p>
+        ) : (
+          <form className="ef-sub-form" onSubmit={handleSubscribe}>
+            <input
+              type="email" required value={subEmail}
+              onChange={e => setSubEmail(e.target.value)}
+              placeholder="your@email.com" autoComplete="email"
+            />
+            <button type="submit" disabled={subState === "loading"}>
+              {subState === "loading" ? "…" : "Subscribe"}
+            </button>
+          </form>
+        )}
+        {subState === "error" && <p className="ef-sub-err">{subMsg}</p>}
       </section>
 
       {/* FOOTER */}
