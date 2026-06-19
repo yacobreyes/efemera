@@ -7,10 +7,9 @@ import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
-import SiteFooter from "@/components/SiteFooter";
+import MagHeader from "@/components/MagHeader";
+import MagFooter from "@/components/MagFooter";
 import StoryVisitTracker from "@/components/StoryVisitTracker";
-import StoryNav from "@/components/StoryNav";
-import BackLink from "@/components/BackLink";
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
   const words = blocks
@@ -18,6 +17,11 @@ function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) 
     .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
     .join(" ").trim().split(/\s+/).length;
   return Math.max(1, Math.round(words / 200));
+}
+
+function sectionLabel(section: string) {
+  if (section === "Micro-Memoir") return "Micro-Memoir";
+  return section;
 }
 
 export const revalidate = 60;
@@ -83,6 +87,8 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const post = await getPost(slug);
   if (!post) notFound();
 
+  const sectionTab = post.section === "Micro-Memoir" ? "Micro-Memoirs" : post.section === "Essays" ? "Essays" : "Narratives";
+
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -98,111 +104,183 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f8fa" }}>
+    <div className="story-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <style>{`
-        .story-article ul { list-style-type: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
-        .story-article ol { list-style-type: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
-        .story-article li { display: list-item; margin-bottom: 0.25em; }
-        .story-header { display: flex; align-items: center; justify-content: space-between; }
-        .story-nav { display: flex; gap: 2rem; align-items: center; }
+        .story-page {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #f5efe4;
+          color: #171412;
+        }
+        .story-article {
+          width: 100%;
+          max-width: 680px;
+          margin: 0 auto;
+          padding: 64px 24px 40px;
+          box-sizing: border-box;
+        }
+        .story-back {
+          display: inline-block;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          color: #8e0d0d;
+          margin-bottom: 30px;
+          text-decoration: none;
+        }
+        .story-label {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+          color: #8e0d0d;
+          margin-bottom: 16px;
+        }
+        .story-h1 {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-weight: 700;
+          font-size: clamp(40px, 7vw, 66px);
+          line-height: 1.02;
+          letter-spacing: -.025em;
+          margin: 0 0 18px;
+        }
+        .story-dek {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-style: italic;
+          font-size: clamp(20px, 3vw, 26px);
+          line-height: 1.35;
+          color: #463f37;
+          margin: 0 0 24px;
+        }
+        .story-meta {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          color: #6f655b;
+          padding-bottom: 26px;
+          margin-bottom: 30px;
+          border-bottom: 1px solid #cfc3b3;
+        }
+        .story-figure { margin: 0 0 32px; }
+        .story-figure img { width: 100%; display: block; }
+        .story-figure figcaption {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          color: #6f655b;
+          font-style: italic;
+          margin-top: 8px;
+          line-height: 1.5;
+        }
+        .story-body {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 22px;
+          line-height: 1.62;
+          color: #211c17;
+        }
+        .story-body p { margin: 1.15rem 0 0; }
+        .story-body a { color: #8e0d0d; text-decoration: underline; }
+        .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.15rem 0 0; }
+        .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.15rem 0 0; }
+        .story-body li { display: list-item; margin-bottom: .25em; }
+        .story-actions {
+          margin-top: 36px;
+          padding-top: 22px;
+          border-top: 1px solid #cfc3b3;
+          display: flex;
+          gap: 1.5rem;
+          align-items: center;
+          flex-wrap: wrap;
+        }
+        .story-kicker { margin-top: 40px; display: flex; justify-content: center; }
+        .story-kicker img { width: clamp(110px, 26vw, 150px); height: auto; opacity: .9; }
+        .story-comments {
+          width: 100%;
+          max-width: 680px;
+          margin: 0 auto;
+          padding: 8px 24px 56px;
+          box-sizing: border-box;
+        }
         @media (max-width: 600px) {
-          body { overflow-x: hidden; }
-          .story-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
-          .story-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
-          .story-nav a { font-size: 0.78rem !important; }
-          .story-article { margin: 0.75rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem 1.25rem 2rem !important; }
-          .story-comments { margin: 1rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem !important; }
+          .story-article { padding: 36px 22px 30px; }
         }
       `}</style>
-      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
-        <Link href="/">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
-        </Link>
-        <StoryNav />
-      </header>
 
-      <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
-        <BackLink section={post.section === "Micro-Memoir" ? "Micro-Memoirs" : post.section === "Essays" ? "Essays" : "Narratives"} tab={post.section === "Micro-Memoir" ? "Micro-Memoirs" : post.section === "Essays" ? "Essays" : "Narratives"} />
+      <MagHeader />
 
-        <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
-          {post.headline}
-        </h1>
+      <article className="story-article">
+        <Link href={`/?tab=${sectionTab}`} className="story-back">← {sectionTab}</Link>
 
-        {post.subheadline && (
-          <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1.15rem", color: "#526270", lineHeight: 1.35, margin: "0 0 1.2rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e1e8ed" }}>
-            {post.subheadline}
-          </p>
-        )}
+        <div className="story-label">{sectionLabel(post.section)}</div>
+        <h1 className="story-h1">{post.headline}</h1>
+        {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
 
-        <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} min read
+        <div className="story-meta">
+          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} Min Read
         </div>
 
         {post.image?.asset && (
-          <div style={{ marginBottom: "1.8rem" }}>
+          <figure className="story-figure">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={urlFor(post.image.asset).width(800).height(450).fit("crop").auto("format").url()}
+              src={urlFor(post.image.asset).width(1000).height(563).fit("crop").auto("format").url()}
               alt={post.image.alt ?? post.image.caption ?? ""}
-              style={{ width: "100%", aspectRatio: "16/9", display: "block", objectFit: "cover" }}
             />
-            {post.image.caption && (
-              <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.5rem 0 0", lineHeight: 1.5 }}>
-                {post.image.caption}
-              </p>
-            )}
-          </div>
+            {post.image.caption && <figcaption>{post.image.caption}</figcaption>}
+          </figure>
         )}
 
-        <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
+        <div className="story-body">
           <PortableText
             value={post.body}
             components={{
               block: {
-                normal: ({ children }) => (
-                  <p style={{ margin: "1.2rem 0 0" }}>{children}</p>
-                ),
+                normal: ({ children }) => <p>{children}</p>,
                 h2: ({ children }) => (
-                  <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.35rem", color: "#1c2938", margin: "2rem 0 0", lineHeight: 1.3 }}>{children}</h2>
+                  <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "1.6rem 0 0", lineHeight: 1.3 }}>{children}</h3>
+                  <h3 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote style={{ margin: "1.4rem 0 0", padding: "0.2rem 0 0.2rem 1.1rem", borderLeft: "3px solid #8B0000", fontStyle: "italic", color: "#526270" }}>{children}</blockquote>
+                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #8e0d0d", fontStyle: "italic", color: "#463f37" }}>{children}</blockquote>
                 ),
               },
               list: {
-                bullet: ({ children }) => <ul style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ul>,
-                number: ({ children }) => <ol style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ol>,
+                bullet: ({ children }) => <ul>{children}</ul>,
+                number: ({ children }) => <ol>{children}</ol>,
               },
               listItem: {
-                bullet: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
-                number: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
+                bullet: ({ children }) => <li>{children}</li>,
+                number: ({ children }) => <li>{children}</li>,
               },
               types: {
                 imageEmbed: ({ value }: { value: { src: string; alt?: string } }) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={value.src} alt={value.alt ?? ""} style={{ maxWidth: "100%", borderRadius: 4, margin: "1.2rem 0", display: "block" }} />
+                  <img src={value.src} alt={value.alt ?? ""} style={{ maxWidth: "100%", margin: "1.4rem 0", display: "block" }} />
                 ),
                 youtubeEmbed: ({ value }: { value: { src: string } }) => (
-                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, margin: "1.2rem 0" }}>
-                    <iframe src={value.src.replace("watch?v=", "embed/")} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", borderRadius: 4 }} allowFullScreen />
+                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, margin: "1.4rem 0" }}>
+                    <iframe src={value.src.replace("watch?v=", "embed/")} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
                   </div>
                 ),
               },
               marks: {
                 strong: ({ children }) => <strong>{children}</strong>,
                 em: ({ children }) => <em>{children}</em>,
-                link: ({ children, value }) => <a href={value?.href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>,
+                link: ({ children, value }) => <a href={value?.href} target="_blank" rel="noopener noreferrer">{children}</a>,
               },
             }}
           />
         </div>
 
-        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div className="story-actions">
           <LikeButton slug={slug} />
           <ShareButton slug={slug} headline={post.headline} />
           <div style={{ marginLeft: "auto" }}>
@@ -210,18 +288,18 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           </div>
         </div>
 
-        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
+        <div className="story-kicker">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.webp" alt="" width={2000} height={2000} style={{ width: "clamp(120px, 30vw, 160px)", height: "auto" }} />
+          <img src="/Black Mayfly.png" alt="" />
         </div>
       </article>
 
-      <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
+      <div className="story-comments">
         <CommentSection slug={slug} />
       </div>
 
       <StoryVisitTracker />
-      <SiteFooter />
+      <MagFooter />
     </div>
   );
 }
