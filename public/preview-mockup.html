@@ -93,33 +93,36 @@ body {
 
 /* ─── LEAD ─── */
 .lead {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 3.5rem;
-  padding: 3.5rem 0 3rem;
+  padding: 3.5rem 0 0;
   border-bottom: 1px solid var(--rule);
+}
+.lead-top {
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 .lead-kicker {
   color: var(--crimson);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 .lead-hed {
   font-family: var(--display);
   font-weight: 900;
-  font-size: clamp(2.6rem, 4.5vw, 4rem);
-  line-height: 1.02;
-  letter-spacing: -.025em;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  line-height: .98;
+  letter-spacing: -.03em;
   margin-bottom: 1.25rem;
+  max-width: 18ch;
 }
 .lead-dek {
   font-family: var(--read);
   font-style: italic;
   font-weight: 400;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   line-height: 1.45;
   color: var(--muted);
-  margin-bottom: 1.5rem;
-  max-width: 32ch;
+  margin-bottom: 1.25rem;
+  max-width: 44ch;
 }
 .lead-byline {
   font-family: var(--label);
@@ -128,17 +131,22 @@ body {
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--ink);
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--rule);
 }
 .lead-byline .sub { color: var(--muted); font-weight: 500; }
+.lead-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3rem;
+}
 .lead-body {
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.7;
   color: #34302a;
-  max-width: 40ch;
+  grid-column: 1 / 3;
+  column-count: 2;
+  column-gap: 2.5rem;
 }
 .lead-body::first-letter {
   font-family: var(--display);
@@ -150,34 +158,23 @@ body {
   color: var(--crimson);
 }
 .lead-more {
-  display: inline-block;
-  margin-top: 1.25rem;
+  display: inline;
+  margin-left: .35rem;
   font-family: var(--read);
   font-style: italic;
   font-size: 1rem;
   color: var(--crimson);
   text-decoration: none;
   border-bottom: 1px solid rgba(139,0,0,.3);
+  white-space: nowrap;
 }
 
-/* feature card (one-sitting) on the right of lead */
+/* feature card alongside lead body */
 .lead-aside {
   align-self: start;
   position: relative;
-}
-.aside-tag {
-  font-family: var(--label);
-  font-size: .5rem;
-  font-weight: 600;
-  letter-spacing: .2em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding-bottom: .6rem;
-  margin-bottom: 1.25rem;
-  border-bottom: 1px solid var(--rule);
-  display: flex;
-  align-items: center;
-  gap: .45rem;
+  border-left: 1px solid var(--rule);
+  padding-left: 2rem;
 }
 .fcard {
   background: var(--paper) url('/Paper%20card%202.jpg') center/cover;
@@ -238,34 +235,6 @@ body {
   z-index: 2;
 }
 .aside-fly img { width: 34px; height: 34px; image-rendering: pixelated; opacity: .9; }
-
-/* ─── PULL QUOTE ─── */
-.pullquote {
-  border-bottom: 1px solid var(--rule);
-}
-.pullquote .wrap {
-  padding: 3.5rem 2.5rem;
-  text-align: center;
-}
-.pullquote blockquote {
-  font-family: var(--display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2.2rem);
-  line-height: 1.3;
-  letter-spacing: -.01em;
-  max-width: 24ch;
-  margin: 0 auto 1rem;
-}
-.pullquote cite {
-  font-family: var(--label);
-  font-style: normal;
-  font-size: .54rem;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
 
 /* ─── IN THIS ISSUE / PICKS ─── */
 .picks { padding: 3.5rem 0; border-bottom: 1px solid var(--rule); }
@@ -426,35 +395,27 @@ footer {
 <!-- LEAD -->
 <div class="wrap">
   <article class="lead">
-    <div class="lead-main">
+    <div class="lead-top">
       <div class="lead-kicker label">The Lead · Narrative</div>
       <h1 class="lead-hed">Why I'm Switching Salons</h1>
       <p class="lead-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
       <p class="lead-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
-      <p class="lead-body">The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape.</p>
-      <a href="#" class="lead-more">Continue reading →</a>
     </div>
-    <aside class="lead-aside">
-      <div class="aside-tag"><img src="/mayfly-icon.webp" width="12" height="12" style="image-rendering:pixelated;opacity:.85;" alt=""> From the One-Sitting Reads</div>
-      <div class="aside-fly"><img src="/mayfly-icon.webp" alt=""></div>
-      <div class="fcard">
-        <div class="k">One-Sitting Read</div>
-        <div class="h">The Message I Haven't Deleted</div>
-        <div class="a">Brian Francis Slattery</div>
-        <div class="m">3 min read</div>
-        <div class="b">It's 42 seconds long and I know every pause.</div>
-        <a href="#" class="l">Read it now →</a>
-      </div>
-    </aside>
+    <div class="lead-cols">
+      <p class="lead-body">The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape. You are trusting a stranger with the version of you that faces other people. I had trusted Maria for seven years. Then last Tuesday I found out she'd been overcharging me by twenty dollars every visit. Twenty dollars, which is nothing. Twenty dollars, which is everything.<a href="#" class="lead-more">Continue reading →</a></p>
+      <aside class="lead-aside">
+        <div class="aside-fly"><img src="/mayfly-icon.webp" alt=""></div>
+        <div class="fcard">
+          <div class="k">One-Sitting Read</div>
+          <div class="h">The Message I Haven't Deleted</div>
+          <div class="a">Brian Francis Slattery</div>
+          <div class="m">3 min read</div>
+          <div class="b">It's 42 seconds long and I know every pause.</div>
+          <a href="#" class="l">Read it now →</a>
+        </div>
+      </aside>
+    </div>
   </article>
-</div>
-
-<!-- PULL QUOTE -->
-<div class="pullquote">
-  <div class="wrap">
-    <blockquote>"She was reading a book I had read the year my father died. I almost said something."</blockquote>
-    <cite>From "Airport, 6 A.M." — a Micro-Memoir</cite>
-  </div>
 </div>
 
 <!-- IN THIS ISSUE -->
