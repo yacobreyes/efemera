@@ -1,21 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
-import LikeButton from "@/components/LikeButton";
-import ShareButton from "@/components/ShareButton";
-import { PortableText } from "@portabletext/react";
-import type { SanityPost, SanityLately } from "@/lib/sanity";
+import Image from "next/image";
+import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
-import Lately from "@/components/Lately";
-import Choopy from "@/components/Choopy";
-import { renderInline } from "@/lib/renderInline";
-import dynamic from "next/dynamic";
 import SiteFooter from "@/components/SiteFooter";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
-type SectionTab = "Micro-Memoirs" | "Narratives" | "Essays";
 
 function formatDate(dateStr: string) {
   const d = dateStr.length === 10 ? new Date(`${dateStr}T12:00:00`) : new Date(dateStr);
@@ -29,309 +21,572 @@ function portableToPlainText(blocks: SanityPost["body"]): string {
     .join(" ");
 }
 
-function truncate(text: string, max = 280) {
+function readingTime(text: string) {
+  return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200));
+}
+
+function truncate(text: string, max = 180) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
 }
 
-function readingTime(text: string) {
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200));
+function sectionLabel(section: SanityPost["section"]) {
+  if (section === "Micro-Memoir") return "Micro-Memoir";
+  return section;
 }
 
+export default function Feed({
+  posts,
+  onMastheadClick,
+}: {
+  posts: SanityPost[];
+  aboutParagraphs: string[];
+  lately: SanityLately | null;
+  welcome: SanityWelcome | null;
+  initialTab: Tab;
+  onMastheadClick?: () => void;
+}) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeMin, setActiveMin] = useState(5);
 
-function TweetCard({ post }: { post: SanityPost; index: number }) {
-  const [commentCount, setCommentCount] = useState(0);
-
-  useEffect(() => {
-    fetch(`/api/comments?slug=${encodeURIComponent(post.slug)}`)
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setCommentCount(d.length); })
-      .catch(() => {});
-  }, [post.slug]);
-
-  const plainText = portableToPlainText(post.body);
-  const displayText = post.section === "Micro-Memoir" ? plainText : truncate(plainText);
-
-  const storyHref = `/stories/${post.slug}`;
-
-  return (
-    <div style={{ padding: "1.1rem 1rem", background: "white", borderBottom: "1px solid #e1e8ed" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000" }}>
-          {post.section}
-        </span>
-        <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem", color: "#657786" }}>
-          {formatDate(post.date)}
-        </span>
-      </div>
-
-      <h2 style={{ margin: "0 0 0.25rem" }}>
-        <Link href={storyHref} prefetch={true} className="card-headline" style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.4rem", color: "#1c2938", lineHeight: 1.2, letterSpacing: "-0.01em", textDecoration: "none" }}>
-          {post.headline}
-        </Link>
-      </h2>
-
-      {post.subheadline && (
-        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1rem", color: "#526270", lineHeight: 1.35, margin: "0 0 0.75rem" }}>
-          {post.subheadline}
-        </p>
-      )}
-
-      {post.image?.asset && (
-        <div style={{ marginBottom: "0.75rem" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={urlFor(post.image.asset).width(600).height(338).fit("crop").auto("format").url()}
-            alt={post.image.alt ?? post.image.caption ?? ""}
-            loading="lazy"
-            style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block", borderRadius: 4 }}
-          />
-        </div>
-      )}
-
-      <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", lineHeight: 1.7, color: "#3d3d3d", margin: "0 0 0.75rem" }}>
-        {displayText}
-      </p>
-
-      <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", marginBottom: "0.6rem", fontStyle: "italic" }}>
-        {post.byline} · {readingTime(plainText)} min read
-      </div>
-
-      <div style={{ display: "flex", gap: "1.5rem", alignItems: "center", paddingTop: "0.4rem", borderTop: "1px solid #f0f3f4" }}>
-        <Link href={`${storyHref}#comments`} prefetch={true} style={{ display: "flex", alignItems: "center", gap: "0.35rem", color: commentCount > 0 ? "#8B0000" : "#657786", textDecoration: "none" }}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.8rem" }}>{commentCount}</span>
-        </Link>
-        <LikeButton slug={post.slug} />
-        <ShareButton slug={post.slug} headline={post.headline} />
-      </div>
-    </div>
+  const published = posts.filter(p =>
+    !p.status || p.status === "published" ||
+    (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
   );
-}
 
-function ArchiveTab({ posts }: { posts: SanityPost[] }) {
-  const groups = new Map<string, SanityPost[]>();
-  for (const post of posts) {
-    const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
-    const key = d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(post);
-  }
+  const hero = published[0];
+  const cards = published.slice(1, 5);
+
+  const heroImg = hero?.image?.asset
+    ? urlFor(hero.image.asset).width(1400).height(600).fit("crop").auto("format").url()
+    : null;
 
   return (
-    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.5rem" }}>Archive</h1>
-      {groups.size === 0 && <p style={{ fontFamily: "var(--font-inter), sans-serif", color: "#657786" }}>Nothing here yet.</p>}
-      {[...groups.entries()].map(([month, monthPosts]) => (
-        <div key={month} style={{ marginBottom: "1.8rem" }}>
-          <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.75rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", margin: "0 0 0.7rem", paddingBottom: "0.4rem", borderBottom: "1px solid #e1e8ed" }}>
-            {month}
-          </h2>
-          {monthPosts.map(post => {
-            const d = post.date.length === 10 ? new Date(`${post.date}T12:00:00`) : new Date(post.date);
-            return (
-              <Link key={post._id} href={`/stories/${post.slug}`} style={{ display: "flex", gap: "1rem", alignItems: "baseline", textDecoration: "none", padding: "0.35rem 0" }}>
-                <span style={{ fontFamily: "monospace", fontSize: "0.72rem", color: "#657786", flexShrink: 0, minWidth: 52 }}>
-                  {d.toLocaleDateString("en-US", { month: "short", day: "2-digit" })}
-                </span>
-                <span className="archive-title" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.95rem", fontWeight: 600, lineHeight: 1.4 }}>
-                  {post.headline}
-                </span>
-                <span style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.65rem", color: "#657786", flexShrink: 0, marginLeft: "auto", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                  {post.section}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AboutPage({ paragraphs }: { paragraphs: string[] }) {
-  const content = paragraphs;
-
-  return (
-    <div style={{ maxWidth: 600, width: "calc(100% - 2rem)", boxSizing: "border-box", margin: "2rem auto", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem" }}>
-      <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.6rem, 4vw, 2.2rem)", color: "#1c2938", margin: "0 0 1.2rem" }}>About Efemera</h1>
-      {content.map((p, i) => (
-            <p key={i} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d", margin: i < content.length - 1 ? "0 0 1rem" : "0" }}>{renderInline(p)}</p>
-          ))
-      }
-    </div>
-  );
-}
-
-export default function Feed({ posts, aboutParagraphs, lately, welcome: welcomeProp, initialTab = "Home", onMastheadClick }: { posts: SanityPost[]; aboutParagraphs: string[]; lately?: SanityLately | null; welcome?: { headline: string; body: string } | null; initialTab?: Tab; onMastheadClick?: () => void }) {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>(initialTab);
-  const [query, setQuery] = useState("");
-  const [sectionsOpen, setSectionsOpen] = useState(false);
-  const sectionsRef = useRef<HTMLDivElement>(null);
-  const HOME_LIMIT = 10;
-
-  const TAB_PATHS: Record<Tab, string> = {
-    "Home": "/",
-    "About": "/about",
-    "Micro-Memoirs": "/micro-memoirs",
-    "Narratives": "/narratives",
-    "Essays": "/essays",
-    "Archive": "/archive",
-  };
-
-  function switchTab(tab: Tab) {
-    setActiveTab(tab);
-    setQuery("");
-    setSectionsOpen(false);
-    router.replace(TAB_PATHS[tab], { scroll: false });
-  }
-
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (sectionsRef.current && !sectionsRef.current.contains(e.target as Node)) setSectionsOpen(false);
-    }
-    if (sectionsOpen) document.addEventListener("mousedown", onClickOutside);
-    return () => document.removeEventListener("mousedown", onClickOutside);
-  }, [sectionsOpen]);
-  const welcome = welcomeProp ?? null;
-
-  const tabFiltered = activeTab === "Home"
-    ? posts
-    : activeTab === "Micro-Memoirs"
-    ? posts.filter(p => p.section === "Micro-Memoir")
-    : activeTab === "Narratives"
-    ? posts.filter(p => p.section === "Narratives")
-    : activeTab === "Essays"
-    ? posts.filter(p => p.section === "Essays")
-    : [];
-
-  const filteredPosts = query.trim()
-    ? tabFiltered.filter(p => {
-        const q = query.toLowerCase();
-        const plain = p.body.filter(b => b._type === "block")
-          .map(b => (b.children as { text: string }[]).map(c => c.text).join("")).join(" ");
-        return p.headline.toLowerCase().includes(q) || (p.subheadline ?? "").toLowerCase().includes(q) || plain.toLowerCase().includes(q);
-      })
-    : tabFiltered;
-  const visiblePosts = activeTab === "Home" && !query.trim() ? filteredPosts.slice(0, HOME_LIMIT) : filteredPosts;
-
-  return (
-    <div className="paper-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+    <>
       <style>{`
-        .feed-nav { display: flex; gap: 2rem; align-items: center; }
-        .feed-nav button { font-family: var(--font-inter), sans-serif; font-size: 0.85rem; font-weight: 700; color: white; background: none; border: none; cursor: pointer; padding: 0; letter-spacing: 0.05em; white-space: nowrap; }
-        .archive-title { color: #1c2938; transition: color 0.15s; }
-        .archive-title:hover { color: #8B0000; }
-        .feed-layout { display: grid; grid-template-columns: 600px 220px; grid-template-rows: auto 1fr; gap: 1.25rem; max-width: 860px; margin: 1rem auto 0; width: 100%; padding: 0 1rem; box-sizing: border-box; align-items: start; }
-        .feed-main { grid-column: 1; grid-row: 1 / span 2; }
-        .sidebar-lately { grid-column: 2; grid-row: 1; }
-        .sidebar-choopy { grid-column: 2; grid-row: 2; }
-        @media (max-width: 860px) {
-          .feed-layout { display: flex; flex-direction: column; align-items: stretch; max-width: 600px; }
-          .sidebar-lately { order: -1; }
-          .sidebar-choopy { width: 220px; align-self: center; }
+        :root {
+          --paper: #f5efe4;
+          --paper-dark: #dfd4c4;
+          --ink: #171412;
+          --muted: #6f655b;
+          --red: #8e0d0d;
+          --line: #cfc3b3;
         }
-        @media (max-width: 600px) {
-          body { overflow-x: hidden; }
-          .feed-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
-          .feed-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
-          .feed-nav button { font-size: 0.78rem; }
-          .feed-layout { padding: 0 0.75rem; }
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          background: var(--paper);
+          color: var(--ink);
+          font-family: "Cormorant Garamond", Georgia, serif;
+          -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+
+        /* NAV */
+        .ef-nav {
+          height: 100px;
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          align-items: center;
+          padding: 0 44px;
+          border-bottom: 1px solid var(--line);
+          background: #fbf6ee;
+          position: relative;
+        }
+        .ef-nav-group {
+          display: flex;
+          gap: 42px;
+          align-items: center;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+        }
+        .ef-nav-group.right { justify-content: flex-end; }
+        .ef-logo { display: block; }
+        .ef-logo img { height: 58px; width: auto; display: block; }
+        .ef-nav-cta {
+          background: var(--red);
+          color: #fff !important;
+          padding: 7px 14px;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .14em;
+          text-transform: uppercase;
+          border-radius: 2px;
+          cursor: pointer;
+        }
+        .ef-toggle { display: none; }
+        .ef-drawer { display: none; }
+        .ef-mob-sub { display: none; }
+
+        /* HERO */
+        .ef-hero {
+          position: relative;
+          min-height: 620px;
+          display: flex;
+          align-items: flex-end;
+          padding: 80px 7vw;
+          overflow: hidden;
+          border-bottom: 1px solid var(--line);
+          color: #f7f1e7;
+          background:
+            linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%),
+            linear-gradient(125deg, #4a4038, #2a2420);
+          background-size: cover;
+          background-position: center;
+        }
+        .ef-hero-inner { position: relative; z-index: 2; max-width: 760px; }
+        .ef-kicker {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: .22em;
+          text-transform: uppercase;
+          color: var(--red);
+          margin-bottom: 22px;
+        }
+        .ef-h1 {
+          max-width: 720px;
+          margin: 0;
+          font-size: clamp(56px, 7.5vw, 98px);
+          line-height: .92;
+          letter-spacing: -.05em;
+          color: #fff;
+          transition: color .15s;
+        }
+        .ef-h1:hover { color: var(--red); }
+        .ef-dek {
+          max-width: 560px;
+          margin: 26px 0 30px;
+          font-size: 25px;
+          line-height: 1.35;
+          font-style: italic;
+          color: rgba(247,241,231,.85);
+        }
+        .ef-meta {
+          display: flex;
+          gap: 18px;
+          flex-wrap: wrap;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+          color: rgba(247,241,231,.9);
+        }
+        .ef-read-link {
+          display: inline-block;
+          margin-top: 32px;
+          color: #fff;
+          font-size: 23px;
+          border-bottom: 1px solid rgba(255,255,255,.6);
+        }
+
+        /* CARDS SECTION */
+        .ef-section { padding: 70px 7vw 86px; }
+        .ef-section-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          gap: 30px;
+          border-bottom: 1px solid var(--ink);
+          padding-bottom: 26px;
+          margin-bottom: 32px;
+        }
+        .ef-section-head h2 {
+          margin: 0;
+          font-size: 38px;
+          line-height: 1;
+          letter-spacing: -.03em;
+        }
+        .ef-section-head a {
+          color: var(--red);
+          font-size: 20px;
+          font-style: italic;
+        }
+        .ef-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 34px;
+        }
+        .ef-card {
+          border-right: 1px solid var(--line);
+          padding-right: 28px;
+        }
+        .ef-card:last-child { border-right: 0; padding-right: 0; }
+        .ef-thumb {
+          aspect-ratio: 1.35 / 1;
+          margin-bottom: 24px;
+          background: #d7cdbe;
+          overflow: hidden;
+          display: block;
+        }
+        .ef-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+        .ef-thumb:hover img { transform: scale(1.03); }
+        .ef-label {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: .22em;
+          color: var(--red);
+          text-transform: uppercase;
+          margin-bottom: 12px;
+        }
+        .ef-card h3 {
+          margin: 0 0 10px;
+          font-size: 29px;
+          line-height: 1.05;
+          letter-spacing: -.025em;
+          transition: color .15s;
+          cursor: pointer;
+        }
+        .ef-card h3:hover { color: var(--red); }
+        .ef-byline {
+          margin-bottom: 14px;
+          font-size: 20px;
+          font-style: italic;
+          color: var(--muted);
+        }
+        .ef-excerpt {
+          font-size: 19px;
+          line-height: 1.45;
+          color: #3f3934;
+        }
+        .ef-time {
+          margin-top: 26px;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+        }
+
+        /* ONE-SITTING */
+        .ef-reads {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          gap: 50px;
+          padding: 58px 7vw;
+          background: var(--red);
+          color: #fff7ef;
+        }
+        .ef-reads-label {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: .22em;
+          text-transform: uppercase;
+          margin-bottom: 20px;
+        }
+        .ef-reads h2 {
+          margin: 0;
+          max-width: 520px;
+          font-size: 42px;
+          line-height: 1.08;
+          letter-spacing: -.025em;
+        }
+        .ef-circles { display: flex; gap: 28px; }
+        .ef-circle {
+          width: 92px;
+          height: 92px;
+          border: 1px solid rgba(255,255,255,.45);
+          border-radius: 50%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 3px;
+          text-align: center;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          background: transparent;
+          border: 1px solid rgba(255,255,255,.45);
+          color: #fff7ef;
+          transition: all .15s;
+        }
+        .ef-circle.active { background: #fff7ef; color: var(--ink); border-color: #fff7ef; }
+        .ef-circle strong {
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 32px;
+          line-height: 1;
+          letter-spacing: 0;
+          font-weight: 700;
+          height: 32px;
+          width: 100%;
+        }
+        .ef-circle span { display: block; }
+
+        /* FOOTER */
+        .ef-footer { padding: 46px 7vw 34px; background: #fbf6ee; }
+        .ef-footer-row {
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+          gap: 30px;
+          padding-bottom: 34px;
+          border-bottom: 1px solid var(--line);
+        }
+        .ef-footer-fly img {
+          height: 28px;
+          width: auto;
+          image-rendering: pixelated;
+          opacity: .7;
+        }
+        .ef-footer-links {
+          display: flex;
+          gap: 34px;
+          justify-content: center;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+        }
+        .ef-footer-copy {
+          margin-top: 26px;
+          text-align: center;
+          font-size: 16px;
+          color: var(--muted);
+        }
+
+        /* MOBILE */
+        @media (max-width: 900px) {
+          .ef-nav {
+            height: auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+          }
+          .ef-nav-group, .ef-nav-group.right { display: none; }
+          .ef-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 8px 8px 0;
+            order: 1;
+          }
+          .ef-toggle span {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: var(--ink);
+            transition: all .2s;
+          }
+          .ef-logo { flex: 1; text-align: center; padding: 16px 0; order: 2; }
+          .ef-logo img { height: 40px; margin: 0 auto; }
+          .ef-mob-sub {
+            display: block;
+            order: 3;
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #fff;
+            background: var(--red);
+            padding: 7px 12px;
+            border-radius: 2px;
+          }
+          .ef-drawer {
+            flex-direction: column;
+            width: 100%;
+            order: 4;
+            border-top: 1px solid var(--line);
+            padding: 12px 0 24px;
+          }
+          .ef-drawer a {
+            font-family: Inter, system-ui, sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--ink);
+            padding: 16px 4px;
+            display: block;
+          }
+          .ef-nav.open .ef-drawer { display: flex; }
+          .ef-nav.open .ef-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+          .ef-nav.open .ef-toggle span:nth-child(2) { opacity: 0; }
+          .ef-nav.open .ef-toggle span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+          .ef-hero { min-height: 520px; padding: 40px 24px 44px; }
+          .ef-h1 { font-size: clamp(40px, 11vw, 58px); }
+          .ef-dek { font-size: 19px; margin: 18px 0 20px; }
+          .ef-meta { font-size: 11px; gap: 10px; }
+          .ef-read-link { margin-top: 24px; font-size: 19px; }
+
+          .ef-section { padding: 40px 24px 48px; }
+          .ef-section-head { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 16px; margin-bottom: 22px; }
+          .ef-section-head h2 { font-size: 28px; }
+          .ef-grid { grid-template-columns: 1fr; gap: 0; }
+          .ef-card { border-right: 0; border-bottom: 1px solid var(--line); padding: 28px 0; }
+          .ef-card:first-child { padding-top: 0; }
+          .ef-card:last-child { border-bottom: 0; padding-bottom: 0; }
+          .ef-card h3 { font-size: 26px; }
+          .ef-thumb { aspect-ratio: 16 / 7; }
+
+          .ef-reads { grid-template-columns: 1fr; gap: 28px; padding: 40px 24px; }
+          .ef-reads h2 { font-size: 30px; }
+          .ef-circles { gap: 12px; justify-content: center; }
+          .ef-circle { width: 76px; height: 76px; }
+          .ef-circle strong { font-size: 26px; height: 26px; }
+
+          .ef-footer { padding: 36px 24px 28px; }
+          .ef-footer-row { grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 20px; }
+          .ef-footer-links { justify-content: center; flex-wrap: wrap; gap: 24px; }
         }
       `}</style>
-      <header className="feed-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} onClick={onMastheadClick} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block", cursor: onMastheadClick ? "pointer" : "default" }} />
-        <nav className="feed-nav">
-          {(["Home", "About"] as Tab[]).map(s => (
-            <button key={s} onClick={() => switchTab(s)} style={{ opacity: activeTab === s ? 1 : 0.7, borderBottom: activeTab === s ? "1px solid white" : "none" }}>{s}</button>
-          ))}
-          {/* Sections dropdown */}
-          <div ref={sectionsRef} style={{ position: "relative" }}>
-            <button
-              onClick={() => setSectionsOpen(v => !v)}
-              style={{ opacity: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? 1 : 0.7, borderBottom: (activeTab === "Micro-Memoirs" || activeTab === "Narratives" || activeTab === "Essays") ? "1px solid white" : "none", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-              Sections
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ transition: "transform 0.15s", transform: sectionsOpen ? "rotate(180deg)" : "rotate(0deg)" }}><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            {sectionsOpen && (
-              <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
-                {(["Micro-Memoirs", "Narratives", "Essays"] as SectionTab[]).map(s => (
-                  <button key={s} onClick={() => switchTab(s)} style={{ display: "block", width: "100%", textAlign: "left", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: activeTab === s ? 700 : 500, color: activeTab === s ? "#8B0000" : "#1c2938", background: activeTab === s ? "#fdf0f0" : "white", border: "none", cursor: "pointer", letterSpacing: "0.02em" }}
-                    onMouseEnter={e => { if (activeTab !== s) e.currentTarget.style.background = "#f5f8fa"; }}
-                    onMouseLeave={e => { if (activeTab !== s) e.currentTarget.style.background = "white"; }}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <button onClick={() => switchTab("Archive")} style={{ opacity: activeTab === "Archive" ? 1 : 0.7, borderBottom: activeTab === "Archive" ? "1px solid white" : "none" }}>Archive</button>
+
+      {/* NAV */}
+      <header className={`ef-nav${menuOpen ? " open" : ""}`}>
+        <nav className="ef-nav-group">
+          <Link href="/?tab=About">About</Link>
+          <Link href="/?tab=Narratives">Sections</Link>
+          <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
         </nav>
+
+        <button
+          className="ef-logo"
+          onClick={onMastheadClick}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+          aria-label="Home"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/Crimson Wordmark.png" alt="efemera" />
+        </button>
+
+        <nav className="ef-nav-group right">
+          <Link href="/?tab=Archive">Archive</Link>
+          <a href="/stories">Stories</a>
+          <a href="#subscribe" className="ef-nav-cta">Subscribe</a>
+        </nav>
+
+        {/* Mobile controls */}
+        <button
+          className="ef-toggle"
+          aria-label="Menu"
+          onClick={() => setMenuOpen(o => !o)}
+        >
+          <span /><span /><span />
+        </button>
+        <a href="#subscribe" className="ef-mob-sub">Subscribe</a>
+        <div className="ef-drawer">
+          <Link href="/?tab=About" onClick={() => setMenuOpen(false)}>About</Link>
+          <Link href="/?tab=Narratives" onClick={() => setMenuOpen(false)}>Sections</Link>
+          <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
+          <Link href="/?tab=Archive" onClick={() => setMenuOpen(false)}>Archive</Link>
+          <a href="/stories">Stories</a>
+        </div>
       </header>
 
-      {activeTab === "About" ? (
-        <AboutPage paragraphs={aboutParagraphs} />
-      ) : activeTab === "Archive" ? (
-        <ArchiveTab posts={posts} />
-      ) : (
-        <div className="feed-layout">
-          {/* Main column */}
-          <div className="feed-main">
-            <div style={{ position: "relative", marginBottom: "0.75rem" }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#657786" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-              </svg>
-              <input
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                placeholder="Search posts…"
-                style={{ width: "100%", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", padding: "0.55rem 0.75rem 0.55rem 2.4rem", border: "1px solid #e1e8ed", borderRadius: 4, outline: "none", color: "#1c2938", background: "white", boxSizing: "border-box" }}
-              />
+      {/* HERO */}
+      {hero && (
+        <section
+          className="ef-hero"
+          style={heroImg ? { backgroundImage: `linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%), url(${heroImg})` } : undefined}
+        >
+          <div className="ef-hero-inner">
+            <div className="ef-kicker">Worth Your Time</div>
+            <Link href={`/stories/${hero.slug}`}>
+              <h1 className="ef-h1">{hero.headline}</h1>
+            </Link>
+            {hero.subheadline && <p className="ef-dek">{hero.subheadline}</p>}
+            <div className="ef-meta">
+              <span>{hero.byline}</span>
+              <span>·</span>
+              <span>{formatDate(hero.date)}</span>
+              <span>·</span>
+              <span>{readingTime(portableToPlainText(hero.body))} Min Read</span>
             </div>
-
-            {visiblePosts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem 0", fontFamily: "var(--font-inter), sans-serif", color: "#657786", fontSize: "1rem" }}>
-                {query ? `No results for "${query}"` : "No posts yet."}
-              </div>
-            ) : (
-              <div style={{ border: "1px solid #e1e8ed", borderRadius: 4, overflow: "hidden" }}>
-                {visiblePosts.map((post, i) => (
-                  <TweetCard key={post._id} post={post} index={i} />
-                ))}
-              </div>
-            )}
+            <Link href={`/stories/${hero.slug}`} className="ef-read-link">Continue reading →</Link>
           </div>
-
-          {/* Sidebar */}
-          <div className="sidebar-lately" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {(welcome?.headline || welcome?.body) && (
-              <div style={{ background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "0.85rem" }}>
-                {welcome?.headline && (
-                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: 0, lineHeight: 1.5 }}>
-                    {welcome.headline}
-                  </p>
-                )}
-                {welcome?.body && (
-                  <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#526270", margin: welcome?.headline ? "0.35rem 0 0" : 0, lineHeight: 1.5 }}>
-                    {welcome.body}
-                  </p>
-                )}
-              </div>
-            )}
-            <Lately data={lately ?? null} />
-          </div>
-          <div className="sidebar-choopy">
-            <Choopy />
-          </div>
-        </div>
+        </section>
       )}
 
-      <SiteFooter />
-    </div>
+      {/* CARDS */}
+      {cards.length > 0 && (
+        <section className="ef-section">
+          <div className="ef-section-head">
+            <h2>Latest from the Collective</h2>
+            <Link href="/stories">View all stories →</Link>
+          </div>
+          <div className="ef-grid">
+            {cards.map(post => {
+              const plain = portableToPlainText(post.body);
+              const imgSrc = post.image?.asset
+                ? urlFor(post.image.asset).width(600).height(445).fit("crop").auto("format").url()
+                : null;
+              return (
+                <article key={post._id} className="ef-card">
+                  <Link href={`/stories/${post.slug}`} className="ef-thumb">
+                    {imgSrc
+                      ? <Image src={imgSrc} alt={post.image?.alt ?? post.headline} width={600} height={445} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      : <div style={{ width: "100%", height: "100%", background: "#d7cdbe" }} />
+                    }
+                  </Link>
+                  <div className="ef-label">{sectionLabel(post.section)}</div>
+                  <h3>
+                    <Link href={`/stories/${post.slug}`}>{post.headline}</Link>
+                  </h3>
+                  <div className="ef-byline">{post.byline}</div>
+                  {post.subheadline && <p className="ef-excerpt">{truncate(post.subheadline, 160)}</p>}
+                  <div className="ef-time">{readingTime(plain)} Min Read</div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ONE-SITTING READS */}
+      <section className="ef-reads" id="subscribe">
+        <div>
+          <div className="ef-reads-label">One-Sitting Reads</div>
+          <h2>True stories for the time you have.</h2>
+        </div>
+        <div className="ef-circles">
+          {[3, 5, 8, 12].map(m => (
+            <button
+              key={m}
+              className={`ef-circle${activeMin === m ? " active" : ""}`}
+              onClick={() => setActiveMin(m)}
+            >
+              <strong>{m}</strong>
+              <span>Min</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="ef-footer">
+        <div className="ef-footer-row">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="ef-footer-fly"><img src="/mayfly-icon.webp" alt="" /></div>
+          <nav className="ef-footer-links">
+            <Link href="/?tab=About">Masthead</Link>
+            <a href="mailto:hello@efemera.co">Submit</a>
+            <a href="#subscribe">Subscribe</a>
+          </nav>
+          <div />
+        </div>
+        <p className="ef-footer-copy">© 2026 Efemera. A literary magazine by Yacob Reyes.</p>
+      </footer>
+    </>
   );
 }
