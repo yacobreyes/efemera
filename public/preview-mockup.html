@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>efemera — mockup v5</title>
+<title>efemera — mockup v6</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500;600&family=Caveat:wght@400&display=swap" rel="stylesheet">
@@ -14,8 +14,7 @@
   --ink:     #1c1a17;
   --muted:   #888;
   --bg:      #ede9e2;
-  --card-bg: #f5f1ea;
-  --border:  #d8d3c9;
+  --border:  #d4cfc6;
   --hed:     'Bodoni Moda', Georgia, serif;
   --sans:    'Inter', sans-serif;
   --hand:    'Caveat', cursive;
@@ -24,57 +23,44 @@ body { background: var(--bg); color: var(--ink); }
 
 /* ── NAV ── */
 nav {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.1rem 2.5rem;
+  padding: .9rem 2.5rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
-  gap: 2rem;
 }
-.nav-wordmark img {
-  height: 36px;
-  width: auto;
-  display: block;
+.nav-left {
+  display: flex;
+  gap: 1.75rem;
+  align-items: center;
 }
+.nav-left a, .nav-right a {
+  font-family: var(--sans);
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-left a:hover { color: var(--crimson); }
+.nav-right a:hover { color: var(--crimson); }
+.nav-center { text-align: center; padding: 0 2rem; }
+.nav-center img { height: 38px; width: auto; display: inline-block; }
 .nav-tagline {
   font-family: var(--sans);
-  font-size: .48rem;
+  font-size: .46rem;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
   margin-top: .2rem;
 }
-.nav-links {
-  display: flex;
-  gap: 1.75rem;
-  list-style: none;
-  flex: 1;
-  justify-content: center;
-}
-.nav-links a {
-  font-family: var(--sans);
-  font-size: .58rem;
-  font-weight: 500;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink);
-  text-decoration: none;
-}
-.nav-links a:hover { color: var(--crimson); }
 .nav-right {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.75rem;
   align-items: center;
-}
-.nav-right a {
-  font-family: var(--sans);
-  font-size: .58rem;
-  font-weight: 500;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink);
-  text-decoration: none;
+  justify-content: flex-end;
 }
 .nav-right .submit {
   color: var(--crimson);
@@ -88,18 +74,13 @@ nav {
   grid-template-columns: 1fr 1fr;
   gap: 0;
   min-height: 480px;
-  padding: 4rem 2.5rem 4rem;
+  padding: 4rem 2.5rem;
   max-width: 1100px;
   margin: 0 auto;
   align-items: center;
 }
 .hero-left { padding-right: 3rem; }
-.hero-rule {
-  width: 2rem;
-  height: 2px;
-  background: var(--crimson);
-  margin-bottom: 1.5rem;
-}
+.hero-rule { width: 2rem; height: 2px; background: var(--crimson); margin-bottom: 1.5rem; }
 .hero-hed {
   font-family: var(--hed);
   font-weight: 700;
@@ -117,12 +98,7 @@ nav {
   color: #555;
   margin-bottom: 2rem;
 }
-.hero-btns {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
+.hero-btns { display: flex; align-items: center; gap: 1.5rem; }
 .btn-primary {
   background: var(--crimson);
   color: #fff;
@@ -141,202 +117,182 @@ nav {
   font-family: var(--sans);
   font-size: .62rem;
   font-weight: 500;
-  letter-spacing: .05em;
   color: var(--crimson);
   text-decoration: none;
   border-bottom: 1px solid rgba(139,0,0,.35);
   padding-bottom: 1px;
 }
-
-/* Hero card stack */
-.hero-right {
-  position: relative;
-  height: 360px;
-}
-.hcard {
+.hero-right { position: relative; height: 380px; }
+.hero-photo {
   position: absolute;
-  background-color: var(--card-bg);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: multiply;
-  background-image: url('/Paper%20Texture%204.png');
-  -webkit-mask: url('/Paper%20Texture%204.png') center/100% 100% no-repeat;
-  mask: url('/Paper%20Texture%204.png') center/100% 100% no-repeat;
-  border: none;
-  padding: 2.2rem 1.9rem 2.6rem;
-  width: 240px;
-  filter: drop-shadow(2px 5px 9px rgba(0,0,0,.2));
+  top: 10px; right: 0;
+  width: 250px; height: 330px;
+  background: linear-gradient(170deg, #c8b89a 0%, #9a8060 40%, #6b5a45 100%);
+  transform: rotate(2deg);
+  box-shadow: 3px 5px 20px rgba(0,0,0,.18);
+  z-index: 1;
 }
-.hcard-photo {
-  width: 100%;
-  height: 120px;
-  object-fit: cover;
-  display: block;
-  margin-bottom: 1rem;
-  background: linear-gradient(160deg, #a07050 0%, #705030 100%);
+.hero-card {
+  position: absolute;
+  top: 30px; left: 0;
+  width: 250px;
+  z-index: 2;
+  transform: rotate(-2.5deg);
+  background: #f5f1e8 url('/Paper%20Texture%204.png') center/cover;
+  padding: 1.6rem 1.5rem 2rem;
+  box-shadow: 2px 5px 16px rgba(0,0,0,.18);
 }
-.hcard-cat {
+.hero-card .hcat {
   font-family: var(--sans);
   font-size: .46rem;
   font-weight: 600;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  margin-bottom: .6rem;
+  display: flex; align-items: center; gap: .4rem;
+  margin-bottom: .65rem;
 }
-.hcard-cat .fly { font-size: .75rem; }
-.hcard-hed {
+.hero-card .hhed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.15;
   color: var(--ink);
-  margin-bottom: .45rem;
+  margin-bottom: .4rem;
 }
-.hcard-author {
+.hero-card .hauthor {
   font-family: var(--hed);
   font-style: italic;
-  font-size: .75rem;
+  font-size: .76rem;
   color: #666;
-  margin-bottom: .6rem;
+  margin-bottom: .5rem;
 }
-.hcard-meta {
+.hero-card .hmeta {
   font-family: var(--sans);
-  font-size: .48rem;
+  font-size: .46rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: #aaa;
   margin-bottom: .8rem;
 }
-.hcard-body {
+.hero-card .hbody {
   font-family: var(--sans);
-  font-size: .75rem;
+  font-size: .76rem;
   line-height: 1.55;
-  color: #555;
+  color: #444;
   font-weight: 300;
-  margin-bottom: .85rem;
+  margin-bottom: .9rem;
 }
-.hcard-link {
+.hero-card .hlink {
   font-family: var(--sans);
   font-size: .6rem;
   font-weight: 500;
   color: var(--crimson);
   text-decoration: none;
-  letter-spacing: .04em;
 }
-/* hero photo + feature card */
-.hero-photo {
-  position: absolute;
-  top: 10px;
-  right: 0;
-  width: 240px;
-  height: 320px;
-  background: linear-gradient(170deg, #d8c9b2 0%, #b09878 40%, #6b5a45 100%);
-  transform: rotate(2deg);
-  box-shadow: 2px 4px 16px rgba(0,0,0,.18);
-  z-index: 1;
-}
-.hero-feature {
-  position: absolute !important;
-  top: 30px;
-  left: 0;
-  width: 260px !important;
-  z-index: 2;
-}
-/* mayfly decoration */
 .dfly-hero {
   position: absolute;
-  top: -30px;
-  right: -10px;
+  top: -28px; right: 0;
   z-index: 3;
 }
 .dfly-trail {
   position: absolute;
-  top: -10px;
-  right: 30px;
+  top: -8px; right: 38px;
   z-index: 2;
 }
 
 /* ── SECTION DIVIDER ── */
-.sec-divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
+hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
 
-/* ── LATEST ── */
-.latest {
+/* ── TODAY'S BRIEF ── */
+.brief-section { background: var(--bg); }
+.brief-inner {
   max-width: 1100px;
   margin: 0 auto;
   padding: 3.5rem 2.5rem;
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 3rem;
+  grid-template-columns: 200px 1fr auto;
+  gap: 2.5rem;
   align-items: start;
 }
-.latest-intro {}
-.latest-label {
+.brief-label {
+  font-family: var(--sans);
+  font-size: .52rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 1rem;
+}
+.brief-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.5rem;
-  line-height: 1.15;
+  font-size: 1.6rem;
+  line-height: 1.1;
   color: var(--ink);
-  margin-bottom: .6rem;
+  margin-bottom: .5rem;
 }
-.latest-rule {
-  width: 2rem;
-  height: 2px;
-  background: var(--crimson);
-  margin: .75rem 0;
+.brief-author {
+  font-family: var(--hed);
+  font-style: italic;
+  font-size: .82rem;
+  color: #666;
+  margin-bottom: .4rem;
 }
-.latest-desc {
+.brief-meta {
+  font-family: var(--sans);
+  font-size: .48rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: .85rem;
+}
+.brief-body {
   font-family: var(--sans);
   font-size: .8rem;
   font-weight: 300;
   line-height: 1.65;
-  color: #666;
-  margin-bottom: 1.25rem;
+  color: #555;
+  margin-bottom: 1rem;
 }
-.latest-more {
+.brief-link {
+  font-family: var(--sans);
+  font-size: .62rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.3);
+  padding-bottom: 1px;
+}
+.brief-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.brief-viewall {
   font-family: var(--sans);
   font-size: .6rem;
   font-weight: 500;
   color: var(--crimson);
   text-decoration: none;
-  letter-spacing: .04em;
+  white-space: nowrap;
+  align-self: end;
+  padding-bottom: .2rem;
+  border-bottom: 1px solid rgba(139,0,0,.3);
 }
-.latest-more:hover { opacity: .7; }
 
-/* Card rail */
-.card-rail {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  align-items: start;
-}
+/* ── PAPER CARDS ── */
 .paper-card {
-  background-color: var(--card-bg);
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-blend-mode: multiply;
-  border: none;
-  padding: 2.4rem 2rem 2.8rem;
+  background: #f5f1e8 center/cover;
+  padding: 1.4rem 1.3rem 1.6rem;
+  box-shadow: 1px 3px 10px rgba(0,0,0,.13);
   position: relative;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  filter: drop-shadow(2px 4px 7px rgba(0,0,0,.16));
 }
-.paper-card:nth-child(1) { background-image: url('/Paper%20Texture%204.png'); -webkit-mask-image: url('/Paper%20Texture%204.png'); mask-image: url('/Paper%20Texture%204.png'); }
-.paper-card:nth-child(2) { background-image: url('/Paper%20Texture%201.png'); -webkit-mask-image: url('/Paper%20Texture%201.png'); mask-image: url('/Paper%20Texture%201.png'); transform: rotate(.4deg); }
-.paper-card:nth-child(3) { background-image: url('/Paper%20Texture%202.png'); -webkit-mask-image: url('/Paper%20Texture%202.png'); mask-image: url('/Paper%20Texture%202.png'); transform: rotate(-.6deg); }
+.brief-cards .paper-card:nth-child(1) { background-image: url('/Paper%20Texture%204.png'); }
+.brief-cards .paper-card:nth-child(2) { background-image: url('/Paper%20Texture%203.png'); transform: rotate(.35deg); }
+.brief-cards .paper-card:nth-child(3) { background-image: url('/Paper%20Texture%202.png'); transform: rotate(-.5deg); }
 .paper-cat {
   font-family: var(--sans);
   font-size: .46rem;
@@ -344,271 +300,100 @@ nav {
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  margin-bottom: .75rem;
+  display: flex; align-items: center; gap: .35rem;
+  margin-bottom: .7rem;
 }
 .paper-hed {
   font-family: var(--hed);
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   line-height: 1.12;
   color: var(--ink);
-  margin-bottom: .5rem;
+  margin-bottom: .45rem;
 }
 .paper-hed a { color: inherit; text-decoration: none; }
 .paper-hed a:hover { color: var(--crimson); }
 .paper-author {
   font-family: var(--hed);
   font-style: italic;
-  font-size: .8rem;
+  font-size: .76rem;
   color: #666;
-  margin-bottom: .55rem;
+  margin-bottom: .45rem;
 }
 .paper-meta {
   font-family: var(--sans);
-  font-size: .48rem;
+  font-size: .46rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
   color: #aaa;
-  margin-bottom: .9rem;
+  margin-bottom: .85rem;
 }
 .paper-body {
   font-family: var(--sans);
-  font-size: .78rem;
+  font-size: .76rem;
   line-height: 1.6;
-  color: #555;
+  color: #444;
   font-weight: 300;
 }
 
 /* ── ONE-SITTING ── */
-.onesit-wrap {
-  background: #e8e3db;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
+.onesit-wrap { background: #e5dfd7; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .onesit {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3.5rem 2.5rem;
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 3rem;
-  align-items: center;
+  max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem;
+  display: grid; grid-template-columns: 220px 1fr;
+  gap: 3rem; align-items: center;
 }
-.onesit-intro .os-label {
-  font-family: var(--sans);
-  font-size: .52rem;
-  font-weight: 600;
-  letter-spacing: .28em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-bottom: .6rem;
+.os-label {
+  font-family: var(--sans); font-size: .52rem; font-weight: 600;
+  letter-spacing: .28em; text-transform: uppercase; color: var(--ink); margin-bottom: .6rem;
 }
-.onesit-intro .os-rule {
-  width: 2rem;
-  height: 2px;
-  background: var(--crimson);
-  margin: .6rem 0 .8rem;
-}
-.onesit-intro .os-desc {
-  font-family: var(--sans);
-  font-size: .8rem;
-  font-weight: 300;
-  line-height: 1.65;
-  color: #666;
-}
-.os-right {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-.os-circles {
-  display: flex;
-  gap: 1rem;
-}
+.os-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .6rem 0 .85rem; }
+.os-desc { font-family: var(--sans); font-size: .8rem; font-weight: 300; line-height: 1.65; color: #666; }
+.os-right { display: flex; align-items: center; gap: 1.75rem; }
+.os-circles { display: flex; gap: 1rem; }
 .os-circle {
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
+  width: 68px; height: 68px; border-radius: 50%;
   border: 1.5px solid #aaa;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; background: transparent;
 }
-.os-circle.active {
-  background: var(--crimson);
-  border-color: var(--crimson);
-}
-.os-circle .num {
-  font-family: var(--hed);
-  font-weight: 700;
-  font-size: 1.3rem;
-  line-height: 1;
-  color: var(--ink);
-}
+.os-circle.active { background: var(--crimson); border-color: var(--crimson); }
+.os-circle .num { font-family: var(--hed); font-weight: 700; font-size: 1.3rem; line-height: 1; color: var(--ink); }
 .os-circle.active .num { color: #fff; }
-.os-circle .unit {
-  font-family: var(--sans);
-  font-size: .45rem;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: #aaa;
-  margin-top: .15rem;
-}
+.os-circle .unit { font-family: var(--sans); font-size: .45rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-top: .15rem; }
 .os-circle.active .unit { color: rgba(255,255,255,.7); }
-.os-handnote {
-  position: relative;
-  margin-left: .5rem;
-}
-.os-handnote span {
-  font-family: var(--hand);
-  font-size: 1.05rem;
-  color: #888;
-  display: block;
-  line-height: 1.3;
-  transform: rotate(-3deg);
-}
-.os-handnote::before {
-  content: '↙';
-  position: absolute;
-  top: -18px;
-  left: 10px;
-  font-size: .9rem;
-  color: #aaa;
-  transform: scaleX(-1);
-}
+.os-handnote { position: relative; margin-left: .5rem; }
+.os-handnote span { font-family: var(--hand); font-size: 1.05rem; color: #888; display: block; line-height: 1.3; transform: rotate(-3deg); }
+.os-handnote::before { content: '↙'; position: absolute; top: -18px; left: 10px; font-size: .9rem; color: #aaa; transform: scaleX(-1); }
 
 /* ── BY FORM ── */
 .byform {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3.5rem 2.5rem;
-  display: grid;
-  grid-template-columns: 220px repeat(3, 1fr);
-  gap: 2.5rem;
-  align-items: start;
+  max-width: 1100px; margin: 0 auto; padding: 3.5rem 2.5rem;
+  display: grid; grid-template-columns: 220px repeat(3, 1fr); gap: 2.5rem; align-items: start;
 }
-.byform-intro .bf-label {
-  font-family: var(--hed);
-  font-weight: 700;
-  font-size: 1.5rem;
-  color: var(--ink);
-  margin-bottom: .5rem;
-}
-.byform-intro .bf-rule {
-  width: 2rem;
-  height: 2px;
-  background: var(--crimson);
-  margin: .75rem 0;
-}
-.byform-intro .bf-desc {
-  font-family: var(--sans);
-  font-size: .8rem;
-  font-weight: 300;
-  line-height: 1.6;
-  color: #666;
-}
-.form-item {}
-.form-fly {
-  font-size: 1.25rem;
-  color: var(--crimson);
-  margin-bottom: .55rem;
-  display: block;
-}
-.form-name {
-  font-family: var(--sans);
-  font-size: .72rem;
-  font-weight: 600;
-  letter-spacing: .06em;
-  color: var(--ink);
-  margin-bottom: .45rem;
-}
-.form-desc {
-  font-family: var(--sans);
-  font-size: .78rem;
-  font-weight: 300;
-  line-height: 1.55;
-  color: #666;
-  margin-bottom: .9rem;
-}
-.form-link {
-  font-family: var(--sans);
-  font-size: .6rem;
-  font-weight: 500;
-  color: var(--crimson);
-  text-decoration: none;
-  letter-spacing: .04em;
-}
+.bf-label { font-family: var(--hed); font-weight: 700; font-size: 1.5rem; color: var(--ink); margin-bottom: .5rem; }
+.bf-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .7rem 0; }
+.bf-desc { font-family: var(--sans); font-size: .8rem; font-weight: 300; line-height: 1.6; color: #666; }
+.form-name { font-family: var(--sans); font-size: .72rem; font-weight: 600; letter-spacing: .06em; color: var(--ink); margin-bottom: .4rem; }
+.form-desc { font-family: var(--sans); font-size: .78rem; font-weight: 300; line-height: 1.55; color: #666; margin-bottom: .85rem; }
+.form-link { font-family: var(--sans); font-size: .6rem; font-weight: 500; color: var(--crimson); text-decoration: none; }
 
-/* ── ABOUT FOOTER ── */
-.about-wrap {
-  background: var(--bg);
-  border-top: 1px solid var(--border);
-}
+/* ── ABOUT ── */
+.about-wrap { border-top: 1px solid var(--border); }
 .about {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3rem 2.5rem 3.5rem;
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 3rem;
-  align-items: center;
+  max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem 3.5rem;
+  display: grid; grid-template-columns: 160px 1fr; gap: 3rem; align-items: center;
 }
-.about-fly {
-  font-size: 5rem;
-  color: var(--crimson);
-  opacity: .8;
-  line-height: 1;
-}
-.about-content {}
-.about-hed {
-  font-family: var(--hed);
-  font-weight: 700;
-  font-size: 1.35rem;
-  color: var(--ink);
-  margin-bottom: .6rem;
-}
-.about-rule {
-  width: 2rem;
-  height: 2px;
-  background: var(--crimson);
-  margin: .6rem 0 .8rem;
-}
-.about-body {
-  font-family: var(--sans);
-  font-size: .82rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: #555;
-  margin-bottom: .5rem;
-}
-.about-link {
-  font-family: var(--sans);
-  font-size: .6rem;
-  font-weight: 500;
-  color: var(--crimson);
-  text-decoration: none;
-  letter-spacing: .04em;
-}
+.about-hed { font-family: var(--hed); font-weight: 700; font-size: 1.35rem; color: var(--ink); margin-bottom: .5rem; }
+.about-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .6rem 0 .85rem; }
+.about-body { font-family: var(--sans); font-size: .82rem; font-weight: 300; line-height: 1.7; color: #555; margin-bottom: .5rem; }
+.about-link { font-family: var(--sans); font-size: .6rem; font-weight: 500; color: var(--crimson); text-decoration: none; }
 
 footer {
-  background: var(--crimson);
-  color: rgba(255,255,255,.65);
-  text-align: center;
-  padding: 1.5rem;
-  font-family: var(--sans);
-  font-size: .5rem;
-  font-weight: 400;
-  letter-spacing: .25em;
-  text-transform: uppercase;
+  background: var(--crimson); color: rgba(255,255,255,.65);
+  text-align: center; padding: 1.5rem;
+  font-family: var(--sans); font-size: .5rem; font-weight: 400; letter-spacing: .25em; text-transform: uppercase;
 }
 </style>
 </head>
@@ -616,25 +401,25 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <div class="nav-wordmark">
+  <div class="nav-left">
+    <a href="#">Narratives</a>
+    <a href="#">Micro-Memoir</a>
+    <a href="#">Essays</a>
+  </div>
+  <div class="nav-center">
     <img src="/Crimson%20Wordmark.png" alt="efemera">
     <div class="nav-tagline">Life, in Brief.</div>
   </div>
-  <ul class="nav-links">
-    <li><a href="#">Narratives</a></li>
-    <li><a href="#">Micro-Memoir</a></li>
-    <li><a href="#">Essays</a></li>
-    <li><a href="#">Archive</a></li>
-  </ul>
   <div class="nav-right">
-    <a href="#">Issues</a>
+    <a href="#">Newsletter</a>
+    <a href="#">Gangrey</a>
     <a href="#">About</a>
     <a href="#" class="submit">Submit</a>
   </div>
 </nav>
 
 <!-- HERO -->
-<section style="background:var(--bg); border-bottom:1px solid var(--border);">
+<section style="border-bottom:1px solid var(--border);">
   <div class="hero">
     <div class="hero-left">
       <div class="hero-rule"></div>
@@ -646,66 +431,69 @@ footer {
       </div>
     </div>
     <div class="hero-right">
-      <img src="/mayfly-icon.webp" class="dfly-hero" style="width:42px;height:42px;image-rendering:pixelated;opacity:.85;" alt="">
-      <svg class="dfly-trail" width="120" height="90" viewBox="0 0 120 90" fill="none">
-        <path d="M115 8 C70 20, 90 55, 45 60 C20 63, 30 85, 12 82" stroke="#8B0000" stroke-width="1.5" stroke-dasharray="2 5" stroke-linecap="round" opacity=".55"/>
+      <img src="/mayfly-icon.webp" class="dfly-hero" style="width:40px;height:40px;image-rendering:pixelated;opacity:.85;" alt="">
+      <svg class="dfly-trail" width="110" height="80" viewBox="0 0 110 80" fill="none">
+        <path d="M105 5 C65 18, 80 50, 40 55 C18 58, 25 78, 8 75" stroke="#8B0000" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round" opacity=".5"/>
       </svg>
       <div class="hero-photo"></div>
-      <div class="hcard hero-feature" style="transform:rotate(-2.5deg);">
-        <div class="hcard-cat"><img src="/mayfly-icon.webp" class="fly" style="width:12px;height:12px;image-rendering:pixelated;opacity:.85;" alt=""> One-Sitting Read</div>
-        <div class="hcard-hed">The Message I Haven't Deleted</div>
-        <div class="hcard-author">Brian Francis Slattery</div>
-        <div class="hcard-meta">3 min read</div>
-        <div class="hcard-body">It's 42 seconds long and I know every pause.</div>
-        <a href="#" class="hcard-link">Read it now →</a>
+      <div class="hero-card">
+        <div class="hcat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.85;" alt=""> One-Sitting Read</div>
+        <div class="hhed">The Message I Haven't Deleted</div>
+        <div class="hauthor">Yacob Reyes</div>
+        <div class="hmeta">3 min read</div>
+        <div class="hbody">It's 42 seconds long and I know every pause.</div>
+        <a href="#" class="hlink">Read it now →</a>
       </div>
     </div>
   </div>
 </section>
 
-<hr class="sec-divider">
+<hr class="divider">
 
-<!-- LATEST FROM THE TABLE -->
-<section>
-  <div class="latest">
-    <div class="latest-intro">
-      <div class="latest-label">Latest from<br>the Table</div>
-      <div class="latest-rule"></div>
-      <p class="latest-desc">New narratives, micro-memoirs, and essays from the collective.</p>
-      <a href="#" class="latest-more">See more →</a>
+<!-- TODAY'S BRIEF -->
+<section class="brief-section">
+  <div class="brief-inner">
+    <div class="brief-featured">
+      <div class="brief-label">Today's Brief</div>
+      <h2 class="brief-hed">Why I'm Switching Salons</h2>
+      <p class="brief-author">Yacob Reyes</p>
+      <p class="brief-meta">4 min read</p>
+      <p class="brief-body">There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.</p>
+      <a href="#" class="brief-link">Read the story →</a>
     </div>
-    <div class="card-rail">
+    <div class="brief-cards">
       <article class="paper-card">
-        <div class="paper-cat"><span>✦</span> Narrative</div>
+        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Narrative</div>
         <h3 class="paper-hed"><a href="#">Why I'm Switching Salons</a></h3>
         <p class="paper-author">Yacob Reyes</p>
         <p class="paper-meta">4 min read</p>
-        <p class="paper-body">There is a particular vulnerability in salons that makes you say things you wouldn't say anywhere else.</p>
+        <p class="paper-body">A meditation on small betrayals and the grief of losing a hairdresser you loved.</p>
       </article>
       <article class="paper-card">
-        <div class="paper-cat"><span>✦</span> Micro-Memoir</div>
+        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Micro-Memoir</div>
         <h3 class="paper-hed"><a href="#">Airport, 6 A.M.</a></h3>
         <p class="paper-author">Yacob Reyes</p>
         <p class="paper-meta">1 min read</p>
         <p class="paper-body">She was reading a book I had read the year my father died. I almost said something.</p>
       </article>
       <article class="paper-card">
-        <div class="paper-cat"><span>✦</span> Essay</div>
+        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Essay</div>
         <h3 class="paper-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
         <p class="paper-author">Yacob Reyes</p>
         <p class="paper-meta">3 min read</p>
-        <p class="paper-body">I've built a life around goodbyes that didn't take.</p>
+        <p class="paper-body">On the strange freedom of being mediocre at something you love.</p>
       </article>
     </div>
+    <a href="#" class="brief-viewall">View all briefs →</a>
   </div>
 </section>
 
-<hr class="sec-divider">
+<hr class="divider">
 
 <!-- ONE-SITTING READS -->
 <div class="onesit-wrap">
   <div class="onesit">
-    <div class="onesit-intro">
+    <div>
       <div class="os-label">One-Sitting Reads</div>
       <div class="os-rule"></div>
       <p class="os-desc">True stories for the time you actually have.</p>
@@ -724,30 +512,30 @@ footer {
   </div>
 </div>
 
-<hr class="sec-divider">
+<hr class="divider">
 
 <!-- BY FORM -->
 <section>
   <div class="byform">
-    <div class="byform-intro">
+    <div>
       <div class="bf-label">By Form</div>
       <div class="bf-rule"></div>
       <p class="bf-desc">Find the kind of story you're in the mood for.</p>
     </div>
-    <div class="form-item">
-      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+    <div>
+      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
       <div class="form-name">Narratives</div>
       <p class="form-desc">Longer scenes, turning points, lived moments.</p>
       <a href="#" class="form-link">Explore →</a>
     </div>
-    <div class="form-item">
-      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+    <div>
+      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
       <div class="form-name">Micro-Memoir</div>
       <p class="form-desc">Small true pieces with a pulse.</p>
       <a href="#" class="form-link">Explore →</a>
     </div>
-    <div class="form-item">
-      <img src="/mayfly-icon.webp" class="form-fly" style="width:22px;height:22px;image-rendering:pixelated;display:block;" alt="">
+    <div>
+      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
       <div class="form-name">Essays</div>
       <p class="form-desc">Reflections, arguments, observations, reckonings.</p>
       <a href="#" class="form-link">Explore →</a>
@@ -755,13 +543,13 @@ footer {
   </div>
 </section>
 
-<hr class="sec-divider">
+<hr class="divider">
 
 <!-- ABOUT -->
 <div class="about-wrap">
   <div class="about">
-    <img src="/mayfly-icon.webp" class="about-fly" style="width:80px;height:80px;image-rendering:pixelated;" alt="">
-    <div class="about-content">
+    <img src="/mayfly-icon.webp" style="width:72px;height:72px;image-rendering:pixelated;" alt="">
+    <div>
       <div class="about-hed">About Efemera</div>
       <div class="about-rule"></div>
       <p class="about-body">Efemera is a literary magazine — a shared table for short, true stories from everyday life.</p>
