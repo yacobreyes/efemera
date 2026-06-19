@@ -435,7 +435,7 @@ export default function Feed({
         <section className="ef-section">
           <div className="ef-section-head">
             <h2>Latest from the Collective</h2>
-            <Link href="/stories">View all stories →</Link>
+            <Link href="/latest">View all stories →</Link>
           </div>
           <div className="ef-grid">
             {cards.map(post => {
