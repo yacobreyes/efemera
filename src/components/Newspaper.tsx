@@ -146,7 +146,7 @@ export default function Feed({
           position: absolute;
           top: 32px;
           right: 44px;
-          height: 64px;
+          height: 80px;
           width: auto;
           image-rendering: pixelated;
           opacity: .85;
