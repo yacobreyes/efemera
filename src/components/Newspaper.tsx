@@ -287,7 +287,7 @@ export default function Feed({
           gap: 50px;
           padding: 58px 7vw;
           background: var(--red);
-          color: #fff7ef;
+          color: #fbf6ee;
         }
         .ef-reads-label {
           font-family: Inter, system-ui, sans-serif;
@@ -324,10 +324,10 @@ export default function Feed({
           cursor: pointer;
           background: transparent;
           border: 1px solid rgba(255,255,255,.45);
-          color: #fff7ef;
+          color: #fbf6ee;
           transition: all .15s;
         }
-        .ef-circle.active { background: #fff7ef; color: var(--ink); border-color: #fff7ef; }
+        .ef-circle.active { background: #fbf6ee; color: var(--ink); border-color: #fbf6ee; }
         .ef-circle strong {
           display: flex;
           align-items: flex-end;
