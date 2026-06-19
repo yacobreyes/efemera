@@ -138,33 +138,8 @@
       position: relative;
       overflow: hidden;
       background:
-        radial-gradient(circle at 58% 42%, #e9e1d4 0%, #ded3c2 45%, #cfc1ad 100%);
-    }
-
-    /* delicate seedling placeholder — swap for a real photo */
-    .hero-art::before {
-      content: "";
-      position: absolute;
-      left: 56%;
-      bottom: 70px;
-      width: 4px;
-      height: 150px;
-      background: linear-gradient(#b6a892, #9c8d76);
-      border-radius: 4px;
-      transform: rotate(4deg);
-    }
-
-    .hero-art::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      top: 120px;
-      width: 70px;
-      height: 30px;
-      background: #cdc1ac;
-      border-radius: 100% 0 100% 0;
-      transform: rotate(-22deg);
-      box-shadow: 36px 8px 0 -2px #c6b9a3;
+        linear-gradient(rgba(60,45,32,.12), rgba(60,45,32,.12)),
+        url('/Paper%20card%202.jpg') center/cover;
     }
 
     .hero-fly {
@@ -220,28 +195,31 @@
       border-right: 0;
     }
 
-    /* photographic placeholders — swap for real photos */
     .thumb {
       aspect-ratio: 1.35 / 1;
       margin-bottom: 24px;
       background:
-        linear-gradient(160deg, #cfc6b6 0%, #9a8d79 55%, #756954 100%);
-      filter: sepia(.35) contrast(.95);
+        linear-gradient(rgba(60,45,32,.22), rgba(60,45,32,.22)),
+        url('/Paper%20Card%203.jpg') center/cover;
+      filter: sepia(.25);
     }
 
     .card:nth-child(2) .thumb {
       background:
-        linear-gradient(200deg, #d8d0c2 0%, #ab9d86 60%, #6f6450 100%);
+        linear-gradient(rgba(60,45,32,.22), rgba(60,45,32,.22)),
+        url('/Paper%20card%202.jpg') center/cover;
     }
 
     .card:nth-child(3) .thumb {
       background:
-        linear-gradient(150deg, #c3b8a8 0%, #8f8269 55%, #5e5644 100%);
+        linear-gradient(rgba(60,45,32,.22), rgba(60,45,32,.22)),
+        url('/Paper%20Card%204.png') center/cover;
     }
 
     .card:nth-child(4) .thumb {
       background:
-        linear-gradient(170deg, #d2c7b4 0%, #a08d6f 55%, #6b5c45 100%);
+        linear-gradient(rgba(60,45,32,.22), rgba(60,45,32,.22)),
+        url('/Paper%20card.jpg') center/cover;
     }
 
     .label {
@@ -562,7 +540,9 @@
         <a class="read-link" href="#">Continue reading →</a>
       </div>
 
-      <div class="hero-art" aria-hidden="true"></div>
+      <div class="hero-art" aria-hidden="true">
+        <img class="hero-fly" src="/mayfly-icon.webp" alt="">
+      </div>
     </section>
 
     <section class="section">
