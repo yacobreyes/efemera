@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
 import SiteFooter from "@/components/SiteFooter";
@@ -535,7 +534,8 @@ export default function Feed({
                 <article key={post._id} className="ef-card">
                   <Link href={`/stories/${post.slug}`} className="ef-thumb">
                     {imgSrc
-                      ? <Image src={imgSrc} alt={post.image?.alt ?? post.headline} width={600} height={445} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={imgSrc} alt={post.image?.alt ?? post.headline} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                       : <div style={{ width: "100%", height: "100%", background: "#d7cdbe" }} />
                     }
                   </Link>
