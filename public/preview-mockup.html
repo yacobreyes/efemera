@@ -74,6 +74,18 @@
       color: var(--red);
     }
 
+    .nav-cta {
+      background: var(--red);
+      color: #fff !important;
+      padding: 7px 14px;
+      font-family: Inter, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      border-radius: 2px;
+    }
+
     .nav-toggle { display: none; }
     .nav-drawer { display: none; }
     .nav-subscribe { display: none; }
@@ -558,7 +570,7 @@
     <nav class="nav-group right">
       <a href="#">Archive</a>
       <a href="#">Store</a>
-      <a class="submit" href="#">Subscribe</a>
+      <a class="nav-cta" href="#">Subscribe</a>
     </nav>
 
     <button class="nav-toggle" aria-label="Menu" onclick="this.closest('header').classList.toggle('open')">
