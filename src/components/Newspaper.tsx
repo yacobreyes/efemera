@@ -73,7 +73,7 @@ export default function Feed({
         html { background: #fbf6ee; }
         body {
           margin: 0;
-          background: var(--paper);
+          background: #fbf6ee;
           color: var(--ink);
           font-family: "Cormorant Garamond", Georgia, serif;
           -webkit-font-smoothing: antialiased;
@@ -201,7 +201,7 @@ export default function Feed({
         }
 
         /* CARDS SECTION */
-        .ef-section { padding: 70px 7vw 86px; }
+        .ef-section { padding: 70px 7vw 86px; background: var(--paper); }
         .ef-section-head {
           display: flex;
           justify-content: space-between;
