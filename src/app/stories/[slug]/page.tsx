@@ -121,18 +121,9 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           box-sizing: border-box;
           text-align: center;
         }
-        .story-back {
-          display: inline-block;
-          font-family: Inter, system-ui, sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: .16em;
-          text-transform: uppercase;
-          color: #8e0d0d;
-          margin-bottom: 34px;
-          text-decoration: none;
-        }
         .story-label {
+          text-decoration: none;
+          display: block;
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 800;
@@ -242,8 +233,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <MagHeader />
 
       <header className="story-head">
-        <Link href={`/?tab=${sectionTab}`} className="story-back">← {sectionTab}</Link>
-        <div className="story-label">{sectionLabel(post.section)}</div>
+        <Link href={`/?tab=${sectionTab}`} className="story-label">← {sectionLabel(post.section)}</Link>
         <h1 className="story-h1">{post.headline}</h1>
         {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
         <div className="story-meta">
