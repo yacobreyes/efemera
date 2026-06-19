@@ -570,16 +570,7 @@ export default function Feed({
         </div>
       </header>
 
-      {/* Mobile section pill tabs */}
-      <nav className="ef-section-tabs">
-        <Link href="/?tab=Narratives">Narratives</Link>
-        <Link href="/?tab=Essays">Essays</Link>
-        <Link href="/?tab=Micro-Memoirs">Micro-Memoirs</Link>
-        <Link href="/?tab=Archive">Archive</Link>
-        <a href="https://gangrey.com" target="_blank" rel="noopener noreferrer">Gangrey</a>
-      </nav>
-
-      {/* HERO */}
+{/* HERO */}
       {hero && (
         <section
           className="ef-hero"
