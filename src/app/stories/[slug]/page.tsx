@@ -156,7 +156,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           font-weight: 700;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: #6f655b;
+          color: #171412;
           display: inline-flex;
           gap: 12px;
           align-items: center;
@@ -173,7 +173,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         .story-hero figcaption {
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
-          color: #6f655b;
+          color: #171412;
           font-style: italic;
           margin-top: 10px;
           line-height: 1.5;
