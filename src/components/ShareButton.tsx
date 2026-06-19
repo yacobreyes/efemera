@@ -18,7 +18,7 @@ export default function ShareButton({ slug, headline }: { slug: string; headline
   }
 
   return (
-    <button onClick={share} style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: copied ? "#8B0000" : "#657786" }}>
+    <button onClick={share} style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "none", border: "none", cursor: "pointer", padding: 0, color: copied ? "#8e0d0d" : "#171412" }}>
       {copied ? (
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="20 6 9 17 4 12"/>

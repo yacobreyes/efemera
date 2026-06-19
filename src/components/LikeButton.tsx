@@ -43,7 +43,7 @@ export default function LikeButton({ slug }: { slug: string }) {
         background: "none", border: "none",
         cursor: "pointer",
         padding: 0,
-        color: liked ? "#e0245e" : "#657786",
+        color: liked ? "#8e0d0d" : "#171412",
       }}
     >
       <svg width="17" height="17" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
