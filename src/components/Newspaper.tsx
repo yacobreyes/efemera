@@ -134,7 +134,7 @@ export default function Feed({
           align-items: flex-end;
           padding: 80px 7vw;
           overflow: hidden;
-          color: #f7f1e7;
+          color: #fbf6ee;
           background:
             linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%),
             linear-gradient(125deg, #4a4038, #2a2420);
@@ -158,7 +158,7 @@ export default function Feed({
           font-weight: 800;
           letter-spacing: .22em;
           text-transform: uppercase;
-          color: #fff;
+          color: #fbf6ee;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
           margin-bottom: 22px;
         }
@@ -168,18 +168,18 @@ export default function Feed({
           font-size: clamp(56px, 7.5vw, 98px);
           line-height: .92;
           letter-spacing: -.025em;
-          color: #fff;
+          color: #fbf6ee;
           text-shadow: 0 2px 24px rgba(0,0,0,.7), 0 1px 6px rgba(0,0,0,.5);
           transition: color .15s;
         }
-        .ef-h1:hover { color: #fff; }
+        .ef-h1:hover { color: #fbf6ee; }
         .ef-dek {
           max-width: 560px;
           margin: 26px 0 30px;
           font-size: 25px;
           line-height: 1.35;
           font-style: italic;
-          color: #fff;
+          color: #fbf6ee;
           text-shadow: 0 1px 10px rgba(0,0,0,.5);
         }
         .ef-meta {
@@ -191,15 +191,15 @@ export default function Feed({
           font-weight: 800;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: #fff;
+          color: #fbf6ee;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
         .ef-read-link {
           display: inline-block;
           margin-top: 32px;
-          color: #fff;
+          color: #fbf6ee;
           font-size: 23px;
-          border-bottom: 1px solid rgba(255,255,255,.5);
+          border-bottom: 1px solid #fbf6ee;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
 
