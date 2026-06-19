@@ -146,7 +146,7 @@ export default function Feed({
           position: absolute;
           top: 32px;
           right: 44px;
-          height: 48px;
+          height: 64px;
           width: auto;
           image-rendering: pixelated;
           opacity: .85;
@@ -356,7 +356,7 @@ export default function Feed({
         }
         .ef-footer-fly { margin-bottom: 20px; }
         .ef-footer-fly img {
-          height: 34px;
+          height: 46px;
           width: auto;
           image-rendering: pixelated;
           filter: brightness(0);
