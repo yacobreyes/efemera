@@ -138,6 +138,16 @@ export default function Feed({
           background-position: center;
         }
         .ef-hero-inner { position: relative; z-index: 2; max-width: 760px; }
+        .ef-hero-fly {
+          position: absolute;
+          top: 32px;
+          right: 44px;
+          height: 48px;
+          width: auto;
+          image-rendering: pixelated;
+          opacity: .85;
+          z-index: 3;
+        }
         .ef-kicker {
           font-family: Inter, system-ui, sans-serif;
           font-size: 13px;
@@ -345,8 +355,8 @@ export default function Feed({
           height: 28px;
           width: auto;
           image-rendering: pixelated;
-          filter: invert(1) brightness(0);
-          opacity: .55;
+          filter: brightness(0);
+          opacity: .65;
         }
         .ef-footer-links {
           display: flex;
@@ -505,6 +515,8 @@ export default function Feed({
           className="ef-hero"
           style={heroImg ? { backgroundImage: `linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%), url(${heroImg})` } : undefined}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mayfly-icon.webp" alt="" className="ef-hero-fly" />
           <div className="ef-hero-inner">
             <div className="ef-kicker">Worth Your Time</div>
             <Link href={`/stories/${hero.slug}`}>
