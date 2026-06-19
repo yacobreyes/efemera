@@ -45,7 +45,7 @@ export default function MagFooter() {
       <div className="mag-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
       <nav className="mag-footer-links">
         <Link href="/about">Masthead</Link>
-        <a href="mailto:hello@efemera.co">Submit</a>
+        <a href="mailto:yacob@efemera.org">Submit</a>
         <SubscribeButton>Subscribe</SubscribeButton>
       </nav>
       <p className="mag-footer-copy">© 2026 Efemera. A Literary Collective by Yacob Reyes.</p>
