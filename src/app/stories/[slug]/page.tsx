@@ -6,7 +6,6 @@ import { getAllSlugs, getPost, urlFor } from "@/lib/sanity";
 import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
-import ReadCounter from "@/components/ReadCounter";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import StoryVisitTracker from "@/components/StoryVisitTracker";
@@ -114,128 +113,160 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           background: #f5efe4;
           color: #171412;
         }
-        .story-article {
+        .story-head {
           width: 100%;
-          max-width: 680px;
+          max-width: 760px;
           margin: 0 auto;
-          padding: 64px 24px 40px;
+          padding: 60px 24px 36px;
           box-sizing: border-box;
+          text-align: center;
         }
         .story-back {
           display: inline-block;
           font-family: Inter, system-ui, sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: .14em;
+          letter-spacing: .16em;
           text-transform: uppercase;
           color: #8e0d0d;
-          margin-bottom: 30px;
+          margin-bottom: 34px;
           text-decoration: none;
         }
         .story-label {
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 800;
-          letter-spacing: .2em;
+          letter-spacing: .24em;
           text-transform: uppercase;
           color: #8e0d0d;
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         .story-h1 {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-weight: 700;
-          font-size: clamp(40px, 7vw, 66px);
-          line-height: 1.02;
+          font-size: clamp(42px, 7vw, 74px);
+          line-height: 1.0;
           letter-spacing: -.025em;
-          margin: 0 0 18px;
+          margin: 0 auto 22px;
+          max-width: 14ch;
         }
         .story-dek {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-style: italic;
-          font-size: clamp(20px, 3vw, 26px);
+          font-size: clamp(20px, 3vw, 27px);
           line-height: 1.35;
           color: #463f37;
-          margin: 0 0 24px;
+          margin: 0 auto 28px;
+          max-width: 540px;
         }
         .story-meta {
           font-family: Inter, system-ui, sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: .12em;
+          letter-spacing: .16em;
           text-transform: uppercase;
           color: #6f655b;
-          padding-bottom: 26px;
-          margin-bottom: 30px;
-          border-bottom: 1px solid #cfc3b3;
+          display: inline-flex;
+          gap: 12px;
+          align-items: center;
         }
-        .story-figure { margin: 0 0 32px; }
-        .story-figure img { width: 100%; display: block; }
-        .story-figure figcaption {
+        .story-meta .dot { color: #8e0d0d; }
+        .story-hero {
+          width: 100%;
+          max-width: 1100px;
+          margin: 12px auto 0;
+          padding: 0 24px;
+          box-sizing: border-box;
+        }
+        .story-hero img { width: 100%; display: block; }
+        .story-hero figcaption {
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
           color: #6f655b;
           font-style: italic;
-          margin-top: 8px;
+          margin-top: 10px;
           line-height: 1.5;
+          text-align: center;
+        }
+        .story-article {
+          width: 100%;
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 48px 24px 40px;
+          box-sizing: border-box;
         }
         .story-body {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: 22px;
-          line-height: 1.62;
+          line-height: 1.65;
           color: #211c17;
         }
-        .story-body p { margin: 1.15rem 0 0; }
+        .story-body > p:first-of-type::first-letter {
+          font-weight: 700;
+          font-size: 4.4em;
+          line-height: .72;
+          float: left;
+          margin: .06em .1em 0 0;
+          color: #8e0d0d;
+        }
+        .story-body p { margin: 1.2rem 0 0; }
+        .story-body > p:first-of-type { margin-top: 0; }
         .story-body a { color: #8e0d0d; text-decoration: underline; }
-        .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.15rem 0 0; }
-        .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.15rem 0 0; }
+        .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
+        .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
         .story-body li { display: list-item; margin-bottom: .25em; }
+        .story-rule { width: 60px; height: 2px; background: #8e0d0d; border: 0; margin: 44px auto 0; }
         .story-actions {
-          margin-top: 36px;
-          padding-top: 22px;
-          border-top: 1px solid #cfc3b3;
+          margin-top: 30px;
           display: flex;
           gap: 1.5rem;
           align-items: center;
+          justify-content: center;
           flex-wrap: wrap;
         }
-        .story-kicker { margin-top: 40px; display: flex; justify-content: center; }
-        .story-kicker img { width: clamp(110px, 26vw, 150px); height: auto; opacity: .9; }
         .story-comments {
           width: 100%;
-          max-width: 680px;
+          max-width: 640px;
           margin: 0 auto;
           padding: 8px 24px 56px;
           box-sizing: border-box;
         }
         @media (max-width: 600px) {
-          .story-article { padding: 36px 22px 30px; }
+          .story-head { padding: 40px 22px 28px; }
+          .story-hero { padding: 0; }
+          .story-article { padding: 34px 22px 30px; }
+          .story-body { font-size: 21px; }
         }
       `}</style>
 
       <MagHeader />
 
-      <article className="story-article">
+      <header className="story-head">
         <Link href={`/?tab=${sectionTab}`} className="story-back">← {sectionTab}</Link>
-
         <div className="story-label">{sectionLabel(post.section)}</div>
         <h1 className="story-h1">{post.headline}</h1>
         {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
-
         <div className="story-meta">
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} Min Read
+          <span>By {post.byline}</span>
+          <span className="dot">·</span>
+          <span>{new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+          <span className="dot">·</span>
+          <span>{readingTime(post.body)} Min Read</span>
         </div>
+      </header>
 
-        {post.image?.asset && (
-          <figure className="story-figure">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(post.image.asset).width(1000).height(563).fit("crop").auto("format").url()}
-              alt={post.image.alt ?? post.image.caption ?? ""}
-            />
-            {post.image.caption && <figcaption>{post.image.caption}</figcaption>}
-          </figure>
-        )}
+      {post.image?.asset && (
+        <figure className="story-hero">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(post.image.asset).width(1400).height(788).fit("crop").auto("format").url()}
+            alt={post.image.alt ?? post.image.caption ?? ""}
+          />
+          {post.image.caption && <figcaption>{post.image.caption}</figcaption>}
+        </figure>
+      )}
 
+      <article className="story-article">
         <div className="story-body">
           <PortableText
             value={post.body}
@@ -280,17 +311,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           />
         </div>
 
+        <hr className="story-rule" />
         <div className="story-actions">
           <LikeButton slug={slug} />
           <ShareButton slug={slug} headline={post.headline} />
-          <div style={{ marginLeft: "auto" }}>
-            <ReadCounter slug={slug} />
-          </div>
-        </div>
-
-        <div className="story-kicker">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Black Mayfly.png" alt="" />
         </div>
       </article>
 

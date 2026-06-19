@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubscribeButton from "@/components/SubscribeButton";
 
 export default function MagHeader() {
   return (
@@ -44,7 +45,7 @@ export default function MagHeader() {
         }
       `}</style>
       <nav className="mag-nav-group">
-        <Link href="/?tab=About">About</Link>
+        <Link href="/about">About</Link>
         <Link href="/">The Latest</Link>
         <Link href="/gangrey">Gangrey</Link>
       </nav>
@@ -55,7 +56,7 @@ export default function MagHeader() {
       <nav className="mag-nav-group right">
         <Link href="/archive">Archive</Link>
         <Link href="/store">Store</Link>
-        <Link href="/#subscribe" className="mag-nav-cta">Subscribe</Link>
+        <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
       </nav>
     </header>
   );

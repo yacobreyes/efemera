@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SubscribeButton from "@/components/SubscribeButton";
 
 export default function MagFooter() {
   return (
@@ -28,6 +29,7 @@ export default function MagFooter() {
           color: #171412;
         }
         .mag-footer-links a { color: inherit; text-decoration: none; }
+        .mag-footer-links button { font: inherit; letter-spacing: inherit; text-transform: inherit; background: none; border: none; padding: 0; color: inherit; cursor: pointer; }
         .mag-footer-copy {
           margin-top: 26px;
           font-family: "Cormorant Garamond", Georgia, serif;
@@ -42,9 +44,9 @@ export default function MagFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <div className="mag-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
       <nav className="mag-footer-links">
-        <Link href="/?tab=About">Masthead</Link>
+        <Link href="/about">Masthead</Link>
         <a href="mailto:hello@efemera.co">Submit</a>
-        <Link href="/#subscribe">Subscribe</Link>
+        <SubscribeButton>Subscribe</SubscribeButton>
       </nav>
       <p className="mag-footer-copy">© 2026 Efemera. A Literary Collective by Yacob Reyes.</p>
     </footer>
