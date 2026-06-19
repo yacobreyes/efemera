@@ -22,6 +22,7 @@
   --hand: 'Caveat', cursive;
 }
 
+html { background: var(--crimson); }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -55,15 +56,7 @@ body {
 .nav a:hover { color: var(--ink); }
 .nav a.submit { color: var(--crimson); }
 .nav-center { text-align: center; }
-.nav-center img { height: 34px; width: auto; display: inline-block; }
-.nav-tagline {
-  font-size: .44rem;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: var(--crimson);
-  margin-top: .25rem;
-  opacity: .8;
-}
+.nav-center img { height: 52px; width: auto; display: inline-block; }
 
 /* ─── HERO ─── */
 .hero {
@@ -142,17 +135,14 @@ body {
 }
 .hero-photo {
   position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(to bottom, rgba(0,0,0,.08) 0%, rgba(0,0,0,.0) 40%),
-    linear-gradient(160deg, #c5b49a 0%, #9e8060 50%, #6e5038 100%);
-}
-/* sepia photo overlay — fades left */
-.hero-photo::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to right, var(--bg) 0%, transparent 35%);
+  top: 50%;
+  right: 2.5rem;
+  transform: translateY(-50%) rotate(2.5deg);
+  width: 250px;
+  height: 330px;
+  background: #d8cdbb url('/Paper%20Card%204.png') center/cover;
+  box-shadow: 3px 6px 24px rgba(0,0,0,.2);
+  z-index: 1;
 }
 .hero-card {
   position: absolute;
@@ -230,86 +220,34 @@ body {
   z-index: 2;
 }
 
-/* ─── TODAY'S BRIEF ─── */
-.brief {
-  display: grid;
-  grid-template-columns: 240px 1fr auto;
-  gap: 3rem;
-  align-items: start;
-  padding: 3.5rem 2.5rem;
+/* ─── OUR PICKS ─── */
+.picks {
+  padding: 4rem 2.5rem;
   border-bottom: 1px solid var(--border);
   max-width: 1200px;
   margin: 0 auto;
 }
-.brief-intro {}
+.picks-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 2.25rem;
+}
+.picks-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.5rem;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
 .section-label {
   font-size: .5rem;
   font-weight: 600;
   letter-spacing: .26em;
   text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1.1rem;
-}
-.brief-featured-hed {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 1.65rem;
-  line-height: 1.1;
-  color: var(--ink);
-  margin-bottom: .55rem;
-}
-.brief-featured-author {
-  font-family: var(--serif);
-  font-style: italic;
-  font-size: .82rem;
-  color: var(--muted);
-  margin-bottom: .35rem;
-}
-.brief-featured-meta {
-  font-size: .46rem;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: #b5aca0;
-  margin-bottom: .9rem;
-}
-.brief-featured-body {
-  font-size: .8rem;
-  font-weight: 300;
-  line-height: 1.7;
-  color: var(--muted);
-  margin-bottom: 1rem;
-}
-.brief-featured-rule {
-  width: 1.5rem;
-  height: 2px;
-  background: var(--crimson);
-  margin-bottom: 1rem;
-}
-.brief-link {
-  font-size: .6rem;
-  font-weight: 500;
   color: var(--crimson);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.25);
-  padding-bottom: 1px;
+  margin-bottom: .5rem;
 }
-
-/* card grid */
-.brief-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  align-items: start;
-}
-.pcard {
-  padding: 1.5rem 1.4rem 1.8rem;
-  box-shadow: 2px 4px 18px rgba(0,0,0,.12);
-}
-.pcard:nth-child(1) { background: var(--card-light) url('/Paper%20card%202.jpg') center/cover; }
-.pcard:nth-child(2) { background: var(--card-light) url('/Paper%20Card%204.png') center/cover; transform: rotate(.3deg); }
-.pcard:nth-child(3) { background: var(--card-light) url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.4deg); }
-
 .brief-viewall {
   font-size: .58rem;
   font-weight: 500;
@@ -317,9 +255,24 @@ body {
   text-decoration: none;
   border-bottom: 1px solid rgba(139,0,0,.25);
   padding-bottom: 1px;
-  align-self: end;
   white-space: nowrap;
 }
+
+/* card grid */
+.brief-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  align-items: start;
+}
+.pcard {
+  padding: 1.75rem 1.6rem 2rem;
+  box-shadow: 3px 6px 22px rgba(0,0,0,.16);
+  border: 1px solid rgba(0,0,0,.04);
+}
+.pcard:nth-child(1) { background: #faf6ef url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.5deg); }
+.pcard:nth-child(2) { background: #faf6ef url('/Paper%20Card%204.png') center/cover; transform: rotate(.4deg); }
+.pcard:nth-child(3) { background: #faf6ef url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.3deg); }
 
 /* ─── ONE-SITTING ─── */
 .onesit {
@@ -431,7 +384,6 @@ footer {
   </nav>
   <div class="nav-center">
     <img src="/Crimson%20Wordmark.png" alt="efemera">
-    <div class="nav-tagline">Life, in Brief.</div>
   </div>
   <nav class="nav-right">
     <a href="#">Gangrey</a>
@@ -449,7 +401,6 @@ footer {
     <p class="hero-sub">Narratives, micro-memoir, and essays from everyday life.</p>
     <div class="hero-actions">
       <a href="#" class="btn-fill">Read the latest →</a>
-      <a href="#" class="btn-text">Pick a one-sitting read</a>
     </div>
   </div>
   <div class="hero-right">
@@ -474,17 +425,15 @@ footer {
   </div>
 </section>
 
-<!-- TODAY'S BRIEF -->
+<!-- OUR PICKS -->
 <section>
-  <div class="brief">
-    <div class="brief-intro">
-      <div class="section-label">Today's Brief</div>
-      <div class="brief-featured-rule"></div>
-      <h2 class="brief-featured-hed">Why I'm Switching Salons</h2>
-      <p class="brief-featured-author">Yacob Reyes</p>
-      <p class="brief-featured-meta">4 min read</p>
-      <p class="brief-featured-body">There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.</p>
-      <a href="#" class="brief-link">Read the story →</a>
+  <div class="picks">
+    <div class="picks-head">
+      <div>
+        <div class="section-label">Our Picks</div>
+        <h2 class="picks-title">Stories worth your minute</h2>
+      </div>
+      <a href="#" class="brief-viewall">View all →</a>
     </div>
 
     <div class="brief-cards">
@@ -510,8 +459,6 @@ footer {
         <p class="card-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
       </article>
     </div>
-
-    <a href="#" class="brief-viewall">View all →</a>
   </div>
 </section>
 
