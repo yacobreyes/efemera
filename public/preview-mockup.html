@@ -6,19 +6,20 @@
 <title>efemera</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500&family=Caveat&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;0,6..96,900;1,6..96,400;1,6..96,700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600&family=Caveat&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --crimson: #8B0000;
-  --ink: #1a1814;
+  --ink: #211d18;
   --bg: #efe6da;
-  --card-light: #f7f3ed;
-  --muted: #7a7068;
-  --border: #d9cfc4;
-  --serif: 'Bodoni Moda', Georgia, serif;
-  --sans: 'Inter', system-ui, sans-serif;
+  --paper: #faf6ef;
+  --muted: #6f655b;
+  --rule: #c8bdb0;
+  --display: 'Bodoni Moda', Georgia, serif;
+  --read: 'Newsreader', Georgia, serif;
+  --label: 'Inter', system-ui, sans-serif;
   --hand: 'Caveat', cursive;
 }
 
@@ -26,459 +27,484 @@ html { background: var(--crimson); }
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--sans);
+  font-family: var(--read);
   -webkit-font-smoothing: antialiased;
 }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 2.5rem; }
+
+.label {
+  font-family: var(--label);
+  font-size: .56rem;
+  font-weight: 600;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+/* ─── ISSUE STRIP ─── */
+.issue-strip {
+  border-bottom: 1px solid var(--rule);
+}
+.issue-strip .wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: .55rem;
+  padding-bottom: .55rem;
+}
+.issue-strip span {
+  font-family: var(--label);
+  font-size: .5rem;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── MASTHEAD ─── */
+.masthead {
+  text-align: center;
+  padding: 2.5rem 0 1.75rem;
+  border-bottom: 3px double var(--ink);
+}
+.masthead img { height: 64px; width: auto; }
 
 /* ─── NAV ─── */
-.nav {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  padding: 1rem 2.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.nav-left, .nav-right {
+.nav { border-bottom: 1px solid var(--rule); }
+.nav .wrap {
   display: flex;
-  gap: 1.6rem;
-  align-items: center;
+  justify-content: center;
+  gap: 2.25rem;
+  padding-top: .7rem;
+  padding-bottom: .7rem;
 }
-.nav-right { justify-content: flex-end; }
 .nav a {
-  font-size: .6rem;
+  font-family: var(--label);
+  font-size: .58rem;
   font-weight: 500;
-  letter-spacing: .1em;
+  letter-spacing: .12em;
   text-transform: uppercase;
   color: var(--muted);
   text-decoration: none;
   transition: color .15s;
 }
-.nav a:hover { color: var(--ink); }
+.nav a:hover { color: var(--crimson); }
 .nav a.submit { color: var(--crimson); }
-.nav-center { text-align: center; }
-.nav-center img { height: 52px; width: auto; display: inline-block; }
+.nav .dot { color: var(--rule); font-size: .5rem; align-self: center; }
 
-/* ─── HERO ─── */
-.hero {
+/* ─── LEAD ─── */
+.lead {
   display: grid;
-  grid-template-columns: 5fr 6fr;
-  min-height: 520px;
-  border-bottom: 1px solid var(--border);
+  grid-template-columns: 1.35fr 1fr;
+  gap: 3.5rem;
+  padding: 3.5rem 0 3rem;
+  border-bottom: 1px solid var(--rule);
 }
-.hero-left {
-  padding: 5rem 3rem 5rem 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-right: 1px solid var(--border);
-}
-.hero-kicker {
-  font-size: .52rem;
-  font-weight: 500;
-  letter-spacing: .22em;
-  text-transform: uppercase;
+.lead-kicker {
   color: var(--crimson);
   margin-bottom: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
 }
-.hero-kicker::before {
-  content: '';
-  display: inline-block;
-  width: 1.5rem;
-  height: 1.5px;
-  background: var(--crimson);
-}
-.hero-hed {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: clamp(2.4rem, 4vw, 3.6rem);
-  line-height: 1.04;
-  letter-spacing: -.03em;
-  color: var(--ink);
+.lead-hed {
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: clamp(2.6rem, 4.5vw, 4rem);
+  line-height: 1.02;
+  letter-spacing: -.025em;
   margin-bottom: 1.25rem;
 }
-.hero-sub {
-  font-size: .88rem;
-  font-weight: 300;
-  line-height: 1.65;
-  color: var(--muted);
-  margin-bottom: 2.5rem;
-  max-width: 28ch;
-}
-.hero-actions { display: flex; align-items: center; gap: 1.75rem; }
-.btn-fill {
-  background: var(--crimson);
-  color: #fff;
-  font-size: .58rem;
-  font-weight: 500;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  padding: .85rem 1.75rem;
-  display: inline-block;
-}
-.btn-text {
-  font-size: .62rem;
+.lead-dek {
+  font-family: var(--read);
+  font-style: italic;
   font-weight: 400;
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  max-width: 32ch;
+}
+.lead-byline {
+  font-family: var(--label);
+  font-size: .54rem;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.lead-byline .sub { color: var(--muted); font-weight: 500; }
+.lead-body {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.7;
+  color: #34302a;
+  max-width: 40ch;
+}
+.lead-body::first-letter {
+  font-family: var(--display);
+  font-weight: 700;
+  float: left;
+  font-size: 3.4rem;
+  line-height: .82;
+  padding: .2rem .4rem 0 0;
+  color: var(--crimson);
+}
+.lead-more {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-family: var(--read);
+  font-style: italic;
+  font-size: 1rem;
   color: var(--crimson);
   text-decoration: none;
   border-bottom: 1px solid rgba(139,0,0,.3);
-  padding-bottom: 1px;
 }
 
-/* hero right — cards */
-.hero-right {
+/* feature card (one-sitting) on the right of lead */
+.lead-aside {
+  align-self: start;
   position: relative;
-  overflow: hidden;
 }
-.hero-photo {
-  position: absolute;
-  top: 50%;
-  right: 2.5rem;
-  transform: translateY(-50%) rotate(2.5deg);
-  width: 250px;
-  height: 330px;
-  background: #d8cdbb url('/Paper%20Card%204.png') center/cover;
-  box-shadow: 3px 6px 24px rgba(0,0,0,.2);
-  z-index: 1;
-}
-.hero-card {
-  position: absolute;
-  top: 50%;
-  left: 2rem;
-  transform: translateY(-50%) rotate(-2deg);
-  width: 240px;
-  background: var(--card-light) url('/Paper%20card%202.jpg') center/cover;
-  padding: 1.75rem 1.6rem 2rem;
-  box-shadow: 4px 8px 32px rgba(0,0,0,.22);
-  z-index: 2;
-}
-.card-kicker {
-  font-size: .46rem;
+.aside-tag {
+  font-family: var(--label);
+  font-size: .5rem;
   font-weight: 600;
-  letter-spacing: .22em;
+  letter-spacing: .2em;
   text-transform: uppercase;
-  color: var(--crimson);
+  color: var(--muted);
+  padding-bottom: .6rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule);
   display: flex;
   align-items: center;
-  gap: .35rem;
-  margin-bottom: .75rem;
+  gap: .45rem;
 }
-.card-hed {
-  font-family: var(--serif);
+.fcard {
+  background: var(--paper) url('/Paper%20card%202.jpg') center/cover;
+  padding: 1.85rem 1.7rem 2rem;
+  box-shadow: 4px 8px 28px rgba(0,0,0,.18);
+  transform: rotate(-1.3deg);
+}
+.fcard .k {
+  font-family: var(--label);
+  font-size: .46rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  display: flex; align-items: center; gap: .4rem;
+  margin-bottom: .8rem;
+}
+.fcard .h {
+  font-family: var(--display);
   font-weight: 700;
-  font-size: 1.15rem;
-  line-height: 1.12;
-  color: var(--ink);
-  margin-bottom: .5rem;
+  font-size: 1.4rem;
+  line-height: 1.1;
+  margin-bottom: .55rem;
 }
-.card-hed a { color: inherit; text-decoration: none; }
-.card-hed a:hover { color: var(--crimson); }
-.card-author {
-  font-family: var(--serif);
+.fcard .a {
+  font-family: var(--read);
   font-style: italic;
-  font-size: .78rem;
+  font-size: .92rem;
   color: var(--muted);
-  margin-bottom: .5rem;
+  margin-bottom: .55rem;
 }
-.card-meta {
+.fcard .m {
+  font-family: var(--label);
   font-size: .44rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: #b0a898;
-  margin-bottom: .9rem;
+  color: #aaa098;
+  margin-bottom: .95rem;
 }
-.card-body {
-  font-size: .76rem;
-  font-weight: 300;
-  line-height: 1.6;
-  color: #555;
+.fcard .b {
+  font-family: var(--read);
+  font-size: .95rem;
+  line-height: 1.55;
+  color: #44403a;
   margin-bottom: 1rem;
 }
-.card-link {
-  font-size: .58rem;
-  font-weight: 500;
+.fcard .l {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: .95rem;
   color: var(--crimson);
   text-decoration: none;
-  letter-spacing: .03em;
 }
-/* mayfly + trail */
-.hero-fly {
+.aside-fly {
   position: absolute;
-  top: 1.5rem;
-  right: 1.75rem;
-  z-index: 3;
-}
-.hero-fly img { width: 36px; height: 36px; image-rendering: pixelated; opacity: .9; }
-.hero-trail {
-  position: absolute;
-  top: 1.2rem;
-  right: 3.5rem;
+  top: -1.4rem; right: -.6rem;
   z-index: 2;
 }
+.aside-fly img { width: 34px; height: 34px; image-rendering: pixelated; opacity: .9; }
 
-/* ─── OUR PICKS ─── */
-.picks {
-  padding: 4rem 2.5rem;
-  border-bottom: 1px solid var(--border);
-  max-width: 1200px;
-  margin: 0 auto;
+/* ─── PULL QUOTE ─── */
+.pullquote {
+  border-bottom: 1px solid var(--rule);
 }
+.pullquote .wrap {
+  padding: 3.5rem 2.5rem;
+  text-align: center;
+}
+.pullquote blockquote {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  max-width: 24ch;
+  margin: 0 auto 1rem;
+}
+.pullquote cite {
+  font-family: var(--label);
+  font-style: normal;
+  font-size: .54rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── IN THIS ISSUE / PICKS ─── */
+.picks { padding: 3.5rem 0; border-bottom: 1px solid var(--rule); }
 .picks-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  padding-bottom: 1.5rem;
   margin-bottom: 2.25rem;
+  border-bottom: 1px solid var(--ink);
 }
 .picks-title {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: -.01em;
-  color: var(--ink);
-}
-.section-label {
-  font-size: .5rem;
-  font-weight: 600;
-  letter-spacing: .26em;
-  text-transform: uppercase;
-  color: var(--crimson);
-  margin-bottom: .5rem;
-}
-.brief-viewall {
-  font-size: .58rem;
-  font-weight: 500;
-  color: var(--crimson);
-  text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.25);
-  padding-bottom: 1px;
-  white-space: nowrap;
-}
-
-/* card grid */
-.brief-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.75rem;
-  align-items: start;
-}
-.pcard {
-  padding: 1.75rem 1.6rem 2rem;
-  box-shadow: 3px 6px 22px rgba(0,0,0,.16);
-  border: 1px solid rgba(0,0,0,.04);
-}
-.pcard:nth-child(1) { background: #faf6ef url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.5deg); }
-.pcard:nth-child(2) { background: #faf6ef url('/Paper%20Card%204.png') center/cover; transform: rotate(.4deg); }
-.pcard:nth-child(3) { background: #faf6ef url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.3deg); }
-
-/* ─── ONE-SITTING ─── */
-.onesit {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background: #e8ddd2;
-}
-.onesit-inner {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 4rem;
-  align-items: center;
-  padding: 3.5rem 2.5rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.os-desc-hed {
-  font-family: var(--serif);
-  font-size: 1.1rem;
-  line-height: 1.45;
-  color: var(--ink);
-  margin-bottom: 1.5rem;
-}
-.os-label {
-  font-size: .5rem;
-  font-weight: 600;
-  letter-spacing: .26em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: .65rem;
-}
-.os-rule {
-  width: 1.5rem;
-  height: 2px;
-  background: var(--crimson);
-  margin-bottom: 1.1rem;
-}
-.os-surprise {
-  font-size: .6rem;
-  font-weight: 500;
-  color: var(--ink);
-  text-decoration: none;
-  border-bottom: 1px solid var(--ink);
-  padding-bottom: 1px;
-}
-.os-right { display: flex; align-items: center; gap: 2.5rem; }
-.os-circles { display: flex; gap: 1rem; }
-.os-btn {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  border: 1.5px solid #b8ada3;
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all .2s;
-}
-.os-btn.active { background: var(--crimson); border-color: var(--crimson); }
-.os-btn .n {
-  font-family: var(--serif);
+  font-family: var(--display);
   font-weight: 700;
   font-size: 1.4rem;
-  line-height: 1;
-  color: var(--ink);
 }
-.os-btn.active .n { color: #fff; }
-.os-btn .u {
-  font-size: .42rem;
+.picks-more {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.3);
+}
+.pick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.pick {
+  padding: 0 2rem;
+  border-right: 1px solid var(--rule);
+}
+.pick:first-child { padding-left: 0; }
+.pick:last-child { border-right: none; padding-right: 0; }
+.pick-no {
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--crimson);
+  line-height: 1;
+  margin-bottom: .9rem;
+}
+.pick-cat {
+  font-family: var(--label);
+  font-size: .46rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .55rem;
+}
+.pick-hed {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.3rem;
+  line-height: 1.1;
+  margin-bottom: .5rem;
+}
+.pick-hed a { color: inherit; text-decoration: none; }
+.pick-hed a:hover { color: var(--crimson); }
+.pick-author {
+  font-family: var(--read);
+  font-style: italic;
+  font-size: .95rem;
+  color: var(--muted);
+  margin-bottom: .7rem;
+}
+.pick-body {
+  font-family: var(--read);
+  font-size: .95rem;
+  line-height: 1.6;
+  color: #44403a;
+}
+.pick-meta {
+  font-family: var(--label);
+  font-size: .44rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: #b0a89e;
-  margin-top: .2rem;
+  color: #aaa098;
+  margin-top: .8rem;
 }
+
+/* ─── ONE-SITTING ─── */
+.onesit { background: #e8ddd1; border-bottom: 1px solid var(--rule); }
+.onesit .wrap {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 3rem;
+  align-items: center;
+  padding: 3rem 2.5rem;
+}
+.os-label { color: var(--crimson); margin-bottom: .7rem; }
+.os-line {
+  font-family: var(--display);
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+.os-circles { display: flex; gap: .9rem; }
+.os-btn {
+  width: 70px; height: 70px; border-radius: 50%;
+  border: 1px solid #b3a89c; background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+}
+.os-btn.active { background: var(--crimson); border-color: var(--crimson); }
+.os-btn .n { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1; }
+.os-btn.active .n { color: #fff; }
+.os-btn .u { font-family: var(--label); font-size: .4rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: #a99f94; margin-top: .2rem; }
 .os-btn.active .u { color: rgba(255,255,255,.65); }
-.os-note {
-  font-family: var(--hand);
-  font-size: 1.1rem;
-  color: #a09890;
-  line-height: 1.35;
-  transform: rotate(-3deg);
-  display: block;
-}
 
 /* ─── FOOTER ─── */
 footer {
   background: var(--crimson);
-  color: rgba(255,255,255,.6);
+  color: rgba(255,255,255,.62);
   text-align: center;
-  padding: 1.75rem 2rem;
+  padding: 2rem;
+  font-family: var(--label);
   font-size: .48rem;
-  font-weight: 400;
-  letter-spacing: .28em;
+  font-weight: 500;
+  letter-spacing: .26em;
   text-transform: uppercase;
 }
 </style>
 </head>
 <body>
 
+<!-- ISSUE STRIP -->
+<div class="issue-strip">
+  <div class="wrap">
+    <span>No. 14</span>
+    <span>A Literary Magazine</span>
+    <span>Summer 2026</span>
+  </div>
+</div>
+
+<!-- MASTHEAD -->
+<div class="masthead">
+  <img src="/Crimson%20Wordmark.png" alt="efemera">
+</div>
+
 <!-- NAV -->
-<header class="nav">
-  <nav class="nav-left">
+<nav class="nav">
+  <div class="wrap">
     <a href="#">Narratives</a>
     <a href="#">Micro-Memoir</a>
     <a href="#">Essays</a>
-  </nav>
-  <div class="nav-center">
-    <img src="/Crimson%20Wordmark.png" alt="efemera">
-  </div>
-  <nav class="nav-right">
+    <span class="dot">✦</span>
     <a href="#">Gangrey</a>
     <a href="#">Archive</a>
     <a href="#">About</a>
     <a href="#" class="submit">Submit</a>
-  </nav>
-</header>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-left">
-    <div class="hero-kicker">Today's Read</div>
-    <h1 class="hero-hed">True stories for the time you actually have.</h1>
-    <p class="hero-sub">Narratives, micro-memoir, and essays from everyday life.</p>
-    <div class="hero-actions">
-      <a href="#" class="btn-fill">Read the latest →</a>
-    </div>
   </div>
-  <div class="hero-right">
-    <div class="hero-photo"></div>
-    <div class="hero-fly">
-      <img src="/mayfly-icon.webp" alt="">
+</nav>
+
+<!-- LEAD -->
+<div class="wrap">
+  <article class="lead">
+    <div class="lead-main">
+      <div class="lead-kicker label">The Lead · Narrative</div>
+      <h1 class="lead-hed">Why I'm Switching Salons</h1>
+      <p class="lead-dek">A meditation on small betrayals, chemical burns, and the particular grief of losing a hairdresser you loved.</p>
+      <p class="lead-byline">By Yacob Reyes <span class="sub">&nbsp;·&nbsp; June 14, 2026 &nbsp;·&nbsp; 4 min read</span></p>
+      <p class="lead-body">The manicurist leaned in close and said, "We can put on a topcoat with glitter." She had noticed I liked attention, which felt either like intimacy or surveillance, and I was still deciding which. There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape.</p>
+      <a href="#" class="lead-more">Continue reading →</a>
     </div>
-    <svg class="hero-trail" width="100" height="70" viewBox="0 0 100 70" fill="none">
-      <path d="M95 6 C60 16, 72 44, 36 50 C16 54, 22 68, 6 65" stroke="#8B0000" stroke-width="1.2" stroke-dasharray="2 4.5" stroke-linecap="round" opacity=".45"/>
-    </svg>
-    <div class="hero-card">
-      <div class="card-kicker">
-        <img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.85;" alt="">
-        One-Sitting Read
+    <aside class="lead-aside">
+      <div class="aside-tag"><img src="/mayfly-icon.webp" width="12" height="12" style="image-rendering:pixelated;opacity:.85;" alt=""> From the One-Sitting Reads</div>
+      <div class="aside-fly"><img src="/mayfly-icon.webp" alt=""></div>
+      <div class="fcard">
+        <div class="k">One-Sitting Read</div>
+        <div class="h">The Message I Haven't Deleted</div>
+        <div class="a">Brian Francis Slattery</div>
+        <div class="m">3 min read</div>
+        <div class="b">It's 42 seconds long and I know every pause.</div>
+        <a href="#" class="l">Read it now →</a>
       </div>
-      <h2 class="card-hed"><a href="#">The Message I Haven't Deleted</a></h2>
-      <p class="card-author">Yacob Reyes</p>
-      <p class="card-meta">3 min read</p>
-      <p class="card-body">It's 42 seconds long and I know every pause.</p>
-      <a href="#" class="card-link">Read it now →</a>
-    </div>
-  </div>
-</section>
+    </aside>
+  </article>
+</div>
 
-<!-- OUR PICKS -->
-<section>
-  <div class="picks">
+<!-- PULL QUOTE -->
+<div class="pullquote">
+  <div class="wrap">
+    <blockquote>"She was reading a book I had read the year my father died. I almost said something."</blockquote>
+    <cite>From "Airport, 6 A.M." — a Micro-Memoir</cite>
+  </div>
+</div>
+
+<!-- IN THIS ISSUE -->
+<div class="wrap">
+  <section class="picks">
     <div class="picks-head">
-      <div>
-        <div class="section-label">Our Picks</div>
-        <h2 class="picks-title">Stories worth your minute</h2>
-      </div>
-      <a href="#" class="brief-viewall">View all →</a>
+      <h2 class="picks-title">In This Issue</h2>
+      <a href="#" class="picks-more">View the full table of contents →</a>
     </div>
-
-    <div class="brief-cards">
-      <article class="pcard">
-        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Narrative</div>
-        <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
-        <p class="card-author">Yacob Reyes</p>
-        <p class="card-meta">1 min read</p>
-        <p class="card-body">She was reading a book I had read the year my father died. I almost said something.</p>
+    <div class="pick-grid">
+      <article class="pick">
+        <div class="pick-no">01</div>
+        <div class="pick-cat">Narrative</div>
+        <h3 class="pick-hed"><a href="#">How to Disappear Completely</a></h3>
+        <p class="pick-author">Camille Dungy</p>
+        <p class="pick-body">A road trip, a broken phone, and what I learned about presence when the music stopped.</p>
+        <div class="pick-meta">6 min read</div>
       </article>
-      <article class="pcard">
-        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Essay</div>
-        <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
-        <p class="card-author">Yacob Reyes</p>
-        <p class="card-meta">3 min read</p>
-        <p class="card-body">On the strange freedom of being mediocre at something you love.</p>
+      <article class="pick">
+        <div class="pick-no">02</div>
+        <div class="pick-cat">Essay</div>
+        <h3 class="pick-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
+        <p class="pick-author">James Tate Hill</p>
+        <p class="pick-body">On the strange freedom of being mediocre at something you love, and loving it anyway.</p>
+        <div class="pick-meta">3 min read</div>
       </article>
-      <article class="pcard">
-        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Micro-Memoir</div>
-        <h3 class="card-hed"><a href="#">The Last Voicemail</a></h3>
-        <p class="card-author">Yacob Reyes</p>
-        <p class="card-meta">1 min read</p>
-        <p class="card-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
+      <article class="pick">
+        <div class="pick-no">03</div>
+        <div class="pick-cat">Micro-Memoir</div>
+        <h3 class="pick-hed"><a href="#">The Last Voicemail</a></h3>
+        <p class="pick-author">Priya Basil</p>
+        <p class="pick-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
+        <div class="pick-meta">1 min read</div>
       </article>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
-<!-- ONE-SITTING READS -->
+<!-- ONE-SITTING -->
 <div class="onesit">
-  <div class="onesit-inner">
+  <div class="wrap">
     <div>
-      <div class="os-label">One-Sitting Reads</div>
-      <div class="os-rule"></div>
-      <p class="os-desc-hed">True stories for the time<br>you actually have.</p>
-      <a href="#" class="os-surprise">Surprise me →</a>
+      <div class="os-label label">One-Sitting Reads</div>
+      <p class="os-line">True stories for the time you actually have.</p>
     </div>
-    <div class="os-right">
-      <div class="os-circles">
-        <button class="os-btn"><span class="n">3</span><span class="u">min</span></button>
-        <button class="os-btn active"><span class="n">5</span><span class="u">min</span></button>
-        <button class="os-btn"><span class="n">8</span><span class="u">min</span></button>
-        <button class="os-btn"><span class="n">12</span><span class="u">min</span></button>
-      </div>
-      <span class="os-note">Pick your<br>reading window.</span>
+    <div class="os-circles">
+      <button class="os-btn"><span class="n">3</span><span class="u">min</span></button>
+      <button class="os-btn active"><span class="n">5</span><span class="u">min</span></button>
+      <button class="os-btn"><span class="n">8</span><span class="u">min</span></button>
+      <button class="os-btn"><span class="n">12</span><span class="u">min</span></button>
     </div>
   </div>
 </div>
