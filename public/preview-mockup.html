@@ -3,568 +3,540 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>efemera — mockup v6</title>
+<title>efemera</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500;600&family=Caveat:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Inter:wght@300;400;500&family=Caveat&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
   --crimson: #8B0000;
-  --ink:     #1c1a17;
-  --muted:   #888;
-  --bg:      #efe6da;
-  --border:  #d4cfc6;
-  --hed:     'Bodoni Moda', Georgia, serif;
-  --sans:    'Inter', sans-serif;
-  --hand:    'Caveat', cursive;
+  --ink: #1a1814;
+  --bg: #efe6da;
+  --card-light: #f7f3ed;
+  --muted: #7a7068;
+  --border: #d9cfc4;
+  --serif: 'Bodoni Moda', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --hand: 'Caveat', cursive;
 }
-body { background: var(--bg); color: var(--ink); }
 
-/* ── NAV ── */
-nav {
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── NAV ─── */
+.nav {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  padding: .9rem 2.5rem;
+  padding: 1rem 2.5rem;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
 }
-.nav-left {
+.nav-left, .nav-right {
   display: flex;
-  gap: 1.75rem;
+  gap: 1.6rem;
   align-items: center;
 }
-.nav-left a, .nav-right a {
-  font-family: var(--sans);
-  font-size: .58rem;
+.nav-right { justify-content: flex-end; }
+.nav a {
+  font-size: .6rem;
   font-weight: 500;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--muted);
   text-decoration: none;
+  transition: color .15s;
 }
-.nav-left a:hover { color: var(--crimson); }
-.nav-right a:hover { color: var(--crimson); }
-.nav-center { text-align: center; padding: 0 2rem; }
-.nav-center img { height: 38px; width: auto; display: inline-block; }
+.nav a:hover { color: var(--ink); }
+.nav a.submit { color: var(--crimson); }
+.nav-center { text-align: center; }
+.nav-center img { height: 34px; width: auto; display: inline-block; }
 .nav-tagline {
-  font-family: var(--sans);
-  font-size: .46rem;
+  font-size: .44rem;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--crimson);
+  margin-top: .25rem;
+  opacity: .8;
+}
+
+/* ─── HERO ─── */
+.hero {
+  display: grid;
+  grid-template-columns: 5fr 6fr;
+  min-height: 520px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-left {
+  padding: 5rem 3rem 5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-right: 1px solid var(--border);
+}
+.hero-kicker {
+  font-size: .52rem;
+  font-weight: 500;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
-  margin-top: .2rem;
-}
-.nav-right {
+  margin-bottom: 1.25rem;
   display: flex;
-  gap: 1.75rem;
   align-items: center;
-  justify-content: flex-end;
+  gap: .5rem;
 }
-.nav-right .submit {
-  color: var(--crimson);
-  border-bottom: 1px solid var(--crimson);
-  padding-bottom: 1px;
+.hero-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5px;
+  background: var(--crimson);
 }
-
-/* ── HERO ── */
-.hero {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  min-height: 480px;
-  padding: 4rem 2.5rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  align-items: center;
-}
-.hero-left { padding-right: 3rem; }
-.hero-rule { width: 2rem; height: 2px; background: var(--crimson); margin-bottom: 1.5rem; }
 .hero-hed {
-  font-family: var(--hed);
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  line-height: 1.05;
-  letter-spacing: -.025em;
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+  line-height: 1.04;
+  letter-spacing: -.03em;
   color: var(--ink);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 .hero-sub {
-  font-family: var(--sans);
   font-size: .88rem;
   font-weight: 300;
-  line-height: 1.6;
-  color: #555;
-  margin-bottom: 2rem;
+  line-height: 1.65;
+  color: var(--muted);
+  margin-bottom: 2.5rem;
+  max-width: 28ch;
 }
-.hero-btns { display: flex; align-items: center; gap: 1.5rem; }
-.btn-primary {
+.hero-actions { display: flex; align-items: center; gap: 1.75rem; }
+.btn-fill {
   background: var(--crimson);
   color: #fff;
-  font-family: var(--sans);
-  font-size: .62rem;
+  font-size: .58rem;
   font-weight: 500;
   letter-spacing: .1em;
   text-transform: uppercase;
   text-decoration: none;
-  padding: .75rem 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
+  padding: .85rem 1.75rem;
+  display: inline-block;
 }
-.btn-secondary {
-  font-family: var(--sans);
+.btn-text {
   font-size: .62rem;
-  font-weight: 500;
+  font-weight: 400;
   color: var(--crimson);
   text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.35);
+  border-bottom: 1px solid rgba(139,0,0,.3);
   padding-bottom: 1px;
 }
-.hero-right { position: relative; height: 380px; }
+
+/* hero right — cards */
+.hero-right {
+  position: relative;
+  overflow: hidden;
+}
 .hero-photo {
   position: absolute;
-  top: 10px; right: 0;
-  width: 250px; height: 330px;
-  background: linear-gradient(170deg, #c8b89a 0%, #9a8060 40%, #6b5a45 100%);
-  transform: rotate(2deg);
-  box-shadow: 3px 5px 20px rgba(0,0,0,.18);
-  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,.08) 0%, rgba(0,0,0,.0) 40%),
+    linear-gradient(160deg, #c5b49a 0%, #9e8060 50%, #6e5038 100%);
+}
+/* sepia photo overlay — fades left */
+.hero-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--bg) 0%, transparent 35%);
 }
 .hero-card {
   position: absolute;
-  top: 30px; left: 0;
-  width: 250px;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%) rotate(-2deg);
+  width: 240px;
+  background: var(--card-light) url('/Paper%20card%202.jpg') center/cover;
+  padding: 1.75rem 1.6rem 2rem;
+  box-shadow: 4px 8px 32px rgba(0,0,0,.22);
   z-index: 2;
-  transform: rotate(-2.5deg);
-  background: #f5f1e8 url('/Paper%20Card%204.png') center/cover;
-  padding: 1.6rem 1.5rem 2rem;
-  box-shadow: 2px 5px 16px rgba(0,0,0,.18);
 }
-.hero-card .hcat {
-  font-family: var(--sans);
+.card-kicker {
   font-size: .46rem;
   font-weight: 600;
   letter-spacing: .22em;
   text-transform: uppercase;
   color: var(--crimson);
-  display: flex; align-items: center; gap: .4rem;
-  margin-bottom: .65rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  margin-bottom: .75rem;
 }
-.hero-card .hhed {
-  font-family: var(--hed);
+.card-hed {
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: 1.1rem;
-  line-height: 1.15;
+  font-size: 1.15rem;
+  line-height: 1.12;
   color: var(--ink);
-  margin-bottom: .4rem;
-}
-.hero-card .hauthor {
-  font-family: var(--hed);
-  font-style: italic;
-  font-size: .76rem;
-  color: #666;
   margin-bottom: .5rem;
 }
-.hero-card .hmeta {
-  font-family: var(--sans);
-  font-size: .46rem;
+.card-hed a { color: inherit; text-decoration: none; }
+.card-hed a:hover { color: var(--crimson); }
+.card-author {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: .78rem;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+.card-meta {
+  font-size: .44rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: #aaa;
-  margin-bottom: .8rem;
-}
-.hero-card .hbody {
-  font-family: var(--sans);
-  font-size: .76rem;
-  line-height: 1.55;
-  color: #444;
-  font-weight: 300;
+  color: #b0a898;
   margin-bottom: .9rem;
 }
-.hero-card .hlink {
-  font-family: var(--sans);
-  font-size: .6rem;
-  font-weight: 500;
-  color: var(--crimson);
-  text-decoration: none;
-}
-.dfly-hero {
-  position: absolute;
-  top: -28px; right: 0;
-  z-index: 3;
-}
-.dfly-trail {
-  position: absolute;
-  top: -8px; right: 38px;
-  z-index: 2;
-}
-
-/* ── SECTION DIVIDER ── */
-hr.divider { border: none; border-top: 1px solid var(--border); margin: 0; }
-
-/* ── TODAY'S BRIEF ── */
-.brief-section { background: var(--bg); }
-.brief-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 3.5rem 2.5rem;
-  display: grid;
-  grid-template-columns: 200px 1fr auto;
-  gap: 2.5rem;
-  align-items: start;
-}
-.brief-label {
-  font-family: var(--sans);
-  font-size: .52rem;
-  font-weight: 600;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: var(--ink);
-  margin-bottom: 1rem;
-}
-.brief-hed {
-  font-family: var(--hed);
-  font-weight: 700;
-  font-size: 1.6rem;
-  line-height: 1.1;
-  color: var(--ink);
-  margin-bottom: .5rem;
-}
-.brief-author {
-  font-family: var(--hed);
-  font-style: italic;
-  font-size: .82rem;
-  color: #666;
-  margin-bottom: .4rem;
-}
-.brief-meta {
-  font-family: var(--sans);
-  font-size: .48rem;
-  font-weight: 600;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: #aaa;
-  margin-bottom: .85rem;
-}
-.brief-body {
-  font-family: var(--sans);
-  font-size: .8rem;
+.card-body {
+  font-size: .76rem;
   font-weight: 300;
-  line-height: 1.65;
+  line-height: 1.6;
   color: #555;
   margin-bottom: 1rem;
 }
-.brief-link {
-  font-family: var(--sans);
-  font-size: .62rem;
+.card-link {
+  font-size: .58rem;
   font-weight: 500;
   color: var(--crimson);
   text-decoration: none;
-  border-bottom: 1px solid rgba(139,0,0,.3);
-  padding-bottom: 1px;
+  letter-spacing: .03em;
 }
-.brief-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+/* mayfly + trail */
+.hero-fly {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.75rem;
+  z-index: 3;
 }
-.brief-viewall {
-  font-family: var(--sans);
-  font-size: .6rem;
-  font-weight: 500;
-  color: var(--crimson);
-  text-decoration: none;
-  white-space: nowrap;
-  align-self: end;
-  padding-bottom: .2rem;
-  border-bottom: 1px solid rgba(139,0,0,.3);
+.hero-fly img { width: 36px; height: 36px; image-rendering: pixelated; opacity: .9; }
+.hero-trail {
+  position: absolute;
+  top: 1.2rem;
+  right: 3.5rem;
+  z-index: 2;
 }
 
-/* ── PAPER CARDS ── */
-.paper-card {
-  background: #f5f1e8 center/cover;
-  padding: 1.4rem 1.3rem 1.6rem;
-  box-shadow: 1px 3px 10px rgba(0,0,0,.13);
-  position: relative;
+/* ─── TODAY'S BRIEF ─── */
+.brief {
+  display: grid;
+  grid-template-columns: 240px 1fr auto;
+  gap: 3rem;
+  align-items: start;
+  padding: 3.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.brief-cards .paper-card:nth-child(1) { background-image: url('/Paper%20card%202.jpg'); }
-.brief-cards .paper-card:nth-child(2) { background-image: url('/Paper%20Card%204.png'); transform: rotate(.35deg); }
-.brief-cards .paper-card:nth-child(3) { background-image: url('/Paper%20card%202.jpg'); transform: rotate(-.5deg); }
-.paper-cat {
-  font-family: var(--sans);
-  font-size: .46rem;
+.brief-intro {}
+.section-label {
+  font-size: .5rem;
   font-weight: 600;
-  letter-spacing: .22em;
+  letter-spacing: .26em;
   text-transform: uppercase;
-  color: var(--crimson);
-  display: flex; align-items: center; gap: .35rem;
-  margin-bottom: .7rem;
+  color: var(--muted);
+  margin-bottom: 1.1rem;
 }
-.paper-hed {
-  font-family: var(--hed);
+.brief-featured-hed {
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: 1.1rem;
-  line-height: 1.12;
+  font-size: 1.65rem;
+  line-height: 1.1;
   color: var(--ink);
-  margin-bottom: .45rem;
+  margin-bottom: .55rem;
 }
-.paper-hed a { color: inherit; text-decoration: none; }
-.paper-hed a:hover { color: var(--crimson); }
-.paper-author {
-  font-family: var(--hed);
+.brief-featured-author {
+  font-family: var(--serif);
   font-style: italic;
-  font-size: .76rem;
-  color: #666;
-  margin-bottom: .45rem;
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: .35rem;
 }
-.paper-meta {
-  font-family: var(--sans);
+.brief-featured-meta {
   font-size: .46rem;
   font-weight: 600;
   letter-spacing: .18em;
   text-transform: uppercase;
-  color: #aaa;
-  margin-bottom: .85rem;
+  color: #b5aca0;
+  margin-bottom: .9rem;
 }
-.paper-body {
-  font-family: var(--sans);
-  font-size: .76rem;
-  line-height: 1.6;
-  color: #444;
+.brief-featured-body {
+  font-size: .8rem;
   font-weight: 300;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+.brief-featured-rule {
+  width: 1.5rem;
+  height: 2px;
+  background: var(--crimson);
+  margin-bottom: 1rem;
+}
+.brief-link {
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.25);
+  padding-bottom: 1px;
 }
 
-/* ── ONE-SITTING ── */
-.onesit-wrap { background: #e5ddd1; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+/* card grid */
+.brief-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+.pcard {
+  padding: 1.5rem 1.4rem 1.8rem;
+  box-shadow: 2px 4px 18px rgba(0,0,0,.12);
+}
+.pcard:nth-child(1) { background: var(--card-light) url('/Paper%20card%202.jpg') center/cover; }
+.pcard:nth-child(2) { background: var(--card-light) url('/Paper%20Card%204.png') center/cover; transform: rotate(.3deg); }
+.pcard:nth-child(3) { background: var(--card-light) url('/Paper%20card%202.jpg') center/cover; transform: rotate(-.4deg); }
+
+.brief-viewall {
+  font-size: .58rem;
+  font-weight: 500;
+  color: var(--crimson);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(139,0,0,.25);
+  padding-bottom: 1px;
+  align-self: end;
+  white-space: nowrap;
+}
+
+/* ─── ONE-SITTING ─── */
 .onesit {
-  max-width: 1100px; margin: 0 auto; padding: 3.5rem 2.5rem;
-  display: grid; grid-template-columns: 260px 1fr;
-  gap: 3rem; align-items: center;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: #e8ddd2;
+}
+.onesit-inner {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 4rem;
+  align-items: center;
+  padding: 3.5rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.os-desc-hed {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
 }
 .os-label {
-  font-family: var(--sans); font-size: .52rem; font-weight: 600;
-  letter-spacing: .28em; text-transform: uppercase; color: var(--ink); margin-bottom: .6rem;
+  font-size: .5rem;
+  font-weight: 600;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .65rem;
 }
-.os-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .65rem 0 1rem; }
-.os-desc { font-family: var(--hed); font-size: 1rem; font-weight: 400; line-height: 1.5; color: var(--ink); margin-bottom: 1.5rem; }
+.os-rule {
+  width: 1.5rem;
+  height: 2px;
+  background: var(--crimson);
+  margin-bottom: 1.1rem;
+}
 .os-surprise {
-  font-family: var(--sans); font-size: .62rem; font-weight: 500; color: var(--ink);
-  text-decoration: none; display: inline-flex; align-items: center; gap: .4rem;
-  border-bottom: 1px solid var(--ink); padding-bottom: 1px;
+  font-size: .6rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 1px;
 }
-.os-right { display: flex; align-items: center; gap: 2rem; }
-.os-circles { display: flex; gap: 1.1rem; }
-.os-circle {
-  width: 72px; height: 72px; border-radius: 50%;
-  border: 1.5px solid #b5aca0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  cursor: pointer; background: transparent;
+.os-right { display: flex; align-items: center; gap: 2.5rem; }
+.os-circles { display: flex; gap: 1rem; }
+.os-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1.5px solid #b8ada3;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
 }
-.os-circle.active { background: var(--crimson); border-color: var(--crimson); }
-.os-circle .num { font-family: var(--hed); font-weight: 700; font-size: 1.4rem; line-height: 1; color: var(--ink); }
-.os-circle.active .num { color: #fff; }
-.os-circle .unit { font-family: var(--sans); font-size: .44rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-top: .18rem; }
-.os-circle.active .unit { color: rgba(255,255,255,.7); }
-.os-handnote { position: relative; margin-left: .75rem; }
-.os-handnote span { font-family: var(--hand); font-size: 1.1rem; color: #999; display: block; line-height: 1.3; transform: rotate(-4deg); }
-.os-handnote::before { content: '↙'; position: absolute; top: -20px; left: 12px; font-size: .9rem; color: #bbb; transform: scaleX(-1); }
+.os-btn.active { background: var(--crimson); border-color: var(--crimson); }
+.os-btn .n {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink);
+}
+.os-btn.active .n { color: #fff; }
+.os-btn .u {
+  font-size: .42rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #b0a89e;
+  margin-top: .2rem;
+}
+.os-btn.active .u { color: rgba(255,255,255,.65); }
+.os-note {
+  font-family: var(--hand);
+  font-size: 1.1rem;
+  color: #a09890;
+  line-height: 1.35;
+  transform: rotate(-3deg);
+  display: block;
+}
 
-/* ── BY FORM ── */
-.byform {
-  max-width: 1100px; margin: 0 auto; padding: 3.5rem 2.5rem;
-  display: grid; grid-template-columns: 220px repeat(3, 1fr); gap: 2.5rem; align-items: start;
-}
-.bf-label { font-family: var(--hed); font-weight: 700; font-size: 1.5rem; color: var(--ink); margin-bottom: .5rem; }
-.bf-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .7rem 0; }
-.bf-desc { font-family: var(--sans); font-size: .8rem; font-weight: 300; line-height: 1.6; color: #666; }
-.form-name { font-family: var(--sans); font-size: .72rem; font-weight: 600; letter-spacing: .06em; color: var(--ink); margin-bottom: .4rem; }
-.form-desc { font-family: var(--sans); font-size: .78rem; font-weight: 300; line-height: 1.55; color: #666; margin-bottom: .85rem; }
-.form-link { font-family: var(--sans); font-size: .6rem; font-weight: 500; color: var(--crimson); text-decoration: none; }
-
-/* ── ABOUT ── */
-.about-wrap { border-top: 1px solid var(--border); }
-.about {
-  max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem 3.5rem;
-  display: grid; grid-template-columns: 160px 1fr; gap: 3rem; align-items: center;
-}
-.about-hed { font-family: var(--hed); font-weight: 700; font-size: 1.35rem; color: var(--ink); margin-bottom: .5rem; }
-.about-rule { width: 2rem; height: 2px; background: var(--crimson); margin: .6rem 0 .85rem; }
-.about-body { font-family: var(--sans); font-size: .82rem; font-weight: 300; line-height: 1.7; color: #555; margin-bottom: .5rem; }
-.about-link { font-family: var(--sans); font-size: .6rem; font-weight: 500; color: var(--crimson); text-decoration: none; }
-
+/* ─── FOOTER ─── */
 footer {
-  background: var(--crimson); color: rgba(255,255,255,.65);
-  text-align: center; padding: 1.5rem;
-  font-family: var(--sans); font-size: .5rem; font-weight: 400; letter-spacing: .25em; text-transform: uppercase;
+  background: var(--crimson);
+  color: rgba(255,255,255,.6);
+  text-align: center;
+  padding: 1.75rem 2rem;
+  font-size: .48rem;
+  font-weight: 400;
+  letter-spacing: .28em;
+  text-transform: uppercase;
 }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
-  <div class="nav-left">
+<header class="nav">
+  <nav class="nav-left">
     <a href="#">Narratives</a>
     <a href="#">Micro-Memoir</a>
     <a href="#">Essays</a>
-  </div>
+  </nav>
   <div class="nav-center">
     <img src="/Crimson%20Wordmark.png" alt="efemera">
     <div class="nav-tagline">Life, in Brief.</div>
   </div>
-  <div class="nav-right">
+  <nav class="nav-right">
     <a href="#">Gangrey</a>
     <a href="#">Archive</a>
     <a href="#">About</a>
     <a href="#" class="submit">Submit</a>
-  </div>
-</nav>
+  </nav>
+</header>
 
 <!-- HERO -->
-<section style="border-bottom:1px solid var(--border);">
-  <div class="hero">
-    <div class="hero-left">
-      <div class="hero-rule"></div>
-      <h1 class="hero-hed">True stories for the time you actually have.</h1>
-      <p class="hero-sub">Narratives, micro-memoir, and essays from everyday life.</p>
-      <div class="hero-btns">
-        <a href="#" class="btn-primary">Read the latest &nbsp;→</a>
-        <a href="#" class="btn-secondary">Pick a one-sitting read</a>
-      </div>
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker">Today's Read</div>
+    <h1 class="hero-hed">True stories for the time you actually have.</h1>
+    <p class="hero-sub">Narratives, micro-memoir, and essays from everyday life.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-fill">Read the latest →</a>
+      <a href="#" class="btn-text">Pick a one-sitting read</a>
     </div>
-    <div class="hero-right">
-      <img src="/mayfly-icon.webp" class="dfly-hero" style="width:40px;height:40px;image-rendering:pixelated;opacity:.85;" alt="">
-      <svg class="dfly-trail" width="110" height="80" viewBox="0 0 110 80" fill="none">
-        <path d="M105 5 C65 18, 80 50, 40 55 C18 58, 25 78, 8 75" stroke="#8B0000" stroke-width="1.2" stroke-dasharray="2 5" stroke-linecap="round" opacity=".5"/>
-      </svg>
-      <div class="hero-photo"></div>
-      <div class="hero-card">
-        <div class="hcat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.85;" alt=""> One-Sitting Read</div>
-        <div class="hhed">The Message I Haven't Deleted</div>
-        <div class="hauthor">Yacob Reyes</div>
-        <div class="hmeta">3 min read</div>
-        <div class="hbody">It's 42 seconds long and I know every pause.</div>
-        <a href="#" class="hlink">Read it now →</a>
+  </div>
+  <div class="hero-right">
+    <div class="hero-photo"></div>
+    <div class="hero-fly">
+      <img src="/mayfly-icon.webp" alt="">
+    </div>
+    <svg class="hero-trail" width="100" height="70" viewBox="0 0 100 70" fill="none">
+      <path d="M95 6 C60 16, 72 44, 36 50 C16 54, 22 68, 6 65" stroke="#8B0000" stroke-width="1.2" stroke-dasharray="2 4.5" stroke-linecap="round" opacity=".45"/>
+    </svg>
+    <div class="hero-card">
+      <div class="card-kicker">
+        <img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.85;" alt="">
+        One-Sitting Read
       </div>
+      <h2 class="card-hed"><a href="#">The Message I Haven't Deleted</a></h2>
+      <p class="card-author">Yacob Reyes</p>
+      <p class="card-meta">3 min read</p>
+      <p class="card-body">It's 42 seconds long and I know every pause.</p>
+      <a href="#" class="card-link">Read it now →</a>
     </div>
   </div>
 </section>
-
-<hr class="divider">
 
 <!-- TODAY'S BRIEF -->
-<section class="brief-section">
-  <div class="brief-inner">
-    <div class="brief-featured">
-      <div class="brief-label">Today's Brief</div>
-      <h2 class="brief-hed">Why I'm Switching Salons</h2>
-      <p class="brief-author">Yacob Reyes</p>
-      <p class="brief-meta">4 min read</p>
-      <p class="brief-body">There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.</p>
+<section>
+  <div class="brief">
+    <div class="brief-intro">
+      <div class="section-label">Today's Brief</div>
+      <div class="brief-featured-rule"></div>
+      <h2 class="brief-featured-hed">Why I'm Switching Salons</h2>
+      <p class="brief-featured-author">Yacob Reyes</p>
+      <p class="brief-featured-meta">4 min read</p>
+      <p class="brief-featured-body">There is a particular vulnerability in salons — the chemical smell, the cape, the mirror you can't escape — that makes you say things you wouldn't say anywhere else.</p>
       <a href="#" class="brief-link">Read the story →</a>
     </div>
+
     <div class="brief-cards">
-      <article class="paper-card">
-        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Narrative</div>
-        <h3 class="paper-hed"><a href="#">Why I'm Switching Salons</a></h3>
-        <p class="paper-author">Yacob Reyes</p>
-        <p class="paper-meta">4 min read</p>
-        <p class="paper-body">A meditation on small betrayals and the grief of losing a hairdresser you loved.</p>
+      <article class="pcard">
+        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Narrative</div>
+        <h3 class="card-hed"><a href="#">Airport, 6 A.M.</a></h3>
+        <p class="card-author">Yacob Reyes</p>
+        <p class="card-meta">1 min read</p>
+        <p class="card-body">She was reading a book I had read the year my father died. I almost said something.</p>
       </article>
-      <article class="paper-card">
-        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Micro-Memoir</div>
-        <h3 class="paper-hed"><a href="#">Airport, 6 A.M.</a></h3>
-        <p class="paper-author">Yacob Reyes</p>
-        <p class="paper-meta">1 min read</p>
-        <p class="paper-body">She was reading a book I had read the year my father died. I almost said something.</p>
+      <article class="pcard">
+        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Essay</div>
+        <h3 class="card-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
+        <p class="card-author">Yacob Reyes</p>
+        <p class="card-meta">3 min read</p>
+        <p class="card-body">On the strange freedom of being mediocre at something you love.</p>
       </article>
-      <article class="paper-card">
-        <div class="paper-cat"><img src="/mayfly-icon.webp" style="width:11px;height:11px;image-rendering:pixelated;opacity:.8;" alt=""> Essay</div>
-        <h3 class="paper-hed"><a href="#">The Case for Doing Nothing Badly</a></h3>
-        <p class="paper-author">Yacob Reyes</p>
-        <p class="paper-meta">3 min read</p>
-        <p class="paper-body">On the strange freedom of being mediocre at something you love.</p>
+      <article class="pcard">
+        <div class="card-kicker"><img src="/mayfly-icon.webp" width="11" height="11" style="image-rendering:pixelated;opacity:.8;" alt=""> Micro-Memoir</div>
+        <h3 class="card-hed"><a href="#">The Last Voicemail</a></h3>
+        <p class="card-author">Yacob Reyes</p>
+        <p class="card-meta">1 min read</p>
+        <p class="card-body">He called to say he was thinking of me, just that. It was a Thursday. I didn't pick up.</p>
       </article>
     </div>
-    <a href="#" class="brief-viewall">View all briefs →</a>
+
+    <a href="#" class="brief-viewall">View all →</a>
   </div>
 </section>
 
-<hr class="divider">
-
 <!-- ONE-SITTING READS -->
-<div class="onesit-wrap">
-  <div class="onesit">
+<div class="onesit">
+  <div class="onesit-inner">
     <div>
       <div class="os-label">One-Sitting Reads</div>
       <div class="os-rule"></div>
-      <p class="os-desc">True stories for the time<br>you actually have.</p>
-      <a href="#" class="os-surprise">Surprise me &nbsp;→</a>
+      <p class="os-desc-hed">True stories for the time<br>you actually have.</p>
+      <a href="#" class="os-surprise">Surprise me →</a>
     </div>
     <div class="os-right">
       <div class="os-circles">
-        <div class="os-circle"><span class="num">3</span><span class="unit">min</span></div>
-        <div class="os-circle active"><span class="num">5</span><span class="unit">min</span></div>
-        <div class="os-circle"><span class="num">8</span><span class="unit">min</span></div>
-        <div class="os-circle"><span class="num">12</span><span class="unit">min</span></div>
+        <button class="os-btn"><span class="n">3</span><span class="u">min</span></button>
+        <button class="os-btn active"><span class="n">5</span><span class="u">min</span></button>
+        <button class="os-btn"><span class="n">8</span><span class="u">min</span></button>
+        <button class="os-btn"><span class="n">12</span><span class="u">min</span></button>
       </div>
-      <div class="os-handnote">
-        <span>Pick your<br>reading window.</span>
-      </div>
+      <span class="os-note">Pick your<br>reading window.</span>
     </div>
   </div>
 </div>
 
-<hr class="divider">
-
-<!-- BY FORM -->
-<section>
-  <div class="byform">
-    <div>
-      <div class="bf-label">By Form</div>
-      <div class="bf-rule"></div>
-      <p class="bf-desc">Find the kind of story you're in the mood for.</p>
-    </div>
-    <div>
-      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
-      <div class="form-name">Narratives</div>
-      <p class="form-desc">Longer scenes, turning points, lived moments.</p>
-      <a href="#" class="form-link">Explore →</a>
-    </div>
-    <div>
-      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
-      <div class="form-name">Micro-Memoir</div>
-      <p class="form-desc">Small true pieces with a pulse.</p>
-      <a href="#" class="form-link">Explore →</a>
-    </div>
-    <div>
-      <img src="/mayfly-icon.webp" style="width:20px;height:20px;image-rendering:pixelated;display:block;margin-bottom:.55rem;" alt="">
-      <div class="form-name">Essays</div>
-      <p class="form-desc">Reflections, arguments, observations, reckonings.</p>
-      <a href="#" class="form-link">Explore →</a>
-    </div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- ABOUT -->
-<div class="about-wrap">
-  <div class="about">
-    <img src="/mayfly-icon.webp" style="width:72px;height:72px;image-rendering:pixelated;" alt="">
-    <div>
-      <div class="about-hed">About Efemera</div>
-      <div class="about-rule"></div>
-      <p class="about-body">Efemera is a literary magazine — a shared table for short, true stories from everyday life.</p>
-      <p class="about-body">Founded by Yacob Reyes.</p>
-      <a href="#" class="about-link">More about us →</a>
-    </div>
-  </div>
-</div>
-
+<!-- FOOTER -->
 <footer>
   efemera &nbsp;·&nbsp; a literary magazine by yacob reyes &nbsp;·&nbsp; est. 2024
 </footer>
