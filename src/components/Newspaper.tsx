@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
+import MagHeader from "@/components/MagHeader";
 import SubscribeButton from "@/components/SubscribeButton";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
@@ -46,10 +46,7 @@ export default function Feed({
   initialTab: Tab;
   onMastheadClick?: () => void;
 }) {
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeMin, setActiveMin] = useState(5);
-  const [searchQ, setSearchQ] = useState("");
 
   const published = posts.filter(p =>
     !p.status || p.status === "published" ||
@@ -86,46 +83,7 @@ export default function Feed({
         .ef-h1 a:focus { outline: none; }
         .ef-hero a:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 4px; }
 
-        /* NAV */
-        .ef-nav {
-          height: 100px;
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          padding: 0 44px;
-          border-bottom: 1px solid var(--line);
-          background: #fbf6ee;
-          position: relative;
-        }
-        .ef-nav-group {
-          display: flex;
-          gap: 42px;
-          align-items: center;
-          font-family: Inter, system-ui, sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: .16em;
-          text-transform: uppercase;
-        }
-        .ef-nav-group.right { justify-content: flex-end; }
-        .ef-logo { display: block; }
-        .ef-logo img { height: 58px; width: auto; display: block; }
-        .ef-nav-cta {
-          background: var(--red);
-          color: #fff !important;
-          padding: 7px 14px;
-          font-family: Inter, system-ui, sans-serif;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: .14em;
-          text-transform: uppercase;
-          border-radius: 2px;
-          cursor: pointer;
-        }
-        .ef-toggle { display: none; }
         .ef-section-tabs { display: none; }
-        .ef-drawer { display: none; }
-        .ef-mob-sub { display: none; }
 
         /* HERO */
         .ef-hero {
@@ -391,91 +349,6 @@ export default function Feed({
 
         /* MOBILE */
         @media (max-width: 900px) {
-          .ef-nav {
-            height: auto;
-            padding: 0 20px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-          }
-          .ef-nav-group, .ef-nav-group.right { display: none; }
-          .ef-toggle {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 8px 8px 0;
-            order: 1;
-          }
-          .ef-toggle span {
-            display: block;
-            width: 22px;
-            height: 1.5px;
-            background: var(--ink);
-            transition: all .2s;
-          }
-          .ef-logo { flex: 1; text-align: center; padding: 16px 0; order: 2; }
-          .ef-logo img { height: 40px; margin: 0 auto; }
-          .ef-mob-sub {
-            display: block;
-            order: 3;
-            font-family: Inter, system-ui, sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-            color: #fff;
-            background: var(--red);
-            padding: 7px 12px;
-            border-radius: 2px;
-          }
-          .ef-drawer {
-            flex-direction: column;
-            width: 100%;
-            order: 4;
-            border-top: 1px solid var(--line);
-            padding: 12px 0 24px;
-          }
-          .ef-drawer a {
-            font-family: Inter, system-ui, sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: .14em;
-            text-transform: uppercase;
-            color: var(--ink);
-            padding: 16px 4px;
-            display: block;
-          }
-          .ef-drawer-search {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid var(--line);
-            margin-bottom: 4px;
-            padding: 12px 4px;
-          }
-          .ef-drawer-search input {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: Inter, system-ui, sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--ink);
-          }
-          .ef-drawer-search input::placeholder {
-            color: var(--line);
-            font-weight: 500;
-          }
-          .ef-drawer-search svg { flex-shrink: 0; color: var(--ink); }
-          .ef-nav.open .ef-drawer { display: flex; }
-          .ef-nav.open .ef-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-          .ef-nav.open .ef-toggle span:nth-child(2) { opacity: 0; }
-          .ef-nav.open .ef-toggle span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-
           .ef-hero { min-height: 520px; padding: 40px 24px 44px; }
           .ef-h1 { font-size: clamp(40px, 11vw, 58px); }
           .ef-dek { font-size: 19px; margin: 18px 0 20px; }
@@ -529,57 +402,7 @@ export default function Feed({
         }
       `}</style>
 
-      {/* NAV */}
-      <header className={`ef-nav${menuOpen ? " open" : ""}`}>
-        <nav className="ef-nav-group">
-          <Link href="/about">About</Link>
-          <Link href="/">The Latest</Link>
-          <Link href="/gangrey">Gangrey</Link>
-        </nav>
-
-        <button
-          className="ef-logo"
-          onClick={onMastheadClick}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
-          aria-label="Home"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Crimson Wordmark.png" alt="efemera" />
-        </button>
-
-        <nav className="ef-nav-group right">
-          <Link href="/archive">Archive</Link>
-          <Link href="/store">Store</Link>
-          <SubscribeButton className="ef-nav-cta">Subscribe</SubscribeButton>
-        </nav>
-
-        {/* Mobile controls */}
-        <button
-          className="ef-toggle"
-          aria-label="Menu"
-          onClick={() => setMenuOpen(o => !o)}
-        >
-          <span /><span /><span />
-        </button>
-        <SubscribeButton className="ef-mob-sub">Subscribe</SubscribeButton>
-        <div className="ef-drawer">
-          <form className="ef-drawer-search" onSubmit={e => { e.preventDefault(); if (searchQ.trim()) { router.push(`/?q=${encodeURIComponent(searchQ.trim())}`); setMenuOpen(false); setSearchQ(""); } }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input
-              type="search"
-              placeholder="Search stories…"
-              value={searchQ}
-              onChange={e => setSearchQ(e.target.value)}
-              autoComplete="off"
-            />
-          </form>
-          <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
-          <Link href="/" onClick={() => setMenuOpen(false)}>The Latest</Link>
-          <Link href="/gangrey" onClick={() => setMenuOpen(false)}>Gangrey</Link>
-          <Link href="/archive" onClick={() => setMenuOpen(false)}>Archive</Link>
-          <Link href="/store" onClick={() => setMenuOpen(false)}>Store</Link>
-        </div>
-      </header>
+      <MagHeader onLogoClick={onMastheadClick} />
 
 {/* HERO */}
       {hero && (
