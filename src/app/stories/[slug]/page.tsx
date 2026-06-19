@@ -123,7 +123,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
         }
         .story-label {
           text-decoration: none;
-          display: block;
+          display: inline-block;
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 800;
