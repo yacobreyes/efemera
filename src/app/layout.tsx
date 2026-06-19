@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
@@ -29,6 +29,10 @@ export const metadata: Metadata = {
     description: "A literary blog by Yacob Reyes.",
     images: ["/og-image.png"],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#fbf6ee",
 };
 
 export default function RootLayout({
