@@ -454,15 +454,12 @@ export default function NewsletterEditorClient({
       alert(`Newsletter published, but Issues page sync failed:\n\n${saveResult.syncError}`);
     }
     if (isAlreadyPublished) return;
-    if (confirm("Send this newsletter to all subscribers now?")) {
-      setNlSending(true);
-      try {
-        const d = await sendNewsletter(newsletterId);
-        if (!d.ok) alert(d.error || "Send failed.");
-        else alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}.${d.failed ? ` ${d.failed} failed.` : ""}`);
-      } catch { alert("Send failed."); }
-      finally { setNlSending(false); }
-    }
+    setNlSending(true);
+    try {
+      const d = await sendNewsletter(newsletterId);
+      if (!d.ok) alert(d.error || "Send failed.");
+    } catch { alert("Send failed."); }
+    finally { setNlSending(false); }
   }
 
   async function unpublishNewsletter() {
