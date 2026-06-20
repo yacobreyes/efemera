@@ -25,6 +25,10 @@ function readingTime(text: string) {
   return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200));
 }
 
+function postReadingTime(post: SanityPost) {
+  return post.readingTime ?? readingTime(portableToPlainText(post.body));
+}
+
 function truncate(text: string, max = 180) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
@@ -297,6 +301,34 @@ export default function Feed({
           font-size: 14px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
+        .ef-brief-results {
+          grid-column: 1 / -1;
+          border-top: 1px solid rgba(251,246,238,.3);
+          margin-top: 14px; padding-top: 26px;
+          display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+        }
+        .ef-brief-item { display: block; text-decoration: none; }
+        .ef-brief-item .ef-brief-sec {
+          font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
+          letter-spacing: .12em; text-transform: uppercase; color: #fbf6ee; opacity: .75;
+          margin-bottom: 6px;
+        }
+        .ef-brief-item h4 {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 21px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em;
+          color: #fbf6ee; margin: 0 0 5px;
+        }
+        .ef-brief-item:hover h4 { text-decoration: underline; }
+        .ef-brief-item .ef-brief-meta {
+          font-family: Inter, system-ui, sans-serif; font-size: 11px; color: #fbf6ee; opacity: .8;
+        }
+        .ef-brief-empty {
+          grid-column: 1 / -1;
+          border-top: 1px solid rgba(251,246,238,.3);
+          margin-top: 14px; padding-top: 26px;
+          font-family: "Cormorant Garamond", Georgia, serif; font-style: italic;
+          font-size: 17px; color: #fbf6ee; opacity: .85;
+        }
 
         /* FOOTER */
         .ef-footer {
@@ -398,6 +430,8 @@ export default function Feed({
           .ef-circle { width: 72px; height: 72px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
           .ef-reads-arrow { transform: rotate(90deg) scaleX(-1); }
+          .ef-brief-results { grid-template-columns: 1fr; gap: 18px; padding-top: 20px; margin-top: 18px; }
+          .ef-brief-item h4 { font-size: 19px; }
         }
       `}</style>
 
@@ -446,7 +480,7 @@ export default function Feed({
               <span>·</span>
               <span>{formatDate(hero.date)}</span>
               <span>·</span>
-              <span>{readingTime(portableToPlainText(hero.body))} Min Read</span>
+              <span>{postReadingTime(hero)} Min Read</span>
             </div>
             <Link href={`/stories/${hero.slug}`} className="ef-read-link">Continue reading →</Link>
           </div>
@@ -481,7 +515,7 @@ export default function Feed({
                   </h3>
                   <div className="ef-byline">{post.byline}</div>
                   {post.subheadline && <p className="ef-excerpt">{truncate(post.subheadline, 160)}</p>}
-                  <div className="ef-time">{readingTime(plain)} Min Read</div>
+                  <div className="ef-time">{postReadingTime(post)} Min Read</div>
                 </article>
               );
             })}
@@ -512,6 +546,25 @@ export default function Feed({
           <span>Stories that fit<br />your window.</span>
           <span style={{ fontSize: 22, lineHeight: 1, display: "block" }}>↵</span>
         </div>
+        {(() => {
+          const matches = published
+            .filter(p => postReadingTime(p) <= activeMin)
+            .slice(0, 6);
+          if (matches.length === 0) {
+            return <div className="ef-brief-empty">No stories that short yet — check back soon.</div>;
+          }
+          return (
+            <div className="ef-brief-results">
+              {matches.map(p => (
+                <Link key={p._id} href={`/stories/${p.slug}`} className="ef-brief-item">
+                  <div className="ef-brief-sec">{sectionLabel(p.section)}</div>
+                  <h4>{p.headline}</h4>
+                  <div className="ef-brief-meta">{p.byline} · {postReadingTime(p)} Min Read</div>
+                </Link>
+              ))}
+            </div>
+          );
+        })()}
       </section>}
 
       {/* FOOTER */}

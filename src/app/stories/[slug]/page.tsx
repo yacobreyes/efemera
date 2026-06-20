@@ -244,7 +244,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           <span className="dot">·</span>
           <span>{new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
           <span className="dot">·</span>
-          <span>{readingTime(post.body)} Min Read</span>
+          <span>{post.readingTime ?? readingTime(post.body)} Min Read</span>
         </div>
       </header>
 

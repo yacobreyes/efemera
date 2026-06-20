@@ -14,7 +14,7 @@ export const dynamic = "force-dynamic";
 
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
-  date, body, image { asset, caption, alt }, status
+  date, body, image { asset, caption, alt }, status, readingTime
 }`;
 
 function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
@@ -80,7 +80,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         )}
 
         <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {readingTime(post.body)} min read
+          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {post.readingTime ?? readingTime(post.body)} min read
         </div>
 
         {post.image?.asset && (

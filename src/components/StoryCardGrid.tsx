@@ -77,7 +77,7 @@ export default function StoryCardGrid({ posts }: { posts: SanityPost[] }) {
           font-weight: 700;
           letter-spacing: .12em;
           text-transform: uppercase;
-          color: #6f655b;
+          color: #8e0d0d;
           margin-top: auto;
         }
         @media (max-width: 900px) {
@@ -104,7 +104,7 @@ export default function StoryCardGrid({ posts }: { posts: SanityPost[] }) {
             <Link href={`/stories/${post.slug}`} className="sg-headline"><h3>{post.headline}</h3></Link>
             {post.byline && <div className="sg-byline">By {post.byline}</div>}
             {plain && <p className="sg-excerpt">{truncate(plain)}</p>}
-            <div className="sg-time">{readingTime(plain)} Min Read</div>
+            <div className="sg-time">{post.readingTime ?? readingTime(plain)} Min Read</div>
           </article>
         );
       })}

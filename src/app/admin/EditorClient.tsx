@@ -46,6 +46,7 @@ type FormState = {
   section: string; date: string; body: JSONContent;
   status: "draft" | "published" | "scheduled";
   seoHeadline: string; socialHeadline: string; socialDescription: string;
+  readingTime: string;
 };
 
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
@@ -65,6 +66,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     seoHeadline: post.seoHeadline ?? "",
     socialHeadline: post.socialHeadline ?? "",
     socialDescription: post.socialDescription ?? "",
+    readingTime: post.readingTime ? String(post.readingTime) : "",
   };
 
   const [form, setForm] = useState<FormState>(initialForm);
@@ -518,6 +520,15 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+              <div>
+                <label style={LABEL}>Reading time</label>
+                <select style={INPUT} value={form.readingTime} onChange={e => updateForm({ readingTime: e.target.value })}>
+                  <option value="">Auto (from word count)</option>
+                  {[1, 2, 3, 4, 5].map(m => (
+                    <option key={m} value={m}>{m} min</option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
 

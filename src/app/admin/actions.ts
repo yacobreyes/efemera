@@ -123,6 +123,9 @@ export async function savePost(formData: FormData) {
   const slug = formData.get("slug") as string;
   const section = formData.get("section") as string;
   const date = formData.get("date") as string;
+  const readingTimeRaw = formData.get("readingTime") as string | null;
+  const readingTime = readingTimeRaw && !Number.isNaN(Number(readingTimeRaw)) && Number(readingTimeRaw) > 0
+    ? Number(readingTimeRaw) : null;
   const bodyRaw = formData.get("body") as string;
   const imageAssetId = formData.get("imageAssetId") as string | null;
   const imageCaption = formData.get("imageCaption") as string | null;
@@ -149,6 +152,7 @@ export async function savePost(formData: FormData) {
     headline, subheadline,
     slug: { _type: "slug", current: slug },
     section, byline, date, body, status,
+    ...(readingTime ? { readingTime } : { readingTime: null }),
     ...(scheduledAt ? { scheduledAt } : {}),
     ...(seoHeadline ? { seoHeadline } : {}),
     ...(socialHeadline ? { socialHeadline } : {}),

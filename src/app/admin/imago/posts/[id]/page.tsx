@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
-  date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt
+  date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt, readingTime
 }`;
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
