@@ -280,7 +280,8 @@ export default function Feed({
         .ef-circle span { display: block; }
         .ef-reads-annotation {
           display: flex; flex-direction: column; align-items: center; gap: 8px;
-          font-family: "Caveat", Georgia, cursive;
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-style: italic;
           font-size: 20px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
@@ -470,9 +471,9 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <svg width="52" height="44" viewBox="0 0 52 44" fill="none" style={{ opacity: .75 }}>
-            <path d="M38 6 C38 6, 42 22, 30 32 C22 38, 10 36, 4 30" stroke="#fbf6ee" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
-            <path d="M4 30 L8 22 M4 30 L12 32" stroke="#fbf6ee" strokeWidth="1.6" strokeLinecap="round"/>
+          <svg width="56" height="48" viewBox="0 0 56 48" fill="none" style={{ opacity: .8 }}>
+            <path d="M46 6 Q50 28 28 38 Q16 44 8 40" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+            <polyline points="14,32 8,40 16,43" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
           </svg>
         </div>
       </section>
