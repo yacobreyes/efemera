@@ -256,10 +256,10 @@ export default function Feed({
           font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
           margin-bottom: 10px;
         }
-        .ef-reads-rule { width: 36px; height: 2px; background: #fbf6ee; border: 0; margin: 0 0 14px; opacity: .6; }
+        .ef-reads-rule { width: 36px; height: 2px; background: #fbf6ee; border: 0; margin: 0 0 14px; }
         .ef-reads-sub {
           font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: 17px; font-style: italic; color: #fbf6ee; opacity: .8; margin: 0;
+          font-size: 17px; font-style: italic; color: #fbf6ee; margin: 0;
         }
         .ef-reads h2 { display: none; }
         .ef-circles { display: flex; gap: 20px; align-items: center; }
@@ -474,7 +474,7 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <span style={{ fontSize: 22, lineHeight: 1, opacity: .85, display: "block" }}>↵</span>
+          <span style={{ fontSize: 22, lineHeight: 1, display: "block" }}>↵</span>
         </div>
       </section>
 
