@@ -453,7 +453,7 @@ export default function Feed({
       {/* LIFE IN BRIEF */}
       <section className="ef-reads">
         <div className="ef-reads-left">
-          <div className="ef-reads-label">Life in Brief</div>
+          <div className="ef-reads-label">Life, in Brief.</div>
           <hr className="ef-reads-rule" />
           <p className="ef-reads-sub">Short on time? We've got you.</p>
         </div>
