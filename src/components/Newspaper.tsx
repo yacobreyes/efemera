@@ -377,7 +377,9 @@ export default function Feed({
             white-space: nowrap;
           }
           .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
-          .ef-reads { grid-template-columns: 1fr auto auto; gap: 16px; padding: 36px 24px; }
+          .ef-reads { grid-template-columns: 1fr auto auto; gap: 12px; padding: 28px 20px; }
+          .ef-reads-label { font-size: 22px; margin-bottom: 7px; }
+          .ef-reads-sub { font-size: 14px; }
           .ef-circles { gap: 12px; }
           .ef-circle { width: 72px; height: 72px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
