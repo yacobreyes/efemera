@@ -89,7 +89,7 @@ export default function SubscribeButton({
               Join the Collective.
             </h2>
             <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
-              We publish a chapbook every month. Don't miss one.
+              Subscribe to read our monthly chapbook in your inbox.
             </p>
 
             {status === "done" ? (
