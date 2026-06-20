@@ -6,8 +6,8 @@ export const revalidate = 60;
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
-export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const { tab } = await searchParams;
+export default async function Home({ searchParams }: { searchParams: Promise<{ tab?: string; q?: string }> }) {
+  const { tab, q } = await searchParams;
   const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Essays", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
 
   const [postsResult, aboutResult, latelyResult, welcomeResult] = await Promise.allSettled([
@@ -25,5 +25,5 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   }
   const lately = latelyResult.status === "fulfilled" ? latelyResult.value : null;
   const welcome = welcomeResult.status === "fulfilled" ? welcomeResult.value : null;
-  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} />;
+  return <HomeClient posts={posts} aboutParagraphs={aboutParagraphs} lately={lately} welcome={welcome} initialTab={initialTab} searchQuery={q ?? ""} />;
 }

@@ -17,7 +17,7 @@ export default async function GangreyPage() {
   const gangrey = posts.filter(p => {
     const published = !p.status || p.status === "published" ||
       (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date());
-    return published && String(p.section).toLowerCase().includes("gangrey");
+    return published && (String(p.section).toLowerCase().includes("gangrey"));
   });
 
   return (

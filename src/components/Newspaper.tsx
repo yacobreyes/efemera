@@ -38,6 +38,7 @@ function sectionLabel(section: SanityPost["section"]) {
 export default function Feed({
   posts,
   onMastheadClick,
+  searchQuery = "",
 }: {
   posts: SanityPost[];
   aboutParagraphs: string[];
@@ -45,6 +46,7 @@ export default function Feed({
   welcome: SanityWelcome | null;
   initialTab: Tab;
   onMastheadClick?: () => void;
+  searchQuery?: string;
 }) {
   const [activeMin, setActiveMin] = useState(5);
 
@@ -52,6 +54,16 @@ export default function Feed({
     !p.status || p.status === "published" ||
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
   );
+
+  const q = searchQuery.trim().toLowerCase();
+  const searchResults = q
+    ? published.filter(p =>
+        p.headline.toLowerCase().includes(q) ||
+        p.byline.toLowerCase().includes(q) ||
+        p.subheadline?.toLowerCase().includes(q) ||
+        portableToPlainText(p.body).toLowerCase().includes(q)
+      )
+    : [];
 
   const hero = published[0];
   const cards = published.slice(1, 5);
@@ -391,8 +403,32 @@ export default function Feed({
 
       <MagHeader onLogoClick={onMastheadClick} />
 
+      {/* SEARCH RESULTS */}
+      {q && (
+        <section style={{ width: "100%", maxWidth: 1180, margin: "0 auto", padding: "56px 44px 72px", boxSizing: "border-box" }}>
+          <div style={{ borderBottom: "1px solid #171412", paddingBottom: 20, marginBottom: 36 }}>
+            <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#8e0d0d", margin: "0 0 10px" }}>Search</p>
+            <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
+          </div>
+          {searchResults.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              {searchResults.map(p => (
+                <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #cfc3b3", textDecoration: "none", color: "inherit" }}>
+                  <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#8e0d0d", marginBottom: 8 }}>{p.section}</div>
+                  <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
+                  {p.subheadline && <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 18, fontStyle: "italic", color: "#463f37", margin: 0 }}>{p.subheadline}</p>}
+                  <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#171412", margin: "10px 0 0" }}>By {p.byline}</p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 22, fontStyle: "italic", color: "#171412" }}>No stories found for "{searchQuery}".</p>
+          )}
+        </section>
+      )}
+
 {/* HERO */}
-      {hero && (
+      {!q && hero && (
         <section
           className="ef-hero"
           style={heroImg ? { backgroundImage: `linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%), url(${heroImg})` } : undefined}
@@ -418,7 +454,7 @@ export default function Feed({
       )}
 
       {/* CARDS */}
-      {cards.length > 0 && (
+      {!q && cards.length > 0 && (
         <section className="ef-section">
           <div className="ef-section-head">
             <h2>Latest from the Collective</h2>
@@ -454,7 +490,7 @@ export default function Feed({
       )}
 
       {/* LIFE IN BRIEF */}
-      <section className="ef-reads">
+      {!q && <section className="ef-reads">
         <div className="ef-reads-left">
           <div className="ef-reads-label">Life, in Brief.</div>
           <hr className="ef-reads-rule" />
@@ -476,7 +512,7 @@ export default function Feed({
           <span>Stories that fit<br />your window.</span>
           <span style={{ fontSize: 22, lineHeight: 1, display: "block" }}>↵</span>
         </div>
-      </section>
+      </section>}
 
       {/* FOOTER */}
       <footer className="ef-footer">
