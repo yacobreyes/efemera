@@ -898,7 +898,7 @@ export default function NewsletterEditorClient({
 
                     {/* MICRO-MEMOIR card — literary magazine style */}
                     {type === "micro-memoir" && (
-                      <div style={{ background: "#dfd4c4", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #cfc3b3`, borderBottom: `1px solid #cfc3b3`, margin: "0 -2.5rem" }}>
+                      <div style={{ background: "#f5efe4", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #cfc3b3`, borderBottom: `1px solid #cfc3b3`, margin: "0 -2.5rem" }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", height: 200, width: "auto", margin: "-35px auto -60px" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
