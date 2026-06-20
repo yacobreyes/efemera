@@ -197,7 +197,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
         <Link href="/latest" onClick={() => setMenuOpen(false)}>The Latest</Link>
         <Link href="/gangrey" onClick={() => setMenuOpen(false)}>Gangrey Redux</Link>
-        <Link href="/" onClick={() => setMenuOpen(false)}>Issues</Link>
+        <Link href="/issues" onClick={() => setMenuOpen(false)}>Issues</Link>
         <Link href="/store" onClick={() => setMenuOpen(false)}>Shop</Link>
       </div>
     </header>
