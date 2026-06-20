@@ -24,7 +24,7 @@ export default async function IssuesPage() {
     <div className="issues-page">
       <style>{`
         .issues-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
-        .issues-main { width: 100%; max-width: 760px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
+        .issues-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
         .issues-head { border-bottom: 1px solid #171412; padding-bottom: 24px; margin-bottom: 40px; }
         .issues-kicker {
           font-family: Inter, system-ui, sans-serif;
@@ -35,7 +35,7 @@ export default async function IssuesPage() {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
-        .issues-list { display: flex; flex-direction: column; gap: 0; }
+        .issues-list { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
         .issue-row {
           display: flex;
           justify-content: space-between;
