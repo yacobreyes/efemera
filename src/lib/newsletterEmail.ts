@@ -13,9 +13,11 @@ export type NlCard = {
 const CRIMSON = "#8e0d0d";
 const INK = "#171412";
 const TEXT_MUTED = "#463f37";
-const PAPER = "#f5efe4";
+const CREAM = "#fbf6ee";
+const PAPER_DARK = "#dfd4c4";
 const LINE = "#cfc3b3";
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const SERIF = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
@@ -82,7 +84,7 @@ function renderBody(blocks: PortableTextBlock[]): string {
   return out.join("");
 }
 
-const HEADLINE_FONT = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
+const HEADLINE_FONT = SERIF;
 
 // Layout constants mirror the in-app editor (NewsletterEditorClient) so the
 // sent email looks identical to the preview the author sees in Imago.
@@ -155,7 +157,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
     // micro-memoir: literary magazine style — beige inset box
     return cardWrap(idx, `
     ${sectionLabel(sectionName)}
-    <div style="background:#ede7dc;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px;text-align:center;margin:6px -${PAD}px 0;">
+    <div style="background:${PAPER_DARK};border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px;text-align:center;margin:6px -${PAD}px 0;">
       <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:200px;width:auto;display:block;margin:-35px auto -60px;" />
       <p style="font-family:${HEADLINE_FONT};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 6px;">${esc(card.headline ?? "")}</p>
       <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:center;margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
@@ -166,11 +168,11 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:${PAPER};">
+<body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preview)}</span>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:32px 0;">
     <tr><td align="center">
-      <table width="${PAGE_W}" cellpadding="0" cellspacing="0" style="width:${PAGE_W}px;max-width:100%;background:${PAPER};">
+      <table width="${PAGE_W}" cellpadding="0" cellspacing="0" style="width:${PAGE_W}px;max-width:100%;background:${CREAM};">
         <tr><td style="background:${CRIMSON};padding:24px ${PAD}px;">
           <img src="${SITE_URL}/Masthead.webp" alt="efemera" style="width:100%;height:auto;display:block;" />
         </td></tr>

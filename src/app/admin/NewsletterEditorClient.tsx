@@ -728,7 +728,7 @@ export default function NewsletterEditorClient({
         return (
           <div ref={nlMoveChipRef} style={{ position: "fixed", left: nlMoveRectRef.current.left, top: 0, width: nlMoveRectRef.current.width, zIndex: 1000, pointerEvents: "none", background: "white", border: `2px solid ${CRIMSON}`, padding: "0.65rem 0.9rem", boxShadow: "0 10px 30px rgba(0,0,0,0.22)", display: "flex", alignItems: "center", gap: "0.6rem", boxSizing: "border-box" }}>
             <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{mcLabel}</span>
-            <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mc.headline?.trim() || "—"}</span>
+            <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mc.headline?.trim() || "—"}</span>
           </div>
         );
       })()}
@@ -737,7 +737,7 @@ export default function NewsletterEditorClient({
           the left so the centered page never slides underneath it. */}
       <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
         {/* Magazine page — 600px to match the email's inbox-safe width */}
-        <div style={{ maxWidth: 600, margin: "0 auto", background: "white", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto", background: "#fbf6ee", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — full-bleed nameplate + dateline strip */}
           <div style={{ background: CRIMSON, padding: "1.5rem 2.5rem" }}>
@@ -761,7 +761,7 @@ export default function NewsletterEditorClient({
                 onChange={e => setNlIntro(e.target.value)}
                 placeholder="A note to readers…"
                 rows={1}
-                style={{ fontFamily: "'Georgia', serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
               />
               {nlAuthor && (
                 <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.75rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
@@ -798,12 +798,12 @@ export default function NewsletterEditorClient({
                   {isDragging ? (
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}`, opacity: 0.5 }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
-                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
+                      <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
                     </div>
                   ) : collapsed ? (
                     <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.65rem 0", borderBottom: `1px solid ${BORDER}` }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.6rem", fontWeight: 700, letterSpacing: "0.15em", color: CRIMSON, textTransform: "uppercase", flexShrink: 0 }}>{sectionLabel}</span>
-                      <span style={{ fontFamily: "'Georgia', serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
+                      <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.95rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{card.headline?.trim() || "—"}</span>
                     </div>
                   ) : (<>
 
@@ -856,7 +856,7 @@ export default function NewsletterEditorClient({
                           </button>
                         )}
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Feature headline"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         {nlBylineField(card, "center")}
                         <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
@@ -871,7 +871,7 @@ export default function NewsletterEditorClient({
                       <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
                         <div style={{ borderTop: `2px solid ${CRIMSON}`, paddingTop: "0.85rem", marginBottom: "0.85rem" }}>
                           <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
-                            style={{ fontFamily: "'Georgia', serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
+                            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
                         {nlBylineField(card, "left")}
                         {card.image ? (
@@ -898,11 +898,11 @@ export default function NewsletterEditorClient({
 
                     {/* MICRO-MEMOIR card — literary magazine style */}
                     {type === "micro-memoir" && (
-                      <div style={{ background: "#faf9f6", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #e8e3d8`, borderBottom: `1px solid #e8e3d8`, margin: "0 -2.5rem" }}>
+                      <div style={{ background: "#dfd4c4", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #cfc3b3`, borderBottom: `1px solid #cfc3b3`, margin: "0 -2.5rem" }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", height: 200, width: "auto", margin: "-35px auto -60px" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
-                          style={{ fontFamily: "'Georgia', serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
+                          style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", flexWrap: "wrap", margin: "0 0 1.5rem" }}>
                           <span style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>A Micro-Memoir</span>
                           {card.byline === undefined ? (
@@ -918,8 +918,8 @@ export default function NewsletterEditorClient({
                             </span>
                           )}
                         </div>
-                        <div style={{ width: 32, height: 1, background: "#c8c0b0", margin: "0 auto 1.5rem" }} />
-                        <div style={{ fontFamily: "'Georgia', serif", fontSize: "0.97rem", lineHeight: 1.85, textAlign: "center" }}>
+                        <div style={{ width: 32, height: 1, background: "#cfc3b3", margin: "0 auto 1.5rem" }} />
+                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.1rem", lineHeight: 1.85, textAlign: "center" }}>
                           <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
