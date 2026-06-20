@@ -1,16 +1,9 @@
 import Link from "next/link";
 import type { SanityPost } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
+import { plainTextFromBlocks, postReadingTime } from "@/lib/readingTime";
 
-function plainText(blocks: SanityPost["body"]): string {
-  return (blocks ?? [])
-    .filter(b => b._type === "block")
-    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
-    .join(" ");
-}
-function readingTime(text: string) {
-  return Math.max(1, Math.round((text.trim().split(/\s+/).length || 1) / 200));
-}
+const plainText = plainTextFromBlocks;
 function truncate(text: string, max = 150) {
   if (text.length <= max) return text;
   return text.slice(0, max).trimEnd() + "…";
@@ -104,7 +97,7 @@ export default function StoryCardGrid({ posts }: { posts: SanityPost[] }) {
             <Link href={`/stories/${post.slug}`} className="sg-headline"><h3>{post.headline}</h3></Link>
             {post.byline && <div className="sg-byline">By {post.byline}</div>}
             {plain && <p className="sg-excerpt">{truncate(plain)}</p>}
-            <div className="sg-time">{post.readingTime ?? readingTime(plain)} Min Read</div>
+            <div className="sg-time">{postReadingTime(post)} Min Read</div>
           </article>
         );
       })}

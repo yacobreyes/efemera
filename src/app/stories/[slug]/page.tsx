@@ -9,14 +9,7 @@ import ShareButton from "@/components/ShareButton";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import StoryVisitTracker from "@/components/StoryVisitTracker";
-
-function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
-  const words = blocks
-    .filter(b => b._type === "block")
-    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
-    .join(" ").trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200));
-}
+import { postReadingTime } from "@/lib/readingTime";
 
 function sectionLabel(section: string) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
@@ -244,7 +237,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           <span className="dot">·</span>
           <span>{new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
           <span className="dot">·</span>
-          <span>{post.readingTime ?? readingTime(post.body)} Min Read</span>
+          <span>{postReadingTime(post)} Min Read</span>
         </div>
       </header>
 

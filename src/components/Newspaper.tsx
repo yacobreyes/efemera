@@ -6,6 +6,7 @@ import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
 import MagHeader from "@/components/MagHeader";
 import SubscribeButton from "@/components/SubscribeButton";
+import { postReadingTime } from "@/lib/readingTime";
 
 type Tab = "Home" | "About" | "Micro-Memoirs" | "Narratives" | "Essays" | "Archive";
 
@@ -19,14 +20,6 @@ function portableToPlainText(blocks: SanityPost["body"]): string {
     .filter(b => b._type === "block")
     .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
     .join(" ");
-}
-
-function readingTime(text: string) {
-  return Math.max(1, Math.round(text.trim().split(/\s+/).length / 200));
-}
-
-function postReadingTime(post: SanityPost) {
-  return post.readingTime ?? readingTime(portableToPlainText(post.body));
 }
 
 function truncate(text: string, max = 180) {
@@ -496,7 +489,6 @@ export default function Feed({
           </div>
           <div className="ef-grid">
             {cards.map(post => {
-              const plain = portableToPlainText(post.body);
               const imgSrc = post.image?.asset
                 ? urlFor(post.image.asset).width(600).height(445).fit("crop").auto("format").url()
                 : null;

@@ -9,6 +9,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import ReadCounter from "@/components/ReadCounter";
 import SiteFooter from "@/components/SiteFooter";
+import { postReadingTime } from "@/lib/readingTime";
 
 export const dynamic = "force-dynamic";
 
@@ -16,14 +17,6 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
   date, body, image { asset, caption, alt }, status, readingTime
 }`;
-
-function readingTime(blocks: import("@portabletext/types").PortableTextBlock[]) {
-  const words = blocks
-    .filter(b => b._type === "block")
-    .map(b => (b.children as { text: string }[]).map(c => c.text).join(""))
-    .join(" ").trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 200));
-}
 
 export default async function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const authed = await isAuthed();
@@ -80,7 +73,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         )}
 
         <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {post.readingTime ?? readingTime(post.body)} min read
+          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {postReadingTime(post)} min read
         </div>
 
         {post.image?.asset && (
