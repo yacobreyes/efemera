@@ -100,11 +100,12 @@ export interface SanityIssue {
   description?: string;
   publishedAt: string;
   url?: string;
+  newsletterId?: string;
 }
 
 export async function getAllIssues(): Promise<SanityIssue[]> {
   return client.fetch(
-    `*[_type == "issue"] | order(publishedAt desc) { _id, "slug": slug.current, number, title, description, publishedAt, url }`,
+    `*[_type == "issue"] | order(publishedAt desc) { _id, "slug": slug.current, number, title, description, publishedAt, url, newsletterId }`,
     {}, { next: { revalidate: 60 } }
   );
 }

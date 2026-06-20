@@ -84,9 +84,10 @@ export default async function IssuesPage() {
         </div>
         {issues.length > 0 ? (
           <div className="issues-list">
-            {issues.map(issue => (
-              issue.url ? (
-                <a key={issue._id} href={issue.url} target="_blank" rel="noopener noreferrer" className="issue-row">
+            {issues.map(issue => {
+              const internalHref = issue.newsletterId && issue.slug ? `/issues/${issue.slug}` : null;
+              const inner = (
+                <>
                   <div className="issue-left">
                     <div className="issue-number">No. {issue.number}</div>
                     <h2 className="issue-title">{issue.title}</h2>
@@ -96,8 +97,15 @@ export default async function IssuesPage() {
                     <span className="issue-date">{formatDate(issue.publishedAt)}</span>
                     <span className="issue-arrow">→</span>
                   </div>
-                </a>
-              ) : (
+                </>
+              );
+              if (internalHref) {
+                return <Link key={issue._id} href={internalHref} className="issue-row">{inner}</Link>;
+              }
+              if (issue.url) {
+                return <a key={issue._id} href={issue.url} target="_blank" rel="noopener noreferrer" className="issue-row">{inner}</a>;
+              }
+              return (
                 <div key={issue._id} className="issue-row" style={{ cursor: "default" }}>
                   <div className="issue-left">
                     <div className="issue-number">No. {issue.number}</div>
@@ -106,8 +114,8 @@ export default async function IssuesPage() {
                   </div>
                   <span className="issue-date">{formatDate(issue.publishedAt)}</span>
                 </div>
-              )
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="issues-empty">Issues coming soon.</p>

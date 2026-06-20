@@ -55,8 +55,37 @@ async function sendDueNewsletters(): Promise<number> {
       }
     }
     await sanityMutate([{ patch: { id: nl._id, set: { status: "published", sentAt: new Date().toISOString() } } }]);
+    await upsertIssueForNewsletter(nl);
   }
   return due.length;
+}
+
+function slugify(str: string) {
+  return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+// Mirrors a just-published scheduled newsletter onto the public Issues page.
+async function upsertIssueForNewsletter(nl: { _id: string; subject?: string; preview?: string; issue?: string }) {
+  const issueId = `issue-nl-${nl._id}`;
+  const existing = await sanityQuery(`*[_id == "${issueId}"][0]{ number, publishedAt }`);
+  let number: number | undefined = existing?.number;
+  if (number == null) {
+    if (nl.issue && !Number.isNaN(Number(nl.issue))) number = Number(nl.issue);
+    else number = ((await sanityQuery(`math::max(*[_type == "issue"].number)`)) ?? 0) + 1;
+  }
+  const slug = slugify(nl.subject ?? "") || `issue-${number}`;
+  await sanityMutate([{
+    createOrReplace: {
+      _id: issueId,
+      _type: "issue",
+      newsletterId: nl._id,
+      number,
+      title: nl.subject ?? "",
+      description: nl.preview ?? "",
+      publishedAt: existing?.publishedAt ?? new Date().toISOString(),
+      slug: { _type: "slug", current: slug },
+    },
+  }]);
 }
 
 export async function GET(request: Request) {

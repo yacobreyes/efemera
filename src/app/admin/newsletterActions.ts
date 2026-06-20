@@ -87,6 +87,55 @@ export type NlPayload = {
   scheduledAt?: string;
 };
 
+function slugify(str: string) {
+  return str.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+// Keeps the public Issues page in sync with a newsletter's publish state:
+// publishing upserts an `issue` document (so the newsletter is listed and
+// readable at /issues/[slug]); unpublishing removes it again.
+async function syncIssueForNewsletter(newsletterId: string, payload: NlPayload, status: string) {
+  const issueId = `issue-nl-${newsletterId}`;
+
+  if (status !== "published") {
+    try { await mutate([{ delete: { id: issueId } }]); } catch {}
+    return;
+  }
+
+  // Preserve the issue's number and publish date once assigned, so re-publishing
+  // an edit doesn't renumber it or reset its date.
+  const existing = await client.fetch<{ number?: number; publishedAt?: string } | null>(
+    `*[_id == $id][0]{ number, publishedAt }`,
+    { id: issueId },
+    { cache: "no-store" }
+  );
+
+  let number = existing?.number;
+  if (number == null) {
+    if (payload.issue && !Number.isNaN(Number(payload.issue))) {
+      number = Number(payload.issue);
+    } else {
+      const max = await client.fetch<number | null>(`math::max(*[_type == "issue"].number)`, {}, { cache: "no-store" });
+      number = (max ?? 0) + 1;
+    }
+  }
+
+  const slug = slugify(payload.subject ?? "") || `issue-${number}`;
+
+  await mutate([{
+    createOrReplace: {
+      _id: issueId,
+      _type: "issue",
+      newsletterId,
+      number,
+      title: payload.subject ?? "",
+      description: payload.preview ?? "",
+      publishedAt: existing?.publishedAt ?? new Date().toISOString(),
+      slug: { _type: "slug", current: slug },
+    },
+  }]);
+}
+
 // Creates or updates a newsletter document, then snapshots a (deduped) version.
 export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; versions: NlVersion[] }> {
   await requireAuth();
@@ -116,6 +165,9 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
     ...(payload.scheduledAt ? { scheduledAt: payload.scheduledAt } : {}),
   };
   await mutate([{ createOrReplace: draftDoc }]);
+
+  // Mirror the newsletter onto the public Issues page when published.
+  try { await syncIssueForNewsletter(id, payload, draftDoc.status as string); } catch {}
 
   // Snapshot a version unless nothing changed since the latest.
   const latest = await client.fetch(
