@@ -328,6 +328,7 @@ export default function Feed({
           .ef-section { padding: 40px 24px 48px; }
           .ef-section-head { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 16px; margin-bottom: 22px; }
           .ef-section-head h2 { font-size: 28px; }
+          .ef-section-head a { font-size: 13px; font-style: normal; font-family: Inter, system-ui, sans-serif; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 10px 18px; border: 1px solid var(--red); border-radius: 2px; }
           .ef-grid { grid-template-columns: 1fr; gap: 0; }
           .ef-card { border-right: 0; border-bottom: 1px solid var(--line); padding: 28px 0; }
           .ef-card:first-child { padding-top: 0; }
