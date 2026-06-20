@@ -20,13 +20,13 @@ export default async function AboutPage() {
     <div className="about-page">
       <style>{`
         .about-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
-        .about-main { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 64px; box-sizing: border-box; }
+        .about-main { flex: 1; width: 100%; max-width: 680px; margin: 0 auto; padding: 64px 24px 64px; box-sizing: border-box; }
         .about-title {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em;
           margin: 0 0 40px; padding-bottom: 24px; border-bottom: 1px solid #171412;
         }
-        .about-body { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; line-height: 1.62; color: #211c17; max-width: 680px; }
+        .about-body { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; line-height: 1.62; color: #211c17; }
         .about-body p { margin: 1.2rem 0 0; }
         .about-body p:first-child { margin-top: 0; }
         .about-body a { color: #8e0d0d; text-decoration: underline; }
