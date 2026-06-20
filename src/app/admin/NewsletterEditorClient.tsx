@@ -700,7 +700,19 @@ export default function NewsletterEditorClient({
                 <button type="button" onClick={() => setShowNlPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <button type="button" onClick={() => { if (!nlScheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setNlScheduledAt(d.toISOString().slice(0, 16)); } setShowNlScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
                 {nlStatus === "published" && (
-                  <button type="button" onClick={unpublishNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Unpublish</button>
+                  <>
+                    <button type="button" onClick={async () => {
+                      if (!confirm("Resend this newsletter to all subscribers?")) return;
+                      setNlSending(true);
+                      try {
+                        const d = await sendNewsletter(newsletterId);
+                        if (!d.ok) alert(d.error || "Send failed.");
+                        else alert(`Sent to ${d.sent} subscriber${d.sent === 1 ? "" : "s"}.${d.failed ? ` ${d.failed} failed.` : ""}`);
+                      } catch { alert("Send failed."); }
+                      finally { setNlSending(false); }
+                    }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Resend email</button>
+                    <button type="button" onClick={unpublishNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Unpublish</button>
+                  </>
                 )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button type="button" onClick={removeNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
