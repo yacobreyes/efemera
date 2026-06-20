@@ -380,6 +380,8 @@ export default function Feed({
           .ef-reads { grid-template-columns: 1fr auto auto; gap: 12px; padding: 28px 20px; }
           .ef-reads-label { font-size: 22px; margin-bottom: 7px; }
           .ef-reads-sub { font-size: 14px; }
+          .ef-reads-annotation { font-size: 12px; gap: 4px; }
+          .ef-reads-annotation span[style] { font-size: 16px !important; }
           .ef-circles { gap: 12px; }
           .ef-circle { width: 72px; height: 72px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
