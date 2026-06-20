@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, saveAbout, saveLately, saveWelcome, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
 import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -56,7 +56,7 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "welcome" | "about" | "lately" | "media" | "comments" | "subscribers";
+type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscribers";
 
 export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
   const router = useRouter();
@@ -71,18 +71,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const [activePanel, setActivePanel] = useState<Panel>(initialPanel);
   const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   const [editing, setEditing] = useState<SanityPost | null>(null);
-
-  const [welcomeHeadline, setWelcomeHeadline] = useState("");
-  const [welcomeBody, setWelcomeBody] = useState("");
-
-  const [latelyReading, setLatelyReading] = useState("");
-  const [latelyReadingAuthor, setLatelyReadingAuthor] = useState("");
-  const [latelyReadingUrl, setLatelyReadingUrl] = useState("");
-  const [latelyListening, setLatelyListening] = useState("");
-  const [latelyListeningArtist, setLatelyListeningArtist] = useState("");
-  const [latelyListeningUrl, setLatelyListeningUrl] = useState("");
-  const [latelyWatching, setLatelyWatching] = useState("");
-  const [latelyWatchingUrl, setLatelyWatchingUrl] = useState("");
 
   const [aboutDoc, setAboutDoc] = useState<JSONContent>(EMPTY_DOC);
   const [aboutEditor, setAboutEditor] = useState<Editor | null>(null);
@@ -194,21 +182,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     const retryTimer = setTimeout(() => { refreshPosts(); refreshNewsletters(); }, 1500);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
-    }).catch(() => {});
-    fetch("/api/welcome").then(r => r.json()).then(data => {
-      if (data?.headline) setWelcomeHeadline(data.headline);
-      if (data?.body) setWelcomeBody(data.body);
-    }).catch(() => {});
-    fetch("/api/lately").then(r => r.json()).then(data => {
-      if (!data) return;
-      if (data.reading) setLatelyReading(data.reading);
-      if (data.readingAuthor) setLatelyReadingAuthor(data.readingAuthor);
-      if (data.readingUrl) setLatelyReadingUrl(data.readingUrl);
-      if (data.listening) setLatelyListening(data.listening);
-      if (data.listeningArtist) setLatelyListeningArtist(data.listeningArtist);
-      if (data.listeningUrl) setLatelyListeningUrl(data.listeningUrl);
-      if (data.watching) setLatelyWatching(data.watching);
-      if (data.watchingUrl) setLatelyWatchingUrl(data.watchingUrl);
     }).catch(() => {});
     fetch("/api/media").then(r => r.json()).then(data => {
       if (Array.isArray(data)) {
@@ -458,9 +431,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           <div style={{ flex: 1, padding: "0.5rem 0.4rem", overflowY: "auto", overflowX: "hidden" }}>
             {([
               ["dashboard", "Posts", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>],
-              ["welcome", "Welcome Note", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
               ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>],
-              ["lately", "Lately", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>],
               ["media", "Media Library", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
               ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
               ["subscribers", "Subscribers", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>],
@@ -579,7 +550,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "welcome" ? "Welcome Note" : activePanel === "about" ? "About" : activePanel === "lately" ? "Lately" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "about" ? "About" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : ""}
                   </span>
                 )}
               </div>
@@ -617,7 +588,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["welcome", "Welcome Note"], ["about", "About"], ["lately", "Lately"], ["media", "Media Library"], ["comments", "Comments"], ["subscribers", "Subscribers"]] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ["subscribers", "Subscribers"]] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -780,18 +751,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
             </div>
           )}
 
-          {/* WELCOME EDITOR */}
-          {activePanel === "welcome" && (
-            <form onSubmit={e => { e.preventDefault(); startTransition(async () => { setSuccess(""); try { await saveWelcome(welcomeHeadline, welcomeBody); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch { setError("Save failed"); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Welcome Note</h2>
-              <div><label style={LABEL}>Headline</label><input style={INPUT} value={welcomeHeadline} onChange={e => setWelcomeHeadline(e.target.value)} /></div>
-              <div><label style={LABEL}>Body</label><textarea style={{ ...INPUT, minHeight: 100, resize: "vertical", lineHeight: 1.6 }} value={welcomeBody} onChange={e => setWelcomeBody(e.target.value)} /></div>
-              {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
-              {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
-              <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
-            </form>
-          )}
-
           {/* ABOUT EDITOR */}
           {activePanel === "about" && (
             <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", JSON.stringify(tiptapToPortableText(aboutDoc))); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
@@ -810,46 +769,6 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <RichBodyEditor initialContent={aboutDoc} onChange={setAboutDoc} onEditor={setAboutEditor} onToolbar={setAboutToolbar} />
                 </div>
               </div>
-              {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
-              {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
-              <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
-            </form>
-          )}
-
-          {/* LATELY EDITOR */}
-          {activePanel === "lately" && (
-            <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("reading", latelyReading); fd.set("readingAuthor", latelyReadingAuthor); fd.set("readingUrl", latelyReadingUrl); fd.set("listening", latelyListening); fd.set("listeningArtist", latelyListeningArtist); fd.set("listeningUrl", latelyListeningUrl); fd.set("watching", latelyWatching); fd.set("watchingUrl", latelyWatchingUrl); startTransition(async () => { try { await saveLately(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>Lately</h2>
-              {([
-                { label: "Reading", fields: [
-                  { key: "reading", label: "Book title", val: latelyReading, set: setLatelyReading },
-                  { key: "readingUrl", label: "Link (optional)", val: latelyReadingUrl, set: setLatelyReadingUrl, placeholder: "https://…" },
-                  { key: "readingAuthor", label: "Author", val: latelyReadingAuthor, set: setLatelyReadingAuthor },
-                ]},
-                { label: "Listening", fields: [
-                  { key: "listening", label: "Song / album title", val: latelyListening, set: setLatelyListening },
-                  { key: "listeningUrl", label: "Link (optional)", val: latelyListeningUrl, set: setLatelyListeningUrl, placeholder: "https://…" },
-                  { key: "listeningArtist", label: "Artist", val: latelyListeningArtist, set: setLatelyListeningArtist },
-                ]},
-                { label: "Watching", fields: [
-                  { key: "watching", label: "Title", val: latelyWatching, set: setLatelyWatching },
-                  { key: "watchingUrl", label: "Link (optional)", val: latelyWatchingUrl, set: setLatelyWatchingUrl, placeholder: "https://…" },
-                ]},
-              ] as { label: string; fields: { key: string; label: string; val: string; set: (v: string) => void; placeholder?: string }[] }[]).map(section => (
-                <div key={section.label} style={{ border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                  <div style={{ padding: "0.5rem 0.85rem", background: "#fafafa", borderBottom: `1px solid ${BORDER}` }}>
-                    <span style={{ fontFamily: FONT, fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: CRIMSON }}>{section.label}</span>
-                  </div>
-                  <div style={{ padding: "1rem 0.85rem", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                    {section.fields.map(f => (
-                      <div key={f.key}>
-                        <label style={LABEL}>{f.label}</label>
-                        <input style={INPUT} value={f.val} placeholder={f.placeholder ?? ""} onChange={e => f.set(e.target.value)} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
               {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
