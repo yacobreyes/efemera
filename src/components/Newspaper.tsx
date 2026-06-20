@@ -471,9 +471,9 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <svg width="64" height="52" viewBox="0 0 64 52" fill="none">
-            <path d="M54 6 Q60 30 32 42 Q18 48 8 43" stroke="#fbf6ee" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
-            <polygon points="8,43 20,36 14,52" fill="#fbf6ee"/>
+          <svg width="70" height="48" viewBox="0 0 70 48" fill="none">
+            <path d="M62 6 C62 6 68 26 44 36 C34 40 18 40 8 36" stroke="#fbf6ee" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+            <polygon points="8,36 22,28 20,44" fill="#fbf6ee"/>
           </svg>
         </div>
       </section>
