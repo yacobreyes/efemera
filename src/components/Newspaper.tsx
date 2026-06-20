@@ -383,7 +383,7 @@ export default function Feed({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/Cream Mayfly.png" alt="" className="ef-hero-fly" />
           <div className="ef-hero-inner">
-            <div className="ef-kicker">Worth Your Time</div>
+            <div className="ef-kicker">Editor's Choice:</div>
             <Link href={`/stories/${hero.slug}`} style={{ outline: "none" }}>
               <h1 className="ef-h1">{hero.headline}</h1>
             </Link>
