@@ -86,10 +86,10 @@ export default function SubscribeButton({
               The Chapbook
             </div>
             <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
-              A literary journal, delivered.
+              Join the Collective.
             </h2>
             <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
-              Each month, we publish a chapbook of narratives, essays, and micro-memoirs. Subscribe to receive the first one.
+              We publish a chapbook every month. Don't miss one.
             </p>
 
             {status === "done" ? (
