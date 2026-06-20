@@ -34,6 +34,11 @@ export default async function LatestPage() {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
+        .listing-sub {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: clamp(20px, 3vw, 28px); font-style: italic; color: #171412;
+          margin: 14px 0 0;
+        }
         .listing-empty { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #171412; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>
@@ -41,6 +46,7 @@ export default async function LatestPage() {
       <main className="listing-main">
         <div className="listing-head">
           <h1 className="listing-title">The Latest</h1>
+          <p className="listing-sub">Every Efemera post.</p>
         </div>
         {published.length > 0
           ? <StoryCardGrid posts={published} />
