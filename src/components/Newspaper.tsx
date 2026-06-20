@@ -377,11 +377,11 @@ export default function Feed({
             white-space: nowrap;
           }
           .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
-          .ef-reads { grid-template-columns: 1fr; gap: 28px; padding: 40px 24px; }
+          .ef-reads { grid-template-columns: 1fr auto; gap: 20px; padding: 36px 24px; }
+          .ef-reads-annotation { display: none; }
           .ef-circles { gap: 12px; }
-          .ef-circle { width: 76px; height: 76px; }
+          .ef-circle { width: 72px; height: 72px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
-          .ef-reads-annotation { flex-direction: row; align-items: center; gap: 8px; }
           .ef-reads-arrow { transform: rotate(90deg) scaleX(-1); }
         }
       `}</style>
