@@ -851,7 +851,7 @@ export default function NewsletterEditorClient({
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ display: "block", width: "100%", margin: "0 0 1.75rem", background: "#f5f8fa", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "3rem 0", cursor: "pointer", textAlign: "center", boxSizing: "border-box" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ display: "block", width: "100%", margin: "0 0 1.75rem", background: "#fbf6ee", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "3rem 0", cursor: "pointer", textAlign: "center", boxSizing: "border-box" }}>
                             + Add a featured image
                           </button>
                         )}
@@ -884,7 +884,7 @@ export default function NewsletterEditorClient({
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "#f5f8fa", border: `1px dashed ${BORDER}`, fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.75rem", padding: "0.6rem 1rem", borderRadius: 4, display: "block", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "#fbf6ee", border: `1px dashed ${BORDER}`, fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.75rem", padding: "0.6rem 1rem", borderRadius: 4, display: "block", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
                             + Add image
                           </button>
                         )}
