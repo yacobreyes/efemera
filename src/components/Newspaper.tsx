@@ -440,10 +440,10 @@ export default function Feed({
       <section className="ef-reads">
         <div>
           <div className="ef-reads-label">One-Sitting Reads</div>
-          <h2>True stories for the time you have.</h2>
+          <h2>Life, in Brief.</h2>
         </div>
         <div className="ef-circles">
-          {[1, 3, 5, 7].map(m => (
+          {[1, 3, 5].map(m => (
             <button
               key={m}
               className={`ef-circle${activeMin === m ? " active" : ""}`}
