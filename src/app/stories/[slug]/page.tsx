@@ -226,7 +226,12 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           .story-head { padding: 40px 22px 28px; }
           .story-hero { padding: 0; }
           .story-article { padding: 34px 22px 30px; }
-          .story-body { font-size: 21px; }
+          .story-body { font-size: 20px; }
+          .story-body > p:first-of-type::first-letter {
+            font-size: 3.6em;
+            line-height: .76;
+            margin: .04em .09em 0 0;
+          }
         }
       `}</style>
 
