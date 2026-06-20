@@ -86,8 +86,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const post = await getPost(slug);
   if (!post) notFound();
 
-  const sectionTab = post.section === "Gangrey Redux" ? "gangrey" : "latest";
-
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
   const jsonLd = {
     "@context": "https://schema.org",
@@ -238,7 +236,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <MagHeader />
 
       <header className="story-head">
-        <Link href={`/${sectionTab}`} className="story-label">← {sectionLabel(post.section)}</Link>
+        <Link href="/" className="story-label">← {sectionLabel(post.section)}</Link>
         <h1 className="story-h1">{post.headline}</h1>
         {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
         <div className="story-meta">
