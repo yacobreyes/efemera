@@ -443,6 +443,7 @@ export default function NewsletterEditorClient({
 
   async function publishNewsletter() {
     if (!nlSubject.trim()) { alert("Add a subject line before publishing."); return; }
+    const isAlreadyPublished = nlStatus === "published";
     setNlStatus("published");
     const publishPayload = { ...nlPayload(), status: "published" as const };
     const saveResult = await saveNewsletter(publishPayload);
@@ -452,6 +453,7 @@ export default function NewsletterEditorClient({
     if (saveResult?.syncError) {
       alert(`Newsletter published, but Issues page sync failed:\n\n${saveResult.syncError}`);
     }
+    if (isAlreadyPublished) return;
     if (confirm("Send this newsletter to all subscribers now?")) {
       setNlSending(true);
       try {
@@ -685,7 +687,7 @@ export default function NewsletterEditorClient({
             disabled={!nlSubject || nlSending}
             onClick={publishNewsletter}
             style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject || nlSending ? 0.5 : 1 }}>
-            {nlStatus === "published" ? "Update & Send" : "Publish"}
+            {nlStatus === "published" ? "Update" : "Publish"}
           </button>
           {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
