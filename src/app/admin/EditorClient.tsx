@@ -514,6 +514,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   <option>Micro-Memoir</option>
                   <option>Narratives</option>
                   <option>Essays</option>
+                  <option>Gangrey Redux</option>
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
