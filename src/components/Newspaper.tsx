@@ -242,14 +242,15 @@ export default function Feed({
 
         /* ONE-SITTING */
         .ef-reads {
-          display: flex;
+          display: grid;
+          grid-template-columns: 1fr auto auto;
           align-items: center;
-          gap: 60px;
-          padding: 52px 7vw;
+          gap: 50px;
+          padding: 58px 7vw;
           background: var(--red);
           color: #fbf6ee;
         }
-        .ef-reads-left { flex-shrink: 0; }
+        .ef-reads-left { }
         .ef-reads-label {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
@@ -375,7 +376,7 @@ export default function Feed({
             white-space: nowrap;
           }
           .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
-          .ef-reads { flex-direction: column; align-items: flex-start; gap: 28px; padding: 40px 24px; }
+          .ef-reads { grid-template-columns: 1fr; gap: 28px; padding: 40px 24px; }
           .ef-circles { gap: 12px; }
           .ef-circle { width: 76px; height: 76px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
@@ -469,9 +470,9 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <svg width="48" height="36" viewBox="0 0 48 36" fill="none" style={{ opacity: .7 }}>
-            <path d="M40 4 C40 4, 44 18, 28 28 C20 32, 10 30, 6 26" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
-            <path d="M6 26 L10 20 M6 26 L13 28" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round"/>
+          <svg width="52" height="44" viewBox="0 0 52 44" fill="none" style={{ opacity: .75 }}>
+            <path d="M38 6 C38 6, 42 22, 30 32 C22 38, 10 36, 4 30" stroke="#fbf6ee" strokeWidth="1.6" strokeLinecap="round" fill="none"/>
+            <path d="M4 30 L8 22 M4 30 L12 32" stroke="#fbf6ee" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
         </div>
       </section>
