@@ -82,9 +82,6 @@ export default function SubscribeButton({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Cream Mayfly.png" alt="" style={{ height: 52, width: "auto", opacity: .9, marginBottom: 22 }} />
 
-            <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".22em", textTransform: "uppercase", opacity: .75, marginBottom: 16 }}>
-              The Chapbook
-            </div>
             <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
               Join the Collective.
             </h2>
