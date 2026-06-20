@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
@@ -45,8 +44,6 @@ export default function Feed({
   onMastheadClick?: () => void;
   searchQuery?: string;
 }) {
-  const [activeMin, setActiveMin] = useState(5);
-
   const published = posts.filter(p =>
     !p.status || p.status === "published" ||
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
@@ -280,7 +277,8 @@ export default function Feed({
           font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
           letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .15s;
         }
-        .ef-circle.active { background: #fbf6ee; color: var(--red); border-color: #fbf6ee; }
+        .ef-circle { text-decoration: none; }
+        .ef-circle:hover { background: #fbf6ee; color: var(--red); border-color: #fbf6ee; }
         .ef-circle strong {
           display: flex; align-items: flex-end; justify-content: center;
           font-family: "Cormorant Garamond", Georgia, serif;
@@ -293,34 +291,6 @@ export default function Feed({
           font-style: italic;
           font-size: 14px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
-        }
-        .ef-brief-results {
-          grid-column: 1 / -1;
-          border-top: 1px solid rgba(251,246,238,.3);
-          margin-top: 14px; padding-top: 26px;
-          display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
-        }
-        .ef-brief-item { display: block; text-decoration: none; }
-        .ef-brief-item .ef-brief-sec {
-          font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
-          letter-spacing: .12em; text-transform: uppercase; color: #fbf6ee; opacity: .75;
-          margin-bottom: 6px;
-        }
-        .ef-brief-item h4 {
-          font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: 21px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em;
-          color: #fbf6ee; margin: 0 0 5px;
-        }
-        .ef-brief-item:hover h4 { text-decoration: underline; }
-        .ef-brief-item .ef-brief-meta {
-          font-family: Inter, system-ui, sans-serif; font-size: 11px; color: #fbf6ee; opacity: .8;
-        }
-        .ef-brief-empty {
-          grid-column: 1 / -1;
-          border-top: 1px solid rgba(251,246,238,.3);
-          margin-top: 14px; padding-top: 26px;
-          font-family: "Cormorant Garamond", Georgia, serif; font-style: italic;
-          font-size: 17px; color: #fbf6ee; opacity: .85;
         }
 
         /* FOOTER */
@@ -423,8 +393,6 @@ export default function Feed({
           .ef-circle { width: 72px; height: 72px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
           .ef-reads-arrow { transform: rotate(90deg) scaleX(-1); }
-          .ef-brief-results { grid-template-columns: 1fr; gap: 18px; padding-top: 20px; margin-top: 18px; }
-          .ef-brief-item h4 { font-size: 19px; }
         }
       `}</style>
 
@@ -524,39 +492,20 @@ export default function Feed({
         </div>
         <div className="ef-circles">
           {[1, 3, 5].map(m => (
-            <button
+            <Link
               key={m}
-              className={`ef-circle${activeMin === m ? " active" : ""}`}
-              onClick={() => setActiveMin(m)}
+              href={`/brief?read=${m}`}
+              className="ef-circle"
             >
               <strong>{m}</strong>
               <span>Min</span>
-            </button>
+            </Link>
           ))}
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
           <span style={{ fontSize: 22, lineHeight: 1, display: "block" }}>↵</span>
         </div>
-        {(() => {
-          const matches = published
-            .filter(p => postReadingTime(p) <= activeMin)
-            .slice(0, 6);
-          if (matches.length === 0) {
-            return <div className="ef-brief-empty">No stories that short yet — check back soon.</div>;
-          }
-          return (
-            <div className="ef-brief-results">
-              {matches.map(p => (
-                <Link key={p._id} href={`/stories/${p.slug}`} className="ef-brief-item">
-                  <div className="ef-brief-sec">{sectionLabel(p.section)}</div>
-                  <h4>{p.headline}</h4>
-                  <div className="ef-brief-meta">{p.byline} · {postReadingTime(p)} Min Read</div>
-                </Link>
-              ))}
-            </div>
-          );
-        })()}
       </section>}
 
       {/* FOOTER */}
