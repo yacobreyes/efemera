@@ -3,8 +3,8 @@ import { isAuthed } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
-type Panel = "dashboard" | "media" | "comments" | "welcome" | "about" | "lately";
-const VALID_PANELS: Panel[] = ["dashboard", "media", "comments", "welcome", "about", "lately"];
+type Panel = "dashboard" | "media" | "comments" | "about";
+const VALID_PANELS: Panel[] = ["dashboard", "media", "comments", "about"];
 
 export default async function AdminImagoPanelPage({ params }: { params: Promise<{ panel: string }> }) {
   const { panel } = await params;
