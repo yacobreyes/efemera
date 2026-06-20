@@ -36,7 +36,7 @@ export default async function LatestPage() {
         }
         .listing-sub {
           font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: clamp(20px, 3vw, 28px); font-style: italic; color: #171412;
+          font-size: clamp(20px, 3vw, 28px); color: #171412;
           margin: 14px 0 0;
         }
         .listing-empty { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #171412; }
