@@ -36,7 +36,8 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           text-transform: uppercase;
           color: #171412;
         }
-        .mag-nav-group a { color: inherit; text-decoration: none; }
+        .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
+        .mag-nav-group a:hover { color: #8e0d0d; }
         .mag-nav-group.right { justify-content: flex-end; }
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; }
         .mag-logo img { height: 58px; width: auto; display: block; }
