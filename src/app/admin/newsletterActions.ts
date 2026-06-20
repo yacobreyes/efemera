@@ -141,7 +141,7 @@ async function syncIssueForNewsletter(newsletterId: string, payload: NlPayload, 
 }
 
 // Creates or updates a newsletter document, then snapshots a (deduped) version.
-export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; versions: NlVersion[] }> {
+export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; versions: NlVersion[]; syncError?: string }> {
   await requireAuth();
   const now = new Date().toISOString();
   const id = payload.id || `newsletter-${Date.now()}`;
@@ -171,7 +171,8 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
   await mutate([{ createOrReplace: draftDoc }]);
 
   // Mirror the newsletter onto the public Issues page when published.
-  try { await syncIssueForNewsletter(id, payload, draftDoc.status as string); } catch {}
+  let syncError: string | undefined;
+  try { await syncIssueForNewsletter(id, payload, draftDoc.status as string); } catch (e) { syncError = String(e); }
 
   // Snapshot a version unless nothing changed since the latest.
   const latest = await client.fetch(
@@ -204,7 +205,7 @@ export async function saveNewsletter(payload: NlPayload): Promise<{ id: string; 
     await mutate([{ createOrReplace: versionDoc }, ...stale.map(sid => ({ delete: { id: sid } }))]);
   }
 
-  return { id, versions: await versionsFor(id) };
+  return { id, versions: await versionsFor(id), syncError };
 }
 
 export type Subscriber = { email: string; status?: "active" | "neutral" | "inactive"; createdAt?: string };

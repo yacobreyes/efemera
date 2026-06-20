@@ -412,6 +412,7 @@ export default function NewsletterEditorClient({
       if (Array.isArray(data?.versions)) setNlVersions(data.versions);
       nlLastSaved.current = signature ?? JSON.stringify(payload);
       setNlSaveStatus("saved");
+      if (data?.syncError) console.error("[Issues sync error]", data.syncError);
     } catch { setNlSaveStatus("unsaved"); }
   }, []);
 
@@ -443,7 +444,14 @@ export default function NewsletterEditorClient({
   async function publishNewsletter() {
     if (!nlSubject.trim()) { alert("Add a subject line before publishing."); return; }
     setNlStatus("published");
-    await nlSave({ ...nlPayload(), status: "published" });
+    const publishPayload = { ...nlPayload(), status: "published" as const };
+    const saveResult = await saveNewsletter(publishPayload);
+    if (Array.isArray(saveResult?.versions)) setNlVersions(saveResult.versions);
+    nlLastSaved.current = JSON.stringify(publishPayload);
+    setNlSaveStatus("saved");
+    if (saveResult?.syncError) {
+      alert(`Newsletter published, but Issues page sync failed:\n\n${saveResult.syncError}`);
+    }
     if (confirm("Send this newsletter to all subscribers now?")) {
       setNlSending(true);
       try {
