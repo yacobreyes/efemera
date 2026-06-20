@@ -71,7 +71,10 @@ async function upsertIssueForNewsletter(nl: { _id: string; subject?: string; pre
   let number: number | undefined = existing?.number;
   if (number == null) {
     if (nl.issue && !Number.isNaN(Number(nl.issue))) number = Number(nl.issue);
-    else number = ((await sanityQuery(`math::max(*[_type == "issue"].number)`)) ?? 0) + 1;
+    else {
+      const numbers: number[] = (await sanityQuery(`*[_type == "issue"].number`)) ?? [];
+      number = numbers.reduce((m, n) => (typeof n === "number" && n > m ? n : m), 0) + 1;
+    }
   }
   const slug = slugify(nl.subject ?? "") || `issue-${number}`;
   await sanityMutate([{

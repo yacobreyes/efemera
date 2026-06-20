@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/adminAuth";
 import { client } from "@/lib/sanity";
 import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
@@ -115,8 +116,8 @@ async function syncIssueForNewsletter(newsletterId: string, payload: NlPayload, 
     if (payload.issue && !Number.isNaN(Number(payload.issue))) {
       number = Number(payload.issue);
     } else {
-      const max = await client.fetch<number | null>(`math::max(*[_type == "issue"].number)`, {}, { cache: "no-store" });
-      number = (max ?? 0) + 1;
+      const numbers: number[] = await client.fetch(`*[_type == "issue"].number`, {}, { cache: "no-store" });
+      number = (numbers ?? []).reduce((m, n) => (typeof n === "number" && n > m ? n : m), 0) + 1;
     }
   }
 
@@ -134,6 +135,9 @@ async function syncIssueForNewsletter(newsletterId: string, payload: NlPayload, 
       slug: { _type: "slug", current: slug },
     },
   }]);
+
+  revalidatePath("/issues");
+  revalidatePath(`/issues/${slug}`);
 }
 
 // Creates or updates a newsletter document, then snapshots a (deduped) version.
