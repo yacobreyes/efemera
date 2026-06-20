@@ -278,12 +278,11 @@ export default function Feed({
         }
         .ef-circle span { display: block; }
         .ef-reads-annotation {
-          display: flex; flex-direction: column; align-items: center; gap: 6px;
-          font-family: "Caveat", "Segoe UI", cursive;
-          font-size: 18px; color: #fbf6ee; opacity: .8;
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          font-family: "Caveat", Georgia, cursive;
+          font-size: 20px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
-        .ef-reads-arrow { font-size: 22px; transform: scaleX(-1); display: block; }
 
         /* FOOTER */
         .ef-footer {
@@ -470,7 +469,10 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <span className="ef-reads-arrow">↩</span>
+          <svg width="48" height="36" viewBox="0 0 48 36" fill="none" style={{ opacity: .7 }}>
+            <path d="M40 4 C40 4, 44 18, 28 28 C20 32, 10 30, 6 26" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+            <path d="M6 26 L10 20 M6 26 L13 28" stroke="#fbf6ee" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
         </div>
       </section>
 
