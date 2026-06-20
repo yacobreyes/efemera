@@ -25,6 +25,7 @@ export default async function AboutPage() {
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em;
           margin: 0 0 40px; padding-bottom: 24px; border-bottom: 1px solid #171412;
+          text-align: center;
         }
         .about-body { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; line-height: 1.62; color: #211c17; }
         .about-body p { margin: 1.2rem 0 0; }
