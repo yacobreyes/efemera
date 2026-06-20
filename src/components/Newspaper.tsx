@@ -282,7 +282,7 @@ export default function Feed({
           display: flex; flex-direction: column; align-items: center; gap: 8px;
           font-family: "Cormorant Garamond", Georgia, serif;
           font-style: italic;
-          font-size: 20px; color: #fbf6ee;
+          font-size: 14px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
 
@@ -472,7 +472,7 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <span style={{ fontSize: 38, lineHeight: 1, opacity: .85, display: "block" }}>↵</span>
+          <span style={{ fontSize: 22, lineHeight: 1, opacity: .85, display: "block" }}>↵</span>
         </div>
       </section>
 
