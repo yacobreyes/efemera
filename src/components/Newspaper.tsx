@@ -246,8 +246,8 @@ export default function Feed({
           align-items: center;
           gap: 60px;
           padding: 52px 7vw;
-          background: var(--paper);
-          color: var(--ink);
+          background: var(--red);
+          color: #fbf6ee;
         }
         .ef-reads-left { flex-shrink: 0; }
         .ef-reads-label {
@@ -255,22 +255,22 @@ export default function Feed({
           font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
           margin-bottom: 10px;
         }
-        .ef-reads-rule { width: 36px; height: 2px; background: var(--red); border: 0; margin: 0 0 14px; }
+        .ef-reads-rule { width: 36px; height: 2px; background: #fbf6ee; border: 0; margin: 0 0 14px; opacity: .6; }
         .ef-reads-sub {
           font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: 17px; font-style: italic; color: var(--ink); opacity: .75; margin: 0;
+          font-size: 17px; font-style: italic; color: #fbf6ee; opacity: .8; margin: 0;
         }
         .ef-reads h2 { display: none; }
         .ef-circles { display: flex; gap: 20px; align-items: center; }
         .ef-circle {
           width: 88px; height: 88px; border-radius: 50%;
-          border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
+          border: 1.5px solid #fbf6ee; background: transparent; color: #fbf6ee;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           gap: 3px; text-align: center;
           font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
           letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .15s;
         }
-        .ef-circle.active { background: var(--red); color: #fbf6ee; border-color: var(--red); }
+        .ef-circle.active { background: #fbf6ee; color: var(--red); border-color: #fbf6ee; }
         .ef-circle strong {
           display: flex; align-items: flex-end; justify-content: center;
           font-family: "Cormorant Garamond", Georgia, serif;
@@ -280,7 +280,7 @@ export default function Feed({
         .ef-reads-annotation {
           display: flex; flex-direction: column; align-items: center; gap: 6px;
           font-family: "Caveat", "Segoe UI", cursive;
-          font-size: 18px; color: var(--ink); opacity: .65;
+          font-size: 18px; color: #fbf6ee; opacity: .8;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
         .ef-reads-arrow { font-size: 22px; transform: scaleX(-1); display: block; }
