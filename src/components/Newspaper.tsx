@@ -242,36 +242,48 @@ export default function Feed({
 
         /* ONE-SITTING */
         .ef-reads {
-          display: grid;
-          grid-template-columns: 1fr auto;
+          display: flex;
           align-items: center;
-          gap: 50px;
-          padding: 58px 7vw;
-          background: var(--red);
-          color: #fbf6ee;
+          gap: 60px;
+          padding: 52px 7vw;
+          background: var(--paper);
+          color: var(--ink);
         }
+        .ef-reads-left { flex-shrink: 0; }
         .ef-reads-label {
-          font-family: Inter, system-ui, sans-serif;
-          font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          margin-bottom: 20px;
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
+          margin-bottom: 10px;
         }
-        .ef-reads h2 { margin: 0; max-width: 520px; font-size: 42px; line-height: 1.08; letter-spacing: -.025em; }
-        .ef-circles { display: flex; gap: 28px; }
+        .ef-reads-rule { width: 36px; height: 2px; background: var(--red); border: 0; margin: 0 0 14px; }
+        .ef-reads-sub {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 17px; font-style: italic; color: var(--ink); opacity: .75; margin: 0;
+        }
+        .ef-reads h2 { display: none; }
+        .ef-circles { display: flex; gap: 20px; align-items: center; }
         .ef-circle {
-          width: 92px; height: 92px; border-radius: 50%;
-          border: 1px solid #fbf6ee; background: transparent; color: #fbf6ee;
+          width: 88px; height: 88px; border-radius: 50%;
+          border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           gap: 3px; text-align: center;
           font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
           letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .15s;
         }
-        .ef-circle.active { background: #fbf6ee; color: var(--ink); border-color: #fbf6ee; }
+        .ef-circle.active { background: var(--red); color: #fbf6ee; border-color: var(--red); }
         .ef-circle strong {
           display: flex; align-items: flex-end; justify-content: center;
           font-family: "Cormorant Garamond", Georgia, serif;
           font-size: 32px; line-height: 1; letter-spacing: 0; font-weight: 700; height: 32px; width: 100%;
         }
         .ef-circle span { display: block; }
+        .ef-reads-annotation {
+          display: flex; flex-direction: column; align-items: center; gap: 6px;
+          font-family: "Caveat", "Segoe UI", cursive;
+          font-size: 18px; color: var(--ink); opacity: .65;
+          text-align: center; line-height: 1.3; flex-shrink: 0;
+        }
+        .ef-reads-arrow { font-size: 22px; transform: scaleX(-1); display: block; }
 
         /* FOOTER */
         .ef-footer {
@@ -364,11 +376,12 @@ export default function Feed({
             white-space: nowrap;
           }
           .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
-          .ef-reads { grid-template-columns: 1fr; gap: 28px; padding: 40px 24px; }
-          .ef-reads h2 { font-size: 30px; }
-          .ef-circles { gap: 12px; justify-content: center; }
+          .ef-reads { flex-direction: column; align-items: flex-start; gap: 28px; padding: 40px 24px; }
+          .ef-circles { gap: 12px; }
           .ef-circle { width: 76px; height: 76px; }
           .ef-circle strong { font-size: 26px; height: 26px; }
+          .ef-reads-annotation { flex-direction: row; align-items: center; gap: 8px; }
+          .ef-reads-arrow { transform: rotate(90deg) scaleX(-1); }
         }
       `}</style>
 
@@ -436,11 +449,12 @@ export default function Feed({
         </section>
       )}
 
-      {/* ONE-SITTING READS */}
+      {/* LIFE IN BRIEF */}
       <section className="ef-reads">
-        <div>
-          <div className="ef-reads-label">One-Sitting Reads</div>
-          <h2>Life, in Brief.</h2>
+        <div className="ef-reads-left">
+          <div className="ef-reads-label">Life in Brief</div>
+          <hr className="ef-reads-rule" />
+          <p className="ef-reads-sub">Short on time? We've got you.</p>
         </div>
         <div className="ef-circles">
           {[1, 3, 5].map(m => (
@@ -453,6 +467,10 @@ export default function Feed({
               <span>Min</span>
             </button>
           ))}
+        </div>
+        <div className="ef-reads-annotation">
+          <span>Stories that fit<br />your window.</span>
+          <span className="ef-reads-arrow">↩</span>
         </div>
       </section>
 
