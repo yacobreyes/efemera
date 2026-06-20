@@ -471,14 +471,7 @@ export default function Feed({
         </div>
         <div className="ef-reads-annotation">
           <span>Stories that fit<br />your window.</span>
-          <svg width="70" height="50" viewBox="0 0 70 50" fill="none">
-            <defs>
-              <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-                <polygon points="0 0, 8 3, 0 6" fill="#fbf6ee"/>
-              </marker>
-            </defs>
-            <path d="M64 6 C64 6 72 32 44 42 C30 47 12 44 4 38" stroke="#fbf6ee" strokeWidth="2" strokeLinecap="round" fill="none" markerEnd="url(#arrowhead)"/>
-          </svg>
+          <span style={{ fontSize: 38, lineHeight: 1, opacity: .85, display: "block" }}>↵</span>
         </div>
       </section>
 
