@@ -49,8 +49,10 @@ const WB  = "https://web.archive.org/web";
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function cdxQuery(params) {
-  const url = `${CDX}?${new URLSearchParams({ output: "json", ...params })}`;
+async function cdxQuery(paramPairs) {
+  // paramPairs: array of [key, value] so we can repeat keys like filter=
+  const qs = paramPairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+  const url = `${CDX}?${qs}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`CDX ${res.status}: ${url}`);
   const rows = await res.json();
@@ -303,23 +305,36 @@ async function main() {
 
   // 1. Enumerate story URLs from Wayback CDX
   console.log(`Querying Wayback CDX for gangrey.com posts (${fromArg}–${toArg})…`);
-  const rows = await cdxQuery({
-    url: "gangrey.com/*",
-    matchType: "prefix",
-    filter: ["statuscode:200", "mimetype:text/html"],
-    // Only individual post URLs: /YYYY/MM/slug/ pattern
-    fl: ["timestamp","original"].join(","),
-    from: fromArg,
-    to: toArg,
-    collapse: "urlkey",
-    limit: String(Math.min(LIMIT * 5, 5000)), // over-fetch then filter
-  });
+  const rows = await cdxQuery([
+    ["url", "gangrey.com"],
+    ["matchType", "domain"],          // includes www. and any subdomain
+    ["filter", "statuscode:200"],
+    ["filter", "mimetype:text/html"],
+    ["fl", "timestamp,original"],
+    ["from", fromArg],
+    ["to", toArg],
+    ["collapse", "urlkey"],
+    ["limit", String(Math.min(LIMIT * 40, 50000))], // over-fetch; parser is gatekeeper
+  ]);
+  console.log(`CDX returned ${rows.length} raw captures.`);
+  if (rows.length) {
+    console.log("Sample URLs:");
+    for (const r of rows.slice(0, 8)) console.log("  " + r.original);
+  }
 
-  // Filter to post URLs: path looks like /YYYY/MM/something/ or /YYYY/something/
+  // Reject obvious non-stories (home, pagination, taxonomy, feeds, assets, query strings).
+  // Everything else is handed to the parser, which returns null if there's no real story.
+  const SKIP = /\/(page|category|tag|tagged|author|feed|wp-admin|wp-content|wp-login|comments|search)\b/i;
+  const ASSET = /\.(css|js|png|jpe?g|gif|svg|ico|xml|json|txt|woff2?|ttf|pdf|mp3|mp4)$/i;
   const postRows = rows.filter(r => {
     try {
       const u = new URL(r.original);
-      return /^\/\d{4}\//.test(u.pathname) && u.pathname !== "/" && !u.pathname.includes("?");
+      const p = u.pathname;
+      if (p === "/" || p === "") return false;
+      if (u.search) return false;
+      if (SKIP.test(p)) return false;
+      if (ASSET.test(p)) return false;
+      return true;
     } catch { return false; }
   });
 
