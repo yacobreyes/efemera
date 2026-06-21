@@ -7,6 +7,19 @@ import type { PortableTextBlock } from "@portabletext/types";
 const CDX = "https://web.archive.org/cdx/search/cdx";
 const WB = "https://web.archive.org/web";
 
+export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+// Wayback rate-limits aggressively (429/503). Retry with exponential backoff.
+async function fetchRetry(url: string, opts: RequestInit = {}, tries = 4): Promise<Response> {
+  let delay = 1500;
+  for (let i = 0; i < tries; i++) {
+    const res = await fetch(url, opts);
+    if (res.status !== 429 && res.status !== 503) return res;
+    if (i < tries - 1) { await sleep(delay); delay *= 2; }
+  }
+  return fetch(url, opts);
+}
+
 export type GangreyStory = {
   headline: string; subheadline: string; byline: string; date: string;
   slug: string; body: PortableTextBlock[];
@@ -21,7 +34,7 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
     ["collapse", "urlkey"], ["limit", "50000"],
   ];
   const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
-  const res = await fetch(`${CDX}?${qs}`);
+  const res = await fetchRetry(`${CDX}?${qs}`);
   if (!res.ok) throw new Error(`CDX ${res.status}`);
   const rows = await res.json();
   if (!Array.isArray(rows) || rows.length < 2) return [];
@@ -45,7 +58,7 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
 }
 
 export async function fetchWayback(timestamp: string, url: string): Promise<string> {
-  const res = await fetch(`${WB}/${timestamp}id_/${url}`, {
+  const res = await fetchRetry(`${WB}/${timestamp}id_/${url}`, {
     headers: { "User-Agent": "gangrey-archive-importer/1.0 (+mailto:yacob@efemera.org)" },
   });
   if (!res.ok) throw new Error(`Wayback ${res.status}`);

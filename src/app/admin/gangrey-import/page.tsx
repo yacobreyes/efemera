@@ -42,6 +42,7 @@ export default function GangreyImportPage() {
         }
         offset = data.nextOffset;
         if (data.done) { setDone(true); append(`— Finished. ${totalWritten} stories imported. —`); break; }
+        await new Promise(r => setTimeout(r, 1200)); // breathe between batches
       }
     } catch (e) {
       append(`❌ ${String(e)}`);

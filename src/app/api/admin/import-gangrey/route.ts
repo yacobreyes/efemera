@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthed } from "@/lib/adminAuth";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+// Cache the Wayback index across invocations on a warm lambda so we don't
+// re-query CDX (and get 429'd) on every batch.
+let _cache: { at: number; list: Candidate[] } | null = null;
+async function getCandidates(): Promise<Candidate[]> {
+  if (_cache && Date.now() - _cache.at < 20 * 60 * 1000) return _cache.list;
+  const list = await listCandidates();
+  _cache = { at: Date.now(), list };
+  return list;
+}
 
 // Imports a batch of Gangrey stories from the Wayback Machine into Sanity.
 // Batched via ?offset & ?limit so each call stays under the function timeout;
@@ -19,7 +29,7 @@ export async function GET(req: NextRequest) {
 
   let candidates;
   try {
-    candidates = await listCandidates();
+    candidates = await getCandidates();
   } catch (e) {
     return NextResponse.json({ error: `Wayback CDX failed: ${String(e)}` }, { status: 502 });
   }
@@ -28,8 +38,9 @@ export async function GET(req: NextRequest) {
   const docs: unknown[] = [];
   const results: { headline?: string; slug?: string; skipped?: string; error?: string }[] = [];
 
-  for (const c of slice) {
+  for (const [i, c] of slice.entries()) {
     try {
+      if (i > 0) await sleep(600); // be gentle with Wayback between page fetches
       const html = await fetchWayback(c.timestamp, c.original);
       const story = parseGangreyPage(html, c.original, c.timestamp);
       if (!story) { results.push({ skipped: c.original }); continue; }
