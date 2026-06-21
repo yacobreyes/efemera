@@ -49,6 +49,10 @@ export default function Feed({
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
   );
 
+  const isGangrey = (p: { section?: string }) => p.section === "Gangrey Redux";
+  const nonGangrey = published.filter(p => !isGangrey(p));
+  const gangrey = published.filter(isGangrey);
+
   const q = searchQuery.trim().toLowerCase();
   const searchResults = q
     ? published.filter(p =>
@@ -59,8 +63,9 @@ export default function Feed({
       )
     : [];
 
-  const hero = published[0];
-  const cards = published.slice(1, 5);
+  const hero = nonGangrey[0];
+  // 3 non-Gangrey cards + 1 Gangrey Redux card
+  const cards = [...nonGangrey.slice(1, 4), ...(gangrey[0] ? [gangrey[0]] : [])];
 
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1400).height(600).fit("crop").auto("format").url()

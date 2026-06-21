@@ -121,7 +121,7 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
   }
   slug = `gangrey-${slug}`.slice(0, 96);
 
-  return { headline, byline: "", date, subheadline, slug, body };
+  return { headline, byline: "Gangrey", date, subheadline, slug, body };
 }
 
 export function toSanityDoc(s: GangreyStory) {

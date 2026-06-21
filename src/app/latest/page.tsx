@@ -15,8 +15,9 @@ export default async function LatestPage() {
   let posts = [] as Awaited<ReturnType<typeof getAllPosts>>;
   try { posts = await getAllPosts(); } catch {}
   const published = posts.filter(p =>
-    !p.status || p.status === "published" ||
-    (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
+    (!p.status || p.status === "published" ||
+    (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())) &&
+    p.section !== "Gangrey Redux"
   );
 
   return (

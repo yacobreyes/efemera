@@ -26,8 +26,9 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
   let posts = [] as Awaited<ReturnType<typeof getAllPosts>>;
   try { posts = await getAllPosts(); } catch {}
   const published = posts.filter(p =>
-    !p.status || p.status === "published" ||
-    (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
+    (!p.status || p.status === "published" ||
+    (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())) &&
+    p.section !== "Gangrey Redux"
   );
   const matches = published.filter(p => active.match(postReadingTime(p)));
 
