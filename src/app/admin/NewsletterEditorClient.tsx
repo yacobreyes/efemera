@@ -904,15 +904,15 @@ export default function NewsletterEditorClient({
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
                           style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", flexWrap: "wrap", margin: "0 0 1.5rem" }}>
-                          <span style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>A Micro-Memoir</span>
+                          <span style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON }}>A Micro-Memoir</span>
                           {card.byline === undefined ? (
                             <button type="button" onClick={() => nlUpdateCard(card.id, { byline: "" })}
                               style={{ background: "none", border: "none", padding: 0, fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.02em", color: CRIMSON, cursor: "pointer" }}>+ by</button>
                           ) : (
-                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>
+                            <span style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem", fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON }}>
                               by
                               <input value={card.byline} onChange={e => nlUpdateCard(card.id, { byline: e.target.value })} placeholder="author" autoFocus={!card.byline}
-                                style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED, border: "none", outline: "none", background: "transparent", padding: 0, textAlign: "left", width: `calc(${card.byline.length > 0 ? card.byline.length + 1 : 7}ch + ${(card.byline.length > 0 ? card.byline.length : 7) * 0.18}em)`, boxSizing: "content-box" }} />
+                                style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON, border: "none", outline: "none", background: "transparent", padding: 0, textAlign: "left", width: `calc(${card.byline.length > 0 ? card.byline.length + 1 : 7}ch + ${(card.byline.length > 0 ? card.byline.length : 7) * 0.18}em)`, boxSizing: "content-box" }} />
                               <button type="button" title="Remove byline" onClick={() => nlUpdateCard(card.id, { byline: undefined })}
                                 style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: TEXT_MUTED, fontSize: "0.9rem", lineHeight: 1 }}>×</button>
                             </span>

@@ -160,7 +160,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
     <div style="background:${PAPER_DARK};border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px;text-align:center;margin:6px -${PAD}px 0;">
       <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:200px;width:auto;display:block;margin:-35px auto -60px;" />
       <p style="font-family:${HEADLINE_FONT};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 6px;">${esc(card.headline ?? "")}</p>
-      <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:center;margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
+      <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};text-align:center;margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
       <div style="width:32px;height:1px;background:#c8c0b0;margin:0 auto 24px;"></div>
       <div style="text-align:center;">${renderBody(card.body ?? [])}</div>
     </div>`);
