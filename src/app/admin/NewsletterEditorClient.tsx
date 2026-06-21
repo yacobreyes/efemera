@@ -740,7 +740,7 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#fbf6ee", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — crimson wordmark on cream, like site header */}
-          <div style={{ background: "#fbf6ee", padding: "1.5rem 2.5rem", textAlign: "center", borderBottom: `1px solid #cfc3b3` }}>
+          <div style={{ background: "#fbf6ee", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #cfc3b3` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Crimson Wordmark.png" alt="efemera" style={{ height: 58, width: "auto", display: "inline-block" }} />
           </div>

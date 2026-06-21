@@ -173,7 +173,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
   <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:32px 0;">
     <tr><td align="center">
       <table width="${PAGE_W}" cellpadding="0" cellspacing="0" style="width:${PAGE_W}px;max-width:100%;background:${CREAM};">
-        <tr><td style="background:${CREAM};padding:24px ${PAD}px;text-align:center;border-bottom:1px solid ${LINE};">
+        <tr><td style="background:${CREAM};padding:20px 0;text-align:center;border-bottom:1px solid ${LINE};">
           <img src="${SITE_URL}/Crimson%20Wordmark.png" alt="efemera" style="height:58px;width:auto;display:inline-block;" />
         </td></tr>
         <tr><td style="background:${CRIMSON};padding:10px ${PAD}px 24px;">
