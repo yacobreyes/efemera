@@ -41,7 +41,7 @@ export default async function GangreyPage() {
       <main className="listing-main">
         <div className="listing-head">
           <h1 className="listing-title">From Gangrey</h1>
-          <p className="listing-sub">True stories in the narrative tradition.</p>
+          <p className="listing-sub">A second life for stories first published on the now-defunct Gangrey.com.</p>
         </div>
         {gangrey.length > 0
           ? <StoryCardGrid posts={gangrey} />
