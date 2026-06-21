@@ -66,9 +66,11 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
   return (
     <div className="issue-read-page">
       <style>{`
-        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; }
-        .issue-read-main { flex: 1; width: 100%; }
-        .issue-read-main table { max-width: 100% !important; }
+        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; overflow-x: hidden; }
+        .issue-read-main { flex: 1; width: 100%; overflow-x: hidden; }
+        .issue-read-main table { width: 100% !important; max-width: 100% !important; }
+        .issue-read-main td { word-break: break-word; }
+        .issue-read-main img { max-width: 100% !important; height: auto !important; }
       `}</style>
       <MagHeader />
       <main className="issue-read-main">
