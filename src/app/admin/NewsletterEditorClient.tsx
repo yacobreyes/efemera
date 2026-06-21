@@ -745,15 +745,14 @@ export default function NewsletterEditorClient({
             <img src="/Crimson Wordmark.png" alt="efemera" style={{ height: 58, width: "auto", display: "inline-block" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
-          <div style={{ background: CRIMSON, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>{todayLabel}</span>
-            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>
-              {nlVolume ? `Vol. ${nlVolume}` : ""}{nlVolume && nlIssue ? "  ·  " : ""}{nlIssue ? `No. ${nlIssue}` : ""}
-            </span>
-          </div>
-
-          {/* Introduction */}
-          <div style={{ padding: "1.25rem 2.5rem 1.25rem", borderBottom: `1px solid ${BORDER}`, textAlign: "center" }}>
+          {/* Dateline + intro in one crimson band */}
+          <div style={{ background: CRIMSON, padding: "0.6rem 2.5rem 1.5rem", textAlign: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.1rem" }}>
+              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>{todayLabel}</span>
+              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>
+                {nlVolume ? `Vol. ${nlVolume}` : ""}{nlVolume && nlIssue ? "  ·  " : ""}{nlIssue ? `No. ${nlIssue}` : ""}
+              </span>
+            </div>
             <div style={{ maxWidth: 440, margin: "0 auto" }}>
               <textarea
                 ref={nlIntroRef}
@@ -761,10 +760,10 @@ export default function NewsletterEditorClient({
                 onChange={e => setNlIntro(e.target.value)}
                 placeholder="A note to readers…"
                 rows={1}
-                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "0.93rem", lineHeight: 1.55, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
+                style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "1rem", lineHeight: 1.6, color: "#fbf6ee", border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
               />
               {nlAuthor && (
-                <p style={{ fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, color: TEXT_DARK, margin: "0.75rem 0 0", letterSpacing: "0.02em" }}>By {nlAuthor}</p>
+                <p style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, color: "#fbf6ee", opacity: 0.8, margin: "0.6rem 0 0", letterSpacing: "0.08em", textTransform: "uppercase" }}>By {nlAuthor}</p>
               )}
             </div>
           </div>

@@ -176,13 +176,13 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
         <tr><td style="background:${CREAM};padding:24px ${PAD}px;text-align:center;border-bottom:1px solid ${LINE};">
           <img src="${SITE_URL}/Crimson%20Wordmark.png" alt="efemera" style="height:58px;width:auto;display:inline-block;" />
         </td></tr>
-        <tr><td style="background:${CRIMSON};padding:8px ${PAD}px;">
-          <table width="100%" cellpadding="0" cellspacing="0"><tr>
+        <tr><td style="background:${CRIMSON};padding:10px ${PAD}px 24px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;"><tr>
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</td>
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
           </tr></table>
+          ${intro ? `<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:18px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${CREAM};opacity:0.8;margin:10px 0 0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table>` : ""}
         </td></tr>
-        ${intro ? `<tr><td style="padding:20px ${PAD}px;border-bottom:1px solid ${LINE};text-align:center;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:18px;line-height:1.55;color:${INK};margin:0;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:12px 0 0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table></td></tr>` : ""}
         <tr><td style="padding:0 ${PAD}px 40px;">${bodyHtml}</td></tr>
         <tr><td style="background:${CRIMSON};padding:20px ${PAD}px;text-align:center;">
           <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to efemera</p>
