@@ -1,0 +1,58 @@
+name: Import Gangrey Archive
+
+# Runs the Gangrey Wayback importer on GitHub's servers (which have internet
+# access). Trigger it manually from the Actions tab — no local setup needed.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many stories to import (use a big number like 9999 for everything)"
+        required: true
+        default: "10"
+      mode:
+        description: "dry = preview only (downloadable file), write = import into Sanity"
+        required: true
+        default: "dry"
+        type: choice
+        options:
+          - dry
+          - write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Self-test parser
+        run: npm run import:gangrey -- --selftest
+
+      - name: Dry run (fetch + parse → file)
+        if: ${{ github.event.inputs.mode == 'dry' }}
+        run: npm run import:gangrey -- --out gangrey.ndjson --limit ${{ github.event.inputs.limit }}
+
+      - name: Upload preview file
+        if: ${{ github.event.inputs.mode == 'dry' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gangrey-archive
+          path: gangrey.ndjson
+
+      - name: Import into Sanity
+        if: ${{ github.event.inputs.mode == 'write' }}
+        env:
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+        run: npm run import:gangrey -- --write --limit ${{ github.event.inputs.limit }}
