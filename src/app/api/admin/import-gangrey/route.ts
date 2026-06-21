@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { promises as fs } from "fs";
 import { isAuthed } from "@/lib/adminAuth";
 import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, type Candidate } from "@/lib/gangreyImport";
 
@@ -6,13 +7,22 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// Cache the Wayback index across invocations on a warm lambda so we don't
-// re-query CDX (and get 429'd) on every batch.
-let _cache: { at: number; list: Candidate[] } | null = null;
+const TMP_CACHE = "/tmp/gangrey-cdx-cache.json";
+const CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
+
+// Cache CDX index to /tmp so it survives lambda cold starts.
+let _mem: { at: number; list: Candidate[] } | null = null;
 async function getCandidates(): Promise<Candidate[]> {
-  if (_cache && Date.now() - _cache.at < 20 * 60 * 1000) return _cache.list;
+  if (_mem && Date.now() - _mem.at < CACHE_TTL) return _mem.list;
+  try {
+    const raw = await fs.readFile(TMP_CACHE, "utf8");
+    const { at, list } = JSON.parse(raw) as { at: number; list: Candidate[] };
+    if (Date.now() - at < CACHE_TTL) { _mem = { at, list }; return list; }
+  } catch { /* cache miss */ }
   const list = await listCandidates();
-  _cache = { at: Date.now(), list };
+  const at = Date.now();
+  _mem = { at, list };
+  await fs.writeFile(TMP_CACHE, JSON.stringify({ at, list }), "utf8").catch(() => {});
   return list;
 }
 
