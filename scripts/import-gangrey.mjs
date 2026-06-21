@@ -153,73 +153,68 @@ function htmlToPortableText(html) {
   return blocks.filter(b => b.children?.some(c => c.text?.trim()));
 }
 
+// Split a Gangrey post's inner HTML into clean paragraph blocks. Gangrey used
+// a single <p> with <br><br> between paragraphs (and sometimes multiple <p>).
+function gangreyBodyBlocks(postEl) {
+  const blocks = [];
+  const ps = postEl.querySelectorAll("p");
+  const sources = ps.length ? ps : [postEl];
+  for (const p of sources) {
+    const paras = p.innerHTML.split(/(?:<br\s*\/?>\s*){2,}/i); // double break = paragraph
+    for (let part of paras) {
+      part = part.replace(/<br\s*\/?>/gi, " ");                // single break = space
+      const text = parse(`<x>${part}</x>`).innerText.replace(/\s+/g, " ").trim();
+      if (text) blocks.push({ _type: "block", style: "normal", markDefs: [], children: [{ _type: "span", text, marks: [] }] });
+    }
+  }
+  return blocks;
+}
+
 function parseGangreyPage(html, pageUrl, timestamp) {
   const root = parse(html);
 
-  // Try multiple WordPress theme selectors gangrey used over the years
+  // Gangrey markup: <div class="post"> <a><h2 class="design">TITLE</h2></a>
+  //                 <h4 class="byline">DEK</h4> <p>BODY…</p> </div>
+  const idMatch = (() => { try { return new URL(pageUrl).pathname.match(/(\d+)/)?.[1] ?? null; } catch { return null; } })();
+  const posts = root.querySelectorAll("div.post");
+
+  // A listing/home page has many posts and no numeric permalink — skip it so we
+  // only import a story from its own permalink.
+  if (posts.length > 1 && !idMatch) return null;
+
+  let post = null;
+  if (idMatch && posts.length) post = posts.find(p => p.querySelector(`a[href*="/${idMatch}"]`)) ?? null;
+  if (!post) post = posts[0] ?? null;
+  if (!post) return null; // no Gangrey post markup on this page
+
+  const headlineEl = post.querySelector("h2.design") || post.querySelector(".design") || post.querySelector("h2") || post.querySelector("h1");
   const headline =
-    root.querySelector("h1.entry-title")?.innerText?.trim() ||
-    root.querySelector("h2.entry-title")?.innerText?.trim() ||
-    root.querySelector(".post-title")?.innerText?.trim() ||
-    root.querySelector("h1.posttitle")?.innerText?.trim() ||
+    headlineEl?.innerText?.trim() ||
     root.querySelector("title")?.innerText?.replace(/\s*[|\-–—]\s*gangrey.*$/i, "").trim() ||
     "";
 
-  // byline
-  const byline =
-    root.querySelector(".entry-author .author")?.innerText?.trim() ||
-    root.querySelector(".byline .author")?.innerText?.trim() ||
-    root.querySelector("a[rel='author']")?.innerText?.trim() ||
-    root.querySelector(".author")?.innerText?.trim() ||
-    "";
+  const subheadline = (post.querySelector("h4.byline") || post.querySelector(".byline"))?.innerText?.trim() || "";
 
-  // date — prefer machine-readable datetime attr
-  const dateEl =
-    root.querySelector("time.entry-date") ||
-    root.querySelector("time.updated") ||
-    root.querySelector("abbr.published") ||
-    root.querySelector(".entry-date") ||
-    root.querySelector(".post-date");
-  const dateRaw =
-    dateEl?.getAttribute("datetime") ||
-    dateEl?.getAttribute("title") ||
-    dateEl?.innerText?.trim() ||
-    // Fall back to Wayback timestamp YYYYMMDD → ISO
-    `${timestamp.slice(0,4)}-${timestamp.slice(4,6)}-${timestamp.slice(6,8)}`;
-  const date = parseDate(dateRaw);
+  // Date: Gangrey post markup carries no reliable date, so use the Wayback
+  // capture timestamp (good enough to order the archive chronologically).
+  const date = parseDate(`${timestamp.slice(0,4)}-${timestamp.slice(4,6)}-${timestamp.slice(6,8)}`);
 
-  // body — prefer .entry-content, fall back to .post-content / article
-  const bodyEl =
-    root.querySelector(".entry-content") ||
-    root.querySelector(".post-content") ||
-    root.querySelector("article") ||
-    root.querySelector(".post-body");
+  // Strip the headline/byline/widgets, then serialize the remaining body.
+  post.querySelectorAll("h2, h1, h4.byline, .byline, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
+  const body = gangreyBodyBlocks(post);
+  if (!headline || !body.length) return null;
 
-  if (!bodyEl || !headline) return null;
-
-  // Remove share/nav/comment widgets inside body
-  for (const sel of [".sharedaddy",".jp-relatedposts","#comments",".navigation",".post-navigation"]) {
-    bodyEl.querySelectorAll(sel).forEach(n => n.remove());
-  }
-
-  const body = htmlToPortableText(bodyEl.innerHTML);
-  if (!body.length) return null;
-
-  // subheadline from first paragraph if it's short and italicised
-  const subheadline = "";
-
-  // slug: prefer URL path, otherwise derive from headline
-  let slug = "";
-  try {
-    const u = new URL(pageUrl);
-    const parts = u.pathname.replace(/\/$/, "").split("/").filter(Boolean);
-    slug = parts[parts.length - 1] || slugify(headline);
-  } catch {
-    slug = slugify(headline);
+  // slug: numeric permalink id when present, else derived from headline
+  let slug = idMatch || "";
+  if (!slug) {
+    try {
+      const parts = new URL(pageUrl).pathname.replace(/\/$/, "").split("/").filter(Boolean);
+      slug = parts[parts.length - 1] || slugify(headline);
+    } catch { slug = slugify(headline); }
   }
   slug = `gangrey-${slug}`.slice(0, 96);
 
-  return { headline, byline, date, subheadline, slug, body };
+  return { headline, byline: "", date, subheadline, slug, body };
 }
 
 function parseDate(raw) {
@@ -268,29 +263,26 @@ async function sanityMutate(docs) {
 // ── Self-test ─────────────────────────────────────────────────────────────────
 const SAMPLE_HTML = `
 <html><head><title>The Long Drive | Gangrey</title></head><body>
-<article class="post">
-  <h1 class="entry-title">The Long Drive</h1>
-  <div class="byline">By <a rel="author">John Smith</a></div>
-  <time class="entry-date" datetime="2009-08-12T00:00:00Z">August 12, 2009</time>
-  <div class="entry-content">
-    <p>It was a Tuesday when we left. The highway unrolled ahead of us like a gray tongue.</p>
-    <p>My father didn't speak for the first hundred miles. Neither did I.</p>
-    <blockquote>You don't understand silence until you've crossed a state line without speaking.</blockquote>
-    <p>We stopped once for gas.</p>
-  </div>
-</article>
+<div id="sidebar"><div class="post"><a href="http://gangrey.com/999"><h2 class="design">Some Other Story</h2></a><h4 class="byline">dek</h4><p>nope</p></div></div>
+<div class="post">
+  <a href="http://gangrey.com/1745"><h2 class="design">The Long Drive</h2></a>
+  <h4 class="byline">A road story</h4>
+  <p>It was a Tuesday when we left. The highway unrolled ahead of us like a gray tongue.<br><br>
+  My father didn't speak for the first hundred miles. Neither did I.<br><br>
+  We stopped once for gas.</p>
+</div>
 </body></html>`;
 
 function selfTest() {
   console.log("── Self-test (offline parser) ──");
-  const result = parseGangreyPage(SAMPLE_HTML, "http://gangrey.com/2009/08/the-long-drive/", "20090812000000");
+  const result = parseGangreyPage(SAMPLE_HTML, "http://gangrey.com/1745", "20090812000000");
   if (!result) { console.error("FAIL: parseGangreyPage returned null"); process.exit(1); }
   console.assert(result.headline === "The Long Drive", `headline: "${result.headline}"`);
-  console.assert(result.byline   === "John Smith",     `byline: "${result.byline}"`);
+  console.assert(result.subheadline === "A road story", `subheadline: "${result.subheadline}"`);
   console.assert(result.date.startsWith("2009-08-12"), `date: "${result.date}"`);
-  console.assert(result.slug.startsWith("gangrey-"),   `slug: "${result.slug}"`);
-  console.assert(result.body.length >= 3,              `body blocks: ${result.body.length}`);
-  console.log(`PASS — headline: "${result.headline}" | byline: "${result.byline}" | blocks: ${result.body.length}`);
+  console.assert(result.slug === "gangrey-1745",       `slug: "${result.slug}"`);
+  console.assert(result.body.length === 3,             `body blocks: ${result.body.length}`);
+  console.log(`PASS — headline: "${result.headline}" | dek: "${result.subheadline}" | blocks: ${result.body.length} | slug: ${result.slug}`);
   const doc = toSanityDoc(result);
   console.assert(doc._type === "post",                          "_type");
   console.assert(doc.section === "Gangrey Redux",               "section");
