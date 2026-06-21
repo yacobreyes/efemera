@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { client } from "@/lib/sanity";
-import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
+import { renderNewsletterPageHtml, type NlCard } from "@/lib/newsletterEmail";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 
@@ -29,12 +29,6 @@ async function getNewsletter(id: string): Promise<NewsletterDoc | null> {
   );
 }
 
-// Strip the email's outer html/head/body wrapper — only the <body> content
-// is safe to inject into the page via dangerouslySetInnerHTML.
-function extractBody(html: string): string {
-  const match = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  return match ? match[1] : html;
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -53,7 +47,7 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
   const nl = await getNewsletter(issue.newsletterId);
   if (!nl) notFound();
 
-  const html = renderNewsletterHtml({
+  const html = renderNewsletterPageHtml({
     subject: nl.subject ?? "",
     preview: nl.preview ?? "",
     intro: nl.intro ?? "",
@@ -66,15 +60,12 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
   return (
     <div className="issue-read-page">
       <style>{`
-        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; overflow-x: hidden; }
-        .issue-read-main { flex: 1; width: 100%; overflow-x: hidden; }
-        .issue-read-main table { width: 100% !important; max-width: 100% !important; }
-        .issue-read-main td { word-break: break-word; }
-        .issue-read-main img { max-width: 100% !important; height: auto !important; }
+        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; }
+        .issue-read-main { flex: 1; width: 100%; padding: 0 0 48px; }
       `}</style>
       <MagHeader />
       <main className="issue-read-main">
-        <div dangerouslySetInnerHTML={{ __html: extractBody(html) }} />
+        <div dangerouslySetInnerHTML={{ __html: html }} />
       </main>
       <MagFooter />
     </div>
