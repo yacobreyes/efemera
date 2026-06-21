@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
-  const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "15", 10) || 15));
+  const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10) || 10));
   const dry = url.searchParams.get("dry") === "1";
 
   let candidates;
@@ -48,26 +48,30 @@ export async function GET(req: NextRequest) {
   const docs: unknown[] = [];
   const results: { headline?: string; slug?: string; skipped?: string; error?: string }[] = [];
 
-  // Fetch up to 3 pages concurrently; stagger starts by 300ms to avoid burst
-  const CONCURRENCY = 3;
-  const settled = await Promise.all(
-    slice.map((c, i) =>
-      sleep(Math.floor(i / CONCURRENCY) * 300)
-        .then(() => fetchWayback(c.timestamp, c.original))
-        .then(html => ({ ok: true as const, html, c }))
-        .catch(e => ({ ok: false as const, error: String(e), c }))
-    )
-  );
-  for (const r of settled) {
-    if (!r.ok) { results.push({ error: r.error }); continue; }
-    try {
-      const story = parseGangreyPage(r.html, r.c.original, r.c.timestamp);
-      if (!story) { results.push({ skipped: r.c.original }); continue; }
-      docs.push(toSanityDoc(story));
-      results.push({ headline: story.headline, slug: story.slug });
-    } catch (e) {
-      results.push({ error: String(e) });
+  // Fetch 2 pages concurrently with a 500ms gap between waves — fast enough,
+  // but gentle enough that Wayback doesn't drop connections.
+  const CONCURRENCY = 2;
+  for (let i = 0; i < slice.length; i += CONCURRENCY) {
+    const wave = slice.slice(i, i + CONCURRENCY);
+    const settled = await Promise.all(
+      wave.map(c =>
+        fetchWayback(c.timestamp, c.original)
+          .then(html => ({ ok: true as const, html, c }))
+          .catch(e => ({ ok: false as const, error: String(e), c }))
+      )
+    );
+    for (const r of settled) {
+      if (!r.ok) { results.push({ error: r.error }); continue; }
+      try {
+        const story = parseGangreyPage(r.html, r.c.original, r.c.timestamp);
+        if (!story) { results.push({ skipped: r.c.original }); continue; }
+        docs.push(toSanityDoc(story));
+        results.push({ headline: story.headline, slug: story.slug });
+      } catch (e) {
+        results.push({ error: String(e) });
+      }
     }
+    if (i + CONCURRENCY < slice.length) await sleep(500);
   }
 
   let written = 0;

@@ -31,7 +31,7 @@ export default function GangreyImportPage() {
     let totalWritten = written;
     try {
       while (!stopRef.current) {
-        const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=15${dry ? "&dry=1" : ""}`);
+        const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=10${dry ? "&dry=1" : ""}`);
         const data: BatchResult = await res.json();
         if (!res.ok || data.error) {
           append(`❌ ${data.error ?? res.statusText}`);

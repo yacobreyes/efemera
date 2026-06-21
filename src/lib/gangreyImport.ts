@@ -9,14 +9,22 @@ const WB = "https://web.archive.org/web";
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-// Wayback rate-limits aggressively (429/503). Retry with exponential backoff.
-async function fetchRetry(url: string, opts: RequestInit = {}, tries = 4): Promise<Response> {
+// Wayback rate-limits aggressively (429/503) and also drops connections
+// outright ("fetch failed"). Retry both status codes AND thrown network
+// errors with exponential backoff.
+async function fetchRetry(url: string, opts: RequestInit = {}, tries = 5): Promise<Response> {
   let delay = 1500;
+  let lastErr: unknown;
   for (let i = 0; i < tries; i++) {
-    const res = await fetch(url, opts);
-    if (res.status !== 429 && res.status !== 503) return res;
+    try {
+      const res = await fetch(url, opts);
+      if (res.status !== 429 && res.status !== 503) return res;
+    } catch (e) {
+      lastErr = e; // network drop — retry below
+    }
     if (i < tries - 1) { await sleep(delay); delay *= 2; }
   }
+  if (lastErr) throw lastErr;
   return fetch(url, opts);
 }
 
@@ -69,6 +77,49 @@ function slugify(str: string) {
   return str.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 96);
 }
 
+// Decode HTML entities (numeric + common named) that node-html-parser's
+// innerText leaves raw — Gangrey's markup is full of &#8220; &#8217; etc.
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(parseInt(d, 10)))
+    .replace(/&nbsp;/g, " ")
+    .replace(/&hellip;/g, "…")
+    .replace(/&mdash;/g, "—")
+    .replace(/&ndash;/g, "–")
+    .replace(/&ldquo;/g, "“").replace(/&rdquo;/g, "”")
+    .replace(/&lsquo;/g, "‘").replace(/&rsquo;/g, "’")
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'")
+    .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+}
+
+const cleanText = (s: string) => decodeEntities(s).replace(/\s+/g, " ").trim();
+
+// Gangrey ran on WordPress; the real author sits in the post meta as
+// "Posted on <date> by <author>" (a[rel=author] / .author), not h4.byline.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractByline(post: any, root: any): string {
+  const link =
+    post.querySelector('a[rel="author"]') || post.querySelector(".author a") ||
+    post.querySelector(".author") || post.querySelector(".vcard a") ||
+    root.querySelector('a[rel="author"]') || root.querySelector(".author a");
+  let name = link?.innerText ? cleanText(link.innerText) : "";
+  if (!name) {
+    const metaEl =
+      post.querySelector(".entry-meta") || post.querySelector(".post-meta") ||
+      post.querySelector(".postmeta") || post.querySelector(".meta") || post;
+    const t = metaEl?.innerText ? cleanText(metaEl.innerText) : "";
+    // Author is the token(s) right after "by"; stop at separators/stopwords.
+    const m = t.match(/\bby\s+([A-Za-z][A-Za-z.'\-]*(?:\s+[A-Za-z][A-Za-z.'\-]*)?)/i);
+    const STOP = /^(leave|posted|comments?|tagged|category|in|on|and|a)$/i;
+    if (m) name = m[1].split(/\s+/).filter(w => !STOP.test(w)).join(" ").trim();
+  }
+  if (!name) return "";
+  // "ben" -> "Ben"
+  return name.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function gangreyBodyBlocks(postEl: any): PortableTextBlock[] {
   const blocks: PortableTextBlock[] = [];
@@ -78,7 +129,7 @@ function gangreyBodyBlocks(postEl: any): PortableTextBlock[] {
     const paras = p.innerHTML.split(/(?:<br\s*\/?>\s*){2,}/i);
     for (let part of paras) {
       part = part.replace(/<br\s*\/?>/gi, " ");
-      const text = parse(`<x>${part}</x>`).innerText.replace(/\s+/g, " ").trim();
+      const text = cleanText(parse(`<x>${part}</x>`).innerText);
       if (text) blocks.push({ _type: "block", style: "normal", markDefs: [], children: [{ _type: "span", text, marks: [] }] } as unknown as PortableTextBlock);
     }
   }
@@ -102,14 +153,14 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
   if (!post) return null;
 
   const headlineEl = post.querySelector("h2.design") || post.querySelector(".design") || post.querySelector("h2") || post.querySelector("h1");
-  const headline = headlineEl?.innerText?.trim() ||
-    root.querySelector("title")?.innerText?.replace(/\s*[|\-–—]\s*gangrey.*$/i, "").trim() || "";
+  const headline = (headlineEl?.innerText ? cleanText(headlineEl.innerText) : "") ||
+    cleanText((root.querySelector("title")?.innerText ?? "").replace(/\s*[|\-–—]\s*gangrey.*$/i, ""));
 
-  const subheadline = (post.querySelector("h4.byline") || post.querySelector(".byline"))?.innerText?.trim() || "";
-  const byline = "";
+  const byline = extractByline(post, root);
+  const subheadline = "";
   const date = parseDate(`${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`);
 
-  post.querySelectorAll("h2, h1, h4.byline, .byline, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
+  post.querySelectorAll("h2, h1, h4.byline, .byline, .entry-meta, .post-meta, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
   const body = gangreyBodyBlocks(post);
   if (!headline || !body.length) return null;
 
