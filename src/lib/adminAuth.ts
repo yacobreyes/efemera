@@ -1,7 +1,9 @@
-import { getServerSession } from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-const authOptions = {
+const ALLOWED_EMAIL = process.env.ADMIN_GOOGLE_EMAIL ?? "";
+
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -9,16 +11,23 @@ const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ profile }: { profile?: { email?: string } }) {
-      return profile?.email === (process.env.ADMIN_GOOGLE_EMAIL ?? "");
+    async signIn({ profile }) {
+      return (profile as { email?: string } | undefined)?.email === ALLOWED_EMAIL;
     },
+    async session({ session }) {
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/admin/imago",
+    error: "/admin/imago",
   },
 };
 
 export async function isAuthed(): Promise<boolean> {
   try {
     const session = await getServerSession(authOptions);
-    return session?.user?.email === (process.env.ADMIN_GOOGLE_EMAIL ?? "");
+    return session?.user?.email === ALLOWED_EMAIL;
   } catch {
     return false;
   }
