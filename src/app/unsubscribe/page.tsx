@@ -73,7 +73,7 @@ function UnsubscribeForm() {
 
 export default function UnsubscribePage() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#fbf6ee" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5efe4" }}>
       <MagHeader />
       <main style={{ flex: 1 }}>
         <Suspense fallback={null}>
