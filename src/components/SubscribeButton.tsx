@@ -86,7 +86,7 @@ export default function SubscribeButton({
               Join the Collective.
             </h2>
             <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
-              Get our monthly chapbook delivered to your inbox.
+              Get our latest issue delivered to your inbox.
             </p>
 
             {status === "done" ? (
