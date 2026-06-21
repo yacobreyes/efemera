@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type BatchResult = {
   total: number; offset: number; nextOffset: number; processed: number;
@@ -19,6 +19,14 @@ export default function GangreyImportPage() {
   const [dry, setDry] = useState(false);
   const [resumeOffset, setResumeOffset] = useState<number | null>(null);
   const [hasRun, setHasRun] = useState(false);
+  const [savedCount, setSavedCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/import-gangrey/count")
+      .then(r => r.json())
+      .then(d => { if (typeof d.count === "number") setSavedCount(d.count); })
+      .catch(() => {});
+  }, []);
   const stopRef = useRef(false);
 
   function append(line: string) { setLog(l => [line, ...l].slice(0, 400)); }
@@ -72,6 +80,11 @@ export default function GangreyImportPage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem", fontFamily: "Inter, system-ui, sans-serif", color: "#1c2938" }}>
       <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 40, margin: "0 0 4px" }}>Gangrey Archive Import</h1>
+      {savedCount !== null && (
+        <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, fontWeight: 700, color: "#1a7f37", margin: "0 0 8px" }}>
+          {savedCount} stories currently in Sanity
+        </p>
+      )}
       <p style={{ color: "#526270", margin: "0 0 24px" }}>
         Pulls every story from the Wayback Machine snapshot of gangrey.com and imports it as a
         Gangrey&nbsp;Redux post. Runs in batches — keep this tab open until it finishes.
