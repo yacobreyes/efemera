@@ -44,7 +44,7 @@ export default async function GangreyPage() {
           <p className="listing-sub">A second life for stories first published on the now-defunct Gangrey.com.</p>
         </div>
         {gangrey.length > 0
-          ? <StoryCardGrid posts={gangrey} />
+          ? <StoryCardGrid posts={gangrey} variant="archive" />
           : <p className="listing-empty">No Gangrey stories yet.</p>}
       </main>
       <MagFooter />

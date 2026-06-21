@@ -12,7 +12,8 @@ function sectionLabel(section: string) {
   return section;
 }
 
-export default function StoryCardGrid({ posts }: { posts: SanityPost[] }) {
+export default function StoryCardGrid({ posts, variant = "default" }: { posts: SanityPost[]; variant?: "default" | "archive" }) {
+  if (variant === "archive") return <ArchiveCardGrid posts={posts} />;
   return (
     <div className="sg-grid">
       <style>{`
@@ -98,6 +99,91 @@ export default function StoryCardGrid({ posts }: { posts: SanityPost[] }) {
             {post.byline && <div className="sg-byline">By {post.byline}</div>}
             {plain && <p className="sg-excerpt">{truncate(plain)}</p>}
             <div className="sg-time">{postReadingTime(post)} Min Read</div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+// Text-forward "archive clipping" cards for Gangrey Redux, which have no photos.
+function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
+  return (
+    <div className="ag-grid">
+      <style>{`
+        .ag-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 0 56px;
+        }
+        .ag-card {
+          display: flex;
+          flex-direction: column;
+          padding: 30px 0 32px;
+          border-top: 2px solid #171412;
+        }
+        .ag-card + .ag-card { /* keep rules tight across rows handled by grid */ }
+        .ag-meta {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: .2em;
+          text-transform: uppercase;
+          color: #8e0d0d;
+          margin-bottom: 16px;
+        }
+        .ag-meta .ag-dot { color: #cfc3b3; }
+        .ag-meta .ag-time { color: #8a7f6f; font-weight: 700; }
+        .ag-card h3 {
+          margin: 0;
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 34px;
+          line-height: 1.02;
+          letter-spacing: -.028em;
+          transition: color .15s;
+        }
+        .ag-card a.ag-headline { text-decoration: none; color: #171412; }
+        .ag-card a.ag-headline:hover h3 { color: #8e0d0d; }
+        .ag-byline {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 19px;
+          font-style: italic;
+          color: #463f37;
+          margin: 12px 0 0;
+        }
+        .ag-excerpt {
+          font-family: "Cormorant Garamond", Georgia, serif;
+          font-size: 18.5px;
+          line-height: 1.5;
+          color: #2b251f;
+          margin: 14px 0 0;
+        }
+        .ag-excerpt::first-letter {
+          initial-letter: 2;
+          -webkit-initial-letter: 2;
+          font-weight: 600;
+          margin-right: 8px;
+          color: #8e0d0d;
+        }
+        @media (max-width: 760px) {
+          .ag-grid { grid-template-columns: 1fr; gap: 0; }
+        }
+      `}</style>
+      {posts.map(post => {
+        const plain = plainText(post.body);
+        return (
+          <article key={post._id} className="ag-card">
+            <div className="ag-meta">
+              <span>Gangrey&nbsp;Redux</span>
+              <span className="ag-dot">/</span>
+              <span className="ag-time">{postReadingTime(post)} Min Read</span>
+            </div>
+            <Link href={`/stories/${post.slug}`} className="ag-headline"><h3>{post.headline}</h3></Link>
+            {post.byline && <div className="ag-byline">By {post.byline}</div>}
+            {plain && <p className="ag-excerpt">{truncate(plain, 240)}</p>}
           </article>
         );
       })}
