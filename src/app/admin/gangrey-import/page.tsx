@@ -27,6 +27,7 @@ export default function GangreyImportPage() {
       .then(d => { if (typeof d.count === "number") setSavedCount(d.count); })
       .catch(() => {});
   }, []);
+
   const stopRef = useRef(false);
 
   function append(line: string) { setLog(l => [line, ...l].slice(0, 400)); }
@@ -36,33 +37,66 @@ export default function GangreyImportPage() {
     if (startOffset === 0) { setProcessed(0); setWritten(0); setLog([]); }
     setResumeOffset(null);
     let offset = startOffset;
-    let totalWritten = written;
+    let totalWritten = startOffset === 0 ? 0 : written;
+    let retries = 0;
+    const MAX_RETRIES = 5;
+
     try {
       while (!stopRef.current) {
-        const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=10${dry ? "&dry=1" : ""}`);
-        const data: BatchResult = await res.json();
+        let res: Response;
+        let data: BatchResult;
+        try {
+          res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=10${dry ? "&dry=1" : ""}`);
+          data = await res.json();
+        } catch (e) {
+          // Network blip — auto-retry up to MAX_RETRIES with backoff
+          if (retries < MAX_RETRIES) {
+            retries++;
+            const wait = retries * 3000;
+            append(`⏳ Network error, retrying in ${wait / 1000}s… (${retries}/${MAX_RETRIES})`);
+            await new Promise(r => setTimeout(r, wait));
+            continue;
+          }
+          append(`❌ ${String(e)}`);
+          setResumeOffset(offset);
+          break;
+        }
+
         if (!res.ok || data.error) {
+          if (retries < MAX_RETRIES) {
+            retries++;
+            const wait = retries * 3000;
+            append(`⏳ Error: ${data.error ?? res.statusText} — retrying in ${wait / 1000}s… (${retries}/${MAX_RETRIES})`);
+            await new Promise(r => setTimeout(r, wait));
+            continue;
+          }
           append(`❌ ${data.error ?? res.statusText}`);
           setResumeOffset(offset);
           break;
         }
+
+        retries = 0; // reset on success
         setTotal(data.total);
         setProcessed(p => p + data.processed);
         totalWritten += data.written;
         setWritten(totalWritten);
         for (const r of data.results) {
           if (r.headline) append(`✅ ${r.headline}`);
-          else if (r.skipped) append(`· skipped ${r.skipped}`);
+          else if (r.skipped) append(`· skipped`);
           else if (r.error) append(`⚠️ ${r.error}`);
         }
         offset = data.nextOffset;
-        if (data.done) { setDone(true); setResumeOffset(null); append(`— Finished. ${totalWritten} stories imported. —`); break; }
+        if (data.done) {
+          setDone(true); setResumeOffset(null);
+          append(`— Finished. ${totalWritten} stories imported. —`);
+          // Refresh the saved count
+          fetch("/api/admin/import-gangrey/count").then(r => r.json())
+            .then(d => { if (typeof d.count === "number") setSavedCount(d.count); }).catch(() => {});
+          break;
+        }
         await new Promise(r => setTimeout(r, 400));
       }
       if (stopRef.current) setResumeOffset(offset);
-    } catch (e) {
-      append(`❌ ${String(e)}`);
-      setResumeOffset(offset);
     } finally {
       setRunning(false);
     }
@@ -88,6 +122,7 @@ export default function GangreyImportPage() {
       <p style={{ color: "#526270", margin: "0 0 24px" }}>
         Pulls every story from the Wayback Machine snapshot of gangrey.com and imports it as a
         Gangrey&nbsp;Redux post. Runs in batches — keep this tab open until it finishes.
+        Auto-retries on errors.
       </p>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
