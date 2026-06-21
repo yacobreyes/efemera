@@ -29,6 +29,13 @@ async function getNewsletter(id: string): Promise<NewsletterDoc | null> {
   );
 }
 
+// Strip the email's outer html/head/body wrapper — only the <body> content
+// is safe to inject into the page via dangerouslySetInnerHTML.
+function extractBody(html: string): string {
+  const match = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  return match ? match[1] : html;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const issue = await getIssue(slug);
@@ -59,12 +66,13 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
   return (
     <div className="issue-read-page">
       <style>{`
-        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
-        .issue-read-main { flex: 1; width: 100%; padding: 0; box-sizing: border-box; }
+        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; }
+        .issue-read-main { flex: 1; width: 100%; }
+        .issue-read-main table { max-width: 100% !important; }
       `}</style>
       <MagHeader />
       <main className="issue-read-main">
-        <div dangerouslySetInnerHTML={{ __html: html }} />
+        <div dangerouslySetInnerHTML={{ __html: extractBody(html) }} />
       </main>
       <MagFooter />
     </div>
