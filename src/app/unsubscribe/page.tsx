@@ -43,7 +43,7 @@ function UnsubscribeForm() {
       ) : (
         <>
           <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, color: "#463f37", margin: "0 0 28px" }}>
-            Enter your email to stop receiving the newsletter.
+            Enter your email to stop receiving our newsletter.
           </p>
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <input
