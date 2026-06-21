@@ -158,7 +158,30 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
 
   const byline = extractByline(post, root);
   const subheadline = "";
-  const date = parseDate(`${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`);
+
+  // Try to get the real WordPress publish date before stripping meta elements.
+  // Gangrey used standard WP markup: <time datetime="YYYY-MM-DD"> or
+  // <abbr class="published" title="YYYY-MM-DD"> or "Posted on Month D, YYYY".
+  function extractPostDate(): string {
+    // 1. <time datetime="..."> anywhere on page
+    const timeEl = root.querySelector("time[datetime]") || post?.querySelector("time[datetime]");
+    if (timeEl) {
+      const dt = timeEl.getAttribute("datetime");
+      if (dt) { const d = parseDate(dt); if (d !== new Date().toISOString()) return d; }
+    }
+    // 2. <abbr class="published" title="...">
+    const abbr = root.querySelector("abbr.published");
+    if (abbr) { const t = abbr.getAttribute("title"); if (t) { const d = parseDate(t); if (d) return d; } }
+    // 3. "Posted on Month D, YYYY" in meta text
+    const metaEl = post?.querySelector(".entry-meta") || post?.querySelector(".post-meta") ||
+      post?.querySelector(".postmeta") || post?.querySelector(".meta") || root.querySelector(".entry-meta");
+    const metaText = metaEl?.innerText ? cleanText(metaEl.innerText) : "";
+    const m = metaText.match(/(?:posted\s+on\s+)?([A-Z][a-z]+ \d{1,2},?\s+\d{4})/i);
+    if (m) { const d = parseDate(m[1]); if (d) return d; }
+    // 4. Fall back to Wayback capture timestamp
+    return parseDate(`${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`);
+  }
+  const date = extractPostDate();
 
   post.querySelectorAll("h2, h1, h4.byline, .byline, .entry-meta, .post-meta, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
   const body = gangreyBodyBlocks(post);
