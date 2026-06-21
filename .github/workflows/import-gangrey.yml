@@ -40,7 +40,7 @@ jobs:
 
       - name: Dry run (fetch + parse → file)
         if: ${{ github.event.inputs.mode == 'dry' }}
-        run: npm run import:gangrey -- --out gangrey.ndjson --limit ${{ github.event.inputs.limit }}
+        run: npm run import:gangrey -- --out gangrey.ndjson --limit ${{ github.event.inputs.limit }} --diag
 
       - name: Upload preview file
         if: ${{ github.event.inputs.mode == 'dry' }}

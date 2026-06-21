@@ -344,6 +344,8 @@ async function main() {
 
   const docs = [];
   let ok = 0, skipped = 0, failed = 0;
+  let diagDumped = false;
+  const DIAG = args.includes("--diag");
 
   for (const [i, row] of toProcess.entries()) {
     const { timestamp, original } = row;
@@ -352,7 +354,28 @@ async function main() {
       await sleep(DELAY_MS);
       const html = await fetchWayback(timestamp, original);
       const story = parseGangreyPage(html, original, timestamp);
-      if (!story) { console.log("skipped (no parseable story)"); skipped++; continue; }
+      if (!story) {
+        console.log("skipped (no parseable story)"); skipped++;
+        if (DIAG && !diagDumped) {
+          diagDumped = true;
+          const root = parse(html);
+          const classes = new Set();
+          root.querySelectorAll("*").forEach(el => {
+            const c = el.getAttribute("class"); if (c) c.split(/\s+/).forEach(x => classes.add(x));
+            const id = el.getAttribute("id"); if (id) classes.add("#" + id);
+          });
+          console.log("───────── DIAGNOSTIC DUMP (first skipped page) ─────────");
+          console.log("TITLE:", root.querySelector("title")?.innerText?.trim());
+          console.log("CLASSES/IDS PRESENT:", [...classes].sort().join(", "));
+          console.log("H1:", root.querySelectorAll("h1").map(h => h.innerText?.trim()).join(" | "));
+          console.log("H2:", root.querySelectorAll("h2").map(h => h.innerText?.trim()).slice(0,5).join(" | "));
+          console.log("HTML SNIPPET (3500 chars from <body>):");
+          const body = root.querySelector("body") ?? root;
+          console.log(body.innerHTML.slice(0, 3500));
+          console.log("──────────────────────────────────────────────────────");
+        }
+        continue;
+      }
       docs.push(toSanityDoc(story));
       console.log(`OK — "${story.headline}" by ${story.byline || "(no byline)"}`);
       ok++;
