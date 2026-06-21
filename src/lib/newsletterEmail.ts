@@ -86,6 +86,10 @@ function renderBody(blocks: PortableTextBlock[]): string {
 
 const HEADLINE_FONT = SERIF;
 
+// Layout constants — matched to the editor canvas (PAD = 2.5rem at 16px base).
+const PAGE_W = 600;
+const PAD = 40;
+
 // Web reader version — div-based, matches the editor canvas exactly.
 // Used on /issues/[slug]; the email table version above is for actual email delivery.
 export function renderNewsletterPageHtml({ subject, preview, intro, author, volume, issue, cards }: { subject: string; preview: string; intro?: string; author?: string; volume?: string; issue?: string; cards: NlCard[] }): string {
@@ -244,11 +248,11 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
     // micro-memoir: literary magazine style — beige inset box
     return cardWrap(idx, `
     ${sectionLabel(sectionName)}
-    <div style="background:${PAPER_DARK};border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px;text-align:center;margin:6px -${PAD}px 0;">
+    <div style="background:${PAPER_DARK};border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:6px -${PAD}px 0;">
       <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="height:200px;width:auto;display:block;margin:-35px auto -60px;" />
       <p style="font-family:${HEADLINE_FONT};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 6px;">${esc(card.headline ?? "")}</p>
       <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};text-align:center;margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
-      <div style="width:32px;height:1px;background:#c8c0b0;margin:0 auto 24px;"></div>
+      <div style="width:32px;height:1px;background:${LINE};margin:0 auto 24px;"></div>
       <div style="text-align:center;">${renderBody(card.body ?? [])}</div>
     </div>`);
   }).join("");
@@ -268,7 +272,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</td>
             <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
           </tr></table>
-          ${intro ? `<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:18px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${CREAM};opacity:0.8;margin:10px 0 0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table>` : ""}
+          ${intro ? `<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:16px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${CREAM};opacity:0.8;margin:10px 0 0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table>` : ""}
         </td></tr>
         <tr><td style="padding:0 ${PAD}px 40px;">${bodyHtml}</td></tr>
         <tr><td style="background:${CRIMSON};padding:20px ${PAD}px;text-align:center;">
