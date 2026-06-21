@@ -281,8 +281,8 @@ export default function Feed({
         .ef-circle:hover { background: #fbf6ee; color: var(--red); border-color: #fbf6ee; }
         .ef-circle strong {
           display: flex; align-items: flex-end; justify-content: center;
-          font-family: "Cormorant Garamond", Georgia, serif;
-          font-size: 32px; line-height: 1; letter-spacing: 0; font-weight: 700; height: 32px; width: 100%;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 32px; line-height: 1; letter-spacing: 0; font-weight: 800; height: 32px; width: 100%;
         }
         .ef-circle span { display: block; }
         .ef-reads-annotation {
