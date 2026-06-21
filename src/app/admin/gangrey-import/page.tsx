@@ -17,20 +17,26 @@ export default function GangreyImportPage() {
   const [written, setWritten] = useState(0);
   const [log, setLog] = useState<string[]>([]);
   const [dry, setDry] = useState(false);
+  const [resumeOffset, setResumeOffset] = useState<number | null>(null);
   const stopRef = useRef(false);
 
   function append(line: string) { setLog(l => [line, ...l].slice(0, 400)); }
 
-  async function run() {
+  async function run(startOffset = 0) {
     setRunning(true); setDone(false); stopRef.current = false;
-    setProcessed(0); setWritten(0); setLog([]);
-    let offset = 0;
-    let totalWritten = 0;
+    if (startOffset === 0) { setProcessed(0); setWritten(0); setLog([]); }
+    setResumeOffset(null);
+    let offset = startOffset;
+    let totalWritten = written;
     try {
       while (!stopRef.current) {
         const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=6${dry ? "&dry=1" : ""}`);
         const data: BatchResult = await res.json();
-        if (!res.ok || data.error) { append(`❌ ${data.error ?? res.statusText}`); break; }
+        if (!res.ok || data.error) {
+          append(`❌ ${data.error ?? res.statusText}`);
+          setResumeOffset(offset);
+          break;
+        }
         setTotal(data.total);
         setProcessed(p => p + data.processed);
         totalWritten += data.written;
@@ -41,17 +47,26 @@ export default function GangreyImportPage() {
           else if (r.error) append(`⚠️ ${r.error}`);
         }
         offset = data.nextOffset;
-        if (data.done) { setDone(true); append(`— Finished. ${totalWritten} stories imported. —`); break; }
-        await new Promise(r => setTimeout(r, 1200)); // breathe between batches
+        if (data.done) { setDone(true); setResumeOffset(null); append(`— Finished. ${totalWritten} stories imported. —`); break; }
+        await new Promise(r => setTimeout(r, 1200));
       }
+      if (stopRef.current) setResumeOffset(offset);
     } catch (e) {
       append(`❌ ${String(e)}`);
+      setResumeOffset(offset);
     } finally {
       setRunning(false);
     }
   }
 
   const pct = total ? Math.round((processed / total) * 100) : 0;
+  const btnStyle = (primary: boolean): React.CSSProperties => ({
+    background: primary ? "#8B0000" : "#fff",
+    color: primary ? "#fff" : "#8B0000",
+    border: primary ? "none" : "1px solid #8B0000",
+    borderRadius: 6, padding: "12px 22px", fontWeight: 700, fontSize: 15,
+    cursor: running ? "default" : "pointer", opacity: running ? 0.6 : 1,
+  });
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem", fontFamily: "Inter, system-ui, sans-serif", color: "#1c2938" }}>
@@ -62,19 +77,22 @@ export default function GangreyImportPage() {
       </p>
 
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
-        <button onClick={run} disabled={running}
-          style={{ background: "#8B0000", color: "#fff", border: "none", borderRadius: 6, padding: "12px 22px", fontWeight: 700, fontSize: 15, cursor: running ? "default" : "pointer", opacity: running ? 0.6 : 1 }}>
+        <button onClick={() => run(0)} disabled={running} style={btnStyle(true)}>
           {running ? "Importing…" : dry ? "Test run (no writes)" : "Start import"}
         </button>
+        {resumeOffset !== null && !running && !done && (
+          <button onClick={() => run(resumeOffset)} style={btnStyle(false)}>
+            Resume from {resumeOffset}
+          </button>
+        )}
         {running && (
-          <button onClick={() => { stopRef.current = true; }}
-            style={{ background: "#fff", color: "#8B0000", border: "1px solid #8B0000", borderRadius: 6, padding: "12px 22px", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>
+          <button onClick={() => { stopRef.current = true; }} style={btnStyle(false)}>
             Stop
           </button>
         )}
         <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#526270" }}>
           <input type="checkbox" checked={dry} disabled={running} onChange={e => setDry(e.target.checked)} />
-          Test run (parse only, don’t save)
+          Test run (parse only, don't save)
         </label>
       </div>
 

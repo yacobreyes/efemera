@@ -105,7 +105,9 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
   const headline = headlineEl?.innerText?.trim() ||
     root.querySelector("title")?.innerText?.replace(/\s*[|\-–—]\s*gangrey.*$/i, "").trim() || "";
 
-  const subheadline = (post.querySelector("h4.byline") || post.querySelector(".byline"))?.innerText?.trim() || "";
+  const bylineEl = post.querySelector("h4.byline") || post.querySelector(".byline");
+  const byline = bylineEl?.innerText?.trim() || "";
+  const subheadline = "";
   const date = parseDate(`${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`);
 
   post.querySelectorAll("h2, h1, h4.byline, .byline, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
@@ -121,7 +123,7 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
   }
   slug = `gangrey-${slug}`.slice(0, 96);
 
-  return { headline, byline: "Gangrey", date, subheadline, slug, body };
+  return { headline, byline, date, subheadline, slug, body };
 }
 
 export function toSanityDoc(s: GangreyStory) {
