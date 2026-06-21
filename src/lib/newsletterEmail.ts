@@ -163,10 +163,7 @@ export function renderNewsletterPageHtml({ subject, preview, intro, author, volu
   }).join("");
 
   return `<div style="max-width:600px;margin:0 auto;background:${CREAM};box-shadow:0 4px 32px rgba(0,0,0,0.18);">
-    <div style="background:${CREAM};padding:1.25rem 0;text-align:center;border-bottom:1px solid ${LINE};">
-      <img src="${SITE_URL}/Crimson%20Wordmark.png" alt="efemera" style="height:58px;width:auto;display:inline-block;" />
-    </div>
-    <div style="background:${CRIMSON};padding:0.6rem 2.5rem 1.5rem;text-align:center;">
+    <div style="background:${CRIMSON};padding:1.5rem 2.5rem;text-align:center;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
         <span style="font-family:${FONT};font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</span>
         <span style="font-family:${FONT};font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " · " : ""}${issue ? `No. ${esc(issue)}` : ""}</span>
