@@ -173,13 +173,13 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
   <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:32px 0;">
     <tr><td align="center">
       <table width="${PAGE_W}" cellpadding="0" cellspacing="0" style="width:${PAGE_W}px;max-width:100%;background:${CREAM};">
-        <tr><td style="background:${CRIMSON};padding:24px ${PAD}px;">
-          <img src="${SITE_URL}/Masthead.webp" alt="efemera" style="width:100%;height:auto;display:block;" />
+        <tr><td style="background:${CREAM};padding:24px ${PAD}px;text-align:center;border-bottom:1px solid ${LINE};">
+          <img src="${SITE_URL}/Crimson%20Wordmark.png" alt="efemera" style="height:58px;width:auto;display:inline-block;" />
         </td></tr>
-        <tr><td style="border-top:3px solid ${CRIMSON};border-bottom:1px solid ${LINE};padding:8px ${PAD}px;">
+        <tr><td style="background:${CRIMSON};padding:8px ${PAD}px;">
           <table width="100%" cellpadding="0" cellspacing="0"><tr>
-            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};">${date}</td>
-            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${TEXT_MUTED};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
+            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</td>
+            <td style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};text-align:right;">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " &nbsp;·&nbsp; " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
           </tr></table>
         </td></tr>
         ${intro ? `<tr><td style="padding:20px ${PAD}px;border-bottom:1px solid ${LINE};text-align:center;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="440" cellpadding="0" cellspacing="0" style="max-width:440px;"><tr><td style="text-align:center;"><p style="font-family:${HEADLINE_FONT};font-size:18px;line-height:1.55;color:${INK};margin:0;white-space:pre-line;">${esc(intro)}</p>${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:12px 0 0;">By ${esc(author)}</p>` : ""}</td></tr></table></td></tr></table></td></tr>` : ""}

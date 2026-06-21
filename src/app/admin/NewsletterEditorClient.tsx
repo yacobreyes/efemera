@@ -739,15 +739,15 @@ export default function NewsletterEditorClient({
         {/* Magazine page — 600px to match the email's inbox-safe width */}
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#fbf6ee", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
-          {/* Masthead — full-bleed nameplate + dateline strip */}
-          <div style={{ background: CRIMSON, padding: "1.5rem 2.5rem" }}>
+          {/* Masthead — crimson wordmark on cream, like site header */}
+          <div style={{ background: "#fbf6ee", padding: "1.5rem 2.5rem", textAlign: "center", borderBottom: `1px solid #cfc3b3` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Masthead.webp" alt="efemera" style={{ width: "100%", height: "auto", display: "block" }} />
+            <img src="/Crimson Wordmark.png" alt="efemera" style={{ height: 58, width: "auto", display: "inline-block" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
-          <div style={{ borderTop: `3px solid ${CRIMSON}`, borderBottom: `1px solid #d0d0cc`, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>{todayLabel}</span>
-            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: TEXT_MUTED }}>
+          <div style={{ background: CRIMSON, padding: "0.5rem 2.5rem", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>{todayLabel}</span>
+            <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>
               {nlVolume ? `Vol. ${nlVolume}` : ""}{nlVolume && nlIssue ? "  ·  " : ""}{nlIssue ? `No. ${nlIssue}` : ""}
             </span>
           </div>
