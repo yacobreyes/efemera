@@ -306,6 +306,7 @@ async function main() {
   // 1. Enumerate story URLs from Wayback CDX
   console.log(`Querying Wayback CDX for gangrey.com posts (${fromArg}–${toArg})…`);
   const rows = await cdxQuery([
+    ["output", "json"],
     ["url", "gangrey.com"],
     ["matchType", "domain"],          // includes www. and any subdomain
     ["filter", "statuscode:200"],
