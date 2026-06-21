@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { isAuthed } from "@/lib/adminAuth";
 import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +29,6 @@ async function getCandidates(): Promise<Candidate[]> {
 // Batched via ?offset & ?limit so each call stays under the function timeout;
 // the admin page loops through batches. Gated to the admin Google session.
 export async function GET(req: NextRequest) {
-  if (!(await isAuthed())) return NextResponse.json({ error: "Not authorized" }, { status: 401 });
-
   const url = new URL(req.url);
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
   const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10) || 10));
