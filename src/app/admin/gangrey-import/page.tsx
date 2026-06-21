@@ -18,12 +18,13 @@ export default function GangreyImportPage() {
   const [log, setLog] = useState<string[]>([]);
   const [dry, setDry] = useState(false);
   const [resumeOffset, setResumeOffset] = useState<number | null>(null);
+  const [hasRun, setHasRun] = useState(false);
   const stopRef = useRef(false);
 
   function append(line: string) { setLog(l => [line, ...l].slice(0, 400)); }
 
   async function run(startOffset = 0) {
-    setRunning(true); setDone(false); stopRef.current = false;
+    setRunning(true); setDone(false); stopRef.current = false; setHasRun(true);
     if (startOffset === 0) { setProcessed(0); setWritten(0); setLog([]); }
     setResumeOffset(null);
     let offset = startOffset;
@@ -80,7 +81,7 @@ export default function GangreyImportPage() {
         <button onClick={() => run(0)} disabled={running} style={btnStyle(true)}>
           {running ? "Importing…" : dry ? "Test run (no writes)" : "Start import"}
         </button>
-        {resumeOffset !== null && !running && !done && (
+        {hasRun && resumeOffset !== null && !running && !done && (
           <button onClick={() => run(resumeOffset)} style={btnStyle(false)}>
             Resume from {resumeOffset}
           </button>
