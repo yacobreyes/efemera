@@ -201,7 +201,7 @@ export function renderNewsletterHtml(opts: NlOpts): string {
     ${renderNewsletterContent(opts, { masthead: true })}
     <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
       <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to efemera</p>
-      <a href="{{{UNSUBSCRIBE_URL}}}" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
+      <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
     </div>
   </div>
 </body></html>`;
