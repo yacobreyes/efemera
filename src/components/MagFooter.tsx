@@ -15,7 +15,7 @@ export default function MagFooter() {
           text-align: center;
         }
         .mag-footer-fly { margin-bottom: 20px; }
-        .mag-footer-fly img { height: 46px; width: auto; opacity: .8; display: block; }
+        .mag-footer-fly img { height: 46px; width: auto; display: block; }
         .mag-footer-links {
           display: flex;
           gap: 34px;
