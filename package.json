@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "import:gangrey": "node scripts/import-gangrey.mjs"
   },
   "dependencies": {
     "@portabletext/react": "^6.2.0",
