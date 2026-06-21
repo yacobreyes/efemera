@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
-  const limit = Math.min(12, Math.max(1, parseInt(url.searchParams.get("limit") ?? "6", 10) || 6));
+  const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "15", 10) || 15));
   const dry = url.searchParams.get("dry") === "1";
 
   let candidates;
@@ -48,12 +48,21 @@ export async function GET(req: NextRequest) {
   const docs: unknown[] = [];
   const results: { headline?: string; slug?: string; skipped?: string; error?: string }[] = [];
 
-  for (const [i, c] of slice.entries()) {
+  // Fetch up to 3 pages concurrently; stagger starts by 300ms to avoid burst
+  const CONCURRENCY = 3;
+  const settled = await Promise.all(
+    slice.map((c, i) =>
+      sleep(Math.floor(i / CONCURRENCY) * 300)
+        .then(() => fetchWayback(c.timestamp, c.original))
+        .then(html => ({ ok: true as const, html, c }))
+        .catch(e => ({ ok: false as const, error: String(e), c }))
+    )
+  );
+  for (const r of settled) {
+    if (!r.ok) { results.push({ error: r.error }); continue; }
     try {
-      if (i > 0) await sleep(600); // be gentle with Wayback between page fetches
-      const html = await fetchWayback(c.timestamp, c.original);
-      const story = parseGangreyPage(html, c.original, c.timestamp);
-      if (!story) { results.push({ skipped: c.original }); continue; }
+      const story = parseGangreyPage(r.html, r.c.original, r.c.timestamp);
+      if (!story) { results.push({ skipped: r.c.original }); continue; }
       docs.push(toSanityDoc(story));
       results.push({ headline: story.headline, slug: story.slug });
     } catch (e) {

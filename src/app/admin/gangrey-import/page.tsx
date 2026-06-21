@@ -30,7 +30,7 @@ export default function GangreyImportPage() {
     let totalWritten = written;
     try {
       while (!stopRef.current) {
-        const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=6${dry ? "&dry=1" : ""}`);
+        const res = await fetch(`/api/admin/import-gangrey?offset=${offset}&limit=15${dry ? "&dry=1" : ""}`);
         const data: BatchResult = await res.json();
         if (!res.ok || data.error) {
           append(`❌ ${data.error ?? res.statusText}`);
@@ -48,7 +48,7 @@ export default function GangreyImportPage() {
         }
         offset = data.nextOffset;
         if (data.done) { setDone(true); setResumeOffset(null); append(`— Finished. ${totalWritten} stories imported. —`); break; }
-        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => setTimeout(r, 400));
       }
       if (stopRef.current) setResumeOffset(offset);
     } catch (e) {
