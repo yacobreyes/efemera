@@ -175,7 +175,7 @@ function parseGangreyPage(html, pageUrl, timestamp) {
 
   // Gangrey markup: <div class="post"> <a><h2 class="design">TITLE</h2></a>
   //                 <h4 class="byline">DEK</h4> <p>BODY…</p> </div>
-  const idMatch = (() => { try { return new URL(pageUrl).pathname.match(/(\d+)/)?.[1] ?? null; } catch { return null; } })();
+  const idMatch = (() => { try { return new URL(pageUrl).pathname.match(/^\/(\d+)\/?$/)?.[1] ?? null; } catch { return null; } })();
   const posts = root.querySelectorAll("div.post");
 
   // A listing/home page has many posts and no numeric permalink — skip it so we
@@ -324,6 +324,7 @@ async function main() {
       const u = new URL(r.original);
       const p = u.pathname;
       if (p === "/" || p === "") return false;
+      if (!decodeURIComponent(p).replace(/\//g, "").trim()) return false; // whitespace-only path (e.g. /%20)
       if (u.search) return false;
       if (SKIP.test(p)) return false;
       if (ASSET.test(p)) return false;
