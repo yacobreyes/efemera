@@ -96,28 +96,35 @@ function decodeEntities(s: string): string {
 
 const cleanText = (s: string) => decodeEntities(s).replace(/\s+/g, " ").trim();
 
-// Gangrey ran on WordPress; the real author sits in the post meta as
-// "Posted on <date> by <author>" (a[rel=author] / .author), not h4.byline.
+// Gangrey ran on WordPress. The post meta line reads exactly:
+// "Posted on Month D, YYYY by authorname"
+// We extract both date and author from that single line to keep them consistent.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractByline(post: any, root: any): string {
-  const link =
-    post.querySelector('a[rel="author"]') || post.querySelector(".author a") ||
-    post.querySelector(".author") || post.querySelector(".vcard a") ||
-    root.querySelector('a[rel="author"]') || root.querySelector(".author a");
-  let name = link?.innerText ? cleanText(link.innerText) : "";
-  if (!name) {
-    const metaEl =
-      post.querySelector(".entry-meta") || post.querySelector(".post-meta") ||
-      post.querySelector(".postmeta") || post.querySelector(".meta") || post;
-    const t = metaEl?.innerText ? cleanText(metaEl.innerText) : "";
-    // Author is the token(s) right after "by"; stop at separators/stopwords.
-    const m = t.match(/\bby\s+([A-Za-z][A-Za-z.'\-]*(?:\s+[A-Za-z][A-Za-z.'\-]*)?)/i);
-    const STOP = /^(leave|posted|comments?|tagged|category|in|on|and|a)$/i;
-    if (m) name = m[1].split(/\s+/).filter(w => !STOP.test(w)).join(" ").trim();
+function extractMetaFields(post: any, root: any, timestamp: string): { byline: string; date: string } {
+  const fallbackDate = `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`;
+
+  // Search the whole page text for "Posted on <date> by <author>"
+  const pageText = cleanText(root.innerText ?? "");
+  const wpMeta = pageText.match(/posted\s+on\s+([A-Za-z]+ \d{1,2},?\s+\d{4})\s+by\s+([A-Za-z][A-Za-z .'\-]{0,40}?)(?:\s*(?:in\b|$|\|))/i);
+  if (wpMeta) {
+    const d = new Date(wpMeta[1]);
+    const date = isNaN(+d) ? parseDate(fallbackDate) : d.toISOString();
+    const name = wpMeta[2].trim().split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    return { byline: name, date };
   }
-  if (!name) return "";
-  // "ben" -> "Ben"
-  return name.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
+  // Fallback: try <time datetime="..."> for date, a[rel=author] for byline
+  const timeEl = root.querySelector("time[datetime]");
+  const date = timeEl?.getAttribute?.("datetime")
+    ? parseDate(timeEl.getAttribute("datetime"))
+    : parseDate(fallbackDate);
+
+  const authorEl = root.querySelector('a[rel="author"]') || root.querySelector(".author a");
+  const byline = authorEl?.innerText
+    ? cleanText(authorEl.innerText).split(/\s+/).map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+    : "";
+
+  return { byline, date };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -156,32 +163,8 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
   const headline = (headlineEl?.innerText ? cleanText(headlineEl.innerText) : "") ||
     cleanText((root.querySelector("title")?.innerText ?? "").replace(/\s*[|\-–—]\s*gangrey.*$/i, ""));
 
-  const byline = extractByline(post, root);
+  const { byline, date } = extractMetaFields(post, root, timestamp);
   const subheadline = "";
-
-  // Try to get the real WordPress publish date before stripping meta elements.
-  // Gangrey used standard WP markup: <time datetime="YYYY-MM-DD"> or
-  // <abbr class="published" title="YYYY-MM-DD"> or "Posted on Month D, YYYY".
-  function extractPostDate(): string {
-    // 1. <time datetime="..."> anywhere on page
-    const timeEl = root.querySelector("time[datetime]") || post?.querySelector("time[datetime]");
-    if (timeEl) {
-      const dt = timeEl.getAttribute("datetime");
-      if (dt) { const d = parseDate(dt); if (d !== new Date().toISOString()) return d; }
-    }
-    // 2. <abbr class="published" title="...">
-    const abbr = root.querySelector("abbr.published");
-    if (abbr) { const t = abbr.getAttribute("title"); if (t) { const d = parseDate(t); if (d) return d; } }
-    // 3. "Posted on Month D, YYYY" in meta text
-    const metaEl = post?.querySelector(".entry-meta") || post?.querySelector(".post-meta") ||
-      post?.querySelector(".postmeta") || post?.querySelector(".meta") || root.querySelector(".entry-meta");
-    const metaText = metaEl?.innerText ? cleanText(metaEl.innerText) : "";
-    const m = metaText.match(/(?:posted\s+on\s+)?([A-Z][a-z]+ \d{1,2},?\s+\d{4})/i);
-    if (m) { const d = parseDate(m[1]); if (d) return d; }
-    // 4. Fall back to Wayback capture timestamp
-    return parseDate(`${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`);
-  }
-  const date = extractPostDate();
 
   post.querySelectorAll("h2, h1, h4.byline, .byline, .entry-meta, .post-meta, script, style, .sharedaddy, #comments, .comments, .meta, .postmeta, .navigation").forEach(n => n.remove());
   const body = gangreyBodyBlocks(post);
