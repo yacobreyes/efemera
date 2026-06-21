@@ -10,7 +10,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app"
 
 export const metadata: Metadata = {
   title: "Efemera: A Journal of Creative Nonfiction",
-  description: "A literary blog by Yacob Reyes.",
+  description: "True stories for the time you have.",
   icons: { icon: "/favicon.png" },
   metadataBase: new URL(siteUrl),
   alternates: {
@@ -19,14 +19,14 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Efemera",
     title: "Efemera: A Journal of Creative Nonfiction",
-    description: "A literary blog by Yacob Reyes.",
+    description: "True stories for the time you have.",
     url: siteUrl,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Efemera" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Efemera: A Journal of Creative Nonfiction",
-    description: "A literary blog by Yacob Reyes.",
+    description: "True stories for the time you have.",
     images: ["/og-image.png"],
   },
 };
