@@ -170,7 +170,7 @@ export function renderNewsletterHtml({ subject, preview, intro, author, volume, 
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(preview)}</span>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:32px 0;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};padding:0;">
     <tr><td align="center">
       <table width="${PAGE_W}" cellpadding="0" cellspacing="0" style="width:${PAGE_W}px;max-width:100%;background:${CREAM};">
         <tr><td style="background:${CREAM};padding:20px 0;text-align:center;border-bottom:1px solid ${LINE};">
