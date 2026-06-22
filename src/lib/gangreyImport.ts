@@ -96,11 +96,8 @@ function decodeEntities(s: string): string {
 
 const cleanText = (s: string) => decodeEntities(s).replace(/\s+/g, " ").trim();
 
-// Gangrey ran on WordPress. The post meta line reads roughly:
-// "Posted on Month D, YYYY by authorname [in Category]"
-// We isolate the small element that holds that line (so the author can't bleed
-// into body text) and pull both the date and author from it, keeping them
-// consistent with each other.
+// Gangrey's custom theme uses:  <div class="posted">Posted by <b>ben</b> on 10/14/05 at ...</div>
+// NOT standard WordPress meta format.
 const DATE_RE = /([A-Za-z]+ \d{1,2},?\s+\d{4})/;
 const AUTHOR_RE = /\bby\s+([A-Za-z][A-Za-z.'\-]*(?:\s+[A-Za-z][A-Za-z.'\-]*){0,2})/i;
 const META_LINE_RE = /(?:posted\s+on\s+)?[A-Za-z]+ \d{1,2},?\s+\d{4}\s+by\s+[A-Za-z]/i;
@@ -113,40 +110,31 @@ function titleCase(s: string) {
 function extractMetaFields(post: any, root: any, timestamp: string): { byline: string; date: string } {
   const fallbackDate = `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`;
 
-  // Find the smallest element whose text is the meta line ("…DATE by AUTHOR").
-  // Iterating typical meta containers; the matching one with short text wins so
-  // we never grab the whole post body.
-  let metaText = "";
-  const scope = post ?? root;
-  const candidates = scope.querySelectorAll(
-    "p, div, small, span, li, em, address, .postmetadata, .entry-meta, .meta, .postmeta, .byline"
-  );
-  for (const el of candidates) {
-    const t = cleanText(el.innerText ?? "");
-    if (t.length && t.length < 140 && META_LINE_RE.test(t)) { metaText = t; break; }
-  }
+  // Gangrey format: <div class="posted">Posted by <b>AUTHOR</b> on MM/DD/YY at ...</div>
+  const postedEl = (post ?? root).querySelector("div.posted") || root.querySelector("div.posted");
+  if (postedEl) {
+    const authorEl = postedEl.querySelector("b") || postedEl.querySelector("strong");
+    const byline = authorEl?.innerText ? titleCase(cleanText(authorEl.innerText)) : "";
 
-  let date = parseDate(fallbackDate);
-  let byline = "";
-
-  if (metaText) {
-    const dm = metaText.match(DATE_RE);
-    if (dm) { const d = new Date(dm[1]); if (!isNaN(+d)) date = d.toISOString(); }
-    const am = metaText.match(AUTHOR_RE);
-    if (am) {
-      // Stop the author at "in"/"on"/category words just in case.
-      const STOP = /^(in|on|under|filed|tagged|category|general)$/i;
-      const name = am[1].split(/\s+/).filter(w => !STOP.test(w)).join(" ");
-      if (name) byline = titleCase(name);
+    // Date: "on 10/14/05" — two-digit year in 2000s
+    const t = cleanText(postedEl.innerText ?? "");
+    const dm = t.match(/\bon\s+(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+    if (dm) {
+      const [, m, d, yRaw] = dm;
+      const y = yRaw.length === 2 ? 2000 + parseInt(yRaw, 10) : parseInt(yRaw, 10);
+      const date = new Date(Date.UTC(y, parseInt(m, 10) - 1, parseInt(d, 10))).toISOString();
+      return { byline, date };
     }
-  } else {
-    // Fallback: <time datetime> for date, a[rel=author]/.author for byline.
-    const timeEl = root.querySelector("time[datetime]");
-    if (timeEl?.getAttribute?.("datetime")) date = parseDate(timeEl.getAttribute("datetime"));
-    const authorEl = root.querySelector('a[rel="author"]') || root.querySelector(".author a");
-    if (authorEl?.innerText) byline = titleCase(cleanText(authorEl.innerText));
+    return { byline, date: parseDate(fallbackDate) };
   }
 
+  // Fallback for any story that doesn't have div.posted
+  const timeEl = root.querySelector("time[datetime]");
+  const date = timeEl?.getAttribute?.("datetime")
+    ? parseDate(timeEl.getAttribute("datetime"))
+    : parseDate(fallbackDate);
+  const authorEl = root.querySelector('a[rel="author"]') || root.querySelector(".author a");
+  const byline = authorEl?.innerText ? titleCase(cleanText(authorEl.innerText)) : "";
   return { byline, date };
 }
 
