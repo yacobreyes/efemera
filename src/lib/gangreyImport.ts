@@ -51,7 +51,7 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
 
   const SKIP = /\/(page|category|tag|tagged|author|feed|wp-admin|wp-content|wp-login|comments|search)\b/i;
   const ASSET = /\.(css|js|png|jpe?g|gif|svg|ico|xml|json|txt|woff2?|ttf|pdf|mp3|mp4)$/i;
-  return all.filter(r => {
+  const isStory = (r: Candidate) => {
     try {
       const u = new URL(r.original);
       const p = u.pathname;
@@ -62,7 +62,61 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
       if (ASSET.test(p)) return false;
       return true;
     } catch { return false; }
-  });
+  };
+  const cdxList = all.filter(isStory);
+
+  // The CDX only captured gangrey.com in 2006-2007. Stories published after
+  // that weren't indexed by Wayback's bot. Supplement by scraping story links
+  // from the Dec 2016 homepage snapshot (the last known capture of the site).
+  const extra = await listCandidatesFromHomepage();
+  const seen = new Set(cdxList.map(c => c.original));
+  const merged = [...cdxList, ...extra.filter(c => isStory(c) && !seen.has(c.original))];
+  return merged;
+}
+
+// Fetch the Dec 2016 Wayback homepage and extract story links not in CDX.
+async function listCandidatesFromHomepage(): Promise<Candidate[]> {
+  const HOMEPAGE_TS = "20161217014844";
+  const HOMEPAGE_URL = "http://gangrey.com/";
+  try {
+    const html = await fetchWayback(HOMEPAGE_TS, HOMEPAGE_URL);
+    const root = parse(html);
+    const results: Candidate[] = [];
+    // Follow pagination — Gangrey showed ~10 posts per page
+    const links = root.querySelectorAll("a[href]");
+    for (const a of links) {
+      const href = a.getAttribute("href") ?? "";
+      try {
+        const u = new URL(href, "http://gangrey.com/");
+        if (u.hostname !== "gangrey.com") continue;
+        const p = u.pathname;
+        if (/^\/\d+\/?$/.test(p)) {
+          results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com${p}` });
+        }
+      } catch { /* skip */ }
+    }
+    // Also try a few paginated archive pages to catch stories not on homepage
+    for (const page of ["page/2", "page/3", "page/4", "page/5"]) {
+      try {
+        await sleep(400);
+        const pageHtml = await fetchWayback(HOMEPAGE_TS, `http://gangrey.com/${page}/`);
+        const pageRoot = parse(pageHtml);
+        for (const a of pageRoot.querySelectorAll("a[href]")) {
+          const href = a.getAttribute("href") ?? "";
+          try {
+            const u = new URL(href, "http://gangrey.com/");
+            if (u.hostname !== "gangrey.com") continue;
+            if (/^\/\d+\/?$/.test(u.pathname)) {
+              results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com${u.pathname}` });
+            }
+          } catch { /* skip */ }
+        }
+      } catch { /* page may not exist */ }
+    }
+    return results;
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchWayback(timestamp: string, url: string): Promise<string> {
