@@ -33,12 +33,30 @@ export async function GET(req: NextRequest) {
   const offset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
   const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10) || 10));
   const dry = url.searchParams.get("dry") === "1";
+  const diag = url.searchParams.get("diag") === "1";
 
   let candidates;
   try {
     candidates = await getCandidates();
   } catch (e) {
     return NextResponse.json({ error: `Wayback CDX failed: ${String(e)}` }, { status: 502 });
+  }
+
+  // Diagnostic mode: return raw HTML + parsed fields for one story
+  if (diag) {
+    const c = candidates[offset];
+    if (!c) return NextResponse.json({ error: "No candidate at offset" });
+    try {
+      const html = await fetchWayback(c.timestamp, c.original);
+      const { parse } = await import("node-html-parser");
+      const root = parse(html);
+      const post = root.querySelector("div.post");
+      const postHtml = post?.outerHTML?.slice(0, 2000) ?? "(no div.post found)";
+      const story = parseGangreyPage(html, c.original, c.timestamp);
+      return NextResponse.json({ url: c.original, timestamp: c.timestamp, postHtml, parsed: story ?? null });
+    } catch (e) {
+      return NextResponse.json({ error: String(e) });
+    }
   }
 
   const slice = candidates.slice(offset, offset + limit);
