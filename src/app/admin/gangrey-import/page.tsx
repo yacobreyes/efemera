@@ -122,35 +122,37 @@ export default function GangreyImportPage() {
     }
   }
 
-  // Build the URL→date map in year chunks, looping until it covers 2005–2016.
-  // Run this BEFORE importing so stories get accurate dates from the monthly
-  // archives. Each chunk is a couple of years (well under the 60s timeout).
+  // Harvest exact publication dates from Wayback's RSS-feed snapshots, looping
+  // by offset until every captured feed snapshot is processed. Run this BEFORE
+  // importing so stories get exact dates; then do a fresh import to apply them.
   async function buildMap() {
     setBuildingMap(true); setMapResult(null);
-    let fromYear: number | null = 2005;
-    let toYear: number | null = 2006;
-    let totalMapped = 0;
+    let offset: number | null = 0;
+    let retries = 0;
     try {
-      while (fromYear !== null) {
-        let data: { added: number; totalMapped: number; done: boolean; nextFromYear: number | null; nextToYear: number | null; error?: string };
+      while (offset !== null) {
+        let data: { totalCaptures: number; processedSnapshots: number; totalMapped: number; done: boolean; nextOffset: number | null; error?: string };
         try {
-          const res = await fetch(`/api/admin/import-gangrey?buildmap=1&fromYear=${fromYear}&toYear=${toYear}`);
+          const res = await fetch(`/api/admin/import-gangrey?buildfeeds=1&offset=${offset}&limit=30`);
           data = await res.json();
         } catch {
-          setMapResult(`⏳ Network blip on ${fromYear}–${toYear}, retrying…`);
-          await new Promise(r => setTimeout(r, 3000));
-          continue;
-        }
-        if (data.error) { setMapResult(`❌ ${data.error}`); break; }
-        totalMapped = data.totalMapped;
-        setMapResult(`Mapped ${fromYear}–${toYear} · ${totalMapped} dates so far…`);
-        if (data.done) {
-          setMapResult(`✅ Date map complete — ${totalMapped} stories mapped. Now run a fresh import to apply dates.`);
+          if (retries++ < 5) {
+            setMapResult(`⏳ Network blip at snapshot ${offset}, retrying…`);
+            await new Promise(r => setTimeout(r, 3000));
+            continue;
+          }
+          setMapResult(`❌ Gave up at snapshot ${offset}`);
           break;
         }
-        fromYear = data.nextFromYear;
-        toYear = data.nextToYear;
-        await new Promise(r => setTimeout(r, 400));
+        if (data.error) { setMapResult(`❌ ${data.error}`); break; }
+        retries = 0;
+        setMapResult(`Harvesting feeds — ${data.processedSnapshots}/${data.totalCaptures} snapshots · ${data.totalMapped} exact dates…`);
+        if (data.done) {
+          setMapResult(`✅ Date map complete — ${data.totalMapped} exact dates from ${data.totalCaptures} feed snapshots. Now run a fresh import to apply them.`);
+          break;
+        }
+        offset = data.nextOffset;
+        await new Promise(r => setTimeout(r, 300));
       }
     } finally {
       setBuildingMap(false);
@@ -214,8 +216,8 @@ export default function GangreyImportPage() {
       <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Fix story dates</h2>
         <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
-          Cross-references Gangrey&apos;s monthly archive pages to build an accurate date for every story.
-          Run this first, then start a fresh import so the correct dates get applied.
+          Harvests exact publication dates from Gangrey&apos;s archived RSS feeds (hundreds of Wayback
+          snapshots, 2005&ndash;2016). Run this first, then start a fresh import so the dates get applied.
         </p>
         <button onClick={buildMap} disabled={buildingMap || running} style={{ ...btnStyle(false), fontSize: 14 }}>
           {buildingMap ? "Building date map…" : "Build date map"}

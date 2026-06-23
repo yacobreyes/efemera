@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, buildDateMap, applyDateHints, type Candidate } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, buildDateMap, applyDateHints, listFeedCaptures, harvestFeedDates, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -8,6 +8,7 @@ export const maxDuration = 60;
 
 const TMP_CACHE = "/tmp/gangrey-cdx-cache.json";
 const DATEMAP_CACHE = "/tmp/gangrey-datemap.json";
+const FEED_CAPTURES_CACHE = "/tmp/gangrey-feed-captures.json";
 const CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
 
 // Load the prebuilt URL→date map from /tmp (built incrementally via ?buildmap).
@@ -16,6 +17,12 @@ async function loadDateMap(): Promise<Map<string, string>> {
     const raw = await fs.readFile(DATEMAP_CACHE, "utf8");
     return new Map(Object.entries(JSON.parse(raw) as Record<string, string>));
   } catch { return new Map(); }
+}
+
+async function saveDateMap(map: Map<string, string>): Promise<void> {
+  await fs.writeFile(DATEMAP_CACHE, JSON.stringify(Object.fromEntries(map)), "utf8").catch(() => {});
+  _mem = null;
+  await fs.unlink(TMP_CACHE).catch(() => {}); // force candidates to re-stamp
 }
 
 // Cache CDX index to /tmp so it survives lambda cold starts.
@@ -84,6 +91,48 @@ export async function GET(req: NextRequest) {
       });
     } catch (e) {
       return NextResponse.json({ error: `buildDateMap failed: ${String(e)}`, fromYear, toYear }, { status: 502 });
+    }
+  }
+
+  // Harvest exact dates from Wayback's RSS-feed snapshots. The feed-capture
+  // list is fetched once (cached to /tmp), then processed in slices of `limit`
+  // snapshots per call. The admin page loops by offset until done. Earliest
+  // pubDate per post wins (true publication date).
+  if (url.searchParams.get("buildfeeds") === "1") {
+    const feedOffset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
+    const feedLimit = Math.min(60, Math.max(1, parseInt(url.searchParams.get("limit") ?? "30", 10) || 30));
+    try {
+      // Load or build the feed-capture list
+      let captures: Candidate[];
+      try {
+        const raw = await fs.readFile(FEED_CAPTURES_CACHE, "utf8");
+        captures = JSON.parse(raw) as Candidate[];
+        if (!Array.isArray(captures) || !captures.length) throw new Error("empty");
+      } catch {
+        captures = await listFeedCaptures();
+        await fs.writeFile(FEED_CAPTURES_CACHE, JSON.stringify(captures), "utf8").catch(() => {});
+      }
+
+      const chunk = await harvestFeedDates(captures, feedOffset, feedLimit);
+      const existing = await loadDateMap();
+      for (const [k, v] of chunk) {
+        const prev = existing.get(k);
+        if (!prev || v < prev) existing.set(k, v); // earliest wins
+      }
+      await saveDateMap(existing);
+
+      const nextOffset = feedOffset + feedLimit;
+      return NextResponse.json({
+        offset: feedOffset, limit: feedLimit,
+        totalCaptures: captures.length,
+        processedSnapshots: Math.min(nextOffset, captures.length),
+        addedThisChunk: chunk.size,
+        totalMapped: existing.size,
+        done: nextOffset >= captures.length,
+        nextOffset: nextOffset >= captures.length ? null : nextOffset,
+      });
+    } catch (e) {
+      return NextResponse.json({ error: `feed harvest failed: ${String(e)}`, offset: feedOffset }, { status: 502 });
     }
   }
 

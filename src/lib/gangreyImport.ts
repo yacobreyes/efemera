@@ -121,6 +121,85 @@ export function applyDateHints(candidates: Candidate[], dateMap: Map<string, str
   }
 }
 
+// ── RSS-feed date harvesting ────────────────────────────────────────────────
+// Gangrey was WordPress, which publishes an RSS feed with machine-readable
+// <pubDate> and the post id in <guid>. Wayback captured that feed hundreds of
+// times across 2005–2016, so the UNION of all snapshots gives exact dates for
+// far more posts than a single monthly-archive snapshot — and with no HTML
+// guesswork. This is the most accurate date source we have.
+
+// List every distinct Wayback capture of Gangrey's RSS feed(s).
+export async function listFeedCaptures(): Promise<Candidate[]> {
+  const pairs: [string, string][] = [
+    ["output", "json"], ["url", "gangrey.com/feed"], ["matchType", "prefix"],
+    ["filter", "statuscode:200"],
+    ["collapse", "digest"], // drop byte-identical snapshots
+    ["fl", "timestamp,original"], ["from", "20050101"], ["to", "20170201"],
+    ["limit", "100000"],
+  ];
+  const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+  const res = await fetchRetry(`${CDX}?${qs}`);
+  if (!res.ok) throw new Error(`CDX feed ${res.status}`);
+  const rows = await res.json();
+  if (!Array.isArray(rows) || rows.length < 2) return [];
+  const [header, ...data] = rows as string[][];
+  const all = data.map(r => Object.fromEntries(header.map((k, i) => [k, r[i]]))) as unknown as Candidate[];
+  // Keep only the main post feed; drop comment feeds.
+  return all.filter(c => !/comments\/feed/i.test(c.original));
+}
+
+// Parse one RSS feed snapshot into [urlKey, isoDate] pairs. Each <item> yields
+// both its <guid> (?p=N form) and <link> (permalink form) mapped to the same
+// date, so applyDateHints matches whichever URL form a candidate uses.
+export function parseFeedDates(xml: string): [string, string][] {
+  const out: [string, string][] = [];
+  const items = xml.match(/<item\b[\s\S]*?<\/item>/gi) ?? [];
+  for (const item of items) {
+    const pub = item.match(/<pubDate>([^<]+)<\/pubDate>/i)?.[1];
+    if (!pub) continue;
+    const d = new Date(pub.trim());
+    if (isNaN(+d)) continue;
+    const iso = d.toISOString();
+    const urls: string[] = [];
+    const guid = item.match(/<guid[^>]*>([^<]+)<\/guid>/i)?.[1];
+    const link = item.match(/<link>([^<]+)<\/link>/i)?.[1];
+    if (guid) urls.push(guid.trim());
+    if (link) urls.push(link.trim());
+    for (const u of urls) {
+      // Normalize the wayback-rewritten host if present
+      const clean = u.replace(/^https?:\/\/web\.archive\.org\/web\/\d+\w*\//, "");
+      const key = dateMapKey(clean);
+      if (key) out.push([key, iso]);
+    }
+  }
+  return out;
+}
+
+// Fetch a slice of feed snapshots and merge their dates into a map. Bounded by
+// `limit` so each call stays under the function timeout; the caller loops by
+// offset and persists the cumulative map.
+export async function harvestFeedDates(
+  captures: Candidate[],
+  offset: number,
+  limit: number
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const slice = captures.slice(offset, offset + limit);
+  for (const c of slice) {
+    try {
+      const xml = await fetchWayback(c.timestamp, c.original);
+      for (const [key, iso] of parseFeedDates(xml)) {
+        // Prefer the EARLIEST date seen — that's the true publication date
+        // (later feed snapshots can show edited/republished timestamps).
+        const prev = map.get(key);
+        if (!prev || iso < prev) map.set(key, iso);
+      }
+    } catch { /* snapshot fetch failed — skip */ }
+    await sleep(150);
+  }
+  return map;
+}
+
 // Build a URL → ISO date map by scraping every monthly archive page
 // (http://gangrey.com/?m=YYYYMM) from June 2005 through Dec 2016.
 // The monthly archive lists each story with its exact publication date in
