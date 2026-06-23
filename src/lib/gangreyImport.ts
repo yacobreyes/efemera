@@ -154,20 +154,26 @@ export async function listFeedCaptures(): Promise<Candidate[]> {
 // Parse one RSS feed snapshot into [urlKey, isoDate] pairs. Each <item> yields
 // both its <guid> (?p=N form) and <link> (permalink form) mapped to the same
 // date, so applyDateHints matches whichever URL form a candidate uses.
+// Unwrap CDATA sections: <foo><![CDATA[value]]></foo> → "value"
+function unwrapCdata(s: string): string {
+  return s.replace(/^<!\[CDATA\[([\s\S]*?)\]\]>$/, "$1").trim();
+}
+
 export function parseFeedDates(xml: string): [string, string][] {
   const out: [string, string][] = [];
   const items = xml.match(/<item\b[\s\S]*?<\/item>/gi) ?? [];
   for (const item of items) {
-    const pub = item.match(/<pubDate>([^<]+)<\/pubDate>/i)?.[1];
+    const pub = item.match(/<pubDate>([\s\S]*?)<\/pubDate>/i)?.[1];
     if (!pub) continue;
-    const d = new Date(pub.trim());
+    const d = new Date(unwrapCdata(pub));
     if (isNaN(+d)) continue;
     const iso = d.toISOString();
     const urls: string[] = [];
-    const guid = item.match(/<guid[^>]*>([^<]+)<\/guid>/i)?.[1];
-    const link = item.match(/<link>([^<]+)<\/link>/i)?.[1];
-    if (guid) urls.push(guid.trim());
-    if (link) urls.push(link.trim());
+    // CDATA-aware extraction for guid and link
+    const guidRaw = item.match(/<guid[^>]*>([\s\S]*?)<\/guid>/i)?.[1];
+    const linkRaw = item.match(/<link>([\s\S]*?)<\/link>/i)?.[1];
+    if (guidRaw) urls.push(unwrapCdata(guidRaw));
+    if (linkRaw) urls.push(unwrapCdata(linkRaw));
     for (const u of urls) {
       // Normalize the wayback-rewritten host if present
       const clean = u.replace(/^https?:\/\/web\.archive\.org\/web\/\d+\w*\//, "");
@@ -176,6 +182,12 @@ export function parseFeedDates(xml: string): [string, string][] {
     }
   }
   return out;
+}
+
+// Expose for the feedprobe diagnostic endpoint.
+export function parseFeedDatesDiag(xml: string): { items: number; pairs: [string, string][]; rawItems: string[] } {
+  const rawItems = xml.match(/<item\b[\s\S]*?<\/item>/gi) ?? [];
+  return { items: rawItems.length, pairs: parseFeedDates(xml), rawItems: rawItems.slice(0, 3) };
 }
 
 // Fetch a slice of feed snapshots and merge their dates into a map. Bounded by

@@ -24,6 +24,9 @@ export default function GangreyImportPage() {
   const [dedupResult, setDedupResult] = useState<string | null>(null);
   const [buildingMap, setBuildingMap] = useState(false);
   const [mapResult, setMapResult] = useState<string | null>(null);
+  const [feedProbeOffset, setFeedProbeOffset] = useState(0);
+  const [feedProbeResult, setFeedProbeResult] = useState<string | null>(null);
+  const [probingFeed, setProbingFeed] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/import-gangrey/count")
@@ -223,6 +226,39 @@ export default function GangreyImportPage() {
           {buildingMap ? "Building date map…" : "Build date map"}
         </button>
         {mapResult && <p style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>{mapResult}</p>}
+      </div>
+
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Probe feed snapshot</h2>
+        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+          Fetches one feed snapshot and shows the raw XML + how many dates were extracted. Use offset 0, 1, 2… to inspect different snapshots.
+        </p>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <input type="number" min={0} value={feedProbeOffset} onChange={e => setFeedProbeOffset(Number(e.target.value))}
+            style={{ width: 80, padding: "6px 8px", border: "1px solid #ccc", borderRadius: 4, fontSize: 14 }} />
+          <button onClick={async () => {
+            setProbingFeed(true); setFeedProbeResult(null);
+            try {
+              const res = await fetch(`/api/admin/import-gangrey?feedprobe=1&offset=${feedProbeOffset}`);
+              const d = await res.json();
+              if (d.error) { setFeedProbeResult(`❌ ${d.error}`); return; }
+              setFeedProbeResult(
+                `Capture ${d.offset}/${d.total}: ${d.capture.original}\n` +
+                `Items found: ${d.itemCount} · Pairs extracted: ${d.pairsExtracted}\n` +
+                `Sample pairs: ${JSON.stringify(d.pairs.slice(0, 5), null, 2)}\n\n` +
+                `--- XML head ---\n${d.xmlHead}`
+              );
+            } catch (e) { setFeedProbeResult(`❌ ${String(e)}`); }
+            finally { setProbingFeed(false); }
+          }} disabled={probingFeed} style={{ ...btnStyle(false), fontSize: 14 }}>
+            {probingFeed ? "Probing…" : "Probe"}
+          </button>
+        </div>
+        {feedProbeResult && (
+          <pre style={{ marginTop: 10, fontSize: 11, background: "#0d1117", color: "#c9d1d9", padding: 12, borderRadius: 6, overflowX: "auto", whiteSpace: "pre-wrap", maxHeight: 400, overflowY: "auto" }}>
+            {feedProbeResult}
+          </pre>
+        )}
       </div>
 
       <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>

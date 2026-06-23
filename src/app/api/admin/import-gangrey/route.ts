@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, buildDateMap, applyDateHints, listFeedCaptures, harvestFeedDates, type Candidate } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, buildDateMap, applyDateHints, listFeedCaptures, harvestFeedDates, parseFeedDatesDiag, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -105,6 +105,39 @@ export async function GET(req: NextRequest) {
       });
     } catch (e) {
       return NextResponse.json({ error: `feed list failed: ${String(e)}` }, { status: 502 });
+    }
+  }
+
+  // Probe a single feed snapshot: return raw XML head + parseFeedDatesDiag output.
+  // ?feedprobe=1&offset=N — uses the cached feed-capture list (or fetches it).
+  if (url.searchParams.get("feedprobe") === "1") {
+    const probeOffset = Math.max(0, parseInt(url.searchParams.get("offset") ?? "0", 10) || 0);
+    try {
+      let captures: Candidate[];
+      try {
+        const raw = await fs.readFile(FEED_CAPTURES_CACHE, "utf8");
+        captures = JSON.parse(raw) as Candidate[];
+        if (!Array.isArray(captures) || !captures.length) throw new Error("empty");
+      } catch {
+        captures = await listFeedCaptures();
+        await fs.writeFile(FEED_CAPTURES_CACHE, JSON.stringify(captures), "utf8").catch(() => {});
+      }
+      captures = captures.filter(c => !/feed=comments|comments-rss|comments\/feed|comment-feed/i.test(c.original));
+      const c = captures[probeOffset];
+      if (!c) return NextResponse.json({ error: "No capture at that offset", total: captures.length });
+      const xml = await fetchWayback(c.timestamp, c.original);
+      const diag = parseFeedDatesDiag(xml);
+      return NextResponse.json({
+        offset: probeOffset, total: captures.length,
+        capture: { timestamp: c.timestamp, original: c.original },
+        xmlHead: xml.slice(0, 2000),
+        itemCount: diag.items,
+        pairsExtracted: diag.pairs.length,
+        pairs: diag.pairs.slice(0, 20),
+        rawItems: diag.rawItems,
+      });
+    } catch (e) {
+      return NextResponse.json({ error: `feedprobe failed: ${String(e)}` }, { status: 502 });
     }
   }
 
