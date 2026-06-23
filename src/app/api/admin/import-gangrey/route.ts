@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, type Candidate } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -42,6 +42,12 @@ export async function GET(req: NextRequest) {
   if (url.searchParams.get("diaghome") === "1") {
     const ts = url.searchParams.get("ts") ?? undefined;
     return NextResponse.json(await diagnoseHomepage(ts));
+  }
+  // Probe an arbitrary URL: ?probe=http://gangrey.com/?p=5852
+  const probe = url.searchParams.get("probe");
+  if (probe) {
+    const ts = url.searchParams.get("ts") ?? undefined;
+    return NextResponse.json(await probeUrl(probe, ts));
   }
 
   let candidates;

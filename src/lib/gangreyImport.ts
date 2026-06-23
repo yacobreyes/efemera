@@ -154,6 +154,28 @@ export async function diagnoseHomepage(ts = "20161217014844") {
   return out;
 }
 
+// Diagnostic: fetch an arbitrary gangrey URL and dump its article/post markup.
+export async function probeUrl(original: string, ts = "20161217014844") {
+  const out: Record<string, unknown> = { original, ts };
+  try {
+    const html = await fetchWayback(ts, original);
+    out.htmlLength = html.length;
+    const root = parse(html);
+    out.title = root.querySelector("title")?.innerText ?? "";
+    const el = root.querySelector("article") || root.querySelector("div.post") ||
+      root.querySelector(".entry-content")?.parentNode || root.querySelector("main");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    out.containerTag = (el as any)?.rawTagName ?? null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    out.containerClass = (el as any)?.getAttribute?.("class") ?? null;
+    out.markup = el?.outerHTML?.slice(0, 2500) ?? "(no article/post container found)";
+    out.parsed = parseGangreyPage(html, original, ts);
+  } catch (e) {
+    out.error = String(e);
+  }
+  return out;
+}
+
 export async function fetchWayback(timestamp: string, url: string): Promise<string> {
   const res = await fetchRetry(`${WB}/${timestamp}id_/${url}`, {
     headers: { "User-Agent": "gangrey-archive-importer/1.0 (+mailto:yacob@efemera.org)" },
