@@ -11,13 +11,15 @@ const CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
 
 // Cache CDX index to /tmp so it survives lambda cold starts.
 let _mem: { at: number; list: Candidate[] } | null = null;
-async function getCandidates(): Promise<Candidate[]> {
-  if (_mem && Date.now() - _mem.at < CACHE_TTL) return _mem.list;
-  try {
-    const raw = await fs.readFile(TMP_CACHE, "utf8");
-    const { at, list } = JSON.parse(raw) as { at: number; list: Candidate[] };
-    if (Date.now() - at < CACHE_TTL) { _mem = { at, list }; return list; }
-  } catch { /* cache miss */ }
+async function getCandidates(fresh = false): Promise<Candidate[]> {
+  if (!fresh) {
+    if (_mem && Date.now() - _mem.at < CACHE_TTL) return _mem.list;
+    try {
+      const raw = await fs.readFile(TMP_CACHE, "utf8");
+      const { at, list } = JSON.parse(raw) as { at: number; list: Candidate[] };
+      if (Date.now() - at < CACHE_TTL) { _mem = { at, list }; return list; }
+    } catch { /* cache miss */ }
+  }
   const list = await listCandidates();
   const at = Date.now();
   _mem = { at, list };
@@ -34,12 +36,26 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(20, Math.max(1, parseInt(url.searchParams.get("limit") ?? "10", 10) || 10));
   const dry = url.searchParams.get("dry") === "1";
   const diag = url.searchParams.get("diag") === "1";
+  const fresh = url.searchParams.get("fresh") === "1";
 
   let candidates;
   try {
-    candidates = await getCandidates();
+    candidates = await getCandidates(fresh);
   } catch (e) {
     return NextResponse.json({ error: `Wayback CDX failed: ${String(e)}` }, { status: 502 });
+  }
+
+  // Stats mode: report the candidate list make-up (post-id range, last 20 urls)
+  if (url.searchParams.get("stats") === "1") {
+    const ids = candidates
+      .map(c => { const m = c.original.match(/\/(\d+)\/?$/); return m ? parseInt(m[1], 10) : null; })
+      .filter((n): n is number => n !== null);
+    return NextResponse.json({
+      total: candidates.length,
+      minId: ids.length ? Math.min(...ids) : null,
+      maxId: ids.length ? Math.max(...ids) : null,
+      last20: candidates.slice(-20).map(c => c.original),
+    });
   }
 
   // Diagnostic mode: return raw HTML + parsed fields for one story
