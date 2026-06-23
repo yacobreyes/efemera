@@ -49,6 +49,9 @@ export default async function GangreyPage() {
         .gr-title { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(48px, 7vw, 80px); line-height: .95; letter-spacing: -.035em; margin: 0 0 20px; }
         .gr-sub { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(18px, 2.5vw, 24px); color: #5a5048; margin: 0; line-height: 1.4; max-width: 560px; }
         .gr-stats { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #8a7f6f; letter-spacing: .08em; margin-top: 20px; }
+        .gr-year-nav { display: flex; flex-wrap: wrap; gap: 6px 4px; margin-top: 28px; }
+        .gr-year-nav a { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #5a5048; text-decoration: none; padding: 5px 10px; border: 1px solid #cfc3b3; border-radius: 2px; transition: background .15s, color .15s, border-color .15s; }
+        .gr-year-nav a:hover { background: #8e0d0d; color: #fff; border-color: #8e0d0d; }
 
         .gr-year-block { display: grid; grid-template-columns: 100px 1fr; gap: 0 48px; margin-bottom: 0; }
         .gr-year-block + .gr-year-block { border-top: 1px solid #cfc3b3; }
@@ -104,12 +107,17 @@ export default async function GangreyPage() {
           <h1 className="gr-title">From Gangrey</h1>
           <p className="gr-sub">A second life for stories first published on the now-defunct Gangrey.com.</p>
           {gangrey.length > 0 && <div className="gr-stats">{gangrey.length} stories · 2005 – 2016</div>}
+          {years.length > 1 && (
+            <nav className="gr-year-nav" aria-label="Jump to year">
+              {years.map(y => <a key={y} href={`#year-${y}`}>{y}</a>)}
+            </nav>
+          )}
         </div>
 
         {gangrey.length === 0
           ? <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 22, fontStyle: "italic", color: "#6f655b" }}>No stories yet.</p>
           : years.map(year => (
-          <div key={year} className="gr-year-block">
+          <div key={year} id={`year-${year}`} className="gr-year-block">
             <div className="gr-year-col">
               <div className="gr-year-label">{year}</div>
             </div>
