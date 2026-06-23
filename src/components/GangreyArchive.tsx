@@ -32,16 +32,18 @@ function readingTime(body: unknown[]) {
 
 export default function GangreyArchive({ posts }: { posts: Post[] }) {
   const [query, setQuery] = useState("");
+  const [activeYear, setActiveYear] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return posts;
-    return posts.filter(p =>
-      p.headline.toLowerCase().includes(q) ||
-      (p.byline ?? "").toLowerCase().includes(q) ||
-      plainText(p.body).toLowerCase().includes(q)
-    );
-  }, [posts, query]);
+    return posts.filter(p => {
+      if (activeYear && new Date(p.date).getUTCFullYear().toString() !== activeYear) return false;
+      if (!q) return true;
+      return p.headline.toLowerCase().includes(q) ||
+        (p.byline ?? "").toLowerCase().includes(q) ||
+        plainText(p.body).toLowerCase().includes(q);
+    });
+  }, [posts, query, activeYear]);
 
   const byYear: Record<string, Post[]> = {};
   for (const p of filtered) {
@@ -50,7 +52,7 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
   }
   const years = Object.keys(byYear).sort((a, b) => +b - +a);
   const allYears = [...new Set(posts.map(p => new Date(p.date).getUTCFullYear().toString()))].sort((a,b)=>+b-+a);
-  const searching = query.trim().length > 0;
+  const searching = query.trim().length > 0 || activeYear !== null;
 
   return (
     <>
@@ -61,8 +63,9 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
         .gr-search:focus { border-color: #8e0d0d; }
         .gr-search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #8a7f6f; font-size: 16px; line-height: 1; padding: 0; }
         .gr-year-nav { display: flex; flex-wrap: wrap; gap: 6px 4px; }
-        .gr-year-nav a { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #5a5048; text-decoration: none; padding: 5px 10px; border: 1px solid #cfc3b3; border-radius: 2px; transition: background .15s, color .15s, border-color .15s; }
-        .gr-year-nav a:hover { background: #8e0d0d; color: #fff; border-color: #8e0d0d; }
+        .gr-year-btn { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #5a5048; background: none; padding: 5px 10px; border: 1px solid #cfc3b3; border-radius: 2px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+        .gr-year-btn:hover { background: #ede7dc; border-color: #8a7f6f; }
+        .gr-year-btn.active { background: #8e0d0d; color: #fff; border-color: #8e0d0d; }
         .gr-no-results { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; margin-top: 48px; }
 
         .gr-year-block { display: grid; grid-template-columns: 100px 1fr; gap: 0 48px; }
@@ -108,9 +111,16 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
             <button className="gr-search-clear" onClick={() => setQuery("")} aria-label="Clear search">×</button>
           )}
         </div>
-        {!searching && allYears.length > 1 && (
-          <nav className="gr-year-nav" aria-label="Jump to year">
-            {allYears.map(y => <a key={y} href={`#year-${y}`}>{y}</a>)}
+        {allYears.length > 1 && (
+          <nav className="gr-year-nav" aria-label="Filter by year">
+            {allYears.map(y => (
+              <button
+                key={y}
+                className={`gr-year-btn${activeYear === y ? " active" : ""}`}
+                onClick={() => setActiveYear(activeYear === y ? null : y)}
+                aria-pressed={activeYear === y}
+              >{y}</button>
+            ))}
           </nav>
         )}
         {searching && (
@@ -120,7 +130,7 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
 
       <div style={{ marginTop: 48 }}>
         {filtered.length === 0
-          ? <p className="gr-no-results">No stories match &ldquo;{query}&rdquo;.</p>
+          ? <p className="gr-no-results">No stories{activeYear ? ` from ${activeYear}` : ""}{query.trim() ? ` matching "${query.trim()}"` : ""}.</p>
           : years.map(year => (
             <div key={year} id={`year-${year}`} className="gr-year-block">
               <div className="gr-year-col">
