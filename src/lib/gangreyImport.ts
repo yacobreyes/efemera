@@ -35,11 +35,15 @@ export type GangreyStory = {
 export type Candidate = { timestamp: string; original: string };
 
 export async function listCandidates(from = "20050101", to = "20170101"): Promise<Candidate[]> {
+  // NOTE: no collapse=urlkey — we want EVERY capture so we can keep the LATEST
+  // snapshot of each post. Gangrey ran 2005-2016; a post like /1745 may have an
+  // early (2006) capture of unrelated/placeholder content and a real 2016
+  // capture. We must fetch the latest, or we'd parse stale/wrong content.
   const pairs: [string, string][] = [
     ["output", "json"], ["url", "gangrey.com"], ["matchType", "domain"],
     ["filter", "statuscode:200"], ["filter", "mimetype:text/html"],
     ["fl", "timestamp,original"], ["from", from], ["to", to],
-    ["collapse", "urlkey"], ["limit", "50000"],
+    ["limit", "200000"],
   ];
   const qs = pairs.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
   const res = await fetchRetry(`${CDX}?${qs}`);
@@ -63,7 +67,17 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
       return true;
     } catch { return false; }
   };
-  const cdxList = all.filter(isStory);
+
+  // Dedupe by normalized path, keeping the LATEST capture timestamp per post.
+  const latest = new Map<string, Candidate>();
+  for (const r of all) {
+    if (!isStory(r)) continue;
+    let key: string;
+    try { key = new URL(r.original).pathname.replace(/\/$/, ""); } catch { continue; }
+    const prev = latest.get(key);
+    if (!prev || r.timestamp > prev.timestamp) latest.set(key, r);
+  }
+  const cdxList = [...latest.values()];
 
   // The CDX only captured gangrey.com in 2006-2007. Stories published after
   // that weren't indexed by Wayback's bot. Supplement by scraping story links
