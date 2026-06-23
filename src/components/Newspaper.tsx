@@ -203,7 +203,7 @@ export default function Feed({
           border-right: 1px solid var(--line);
           padding-right: 28px;
         }
-        .ef-card:last-child { border-right: 0; padding-right: 0; }
+        .ef-card:last-child { border-right: 0; }
         .ef-thumb {
           aspect-ratio: 1.35 / 1;
           margin-bottom: 24px;
