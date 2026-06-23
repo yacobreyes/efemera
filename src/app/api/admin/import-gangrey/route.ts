@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, type Candidate } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -37,6 +37,12 @@ export async function GET(req: NextRequest) {
   const dry = url.searchParams.get("dry") === "1";
   const diag = url.searchParams.get("diag") === "1";
   const fresh = url.searchParams.get("fresh") === "1";
+
+  // Homepage probe — runs before candidate list so a stale cache won't block it.
+  if (url.searchParams.get("diaghome") === "1") {
+    const ts = url.searchParams.get("ts") ?? undefined;
+    return NextResponse.json(await diagnoseHomepage(ts));
+  }
 
   let candidates;
   try {

@@ -133,6 +133,27 @@ async function listCandidatesFromHomepage(): Promise<Candidate[]> {
   }
 }
 
+// Diagnostic: probe several homepage snapshots and report what links exist.
+export async function diagnoseHomepage(ts = "20161217014844") {
+  const out: Record<string, unknown> = { ts };
+  try {
+    const html = await fetchWayback(ts, "http://gangrey.com/");
+    out.htmlLength = html.length;
+    const root = parse(html);
+    const hrefs = root.querySelectorAll("a[href]").map(a => a.getAttribute("href") ?? "");
+    out.totalLinks = hrefs.length;
+    // Sample distinct hrefs that point back at gangrey
+    const gangreyHrefs = hrefs.filter(h => /gangrey\.com/i.test(h) || h.startsWith("/"));
+    out.sampleGangreyHrefs = [...new Set(gangreyHrefs)].slice(0, 40);
+    // First 600 chars of the page text + title for orientation
+    out.title = root.querySelector("title")?.innerText ?? "";
+    out.postDivs = root.querySelectorAll("div.post, article").length;
+  } catch (e) {
+    out.error = String(e);
+  }
+  return out;
+}
+
 export async function fetchWayback(timestamp: string, url: string): Promise<string> {
   const res = await fetchRetry(`${WB}/${timestamp}id_/${url}`, {
     headers: { "User-Agent": "gangrey-archive-importer/1.0 (+mailto:yacob@efemera.org)" },
