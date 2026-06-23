@@ -20,6 +20,8 @@ export default function GangreyImportPage() {
   const [resumeOffset, setResumeOffset] = useState<number | null>(null);
   const [hasRun, setHasRun] = useState(false);
   const [savedCount, setSavedCount] = useState<number | null>(null);
+  const [deduping, setDeduping] = useState(false);
+  const [dedupResult, setDedupResult] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/import-gangrey/count")
@@ -102,6 +104,22 @@ export default function GangreyImportPage() {
     }
   }
 
+  async function runDedup() {
+    setDeduping(true); setDedupResult(null);
+    try {
+      const res = await fetch("/api/admin/import-gangrey/dedup", { method: "POST" });
+      const data = await res.json();
+      if (data.error) { setDedupResult(`❌ ${data.error}`); return; }
+      setDedupResult(`✅ Deleted ${data.deleted} duplicate${data.deleted !== 1 ? "s" : ""} — ${data.kept} stories remain.`);
+      fetch("/api/admin/import-gangrey/count").then(r => r.json())
+        .then(d => { if (typeof d.count === "number") setSavedCount(d.count); }).catch(() => {});
+    } catch (e) {
+      setDedupResult(`❌ ${String(e)}`);
+    } finally {
+      setDeduping(false);
+    }
+  }
+
   const pct = total ? Math.round((processed / total) * 100) : 0;
   const btnStyle = (primary: boolean): React.CSSProperties => ({
     background: primary ? "#8B0000" : "#fff",
@@ -156,7 +174,18 @@ export default function GangreyImportPage() {
         </div>
       )}
 
-      <div style={{ background: "#0d1117", color: "#c9d1d9", borderRadius: 8, padding: 16, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 12.5, lineHeight: 1.6, maxHeight: 420, overflowY: "auto", whiteSpace: "pre-wrap" }}>
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Clean up duplicates</h2>
+        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+          Finds stories with the same headline in Sanity and deletes the lower-quality copy (keeps the one with a byline and a path-based slug).
+        </p>
+        <button onClick={runDedup} disabled={deduping || running} style={{ ...btnStyle(false), fontSize: 14 }}>
+          {deduping ? "Deleting duplicates…" : "Delete duplicates from Sanity"}
+        </button>
+        {dedupResult && <p style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>{dedupResult}</p>}
+      </div>
+
+      <div style={{ marginTop: 24, background: "#0d1117", color: "#c9d1d9", borderRadius: 8, padding: 16, fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 12.5, lineHeight: 1.6, maxHeight: 420, overflowY: "auto", whiteSpace: "pre-wrap" }}>
         {log.length === 0 ? <span style={{ color: "#6e7681" }}>Log will appear here…</span> : log.map((l, i) => <div key={i}>{l}</div>)}
       </div>
     </div>

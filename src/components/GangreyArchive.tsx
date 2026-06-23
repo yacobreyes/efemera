@@ -71,7 +71,7 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
         .gr-year-block { display: grid; grid-template-columns: 100px 1fr; gap: 0 48px; }
         .gr-year-block + .gr-year-block { border-top: 1px solid #cfc3b3; }
         .gr-year-col { padding-top: 32px; }
-        .gr-year-label { font-family: "Cormorant Garamond", Georgia, serif; font-size: 56px; font-weight: 700; line-height: 1; color: #d4c9b8; letter-spacing: -.04em; position: sticky; top: 20px; }
+        .gr-year-label { font-family: "Cormorant Garamond", Georgia, serif; font-size: 56px; font-weight: 700; line-height: 1; color: #8e0d0d; letter-spacing: -.04em; position: sticky; top: 20px; }
         .gr-stories { border-left: 1px solid #cfc3b3; }
         .gr-row { display: grid; grid-template-columns: 1fr auto; gap: 0 32px; padding: 28px 0 28px 40px; border-bottom: 1px solid #e8e0d4; align-items: start; transition: background .15s; }
         .gr-row:hover { background: #ede7dc; }
