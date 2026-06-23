@@ -59,21 +59,30 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
     try {
       const u = new URL(r.original);
       const p = u.pathname;
+      // 2016 WP relaunch used ?p=N query-string permalinks
+      if (u.search && !/^\?p=\d+$/.test(u.search)) return false;
+      // For ?p=N URLs the path is just "/"
+      if (u.search && /^\?p=\d+$/.test(u.search)) {
+        return true;
+      }
       if (p === "/" || p === "") return false;
       if (!decodeURIComponent(p).replace(/\//g, "").trim()) return false;
-      if (u.search) return false;
       if (SKIP.test(p)) return false;
       if (ASSET.test(p)) return false;
       return true;
     } catch { return false; }
   };
 
-  // Dedupe by normalized path, keeping the LATEST capture timestamp per post.
+  // Dedupe by normalized key, keeping the LATEST capture timestamp per post.
   const latest = new Map<string, Candidate>();
   for (const r of all) {
     if (!isStory(r)) continue;
     let key: string;
-    try { key = new URL(r.original).pathname.replace(/\/$/, ""); } catch { continue; }
+    try {
+      const u = new URL(r.original);
+      // ?p=N URLs: key by the p value; path-based: key by pathname
+      key = /^\?p=\d+$/.test(u.search) ? u.search : u.pathname.replace(/\/$/, "");
+    } catch { continue; }
     const prev = latest.get(key);
     if (!prev || r.timestamp > prev.timestamp) latest.set(key, r);
   }
@@ -106,6 +115,8 @@ async function listCandidatesFromHomepage(): Promise<Candidate[]> {
         const p = u.pathname;
         if (/^\/\d+\/?$/.test(p)) {
           results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com${p}` });
+        } else if (/^\?p=\d+$/.test(u.search) && (p === "/" || p === "")) {
+          results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com/${u.search}` });
         }
       } catch { /* skip */ }
     }
@@ -122,6 +133,8 @@ async function listCandidatesFromHomepage(): Promise<Candidate[]> {
             if (u.hostname !== "gangrey.com") continue;
             if (/^\/\d+\/?$/.test(u.pathname)) {
               results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com${u.pathname}` });
+            } else if (/^\?p=\d+$/.test(u.search) && (u.pathname === "/" || u.pathname === "")) {
+              results.push({ timestamp: HOMEPAGE_TS, original: `http://gangrey.com/${u.search}` });
             }
           } catch { /* skip */ }
         }
@@ -272,6 +285,33 @@ function parseDate(raw: string) {
 
 export function parseGangreyPage(html: string, pageUrl: string, timestamp: string): GangreyStory | null {
   const root = parse(html);
+  const fallbackDate = `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`;
+
+  // Check if this is a 2016 WordPress post (?p=N URL or <article> container)
+  const pMatch = (() => { try { return new URL(pageUrl).search.match(/^\?p=(\d+)$/)?.[1] ?? null; } catch { return null; } })();
+  const article = root.querySelector("article");
+  if (pMatch || article) {
+    const art = article ?? root.querySelector("main") ?? root;
+    const headline = cleanText(
+      art.querySelector("h1.entry-title")?.innerText ??
+      art.querySelector("h1")?.innerText ??
+      root.querySelector("title")?.innerText?.replace(/\s*[|\-–—]\s*gangrey.*$/i, "") ?? ""
+    );
+    const timeEl = art.querySelector("time.entry-date[datetime]") || art.querySelector("time[datetime]");
+    const date = timeEl?.getAttribute("datetime") ? parseDate(timeEl.getAttribute("datetime")!) : parseDate(fallbackDate);
+    const authorEl = art.querySelector("a[rel=author]") || art.querySelector(".author.vcard a") || art.querySelector(".author a");
+    const byline = authorEl?.innerText ? titleCase(cleanText(authorEl.innerText)) : "";
+
+    const content = art.querySelector(".entry-content") || art.querySelector(".post-content") || art;
+    content.querySelectorAll("script, style, .sharedaddy, #comments, .navigation, .entry-header, header").forEach((n: ReturnType<typeof root.querySelector>) => n?.remove());
+    const body = gangreyBodyBlocks(content);
+    if (!headline || !body.length) return null;
+
+    const slug = `gangrey-p${pMatch || slugify(headline)}`.slice(0, 96);
+    return { headline, byline, date, subheadline: "", slug, body };
+  }
+
+  // 2005–2007 custom theme: div.post containers
   const idMatch = (() => { try { return new URL(pageUrl).pathname.match(/^\/(\d+)\/?$/)?.[1] ?? null; } catch { return null; } })();
   const posts = root.querySelectorAll("div.post");
   if (posts.length > 1 && !idMatch) return null;
