@@ -7,11 +7,16 @@ import Link from "next/link";
 import CommentSection from "@/components/CommentSection";
 import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
-import ReadCounter from "@/components/ReadCounter";
-import SiteFooter from "@/components/SiteFooter";
+import MagHeader from "@/components/MagHeader";
+import MagFooter from "@/components/MagFooter";
 import { postReadingTime } from "@/lib/readingTime";
 
 export const dynamic = "force-dynamic";
+
+function sectionLabel(section: string) {
+  if (section === "Micro-Memoir") return "Micro-Memoir";
+  return section;
+}
 
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
@@ -27,128 +32,233 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
   if (!post) notFound();
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5f8fa" }}>
+    <div className="story-page">
       <style>{`
-        .story-article ul { list-style-type: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
-        .story-article ol { list-style-type: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
-        .story-article li { display: list-item; margin-bottom: 0.25em; }
-        .story-header { display: flex; align-items: center; justify-content: space-between; }
-        .story-nav { display: flex; gap: 2rem; align-items: center; }
+        .story-page {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background: #f5efe4;
+          color: #171412;
+        }
+        .preview-banner {
+          background: #8e0d0d;
+          color: #fff;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .12em;
+          text-transform: uppercase;
+          text-align: center;
+          padding: 8px 16px;
+        }
+        .story-head {
+          width: 100%;
+          max-width: 760px;
+          margin: 0 auto;
+          padding: 60px 24px 36px;
+          box-sizing: border-box;
+          text-align: center;
+        }
+        .story-label {
+          text-decoration: none;
+          display: inline-block;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: .24em;
+          text-transform: uppercase;
+          color: #8e0d0d;
+          margin-bottom: 20px;
+        }
+        .story-h1 {
+          font-family: var(--font-cormorant), Georgia, serif;
+          font-weight: 700;
+          font-size: clamp(42px, 7vw, 74px);
+          line-height: 1.0;
+          letter-spacing: -.025em;
+          margin: 0 auto 22px;
+          max-width: 14ch;
+        }
+        .story-dek {
+          font-family: var(--font-cormorant), Georgia, serif;
+          font-style: italic;
+          font-size: clamp(20px, 3vw, 27px);
+          line-height: 1.35;
+          color: #463f37;
+          margin: 0 auto 28px;
+          max-width: 540px;
+        }
+        .story-meta {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: .16em;
+          text-transform: uppercase;
+          color: #171412;
+          display: inline-flex;
+          gap: 12px;
+          align-items: center;
+        }
+        .story-meta .dot { color: #8e0d0d; }
+        .story-hero {
+          width: 100%;
+          max-width: 1100px;
+          margin: 12px auto 0;
+          padding: 0 24px;
+          box-sizing: border-box;
+        }
+        .story-hero img { width: 100%; display: block; }
+        .story-hero figcaption {
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 12px;
+          color: #171412;
+          font-style: italic;
+          margin-top: 10px;
+          line-height: 1.5;
+          text-align: center;
+        }
+        .story-article {
+          width: 100%;
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 48px 24px 40px;
+          box-sizing: border-box;
+        }
+        .story-body {
+          font-family: var(--font-cormorant), Georgia, serif;
+          font-size: 22px;
+          line-height: 1.65;
+          color: #211c17;
+        }
+        .story-body > p:first-of-type::first-letter {
+          font-weight: 700;
+          font-size: 4.4em;
+          line-height: .72;
+          float: left;
+          margin: .06em .1em 0 0;
+          color: #8e0d0d;
+        }
+        .story-body p { margin: 1.2rem 0 0; }
+        .story-body > p:first-of-type { margin-top: 0; }
+        .story-body a { color: #8e0d0d; text-decoration: underline; }
+        .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
+        .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
+        .story-body li { display: list-item; margin-bottom: .25em; }
+        .story-rule { width: 60px; height: 2px; background: #8e0d0d; border: 0; margin: 44px auto 0; }
+        .story-actions {
+          margin-top: 30px;
+          display: flex;
+          gap: 1.5rem;
+          align-items: center;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .story-comments {
+          width: 100%;
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 8px 24px 56px;
+          box-sizing: border-box;
+        }
         @media (max-width: 600px) {
-          body { overflow-x: hidden; }
-          .story-header { flex-direction: column !important; align-items: center !important; justify-content: center !important; gap: 0.75rem; padding: 0.75rem 1rem !important; }
-          .story-nav { gap: 1rem; flex-wrap: wrap; justify-content: center; }
-          .story-nav a { font-size: 0.78rem !important; }
-          .story-article { margin: 0.75rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem 1.25rem 2rem !important; }
-          .story-comments { margin: 1rem auto 0 !important; width: calc(100% - 1.5rem) !important; padding: 1.25rem !important; }
+          .story-head { padding: 40px 22px 28px; }
+          .story-hero { padding: 0; }
+          .story-article { padding: 34px 22px 30px; }
+          .story-body { font-size: 20px; }
+          .story-body > p:first-of-type::first-letter {
+            font-size: 3.6em;
+            line-height: .76;
+            margin: .04em .09em 0 0;
+          }
         }
       `}</style>
 
-      <header className="story-header" style={{ position: "sticky", top: 0, zIndex: 10, background: "#8B0000", padding: "0.6rem 1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.3)" }}>
-        <Link href="/">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Masthead.webp" alt="efemera" fetchPriority="high" width={2688} height={512} style={{ height: "clamp(38px, 4vw, 44px)", width: "auto", display: "block" }} />
-        </Link>
-        <nav className="story-nav">
-          {(["Home", "About", "Micro-Memoirs", "Narratives", "Essays"] as const).map(s => (
-            <Link key={s} href={s === "Home" ? "/" : `/?tab=${s}`} style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>{s}</Link>
-          ))}
-          <Link href="/archive" style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" }}>Archive</Link>
-        </nav>
+      <div className="preview-banner">Preview — {post.status ?? "draft"} (not public)</div>
+
+      <MagHeader />
+
+      <header className="story-head">
+        <Link href="/" className="story-label">← {sectionLabel(post.section)}</Link>
+        <h1 className="story-h1">{post.headline}</h1>
+        {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
+        <div className="story-meta">
+          <span>By {post.byline}</span>
+          <span className="dot">·</span>
+          <span>{new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</span>
+          <span className="dot">·</span>
+          <span>{postReadingTime(post)} Min Read</span>
+        </div>
       </header>
 
-      <article className="story-article" style={{ maxWidth: 600, margin: "2rem auto 0", width: "100%", boxSizing: "border-box", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "2rem 2rem 2.5rem" }}>
-        <div style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", marginBottom: "0.5rem" }}>
-          {post.section}
-        </div>
+      {post.image?.asset && (
+        <figure className="story-hero">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(post.image.asset).width(1400).height(788).fit("crop").auto("format").url()}
+            alt={post.image.alt ?? post.image.caption ?? ""}
+          />
+          {post.image.caption && <figcaption>{post.image.caption}</figcaption>}
+        </figure>
+      )}
 
-        <h1 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "clamp(1.8rem, 5vw, 2.6rem)", color: "#1c2938", lineHeight: 1.1, margin: "0 0 0.5rem", letterSpacing: "-0.01em" }}>
-          {post.headline}
-        </h1>
-
-        {post.subheadline && (
-          <p style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 400, fontSize: "1.15rem", color: "#526270", lineHeight: 1.35, margin: "0 0 1.2rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e1e8ed" }}>
-            {post.subheadline}
-          </p>
-        )}
-
-        <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.75rem", color: "#657786", marginBottom: "1.5rem", fontStyle: "italic" }}>
-          By {post.byline} · {new Date(post.date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })} · {postReadingTime(post)} min read
-        </div>
-
-        {post.image?.asset && (
-          <div style={{ marginBottom: "1.8rem" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(post.image.asset).width(800).height(450).fit("crop").auto("format").url()}
-              alt={post.image.alt ?? post.image.caption ?? ""}
-              style={{ width: "100%", aspectRatio: "16/9", display: "block", objectFit: "cover" }}
-            />
-            {post.image.caption && (
-              <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", fontStyle: "italic", margin: "0.5rem 0 0", lineHeight: 1.5 }}>
-                {post.image.caption}
-              </p>
-            )}
-          </div>
-        )}
-
-        <div style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "1.05rem", lineHeight: 1.85, color: "#2d2d2d" }}>
+      <article className="story-article">
+        <div className="story-body">
           <PortableText
             value={post.body}
             components={{
               block: {
-                normal: ({ children }) => <p style={{ margin: "1.2rem 0 0" }}>{children}</p>,
-                h2: ({ children }) => <h2 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.35rem", color: "#1c2938", margin: "2rem 0 0", lineHeight: 1.3 }}>{children}</h2>,
-                h3: ({ children }) => <h3 style={{ fontFamily: "var(--font-inter), sans-serif", fontWeight: 700, fontSize: "1.1rem", color: "#1c2938", margin: "1.6rem 0 0", lineHeight: 1.3 }}>{children}</h3>,
-                blockquote: ({ children }) => <blockquote style={{ margin: "1.4rem 0 0", padding: "0.2rem 0 0.2rem 1.1rem", borderLeft: "3px solid #8B0000", fontStyle: "italic", color: "#526270" }}>{children}</blockquote>,
+                normal: ({ children }) => <p>{children}</p>,
+                h2: ({ children }) => (
+                  <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #8e0d0d", fontStyle: "italic", color: "#463f37" }}>{children}</blockquote>
+                ),
               },
               list: {
-                bullet: ({ children }) => <ul style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ul>,
-                number: ({ children }) => <ol style={{ paddingLeft: "1.4em", margin: "1.2rem 0 0" }}>{children}</ol>,
+                bullet: ({ children }) => <ul>{children}</ul>,
+                number: ({ children }) => <ol>{children}</ol>,
               },
               listItem: {
-                bullet: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
-                number: ({ children }) => <li style={{ marginBottom: "0.25em" }}>{children}</li>,
+                bullet: ({ children }) => <li>{children}</li>,
+                number: ({ children }) => <li>{children}</li>,
               },
               types: {
                 imageEmbed: ({ value }: { value: { src: string; alt?: string } }) => (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={value.src} alt={value.alt ?? ""} style={{ maxWidth: "100%", borderRadius: 4, margin: "1.2rem 0", display: "block" }} />
+                  <img src={value.src} alt={value.alt ?? ""} style={{ maxWidth: "100%", margin: "1.4rem 0", display: "block" }} />
                 ),
                 youtubeEmbed: ({ value }: { value: { src: string } }) => (
-                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, margin: "1.2rem 0" }}>
-                    <iframe src={value.src.replace("watch?v=", "embed/")} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none", borderRadius: 4 }} allowFullScreen />
+                  <div style={{ position: "relative", paddingBottom: "56.25%", height: 0, margin: "1.4rem 0" }}>
+                    <iframe src={value.src.replace("watch?v=", "embed/")} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} allowFullScreen />
                   </div>
                 ),
               },
               marks: {
                 strong: ({ children }) => <strong>{children}</strong>,
                 em: ({ children }) => <em>{children}</em>,
-                link: ({ children, value }) => <a href={value?.href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>,
+                link: ({ children, value }) => <a href={value?.href} target="_blank" rel="noopener noreferrer">{children}</a>,
               },
             }}
           />
         </div>
 
-        <div style={{ marginTop: "2rem", paddingTop: "1.2rem", borderTop: "1px solid #f0f3f4", display: "flex", gap: "1.5rem", alignItems: "center", flexWrap: "wrap" }}>
+        <hr className="story-rule" />
+        <div className="story-actions">
           <LikeButton slug={slug} />
           <ShareButton slug={slug} headline={post.headline} />
-          <div style={{ marginLeft: "auto" }}>
-            <ReadCounter slug={slug} />
-          </div>
-        </div>
-
-        <div style={{ marginTop: "2.5rem", display: "flex", justifyContent: "center" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Flying Mayfly Kicker.webp" alt="" width={2000} height={2000} style={{ width: "clamp(120px, 30vw, 160px)", height: "auto" }} />
         </div>
       </article>
 
-      <div className="story-comments" style={{ width: "100%", maxWidth: 600, margin: "1.5rem auto 0", background: "white", border: "1px solid #e1e8ed", borderRadius: 4, padding: "1.5rem 2rem 2rem", boxSizing: "border-box" }}>
+      <div className="story-comments">
         <CommentSection slug={slug} />
       </div>
 
-      <SiteFooter />
+      <MagFooter />
     </div>
   );
 }
