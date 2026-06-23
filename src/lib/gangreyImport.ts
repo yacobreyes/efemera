@@ -128,11 +128,14 @@ export function applyDateHints(candidates: Candidate[], dateMap: Map<string, str
 // far more posts than a single monthly-archive snapshot — and with no HTML
 // guesswork. This is the most accurate date source we have.
 
-// List every distinct Wayback capture of Gangrey's RSS feed(s).
+// List every distinct Wayback capture of Gangrey's RSS feed(s). Catches BOTH
+// pretty-permalink feeds (/feed/, /feed/rss/) AND query-string feeds
+// (?feed=rss2, ?feed=atom) via a domain search with a server-side regex filter.
 export async function listFeedCaptures(): Promise<Candidate[]> {
   const pairs: [string, string][] = [
-    ["output", "json"], ["url", "gangrey.com/feed"], ["matchType", "prefix"],
+    ["output", "json"], ["url", "gangrey.com"], ["matchType", "domain"],
     ["filter", "statuscode:200"],
+    ["filter", "original:.*(/feed/?($|\\?)|[?&]feed=).*"],
     ["collapse", "digest"], // drop byte-identical snapshots
     ["fl", "timestamp,original"], ["from", "20050101"], ["to", "20170201"],
     ["limit", "100000"],
@@ -144,8 +147,8 @@ export async function listFeedCaptures(): Promise<Candidate[]> {
   if (!Array.isArray(rows) || rows.length < 2) return [];
   const [header, ...data] = rows as string[][];
   const all = data.map(r => Object.fromEntries(header.map((k, i) => [k, r[i]]))) as unknown as Candidate[];
-  // Keep only the main post feed; drop comment feeds.
-  return all.filter(c => !/comments\/feed/i.test(c.original));
+  // Keep only post feeds; drop comment feeds.
+  return all.filter(c => !/comments\/feed|comment-feed/i.test(c.original));
 }
 
 // Parse one RSS feed snapshot into [urlKey, isoDate] pairs. Each <item> yields

@@ -94,6 +94,20 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // Diagnostic: how many feed snapshots does CDX have, and a sample.
+  if (url.searchParams.get("feeddiag") === "1") {
+    try {
+      const captures = await listFeedCaptures();
+      await fs.writeFile(FEED_CAPTURES_CACHE, JSON.stringify(captures), "utf8").catch(() => {});
+      return NextResponse.json({
+        totalCaptures: captures.length,
+        sample: captures.slice(0, 20).map(c => `${c.timestamp} ${c.original}`),
+      });
+    } catch (e) {
+      return NextResponse.json({ error: `feed list failed: ${String(e)}` }, { status: 502 });
+    }
+  }
+
   // Harvest exact dates from Wayback's RSS-feed snapshots. The feed-capture
   // list is fetched once (cached to /tmp), then processed in slices of `limit`
   // snapshots per call. The admin page loops by offset until done. Earliest
