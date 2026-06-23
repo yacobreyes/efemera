@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { normalizeHeadline } from "@/lib/gangreyDedup";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -23,7 +24,7 @@ export async function POST() {
   // Group by normalized headline, pick winner (prefers byline; among ties, prefer path slug over p-slug)
   const groups = new Map<string, typeof result>();
   for (const doc of result) {
-    const key = (doc.headline ?? "").trim().toLowerCase();
+    const key = normalizeHeadline(doc.headline ?? "");
     if (!key) continue;
     const g = groups.get(key) ?? [];
     g.push(doc);

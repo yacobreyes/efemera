@@ -3,6 +3,7 @@ import { getAllPosts } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import GangreyArchive from "@/components/GangreyArchive";
+import { normalizeHeadline } from "@/lib/gangreyDedup";
 
 export const revalidate = 60;
 
@@ -26,7 +27,8 @@ export default async function GangreyPage() {
   // Deduplicate by normalized headline — keep the entry with a byline, else the first seen.
   const seen = new Map<string, typeof gangrey[number]>();
   for (const p of gangrey) {
-    const key = p.headline.trim().toLowerCase();
+    const key = normalizeHeadline(p.headline);
+    if (!key) continue;
     const prev = seen.get(key);
     if (!prev || (!prev.byline && p.byline)) seen.set(key, p);
   }
