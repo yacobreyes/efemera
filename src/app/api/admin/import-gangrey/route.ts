@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
-import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, type Candidate } from "@/lib/gangreyImport";
+import { listCandidates, fetchWayback, parseGangreyPage, toSanityDoc, writeDocs, sleep, diagnoseHomepage, probeUrl, buildDateMap, applyDateHints, type Candidate } from "@/lib/gangreyImport";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const TMP_CACHE = "/tmp/gangrey-cdx-cache.json";
+const DATEMAP_CACHE = "/tmp/gangrey-datemap.json";
 const CACHE_TTL = 4 * 60 * 60 * 1000; // 4 hours
+
+// Load the prebuilt URL→date map from /tmp (built incrementally via ?buildmap).
+async function loadDateMap(): Promise<Map<string, string>> {
+  try {
+    const raw = await fs.readFile(DATEMAP_CACHE, "utf8");
+    return new Map(Object.entries(JSON.parse(raw) as Record<string, string>));
+  } catch { return new Map(); }
+}
 
 // Cache CDX index to /tmp so it survives lambda cold starts.
 let _mem: { at: number; list: Candidate[] } | null = null;
@@ -21,6 +30,9 @@ async function getCandidates(fresh = false): Promise<Candidate[]> {
     } catch { /* cache miss */ }
   }
   const list = await listCandidates();
+  // Stamp dateHints from the prebuilt date map cache, if present.
+  const dateMap = await loadDateMap();
+  if (dateMap.size) applyDateHints(list, dateMap);
   const at = Date.now();
   _mem = { at, list };
   await fs.writeFile(TMP_CACHE, JSON.stringify({ at, list }), "utf8").catch(() => {});
@@ -48,6 +60,31 @@ export async function GET(req: NextRequest) {
   if (probe) {
     const ts = url.searchParams.get("ts") ?? undefined;
     return NextResponse.json(await probeUrl(probe, ts));
+  }
+
+  // Build the URL→date map in year chunks (each ~12 Wayback fetches, well under
+  // the 60s limit) and merge into the /tmp cache. The admin page loops the
+  // chunks: ?buildmap=1&fromYear=2005&toYear=2006 ... until toYear reaches 2016.
+  if (url.searchParams.get("buildmap") === "1") {
+    const fromYear = Math.max(2005, parseInt(url.searchParams.get("fromYear") ?? "2005", 10) || 2005);
+    const toYear = Math.min(2016, parseInt(url.searchParams.get("toYear") ?? String(fromYear + 1), 10) || fromYear + 1);
+    try {
+      const chunk = await buildDateMap(fromYear, toYear);
+      const existing = await loadDateMap();
+      for (const [k, v] of chunk) existing.set(k, v);
+      await fs.writeFile(DATEMAP_CACHE, JSON.stringify(Object.fromEntries(existing)), "utf8").catch(() => {});
+      // Invalidate the candidate cache so the next import picks up new hints.
+      _mem = null;
+      await fs.unlink(TMP_CACHE).catch(() => {});
+      return NextResponse.json({
+        fromYear, toYear, added: chunk.size, totalMapped: existing.size,
+        done: toYear >= 2016,
+        nextFromYear: toYear >= 2016 ? null : toYear + 1,
+        nextToYear: toYear >= 2016 ? null : Math.min(2016, toYear + 2),
+      });
+    } catch (e) {
+      return NextResponse.json({ error: `buildDateMap failed: ${String(e)}`, fromYear, toYear }, { status: 502 });
+    }
   }
 
   let candidates;

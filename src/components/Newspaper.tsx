@@ -87,7 +87,7 @@ export default function Feed({
           margin: 0;
           background: #fbf6ee;
           color: var(--ink);
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           -webkit-font-smoothing: antialiased;
         }
         a { color: inherit; text-decoration: none; }
@@ -263,13 +263,13 @@ export default function Feed({
         }
         .ef-reads-left { width: fit-content; }
         .ef-reads-label {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
           margin-bottom: 10px;
         }
         .ef-reads-rule { width: 100%; height: 2px; background: #fbf6ee; border: 0; margin: 0 0 14px; }
         .ef-reads-sub {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 17px; font-style: italic; color: #fbf6ee; margin: 0;
         }
         .ef-reads h2 { display: none; }
@@ -292,7 +292,7 @@ export default function Feed({
         .ef-circle span { display: block; }
         .ef-reads-annotation {
           display: flex; flex-direction: column; align-items: center; gap: 8px;
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-style: italic;
           font-size: 14px; color: #fbf6ee;
           text-align: center; line-height: 1.3; flex-shrink: 0;
@@ -408,21 +408,21 @@ export default function Feed({
         <section style={{ width: "100%", maxWidth: 1180, margin: "0 auto", padding: "56px 44px 72px", boxSizing: "border-box" }}>
           <div style={{ borderBottom: "1px solid #171412", paddingBottom: 20, marginBottom: 36 }}>
             <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#8e0d0d", margin: "0 0 10px" }}>Search</p>
-            <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
+            <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
           </div>
           {searchResults.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {searchResults.map(p => (
                 <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #cfc3b3", textDecoration: "none", color: "inherit" }}>
                   <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#8e0d0d", marginBottom: 8 }}>{p.section}</div>
-                  <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
-                  {p.subheadline && <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 18, fontStyle: "italic", color: "#463f37", margin: 0 }}>{p.subheadline}</p>}
+                  <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
+                  {p.subheadline && <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 18, fontStyle: "italic", color: "#463f37", margin: 0 }}>{p.subheadline}</p>}
                   <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#171412", margin: "10px 0 0" }}>By {p.byline}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 22, fontStyle: "italic", color: "#171412" }}>No stories found for "{searchQuery}".</p>
+            <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 22, fontStyle: "italic", color: "#171412" }}>No stories found for "{searchQuery}".</p>
           )}
         </section>
       )}

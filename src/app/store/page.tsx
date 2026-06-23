@@ -13,7 +13,7 @@ export default function StorePage() {
           text-align: center; padding: 24px;
         }
         .store-title {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(48px, 9vw, 88px); line-height: .98;
           letter-spacing: -.03em; margin: 0;
         }

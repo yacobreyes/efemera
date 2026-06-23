@@ -82,15 +82,15 @@ export default function SubscribeButton({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Cream Mayfly.png" alt="" style={{ height: 52, width: "auto", opacity: .9, marginBottom: 22 }} />
 
-            <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
+            <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
               Join the Collective.
             </h2>
-            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
+            <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
               Get our latest issue delivered to your inbox.
             </p>
 
             {status === "done" ? (
-              <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 24, fontStyle: "italic", margin: 0 }}>{msg}</p>
+              <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 24, fontStyle: "italic", margin: 0 }}>{msg}</p>
             ) : (
               <form onSubmit={submit} style={{ display: "flex", gap: 10, width: "100%" }}>
                 <input

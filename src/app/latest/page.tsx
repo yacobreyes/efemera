@@ -32,15 +32,15 @@ export default async function LatestPage() {
           color: #8e0d0d; margin-bottom: 14px;
         }
         .listing-title {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
         .listing-sub {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(20px, 3vw, 28px); color: #171412;
           margin: 14px 0 0;
         }
-        .listing-empty { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #171412; }
+        .listing-empty { font-family: var(--font-cormorant), Georgia, serif; font-size: 22px; font-style: italic; color: #171412; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>
       <MagHeader />

@@ -22,6 +22,8 @@ export default function GangreyImportPage() {
   const [savedCount, setSavedCount] = useState<number | null>(null);
   const [deduping, setDeduping] = useState(false);
   const [dedupResult, setDedupResult] = useState<string | null>(null);
+  const [buildingMap, setBuildingMap] = useState(false);
+  const [mapResult, setMapResult] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/import-gangrey/count")
@@ -120,6 +122,41 @@ export default function GangreyImportPage() {
     }
   }
 
+  // Build the URL→date map in year chunks, looping until it covers 2005–2016.
+  // Run this BEFORE importing so stories get accurate dates from the monthly
+  // archives. Each chunk is a couple of years (well under the 60s timeout).
+  async function buildMap() {
+    setBuildingMap(true); setMapResult(null);
+    let fromYear: number | null = 2005;
+    let toYear: number | null = 2006;
+    let totalMapped = 0;
+    try {
+      while (fromYear !== null) {
+        let data: { added: number; totalMapped: number; done: boolean; nextFromYear: number | null; nextToYear: number | null; error?: string };
+        try {
+          const res = await fetch(`/api/admin/import-gangrey?buildmap=1&fromYear=${fromYear}&toYear=${toYear}`);
+          data = await res.json();
+        } catch {
+          setMapResult(`⏳ Network blip on ${fromYear}–${toYear}, retrying…`);
+          await new Promise(r => setTimeout(r, 3000));
+          continue;
+        }
+        if (data.error) { setMapResult(`❌ ${data.error}`); break; }
+        totalMapped = data.totalMapped;
+        setMapResult(`Mapped ${fromYear}–${toYear} · ${totalMapped} dates so far…`);
+        if (data.done) {
+          setMapResult(`✅ Date map complete — ${totalMapped} stories mapped. Now run a fresh import to apply dates.`);
+          break;
+        }
+        fromYear = data.nextFromYear;
+        toYear = data.nextToYear;
+        await new Promise(r => setTimeout(r, 400));
+      }
+    } finally {
+      setBuildingMap(false);
+    }
+  }
+
   const pct = total ? Math.round((processed / total) * 100) : 0;
   const btnStyle = (primary: boolean): React.CSSProperties => ({
     background: primary ? "#8B0000" : "#fff",
@@ -131,7 +168,7 @@ export default function GangreyImportPage() {
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem", fontFamily: "Inter, system-ui, sans-serif", color: "#1c2938" }}>
-      <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 40, margin: "0 0 4px" }}>Gangrey Archive Import</h1>
+      <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 40, margin: "0 0 4px" }}>Gangrey Archive Import</h1>
       {savedCount !== null && (
         <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, fontWeight: 700, color: "#1a7f37", margin: "0 0 8px" }}>
           {savedCount} stories currently in Sanity
@@ -173,6 +210,18 @@ export default function GangreyImportPage() {
           </div>
         </div>
       )}
+
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Fix story dates</h2>
+        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+          Cross-references Gangrey&apos;s monthly archive pages to build an accurate date for every story.
+          Run this first, then start a fresh import so the correct dates get applied.
+        </p>
+        <button onClick={buildMap} disabled={buildingMap || running} style={{ ...btnStyle(false), fontSize: 14 }}>
+          {buildingMap ? "Building date map…" : "Build date map"}
+        </button>
+        {mapResult && <p style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>{mapResult}</p>}
+      </div>
 
       <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Clean up duplicates</h2>

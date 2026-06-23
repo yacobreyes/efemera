@@ -95,25 +95,30 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
   const seen = new Set(cdxList.map(c => c.original));
   const merged = [...cdxList, ...extra.filter(c => isStory(c) && !seen.has(c.original))];
 
-  // Enrich each candidate with a dateHint from the monthly archive pages.
-  // These are more reliable than parsing individual story HTML.
-  try {
-    const dateMap = await buildDateMap();
-    for (const c of merged) {
-      // Normalize the candidate URL to match the keys buildDateMap produces
-      let key: string;
-      try {
-        const u = new URL(c.original);
-        key = /^\?p=\d+$/.test(u.search)
-          ? `http://gangrey.com/${u.search}`
-          : `http://gangrey.com${u.pathname.replace(/\/$/, "")}/`;
-      } catch { continue; }
-      const hint = dateMap.get(key);
-      if (hint) c.dateHint = hint;
-    }
-  } catch { /* date map is best-effort; proceed without it */ }
-
+  // NOTE: We do NOT build the date map here — that's ~139 sequential Wayback
+  // fetches (~45s+) and would blow the 60s function timeout. The date map is
+  // built separately and cached; applyDateHints() stamps the candidates.
   return merged;
+}
+
+// Normalize a candidate/story URL to the canonical key used by the date map.
+export function dateMapKey(original: string): string | null {
+  try {
+    const u = new URL(original);
+    return /^\?p=\d+$/.test(u.search)
+      ? `http://gangrey.com/${u.search}`
+      : `http://gangrey.com${u.pathname.replace(/\/$/, "")}/`;
+  } catch { return null; }
+}
+
+// Stamp each candidate with a dateHint from a prebuilt date map.
+export function applyDateHints(candidates: Candidate[], dateMap: Map<string, string>): void {
+  for (const c of candidates) {
+    const key = dateMapKey(c.original);
+    if (!key) continue;
+    const hint = dateMap.get(key);
+    if (hint) c.dateHint = hint;
+  }
 }
 
 // Build a URL → ISO date map by scraping every monthly archive page
@@ -122,6 +127,8 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
 // a <time datetime="..."> element (WP theme) or in the post meta text
 // (old theme). This is more reliable than parsing individual story pages.
 export async function buildDateMap(
+  fromYear = 2005,
+  toYear = 2016,
   onProgress?: (msg: string) => void
 ): Promise<Map<string, string>> {
   // Wayback snapshot close to site shutdown — reliable for all months
@@ -129,9 +136,9 @@ export async function buildDateMap(
   const dateMap = new Map<string, string>();
 
   const months: string[] = [];
-  for (let y = 2005; y <= 2016; y++) {
+  for (let y = fromYear; y <= toYear; y++) {
     const start = y === 2005 ? 6 : 1;
-    const end = y === 2016 ? 12 : 12;
+    const end = 12;
     for (let m = start; m <= end; m++) {
       months.push(`${y}${String(m).padStart(2, "0")}`);
     }

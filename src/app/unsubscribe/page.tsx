@@ -33,16 +33,16 @@ function UnsubscribeForm() {
 
   return (
     <div style={{ maxWidth: 440, margin: "0 auto", padding: "4rem 1.5rem", textAlign: "center" }}>
-      <h1 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 36, lineHeight: 1.1, color: "#171412", margin: "0 0 12px" }}>
+      <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 36, lineHeight: 1.1, color: "#171412", margin: "0 0 12px" }}>
         Unsubscribe
       </h1>
       {status === "done" ? (
-        <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, lineHeight: 1.5, color: "#463f37" }}>
+        <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, lineHeight: 1.5, color: "#463f37" }}>
           You&rsquo;ve been unsubscribed. You won&rsquo;t receive any more emails from efemera.
         </p>
       ) : (
         <>
-          <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, color: "#463f37", margin: "0 0 28px" }}>
+          <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, color: "#463f37", margin: "0 0 28px" }}>
             Enter your email to stop receiving our newsletter.
           </p>
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>

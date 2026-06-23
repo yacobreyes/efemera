@@ -124,7 +124,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           margin-bottom: 20px;
         }
         .story-h1 {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-weight: 700;
           font-size: clamp(42px, 7vw, 74px);
           line-height: 1.0;
@@ -133,7 +133,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           max-width: 14ch;
         }
         .story-dek {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-style: italic;
           font-size: clamp(20px, 3vw, 27px);
           line-height: 1.35;
@@ -178,7 +178,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           box-sizing: border-box;
         }
         .story-body {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 22px;
           line-height: 1.65;
           color: #211c17;
@@ -260,10 +260,10 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
               block: {
                 normal: ({ children }) => <p>{children}</p>,
                 h2: ({ children }) => (
-                  <h2 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
+                  <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
+                  <h3 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
                 ),
                 blockquote: ({ children }) => (
                   <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #8e0d0d", fontStyle: "italic", color: "#463f37" }}>{children}</blockquote>

@@ -43,7 +43,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
         }
         .sg-card h3 {
           margin: 0 0 10px;
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 28px;
           line-height: 1.05;
           letter-spacing: -.025em;
@@ -52,14 +52,14 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
         .sg-card a.sg-headline { text-decoration: none; color: #171412; }
         .sg-card a.sg-headline:hover h3 { color: #8e0d0d; }
         .sg-byline {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           margin-bottom: 12px;
           font-size: 19px;
           font-style: italic;
           color: #463f37;
         }
         .sg-excerpt {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 18px;
           line-height: 1.45;
           color: #211c17;
@@ -139,7 +139,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
         .ag-meta .ag-time { color: #8a7f6f; font-weight: 700; }
         .ag-card h3 {
           margin: 0;
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 34px;
           line-height: 1.02;
           letter-spacing: -.028em;
@@ -148,14 +148,14 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
         .ag-card a.ag-headline { text-decoration: none; color: #171412; }
         .ag-card a.ag-headline:hover h3 { color: #8e0d0d; }
         .ag-byline {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 19px;
           font-style: italic;
           color: #463f37;
           margin: 12px 0 0;
         }
         .ag-excerpt {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 18.5px;
           line-height: 1.5;
           color: #2b251f;

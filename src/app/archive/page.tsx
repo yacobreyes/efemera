@@ -31,10 +31,10 @@ export default async function ArchivePage() {
           color: #8e0d0d; margin-bottom: 14px;
         }
         .listing-title {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
-        .listing-empty { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; }
+        .listing-empty { font-family: var(--font-cormorant), Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>
       <MagHeader />

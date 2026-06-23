@@ -32,7 +32,7 @@ export default function MagFooter() {
         .mag-footer-links button { font: inherit; letter-spacing: inherit; text-transform: inherit; background: none; border: none; padding: 0; color: inherit; cursor: pointer; }
         .mag-footer-copy {
           margin-top: 26px;
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 16px;
           color: #171412;
         }

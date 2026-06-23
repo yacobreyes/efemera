@@ -32,7 +32,7 @@ export default async function IssuesPage() {
           color: #8e0d0d; margin-bottom: 14px;
         }
         .issues-title {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
         .issues-list { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
@@ -54,11 +54,11 @@ export default async function IssuesPage() {
           color: #8e0d0d; margin-bottom: 8px;
         }
         .issue-title {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 26px; font-weight: 700; line-height: 1.15; margin: 0 0 6px;
         }
         .issue-desc {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 18px; font-style: italic; color: #463f37; margin: 0; line-height: 1.4;
         }
         .issue-date {
@@ -68,7 +68,7 @@ export default async function IssuesPage() {
         }
         .issue-arrow { color: #8e0d0d; font-size: 18px; margin-left: 8px; }
         .issues-empty {
-          font-family: "Cormorant Garamond", Georgia, serif;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: 22px; font-style: italic; color: #171412;
         }
         @media (max-width: 900px) {

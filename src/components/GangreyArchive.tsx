@@ -66,21 +66,21 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
         .gr-year-btn { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #5a5048; background: none; padding: 5px 10px; border: 1px solid #cfc3b3; border-radius: 2px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
         .gr-year-btn:hover { background: #ede7dc; border-color: #8a7f6f; }
         .gr-year-btn.active { background: #8e0d0d; color: #fff; border-color: #8e0d0d; }
-        .gr-no-results { font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; margin-top: 48px; }
+        .gr-no-results { font-family: var(--font-cormorant), Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; margin-top: 48px; }
 
         .gr-year-block { display: grid; grid-template-columns: 100px 1fr; gap: 0 48px; }
         .gr-year-block + .gr-year-block { border-top: 1px solid #cfc3b3; }
         .gr-year-col { padding-top: 32px; }
-        .gr-year-label { font-family: "Cormorant Garamond", Georgia, serif; font-size: 56px; font-weight: 700; line-height: 1; color: #8e0d0d; letter-spacing: -.04em; position: sticky; top: 20px; }
+        .gr-year-label { font-family: var(--font-cormorant), Georgia, serif; font-size: 56px; font-weight: 700; line-height: 1; color: #8e0d0d; letter-spacing: -.04em; position: sticky; top: 20px; }
         .gr-stories { border-left: 1px solid #cfc3b3; }
         .gr-row { display: grid; grid-template-columns: 1fr auto; gap: 0 32px; padding: 28px 0 28px 40px; border-bottom: 1px solid #e8e0d4; align-items: start; transition: background .15s; }
         .gr-row:hover { background: #ede7dc; }
         .gr-row:last-child { border-bottom: none; }
         .gr-date { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #8a7f6f; text-transform: uppercase; margin-bottom: 10px; }
-        .gr-headline { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(22px, 2.8vw, 32px); line-height: 1.05; letter-spacing: -.02em; color: #171412; text-decoration: none; display: block; margin-bottom: 6px; transition: color .15s; }
+        .gr-headline { font-family: var(--font-cormorant), Georgia, serif; font-size: clamp(22px, 2.8vw, 32px); line-height: 1.05; letter-spacing: -.02em; color: #171412; text-decoration: none; display: block; margin-bottom: 6px; transition: color .15s; }
         .gr-row:hover .gr-headline { color: #8e0d0d; }
-        .gr-byline { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; font-style: italic; color: #5a5048; margin-bottom: 10px; }
-        .gr-excerpt { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; line-height: 1.55; color: #3d3530; margin: 0; }
+        .gr-byline { font-family: var(--font-cormorant), Georgia, serif; font-size: 17px; font-style: italic; color: #5a5048; margin-bottom: 10px; }
+        .gr-excerpt { font-family: var(--font-cormorant), Georgia, serif; font-size: 17px; line-height: 1.55; color: #3d3530; margin: 0; }
         .gr-row-right { padding-top: 4px; text-align: right; white-space: nowrap; }
         .gr-time { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8e0d0d; }
         .gr-search-count { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #8a7f6f; letter-spacing: .06em; }
