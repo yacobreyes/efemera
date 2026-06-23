@@ -23,6 +23,15 @@ export default async function GangreyPage() {
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  // Deduplicate by normalized headline — keep the entry with a byline, else the first seen.
+  const seen = new Map<string, typeof gangrey[number]>();
+  for (const p of gangrey) {
+    const key = p.headline.trim().toLowerCase();
+    const prev = seen.get(key);
+    if (!prev || (!prev.byline && p.byline)) seen.set(key, p);
+  }
+  const deduped = [...seen.values()].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5efe4", color: "#171412" }}>
       <style>{`
@@ -42,11 +51,11 @@ export default async function GangreyPage() {
           <div className="gr-kicker">Archive</div>
           <h1 className="gr-title">From Gangrey</h1>
           <p className="gr-sub">A second life for stories first published on the now-defunct Gangrey.com.</p>
-          {gangrey.length > 0 && <div className="gr-stats">{gangrey.length} stories · 2005 – 2016</div>}
+          {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
         </div>
-        {gangrey.length === 0
+        {deduped.length === 0
           ? <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 22, fontStyle: "italic", color: "#6f655b" }}>No stories yet.</p>
-          : <GangreyArchive posts={gangrey} />
+          : <GangreyArchive posts={deduped} />
         }
       </main>
       <MagFooter />
