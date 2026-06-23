@@ -521,6 +521,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
               <div>
+                <label style={LABEL}>Publish date</label>
+                <input type="date" style={INPUT} value={(form.date || "").slice(0, 10)} onChange={e => updateForm({ date: e.target.value })} />
+              </div>
+              <div>
                 <label style={LABEL}>Reading time</label>
                 <select style={INPUT} value={form.readingTime} onChange={e => updateForm({ readingTime: e.target.value })}>
                   <option value="">Auto (from word count)</option>
@@ -536,7 +540,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             <div style={{ maxWidth: 480, display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <div>
                 <label style={LABEL}>URL Slug</label>
-                <input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value })} placeholder="auto-generated from headline" />
+                <input style={INPUT} value={form.slug.startsWith("untitled-") && !form.headline ? "" : form.slug} onChange={e => updateForm({ slug: e.target.value.toLowerCase().replace(/\s+/g, "-") })} placeholder="auto-generated from headline" />
               </div>
               <div>
                 <label style={LABEL}>SEO Headline</label>
