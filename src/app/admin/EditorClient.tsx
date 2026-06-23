@@ -46,7 +46,7 @@ type FormState = {
   section: string; date: string; body: JSONContent;
   status: "draft" | "published" | "scheduled";
   seoHeadline: string; socialHeadline: string; socialDescription: string;
-  readingTime: string;
+  readingTime: string; sortOrder: string;
 };
 
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
@@ -67,6 +67,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     socialHeadline: post.socialHeadline ?? "",
     socialDescription: post.socialDescription ?? "",
     readingTime: post.readingTime ? String(post.readingTime) : "",
+    sortOrder: post.sortOrder != null ? String(post.sortOrder) : "",
   };
 
   const [form, setForm] = useState<FormState>(initialForm);
@@ -203,7 +204,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   function handlePublishClick() {
     if (!form.headline.trim()) { alert("Add a headline before publishing."); return; }
-    if (!imageAssetId) { alert("Add a featured image before publishing."); return; }
+    if (!imageAssetId && form.section !== "Gangrey Redux") { alert("Add a featured image before publishing."); return; }
     const bodyText = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join("").trim();
     if (!bodyText) { alert("Write something in the body before publishing."); return; }
     if (form.status === "published") {
@@ -533,6 +534,12 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   ))}
                 </select>
               </div>
+              {form.section === "Gangrey Redux" && (
+                <div>
+                  <label style={LABEL}>Sort order <span style={{ fontWeight: 400, color: TEXT_MUTED }}>(lower = earlier on same day)</span></label>
+                  <input type="number" style={INPUT} value={form.sortOrder} onChange={e => updateForm({ sortOrder: e.target.value })} placeholder="e.g. 1, 2, 3…" />
+                </div>
+              )}
             </div>
           )}
 

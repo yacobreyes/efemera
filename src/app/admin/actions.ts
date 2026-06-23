@@ -136,6 +136,9 @@ export async function savePost(formData: FormData) {
   const seoHeadline = (formData.get("seoHeadline") as string) || null;
   const socialHeadline = (formData.get("socialHeadline") as string) || null;
   const socialDescription = (formData.get("socialDescription") as string) || null;
+  const sortOrderRaw = formData.get("sortOrder") as string | null;
+  const sortOrder = sortOrderRaw && !Number.isNaN(Number(sortOrderRaw)) && sortOrderRaw.trim() !== ""
+    ? Number(sortOrderRaw) : null;
 
   let body: unknown;
   try {
@@ -153,6 +156,7 @@ export async function savePost(formData: FormData) {
     slug: { _type: "slug", current: slug },
     section, byline, date, body, status,
     ...(readingTime ? { readingTime } : { readingTime: null }),
+    ...(sortOrder != null ? { sortOrder } : {}),
     ...(scheduledAt ? { scheduledAt } : {}),
     ...(seoHeadline ? { seoHeadline } : {}),
     ...(socialHeadline ? { socialHeadline } : {}),

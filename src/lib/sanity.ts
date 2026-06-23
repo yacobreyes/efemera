@@ -39,6 +39,7 @@ export interface SanityPost {
   socialHeadline?: string;
   socialDescription?: string;
   readingTime?: number;
+  sortOrder?: number;
 }
 
 const POST_FIELDS = `
@@ -58,7 +59,8 @@ const POST_FIELDS = `
   seoHeadline,
   socialHeadline,
   socialDescription,
-  readingTime
+  readingTime,
+  sortOrder
 `;
 
 const POSTS_QUERY = `*[_type == "post" && (

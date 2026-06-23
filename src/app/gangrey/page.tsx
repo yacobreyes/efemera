@@ -22,7 +22,11 @@ export default async function GangreyPage() {
         (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date());
       return pub && String(p.section).toLowerCase().includes("gangrey");
     })
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      const dt = new Date(b.date).getTime() - new Date(a.date).getTime();
+      if (dt !== 0) return dt;
+      return (a.sortOrder ?? 999) - (b.sortOrder ?? 999);
+    });
 
   // Deduplicate by normalized headline — keep the entry with a byline, else the first seen.
   const seen = new Map<string, typeof gangrey[number]>();
@@ -32,7 +36,11 @@ export default async function GangreyPage() {
     const prev = seen.get(key);
     if (!prev || (!prev.byline && p.byline)) seen.set(key, p);
   }
-  const deduped = [...seen.values()].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const deduped = [...seen.values()].sort((a, b) => {
+    const dt = new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (dt !== 0) return dt;
+    return (a.sortOrder ?? 999) - (b.sortOrder ?? 999);
+  });
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5efe4", color: "#171412" }}>
