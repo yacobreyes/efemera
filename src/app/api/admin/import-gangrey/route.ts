@@ -126,6 +126,8 @@ export async function GET(req: NextRequest) {
         captures = await listFeedCaptures();
         await fs.writeFile(FEED_CAPTURES_CACHE, JSON.stringify(captures), "utf8").catch(() => {});
       }
+      // Defensively drop comment feeds even if a stale cache included them.
+      captures = captures.filter(c => !/feed=comments|comments-rss|comments\/feed|comment-feed/i.test(c.original));
 
       const chunk = await harvestFeedDates(captures, feedOffset, feedLimit);
       const existing = await loadDateMap();

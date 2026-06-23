@@ -147,8 +147,8 @@ export async function listFeedCaptures(): Promise<Candidate[]> {
   if (!Array.isArray(rows) || rows.length < 2) return [];
   const [header, ...data] = rows as string[][];
   const all = data.map(r => Object.fromEntries(header.map((k, i) => [k, r[i]]))) as unknown as Candidate[];
-  // Keep only post feeds; drop comment feeds.
-  return all.filter(c => !/comments\/feed|comment-feed/i.test(c.original));
+  // Keep only post feeds; drop comment feeds (?feed=comments-rss2, /comments/feed/).
+  return all.filter(c => !/feed=comments|comments-rss|comments\/feed|comment-feed/i.test(c.original));
 }
 
 // Parse one RSS feed snapshot into [urlKey, isoDate] pairs. Each <item> yields
