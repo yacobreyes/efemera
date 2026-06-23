@@ -32,7 +32,7 @@ export type GangreyStory = {
   headline: string; subheadline: string; byline: string; date: string;
   slug: string; body: PortableTextBlock[];
 };
-export type Candidate = { timestamp: string; original: string };
+export type Candidate = { timestamp: string; original: string; dateHint?: string };
 
 export async function listCandidates(from = "20050101", to = "20170101"): Promise<Candidate[]> {
   // NOTE: no collapse=urlkey — we want EVERY capture so we can keep the LATEST
@@ -94,7 +94,113 @@ export async function listCandidates(from = "20050101", to = "20170101"): Promis
   const extra = await listCandidatesFromHomepage();
   const seen = new Set(cdxList.map(c => c.original));
   const merged = [...cdxList, ...extra.filter(c => isStory(c) && !seen.has(c.original))];
+
+  // Enrich each candidate with a dateHint from the monthly archive pages.
+  // These are more reliable than parsing individual story HTML.
+  try {
+    const dateMap = await buildDateMap();
+    for (const c of merged) {
+      // Normalize the candidate URL to match the keys buildDateMap produces
+      let key: string;
+      try {
+        const u = new URL(c.original);
+        key = /^\?p=\d+$/.test(u.search)
+          ? `http://gangrey.com/${u.search}`
+          : `http://gangrey.com${u.pathname.replace(/\/$/, "")}/`;
+      } catch { continue; }
+      const hint = dateMap.get(key);
+      if (hint) c.dateHint = hint;
+    }
+  } catch { /* date map is best-effort; proceed without it */ }
+
   return merged;
+}
+
+// Build a URL → ISO date map by scraping every monthly archive page
+// (http://gangrey.com/?m=YYYYMM) from June 2005 through Dec 2016.
+// The monthly archive lists each story with its exact publication date in
+// a <time datetime="..."> element (WP theme) or in the post meta text
+// (old theme). This is more reliable than parsing individual story pages.
+export async function buildDateMap(
+  onProgress?: (msg: string) => void
+): Promise<Map<string, string>> {
+  // Wayback snapshot close to site shutdown — reliable for all months
+  const TS = "20170106142958";
+  const dateMap = new Map<string, string>();
+
+  const months: string[] = [];
+  for (let y = 2005; y <= 2016; y++) {
+    const start = y === 2005 ? 6 : 1;
+    const end = y === 2016 ? 12 : 12;
+    for (let m = start; m <= end; m++) {
+      months.push(`${y}${String(m).padStart(2, "0")}`);
+    }
+  }
+
+  for (const ym of months) {
+    try {
+      onProgress?.(`Fetching ?m=${ym}`);
+      const html = await fetchWayback(TS, `http://gangrey.com/?m=${ym}`);
+      const root = parse(html);
+      const year = parseInt(ym.slice(0, 4), 10);
+      const month = parseInt(ym.slice(4), 10);
+
+      // WordPress theme (2016): <article> with <time class="entry-date" datetime="ISO">
+      for (const article of root.querySelectorAll("article")) {
+        const timeEl = article.querySelector("time.entry-date[datetime]") || article.querySelector("time[datetime]");
+        const dt = timeEl?.getAttribute("datetime");
+        const links = article.querySelectorAll("a[href]");
+        for (const a of links) {
+          const href = a.getAttribute("href") ?? "";
+          try {
+            const u = new URL(href, "http://gangrey.com/");
+            if (u.hostname !== "gangrey.com") continue;
+            const key = /^\?p=\d+$/.test(u.search)
+              ? `http://gangrey.com/${u.search}`
+              : /^\/\d+\/?$/.test(u.pathname)
+              ? `http://gangrey.com${u.pathname.replace(/\/$/, "")}/`
+              : null;
+            if (!key) continue;
+            const date = dt ? parseDate(dt) : new Date(Date.UTC(year, month - 1, 1)).toISOString();
+            if (!dateMap.has(key)) dateMap.set(key, date);
+          } catch { /* skip */ }
+        }
+      }
+
+      // Old custom theme (2005-2007): <div class="post"> with <div class="posted">
+      for (const post of root.querySelectorAll("div.post")) {
+        // Extract date from div.posted: "Posted by ben on MM/DD/YY at ..."
+        const postedEl = post.querySelector("div.posted");
+        let date: string | null = null;
+        if (postedEl) {
+          const t = cleanText(postedEl.innerText ?? "");
+          const dm = t.match(/\bon\s+(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+          if (dm) {
+            const [, m2, d, yRaw] = dm;
+            const y2 = yRaw.length === 2 ? 2000 + parseInt(yRaw, 10) : parseInt(yRaw, 10);
+            date = new Date(Date.UTC(y2, parseInt(m2, 10) - 1, parseInt(d, 10))).toISOString();
+          }
+        }
+        if (!date) date = new Date(Date.UTC(year, month - 1, 1)).toISOString();
+
+        // Find the permalink — typically an <a> wrapping the <h2> or a "permalink" link
+        for (const a of post.querySelectorAll("a[href]")) {
+          const href = a.getAttribute("href") ?? "";
+          try {
+            const u = new URL(href, "http://gangrey.com/");
+            if (u.hostname !== "gangrey.com") continue;
+            if (!/^\/\d+\/?$/.test(u.pathname)) continue;
+            const key = `http://gangrey.com${u.pathname.replace(/\/$/, "")}/`;
+            if (!dateMap.has(key)) dateMap.set(key, date);
+          } catch { /* skip */ }
+        }
+      }
+
+      await sleep(300);
+    } catch { /* month may have no snapshot — skip */ }
+  }
+
+  return dateMap;
 }
 
 // Fetch the Dec 2016 Wayback homepage and extract story links not in CDX.
@@ -283,9 +389,11 @@ function parseDate(raw: string) {
   return isNaN(+d) ? new Date().toISOString() : d.toISOString();
 }
 
-export function parseGangreyPage(html: string, pageUrl: string, timestamp: string): GangreyStory | null {
+export function parseGangreyPage(html: string, pageUrl: string, timestamp: string, dateHint?: string): GangreyStory | null {
   const root = parse(html);
-  const fallbackDate = `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`;
+  // dateHint comes from the monthly archive cross-reference — prefer it over
+  // anything we parse from the story page itself, which can be unreliable.
+  const fallbackDate = dateHint ?? `${timestamp.slice(0, 4)}-${timestamp.slice(4, 6)}-${timestamp.slice(6, 8)}`;
 
   // Check if this is a 2016 WordPress post (?p=N URL or <article> container)
   const pMatch = (() => { try { return new URL(pageUrl).search.match(/^\?p=(\d+)$/)?.[1] ?? null; } catch { return null; } })();
@@ -298,7 +406,9 @@ export function parseGangreyPage(html: string, pageUrl: string, timestamp: strin
       root.querySelector("title")?.innerText?.replace(/\s*[|\-–—]\s*gangrey.*$/i, "") ?? ""
     );
     const timeEl = art.querySelector("time.entry-date[datetime]") || art.querySelector("time[datetime]");
-    const date = timeEl?.getAttribute("datetime") ? parseDate(timeEl.getAttribute("datetime")!) : parseDate(fallbackDate);
+    const rawDate = timeEl?.getAttribute("datetime") ? parseDate(timeEl.getAttribute("datetime")!) : null;
+    // Prefer dateHint (from monthly archive cross-ref) over page-parsed date
+    const date = dateHint ? parseDate(dateHint) : rawDate ?? parseDate(fallbackDate);
     const authorEl = art.querySelector("a[rel=author]") || art.querySelector(".author.vcard a") || art.querySelector(".author a");
     const byline = authorEl?.innerText ? titleCase(cleanText(authorEl.innerText)) : "";
 

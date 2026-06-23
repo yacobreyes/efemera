@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
       const root = parse(html);
       const post = root.querySelector("div.post");
       const postHtml = post?.outerHTML?.slice(0, 2000) ?? "(no div.post found)";
-      const story = parseGangreyPage(html, c.original, c.timestamp);
+      const story = parseGangreyPage(html, c.original, c.timestamp, c.dateHint);
       return NextResponse.json({ url: c.original, timestamp: c.timestamp, postHtml, parsed: story ?? null });
     } catch (e) {
       return NextResponse.json({ error: String(e) });
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
     for (const r of settled) {
       if (!r.ok) { results.push({ error: r.error }); continue; }
       try {
-        const story = parseGangreyPage(r.html, r.c.original, r.c.timestamp);
+        const story = parseGangreyPage(r.html, r.c.original, r.c.timestamp, r.c.dateHint);
         if (!story) { results.push({ skipped: r.c.original }); continue; }
         docs.push(toSanityDoc(story));
         results.push({ headline: story.headline, slug: story.slug });
