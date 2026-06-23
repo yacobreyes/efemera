@@ -58,10 +58,14 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // Diagnostic mode: return raw HTML + parsed fields for one story
+  // Diagnostic mode: return raw HTML + parsed fields for one story.
+  // ?diagid=N targets the candidate whose URL ends with /N; else by offset.
   if (diag) {
-    const c = candidates[offset];
-    if (!c) return NextResponse.json({ error: "No candidate at offset" });
+    const diagid = url.searchParams.get("diagid");
+    const c = diagid
+      ? candidates.find(x => new RegExp(`/${diagid}/?$`).test(x.original))
+      : candidates[offset];
+    if (!c) return NextResponse.json({ error: "No candidate found" });
     try {
       const html = await fetchWayback(c.timestamp, c.original);
       const { parse } = await import("node-html-parser");
