@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import SubscribeButton from "@/components/SubscribeButton";
@@ -8,10 +8,27 @@ import SubscribeButton from "@/components/SubscribeButton";
 export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  function openSearch() { setSearchOpen(true); }
+  function closeSearch() { setSearchOpen(false); setSearchQ(""); }
+
+  function submitSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (searchQ.trim()) {
+      router.push(`/?q=${encodeURIComponent(searchQ.trim())}`);
+      closeSearch();
+    }
+  }
 
   return (
-    <header className={`mag-nav${menuOpen ? " open" : ""}`}>
+    <header className={`mag-nav${menuOpen ? " open" : ""}${searchOpen ? " search-open" : ""}`}>
       <style>{`
         .mag-nav {
           height: 100px;
@@ -24,6 +41,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           position: sticky;
           top: 0;
           z-index: 20;
+          overflow: hidden;
         }
         .mag-nav-group {
           display: flex;
@@ -38,7 +56,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
         .mag-nav-group a:hover { color: #8e0d0d; }
-        .mag-nav-group.right { justify-content: flex-end; }
+        .mag-nav-group.right { justify-content: flex-end; gap: 28px; }
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; }
         .mag-logo img { height: 58px; width: auto; display: block; }
         .mag-nav-cta {
@@ -54,6 +72,68 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           border: none;
           cursor: pointer;
         }
+        .mag-search-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          color: #171412;
+          display: flex;
+          align-items: center;
+          transition: color .15s;
+        }
+        .mag-search-btn:hover { color: #8e0d0d; }
+
+        /* Desktop search overlay */
+        .mag-search-bar {
+          display: none;
+          position: absolute;
+          inset: 0;
+          background: #fbf6ee;
+          align-items: center;
+          padding: 0 44px;
+          gap: 20px;
+          z-index: 1;
+        }
+        .mag-nav.search-open .mag-search-bar { display: flex; }
+        .mag-search-form {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border: 1px solid #cfc3b3;
+          border-radius: 30px;
+          padding: 10px 20px;
+          background: #fff;
+          max-width: 680px;
+          margin: 0 auto;
+        }
+        .mag-search-form input {
+          flex: 1;
+          border: none;
+          outline: none;
+          background: transparent;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 15px;
+          color: #171412;
+        }
+        .mag-search-form input::placeholder { color: #b0a090; }
+        .mag-search-cancel {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: Inter, system-ui, sans-serif;
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: #171412;
+          flex-shrink: 0;
+          padding: 4px 0;
+          transition: color .15s;
+        }
+        .mag-search-cancel:hover { color: #8e0d0d; }
+
         .mag-toggle { display: none; }
         .mag-mob-sub { display: none; }
         .mag-drawer { display: none; }
@@ -67,6 +147,8 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             align-items: center;
           }
           .mag-nav-group { display: none; }
+          .mag-search-btn { display: none; }
+          .mag-search-bar { padding: 0 20px; }
           .mag-toggle {
             display: flex;
             flex-direction: column;
@@ -152,6 +234,24 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
       `}</style>
 
+      {/* Desktop search overlay — sits on top of the normal nav */}
+      <div className="mag-search-bar">
+        <form className="mag-search-form" onSubmit={submitSearch}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b0a090" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            ref={searchInputRef}
+            type="search"
+            placeholder={`Try "Gangrey"`}
+            value={searchQ}
+            onChange={e => setSearchQ(e.target.value)}
+            autoComplete="off"
+          />
+        </form>
+        <button className="mag-search-cancel" type="button" onClick={closeSearch}>Cancel</button>
+      </div>
+
       <nav className="mag-nav-group">
         <Link href="/about">About</Link>
         <Link href="/latest">The Latest</Link>
@@ -173,6 +273,11 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       <nav className="mag-nav-group right">
         <Link href="/issues">Issues</Link>
         <Link href="/store">Shop</Link>
+        <button className="mag-search-btn" aria-label="Search" onClick={openSearch}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
         <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
       </nav>
 
