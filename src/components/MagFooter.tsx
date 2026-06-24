@@ -44,7 +44,7 @@ export default function MagFooter() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <div className="mag-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
       <nav className="mag-footer-links">
-        <Link href="/about">Masthead</Link>
+        <Link href="/authors">Authors</Link>
         <a href="mailto:yacob@efemera.org">Submit</a>
         <SubscribeButton>Subscribe</SubscribeButton>
       </nav>

@@ -518,7 +518,7 @@ export default function Feed({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <div className="ef-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
         <nav className="ef-footer-links">
-          <Link href="/about">Masthead</Link>
+          <Link href="/authors">Authors</Link>
           <a href="mailto:hello@efemera.co">Submit</a>
           <SubscribeButton>Subscribe</SubscribeButton>
         </nav>
