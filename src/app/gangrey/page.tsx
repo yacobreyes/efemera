@@ -9,7 +9,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "The Archive — Efemera",
-  description: "Writing once featured on the now-defunct Gangrey.com, given a second life.",
+  description: "Writing once featured on the now-defunct Gangrey.com.",
 };
 
 export default async function GangreyPage() {
@@ -60,7 +60,7 @@ export default async function GangreyPage() {
         <div className="gr-head">
           <div className="gr-kicker">Archive</div>
           <h1 className="gr-title">The Archive</h1>
-          <p className="gr-sub">Writing once featured on the now-defunct Gangrey.com, given a second life.</p>
+          <p className="gr-sub">Writing once featured on the now-defunct Gangrey.com.</p>
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
         </div>
         {deduped.length === 0
