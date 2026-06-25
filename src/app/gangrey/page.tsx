@@ -8,8 +8,8 @@ import { normalizeHeadline } from "@/lib/gangreyDedup";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "From Gangrey — Efemera",
-  description: "Giving a second life to writing once featured on the now-defunct Gangrey.com.",
+  title: "The Archive — Efemera",
+  description: "Writing once featured on the now-defunct Gangrey.com, given a second life.",
 };
 
 export default async function GangreyPage() {
@@ -59,8 +59,8 @@ export default async function GangreyPage() {
       <main className="gr-wrap">
         <div className="gr-head">
           <div className="gr-kicker">Archive</div>
-          <h1 className="gr-title">From Gangrey</h1>
-          <p className="gr-sub">Giving a second life to writing once featured on the now-defunct Gangrey.com.</p>
+          <h1 className="gr-title">The Archive</h1>
+          <p className="gr-sub">Writing once featured on the now-defunct Gangrey.com, given a second life.</p>
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
         </div>
         {deduped.length === 0

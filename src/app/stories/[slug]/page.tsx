@@ -13,6 +13,7 @@ import { postReadingTime } from "@/lib/readingTime";
 
 function sectionLabel(section: string) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
+  if (section === "Gangrey Redux") return "The Archive";
   return section;
 }
 
