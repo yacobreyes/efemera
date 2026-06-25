@@ -134,7 +134,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           max-width: 14ch;
         }
         .story-dek {
-          font-family: var(--font-subhead);
+          font-family: var(--font-body);
           font-style: italic;
           font-size: clamp(20px, 3vw, 27px);
           line-height: 1.35;
