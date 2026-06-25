@@ -7,9 +7,9 @@
   --rule: #d9d9d9;
 
   /* Typography */
-  --font-headline: "benton-sans-condensed", "Arial Narrow", sans-serif;
-  --font-subhead:  "helvetica-now-text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-body:     "adobe-caslon-pro", Georgia, serif;
+  --font-headline: "astoria", "Arial Narrow", sans-serif;
+  --font-subhead:  "astoria", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body:     "astoria", Georgia, sans-serif;
 
   /* Legacy aliases — keep so admin/editor styles still compile */
   --font-inter:      var(--font-subhead);

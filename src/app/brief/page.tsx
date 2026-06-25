@@ -39,7 +39,7 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
         .listing-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
         .listing-head { border-bottom: 1px solid #000000; padding-bottom: 24px; margin-bottom: 40px; }
         .listing-kicker {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
           color: #990000; margin-bottom: 14px;
         }
@@ -49,7 +49,7 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
         }
         .brief-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
         .brief-tab {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
           padding: 9px 18px; border-radius: 999px; text-decoration: none;
           border: 1px solid #d9d9d9; color: #000000; transition: all .15s;
