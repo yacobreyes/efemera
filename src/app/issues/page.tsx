@@ -23,16 +23,16 @@ export default async function IssuesPage() {
   return (
     <div className="issues-page">
       <style>{`
-        .issues-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
+        .issues-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .issues-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
-        .issues-head { border-bottom: 1px solid #171412; padding-bottom: 24px; margin-bottom: 40px; }
+        .issues-head { border-bottom: 1px solid #000000; padding-bottom: 24px; margin-bottom: 40px; }
         .issues-kicker {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #8e0d0d; margin-bottom: 14px;
+          color: #990000; margin-bottom: 14px;
         }
         .issues-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
         .issues-list { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
@@ -42,34 +42,34 @@ export default async function IssuesPage() {
           align-items: baseline;
           gap: 24px;
           padding: 28px 0;
-          border-bottom: 1px solid #cfc3b3;
+          border-bottom: 1px solid #d9d9d9;
           text-decoration: none;
           color: inherit;
         }
         .issue-row:first-child { padding-top: 0; }
         .issue-left { flex: 1; }
         .issue-number {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase;
-          color: #8e0d0d; margin-bottom: 8px;
+          color: #990000; margin-bottom: 8px;
         }
         .issue-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 26px; font-weight: 700; line-height: 1.15; margin: 0 0 6px;
         }
         .issue-desc {
-          font-family: var(--font-cormorant), Georgia, serif;
-          font-size: 18px; font-style: italic; color: #463f37; margin: 0; line-height: 1.4;
+          font-family: var(--font-headline);
+          font-size: 18px; font-style: italic; color: #000000; margin: 0; line-height: 1.4;
         }
         .issue-date {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-          color: #171412; white-space: nowrap;
+          color: #000000; white-space: nowrap;
         }
-        .issue-arrow { color: #8e0d0d; font-size: 18px; margin-left: 8px; }
+        .issue-arrow { color: #990000; font-size: 18px; margin-left: 8px; }
         .issues-empty {
-          font-family: var(--font-cormorant), Georgia, serif;
-          font-size: 22px; font-style: italic; color: #171412;
+          font-family: var(--font-headline);
+          font-size: 22px; font-style: italic; color: #000000;
         }
         @media (max-width: 900px) {
           .issues-main { padding: 40px 24px 64px; }

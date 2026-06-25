@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  --crimson: #8B0000;
-  --cream: #F5F0E8;
-  --ink: #1a1008;
-  --newsprint: #EDE8DC;
-  --rule: #2a1a0a;
+  --crimson: #990000;
+  --ink: #000000;
+  --paper: #ffffff;
+  --rule: #d9d9d9;
+
+  /* Typography */
+  --font-headline: "benton-sans-condensed", "Arial Narrow", sans-serif;
+  --font-subhead:  "helvetica-now-text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body:     "adobe-caslon-pro", Georgia, serif;
+
+  /* Legacy aliases — keep so admin/editor styles still compile */
+  --font-inter:      var(--font-subhead);
+  --font-cormorant:  var(--font-headline);
+  --font-bodoni:     var(--font-headline);
 }
 
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
 html { scrollbar-gutter: stable; }
-/* html and body share one background so the overscroll/bounce area matches
-   the site chrome AND there's no color difference between them during
-   client-side navigation (a mismatch there is what caused the flash). Each
-   page's own root wrapper paints the actual content backdrop on top. */
-html, body { background: #fbf6ee; }
-
-.paper-bg {
-  background-color: #f5f8fa;
-}
-
-.card-headline:hover { color: #8B0000 !important; transition: color 0.15s; }
+html, body { background: #ffffff; }
 
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-subhead);
+  color: #000000;
 }
+
+.card-headline:hover { color: #990000 !important; transition: color 0.15s; }
 
 /* ── Intro overlay ── */
 .intro-overlay {
@@ -42,7 +44,6 @@ body {
   overflow: hidden;
 }
 
-/* ── Wordmark ── */
 .wordmark-container {
   position: relative;
   z-index: 10;
@@ -54,7 +55,7 @@ body {
 }
 
 .enter-hint {
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-subhead);
   font-size: 0.75rem;
   letter-spacing: 0.2em;
   color: rgba(255,255,255,0.9);
@@ -63,72 +64,6 @@ body {
   align-self: center;
 }
 
-/* ── Newspaper ── */
-.newspaper-bg {
-  min-height: 100vh;
-  background: var(--newsprint);
-  background-image:
-    repeating-linear-gradient(
-      0deg, transparent, transparent 27px,
-      rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 28px
-    );
-}
-
-.newspaper-header {
-  border-bottom: 4px double var(--rule);
-  padding: 1.5rem 2rem 1rem;
-  text-align: center;
-  background: var(--cream);
-}
-
-.newspaper-columns {
-  columns: 1;
-  column-gap: 2rem;
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-@media (min-width: 640px) { .newspaper-columns { columns: 2; } }
-@media (min-width: 900px) { .newspaper-columns { columns: 3; } }
-
-/* ── Articles ── */
-.article-card {
-  break-inside: avoid;
-  margin-bottom: 2rem;
-}
-
-.article-lead {
-  break-inside: avoid;
-  column-span: all;
-  border-bottom: 2px solid var(--rule);
-  padding-bottom: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-@media (max-width: 640px) { .article-lead { grid-template-columns: 1fr; } }
-
-.article-image {
-  width: 100%;
-  aspect-ratio: 4/3;
-  overflow: hidden;
-  margin-bottom: 0.5rem;
-  background: var(--crimson);
-}
-
-.section-rule {
-  border: none;
-  border-top: 3px solid var(--rule);
-  margin: 0 2rem;
-}
-
-.col-divider { column-rule: 1px solid rgba(0,0,0,0.2); }
-
-
 .page-enter {
   animation: pageReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -136,10 +71,4 @@ body {
 @keyframes pageReveal {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-/* thin horizontal rules between column articles */
-.article-card + .article-card {
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(0,0,0,0.15);
 }

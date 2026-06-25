@@ -31,7 +31,7 @@ export default function AuthorsClient({ authors }: { authors: Author[] }) {
   }, [authors]);
 
   return (
-    <div style={{ fontFamily: "Inter, system-ui, sans-serif", color: "#171412" }}>
+    <div style={{ fontFamily: "var(--font-subhead)", color: "#000000" }}>
       <style>{`
         .au-letter {
           background: none;
@@ -40,20 +40,20 @@ export default function AuthorsClient({ authors }: { authors: Author[] }) {
           font-family: inherit;
           font-size: 14px;
           font-weight: 600;
-          color: #cfc3b3;
+          color: #d9d9d9;
           padding: 2px 4px;
           transition: color .12s;
           letter-spacing: .04em;
         }
-        .au-letter.active { color: #171412; text-decoration: underline; text-underline-offset: 3px; }
-        .au-letter.has:not(.active) { color: #171412; }
-        .au-letter:hover { color: #8e0d0d; }
+        .au-letter.active { color: #000000; text-decoration: underline; text-underline-offset: 3px; }
+        .au-letter.has:not(.active) { color: #000000; }
+        .au-letter:hover { color: #990000; }
         .au-grid { columns: 4; column-gap: 40px; margin-top: 40px; }
         .au-name {
-          font-family: Georgia, serif;
+          font-family: var(--font-body);
           font-size: 16px;
           line-height: 1.5;
-          color: #171412;
+          color: #000000;
           margin-bottom: 10px;
           break-inside: avoid;
           cursor: default;
@@ -65,20 +65,20 @@ export default function AuthorsClient({ authors }: { authors: Author[] }) {
 
       {/* Header row */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 32, gap: 20, flexWrap: "wrap" }}>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 400, margin: 0, lineHeight: 1 }}>Authors</h1>
+        <h1 style={{ fontFamily: "var(--font-body)", fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 400, margin: 0, lineHeight: 1 }}>Authors</h1>
         <input
           type="search"
           placeholder="Search Authors"
           value={query}
           onChange={e => { setQuery(e.target.value); setLetter("-"); }}
           style={{
-            border: "1px solid #cfc3b3",
+            border: "1px solid #d9d9d9",
             borderRadius: 4,
             padding: "8px 14px",
             fontFamily: "inherit",
             fontSize: 14,
-            color: "#171412",
-            background: "#fbf6ee",
+            color: "#000000",
+            background: "#ffffff",
             outline: "none",
             width: 200,
             alignSelf: "center",
@@ -86,11 +86,11 @@ export default function AuthorsClient({ authors }: { authors: Author[] }) {
         />
       </div>
 
-      <hr style={{ border: "none", borderTop: "1px solid #cfc3b3", margin: "0 0 16px" }} />
+      <hr style={{ border: "none", borderTop: "1px solid #d9d9d9", margin: "0 0 16px" }} />
 
       {/* Alphabet filter */}
       <div style={{ marginBottom: 8 }}>
-        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#8e0d0d", marginRight: 16 }}>Filter by Last Name</span>
+        <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#990000", marginRight: 16 }}>Filter by Last Name</span>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 2, marginTop: 8 }}>
           {LETTERS.map(l => (
             <button
@@ -104,11 +104,11 @@ export default function AuthorsClient({ authors }: { authors: Author[] }) {
         </div>
       </div>
 
-      <hr style={{ border: "none", borderTop: "1px solid #cfc3b3", margin: "16px 0 0" }} />
+      <hr style={{ border: "none", borderTop: "1px solid #d9d9d9", margin: "16px 0 0" }} />
 
       {/* Author grid */}
       {filtered.length === 0 ? (
-        <p style={{ fontFamily: "Georgia, serif", fontStyle: "italic", color: "#8a7f6f", marginTop: 40, fontSize: 18 }}>No authors found.</p>
+        <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#555555", marginTop: 40, fontSize: 18 }}>No authors found.</p>
       ) : (
         <div className="au-grid">
           {filtered.map(a => (

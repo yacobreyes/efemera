@@ -26,7 +26,7 @@ export default function ReadCounter({ slug }: { slug: string }) {
 
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontFamily: "'Courier New', Courier, monospace" }}>
-      <span style={{ fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#8B0000", fontWeight: 700 }}>Reads</span>
+      <span style={{ fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "#990000", fontWeight: 700 }}>Reads</span>
       <span style={{ display: "inline-flex", opacity: ready ? 1 : 0.3, transition: "opacity 0.4s ease" }}>
         {digits.split("").map((ch, i) => (
           <span key={i} style={{
@@ -35,7 +35,7 @@ export default function ReadCounter({ slug }: { slug: string }) {
             textAlign: "center",
             fontSize: "0.82rem",
             fontWeight: 700,
-            color: "#1c2938",
+            color: "#000000",
             background: "#f0f3f4",
             border: "1px solid #d0d7de",
             borderRight: i < 4 ? "none" : "1px solid #d0d7de",

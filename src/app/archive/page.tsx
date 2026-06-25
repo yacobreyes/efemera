@@ -22,19 +22,19 @@ export default async function ArchivePage() {
   return (
     <div className="listing-page">
       <style>{`
-        .listing-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
+        .listing-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .listing-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
-        .listing-head { border-bottom: 1px solid #171412; padding-bottom: 24px; margin-bottom: 40px; }
+        .listing-head { border-bottom: 1px solid #000000; padding-bottom: 24px; margin-bottom: 40px; }
         .listing-kicker {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #8e0d0d; margin-bottom: 14px;
+          color: #990000; margin-bottom: 14px;
         }
         .listing-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
-        .listing-empty { font-family: var(--font-cormorant), Georgia, serif; font-size: 22px; font-style: italic; color: #6f655b; }
+        .listing-empty { font-family: var(--font-headline); font-size: 22px; font-style: italic; color: #000000; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>
       <MagHeader />

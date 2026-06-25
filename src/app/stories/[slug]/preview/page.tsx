@@ -38,13 +38,13 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
           min-height: 100vh;
           display: flex;
           flex-direction: column;
-          background: #f5efe4;
-          color: #171412;
+          background: #ffffff;
+          color: #000000;
         }
         .preview-banner {
-          background: #8e0d0d;
+          background: #990000;
           color: #fff;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
           font-weight: 700;
           letter-spacing: .12em;
@@ -63,16 +63,16 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         .story-label {
           text-decoration: none;
           display: inline-block;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
           font-weight: 800;
           letter-spacing: .24em;
           text-transform: uppercase;
-          color: #8e0d0d;
+          color: #990000;
           margin-bottom: 20px;
         }
         .story-h1 {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-weight: 700;
           font-size: clamp(42px, 7vw, 74px);
           line-height: 1.0;
@@ -81,26 +81,26 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
           max-width: 14ch;
         }
         .story-dek {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-subhead);
           font-style: italic;
           font-size: clamp(20px, 3vw, 27px);
           line-height: 1.35;
-          color: #463f37;
+          color: #000000;
           margin: 0 auto 28px;
           max-width: 540px;
         }
         .story-meta {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px;
           font-weight: 700;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: #171412;
+          color: #000000;
           display: inline-flex;
           gap: 12px;
           align-items: center;
         }
-        .story-meta .dot { color: #8e0d0d; }
+        .story-meta .dot { color: #990000; }
         .story-hero {
           width: 100%;
           max-width: 1100px;
@@ -110,9 +110,9 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
         }
         .story-hero img { width: 100%; display: block; }
         .story-hero figcaption {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
-          color: #171412;
+          color: #000000;
           font-style: italic;
           margin-top: 10px;
           line-height: 1.5;
@@ -126,10 +126,10 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
           box-sizing: border-box;
         }
         .story-body {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-body);
           font-size: 22px;
           line-height: 1.65;
-          color: #211c17;
+          color: #000000;
         }
         .story-body > p:first-of-type::first-letter {
           font-weight: 700;
@@ -137,15 +137,15 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
           line-height: .72;
           float: left;
           margin: .06em .1em 0 0;
-          color: #8e0d0d;
+          color: #990000;
         }
         .story-body p { margin: 1.2rem 0 0; }
         .story-body > p:first-of-type { margin-top: 0; }
-        .story-body a { color: #8e0d0d; text-decoration: underline; }
+        .story-body a { color: #990000; text-decoration: underline; }
         .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
         .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
         .story-body li { display: list-item; margin-bottom: .25em; }
-        .story-rule { width: 60px; height: 2px; background: #8e0d0d; border: 0; margin: 44px auto 0; }
+        .story-rule { width: 60px; height: 2px; background: #990000; border: 0; margin: 44px auto 0; }
         .story-actions {
           margin-top: 30px;
           display: flex;
@@ -210,13 +210,13 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
               block: {
                 normal: ({ children }) => <p>{children}</p>,
                 h2: ({ children }) => (
-                  <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
+                  <h2 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: "1.9rem", margin: "2.2rem 0 0", lineHeight: 1.15, letterSpacing: "-.02em" }}>{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
+                  <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #8e0d0d", fontStyle: "italic", color: "#463f37" }}>{children}</blockquote>
+                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #990000", fontStyle: "italic", color: "#000000" }}>{children}</blockquote>
                 ),
               },
               list: {

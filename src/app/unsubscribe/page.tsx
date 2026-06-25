@@ -33,16 +33,16 @@ function UnsubscribeForm() {
 
   return (
     <div style={{ maxWidth: 440, margin: "0 auto", padding: "4rem 1.5rem", textAlign: "center" }}>
-      <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 36, lineHeight: 1.1, color: "#171412", margin: "0 0 12px" }}>
+      <h1 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.1, color: "#000000", margin: "0 0 12px" }}>
         Unsubscribe
       </h1>
       {status === "done" ? (
-        <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, lineHeight: 1.5, color: "#463f37" }}>
+        <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, lineHeight: 1.5, color: "#000000" }}>
           You&rsquo;ve been unsubscribed. You won&rsquo;t receive any more emails from efemera.
         </p>
       ) : (
         <>
-          <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, color: "#463f37", margin: "0 0 28px" }}>
+          <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, color: "#000000", margin: "0 0 28px" }}>
             Enter your email to stop receiving our newsletter.
           </p>
           <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -52,17 +52,17 @@ function UnsubscribeForm() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "12px 14px", border: "1px solid #cfc3b3", borderRadius: 2, outline: "none", background: "#fff", color: "#171412" }}
+              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "12px 14px", border: "1px solid #d9d9d9", borderRadius: 2, outline: "none", background: "#fff", color: "#000000" }}
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", background: "#8e0d0d", border: "none", padding: "12px 14px", borderRadius: 2, cursor: status === "loading" ? "default" : "pointer", opacity: status === "loading" ? 0.7 : 1 }}
+              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", background: "#990000", border: "none", padding: "12px 14px", borderRadius: 2, cursor: status === "loading" ? "default" : "pointer", opacity: status === "loading" ? 0.7 : 1 }}
             >
               {status === "loading" ? "Unsubscribing…" : "Unsubscribe"}
             </button>
             {status === "error" && (
-              <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#8e0d0d", margin: 0 }}>{error}</p>
+              <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#990000", margin: 0 }}>{error}</p>
             )}
           </form>
         </>
@@ -73,7 +73,7 @@ function UnsubscribeForm() {
 
 export default function UnsubscribePage() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5efe4" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff" }}>
       <MagHeader />
       <main style={{ flex: 1 }}>
         <Suspense fallback={null}>

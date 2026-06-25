@@ -60,7 +60,7 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
   return (
     <div className="issue-read-page">
       <style>{`
-        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #fbf6ee; }
+        .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; }
         .issue-read-main { flex: 1; width: 100%; padding: 0 0 48px; }
       `}</style>
       <MagHeader />

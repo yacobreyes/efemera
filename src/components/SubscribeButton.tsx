@@ -61,8 +61,8 @@ export default function SubscribeButton({
             style={{
               position: "relative",
               width: "100%", maxWidth: 440,
-              background: "#8e0d0d",
-              color: "#fbf6ee",
+              background: "#990000",
+              color: "#ffffff",
               borderRadius: 4,
               padding: "44px 36px 38px",
               textAlign: "center",
@@ -74,7 +74,7 @@ export default function SubscribeButton({
               type="button" aria-label="Close" onClick={() => setOpen(false)}
               style={{
                 position: "absolute", top: 12, right: 14,
-                background: "none", border: "none", color: "#fbf6ee",
+                background: "none", border: "none", color: "#ffffff",
                 fontSize: 26, lineHeight: 1, cursor: "pointer", opacity: .8, padding: 4,
               }}
             >×</button>
@@ -82,25 +82,25 @@ export default function SubscribeButton({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Cream Mayfly.png" alt="" style={{ height: 52, width: "auto", opacity: .9, marginBottom: 22 }} />
 
-            <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
+            <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
               Join the Collective.
             </h2>
-            <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
               Get our latest issue delivered to your inbox.
             </p>
 
             {status === "done" ? (
-              <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 24, fontStyle: "italic", margin: 0 }}>{msg}</p>
+              <p style={{ fontFamily: 'var(--font-headline)', fontSize: 24, fontStyle: "italic", margin: 0 }}>{msg}</p>
             ) : (
               <form onSubmit={submit} style={{ display: "flex", gap: 10, width: "100%" }}>
                 <input
                   type="email" required value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="your@email.com" autoComplete="email"
-                  style={{ flex: 1, minWidth: 0, fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "13px 16px", border: "none", borderRadius: 2, outline: "none", background: "#fbf6ee", color: "#171412" }}
+                  style={{ flex: 1, minWidth: 0, fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "13px 16px", border: "none", borderRadius: 2, outline: "none", background: "#ffffff", color: "#000000" }}
                 />
                 <button
                   type="submit" disabled={status === "loading"}
-                  style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", background: "#171412", color: "#fbf6ee", border: "none", borderRadius: 2, padding: "0 22px", cursor: "pointer", whiteSpace: "nowrap", opacity: status === "loading" ? .6 : 1 }}
+                  style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase", background: "#000000", color: "#ffffff", border: "none", borderRadius: 2, padding: "0 22px", cursor: "pointer", whiteSpace: "nowrap", opacity: status === "loading" ? .6 : 1 }}
                 >
                   {status === "loading" ? "…" : "Join"}
                 </button>

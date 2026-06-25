@@ -3,14 +3,14 @@ import type { SanityLately } from "@/lib/sanity";
 function MaybeLink({ url, children }: { url?: string; children: React.ReactNode }) {
   if (!url) return <>{children}</>;
   const href = url.startsWith("http") ? url : `https://${url}`;
-  return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#8B0000", textDecoration: "underline" }}>{children}</a>;
+  return <a href={href} target="_blank" rel="noopener noreferrer" style={{ color: "#990000", textDecoration: "underline" }}>{children}</a>;
 }
 
-const FONT = "var(--font-inter), sans-serif";
+const FONT = "var(--font-subhead)";
 const BORDER = "#e1e8ed";
-const CRIMSON = "#8B0000";
-const TEXT_DARK = "#1c2938";
-const TEXT_MUTED = "#526270";
+const CRIMSON = "#990000";
+const TEXT_DARK = "#000000";
+const TEXT_MUTED = "#555555";
 
 const ROW_LABEL: React.CSSProperties = {
   fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700,

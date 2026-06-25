@@ -7,8 +7,8 @@ export default function MagFooter() {
       <style>{`
         .mag-footer {
           padding: 46px 7vw 34px;
-          background: #fbf6ee;
-          border-top: 1px solid #cfc3b3;
+          background: #ffffff;
+          border-top: 1px solid #d9d9d9;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -21,20 +21,20 @@ export default function MagFooter() {
           gap: 34px;
           justify-content: center;
           flex-wrap: wrap;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
           font-weight: 800;
           letter-spacing: .2em;
           text-transform: uppercase;
-          color: #171412;
+          color: #000000;
         }
         .mag-footer-links a { color: inherit; text-decoration: none; }
         .mag-footer-links button { font: inherit; letter-spacing: inherit; text-transform: inherit; background: none; border: none; padding: 0; color: inherit; cursor: pointer; }
         .mag-footer-copy {
           margin-top: 26px;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 16px;
-          color: #171412;
+          color: #000000;
         }
         @media (max-width: 900px) {
           .mag-footer { padding: 36px 24px 28px; }

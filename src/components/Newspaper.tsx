@@ -75,19 +75,19 @@ export default function Feed({
     <>
       <style>{`
         :root {
-          --paper: #f5efe4;
+          --paper: #ffffff;
           --paper-dark: #dfd4c4;
-          --ink: #171412;
-          --red: #8e0d0d;
-          --line: #cfc3b3;
+          --ink: #000000;
+          --red: #990000;
+          --line: #d9d9d9;
         }
         * { box-sizing: border-box; }
-        html { background: #fbf6ee; }
+        html { background: #ffffff; }
         body {
           margin: 0;
-          background: #fbf6ee;
+          background: #ffffff;
           color: var(--ink);
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           -webkit-font-smoothing: antialiased;
         }
         a { color: inherit; text-decoration: none; }
@@ -104,7 +104,7 @@ export default function Feed({
           align-items: flex-end;
           padding: 80px 7vw;
           overflow: hidden;
-          color: #fbf6ee;
+          color: #ffffff;
           background:
             linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%),
             linear-gradient(125deg, #4a4038, #2a2420);
@@ -122,12 +122,12 @@ export default function Feed({
           z-index: 3;
         }
         .ef-kicker {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 13px;
           font-weight: 800;
           letter-spacing: .22em;
           text-transform: uppercase;
-          color: #fbf6ee;
+          color: #ffffff;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
           margin-bottom: 22px;
         }
@@ -137,38 +137,38 @@ export default function Feed({
           font-size: clamp(56px, 7.5vw, 98px);
           line-height: .92;
           letter-spacing: -.025em;
-          color: #fbf6ee;
+          color: #ffffff;
           text-shadow: 0 2px 24px rgba(0,0,0,.7), 0 1px 6px rgba(0,0,0,.5);
           transition: color .15s;
         }
-        .ef-h1:hover { color: #fbf6ee; }
+        .ef-h1:hover { color: #ffffff; }
         .ef-dek {
           max-width: 560px;
           margin: 26px 0 30px;
           font-size: 25px;
           line-height: 1.35;
           font-style: italic;
-          color: #fbf6ee;
+          color: #ffffff;
           text-shadow: 0 1px 10px rgba(0,0,0,.5);
         }
         .ef-meta {
           display: flex;
           gap: 18px;
           flex-wrap: wrap;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 13px;
           font-weight: 800;
           letter-spacing: .16em;
           text-transform: uppercase;
-          color: #fbf6ee;
+          color: #ffffff;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
         .ef-read-link {
           display: inline-block;
           margin-top: 32px;
-          color: #fbf6ee;
+          color: #ffffff;
           font-size: 23px;
-          border-bottom: 1px solid #fbf6ee;
+          border-bottom: 1px solid #ffffff;
           text-shadow: 0 1px 8px rgba(0,0,0,.5);
         }
 
@@ -214,7 +214,7 @@ export default function Feed({
         .ef-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
         .ef-thumb:hover img { transform: scale(1.03); }
         .ef-label {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
           font-weight: 800;
           letter-spacing: .22em;
@@ -244,7 +244,7 @@ export default function Feed({
         }
         .ef-time {
           margin-top: 26px;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px;
           font-weight: 800;
           letter-spacing: .16em;
@@ -259,49 +259,49 @@ export default function Feed({
           gap: 50px;
           padding: 58px 7vw;
           background: var(--red);
-          color: #fbf6ee;
+          color: #ffffff;
         }
         .ef-reads-left { width: fit-content; }
         .ef-reads-label {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em;
           margin-bottom: 10px;
         }
-        .ef-reads-rule { width: 100%; height: 2px; background: #fbf6ee; border: 0; margin: 0 0 14px; }
+        .ef-reads-rule { width: 100%; height: 2px; background: #ffffff; border: 0; margin: 0 0 14px; }
         .ef-reads-sub {
-          font-family: var(--font-cormorant), Georgia, serif;
-          font-size: 17px; font-style: italic; color: #fbf6ee; margin: 0;
+          font-family: var(--font-headline);
+          font-size: 17px; font-style: italic; color: #ffffff; margin: 0;
         }
         .ef-reads h2 { display: none; }
         .ef-circles { display: flex; gap: 20px; align-items: center; }
         .ef-circle {
           width: 88px; height: 88px; border-radius: 50%;
-          border: 1.5px solid #fbf6ee; background: transparent; color: #fbf6ee;
+          border: 1.5px solid #ffffff; background: transparent; color: #ffffff;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           gap: 3px; text-align: center;
-          font-family: Inter, system-ui, sans-serif; font-size: 10px; font-weight: 800;
+          font-family: var(--font-subhead); font-size: 10px; font-weight: 800;
           letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: all .15s;
         }
         .ef-circle { text-decoration: none; }
-        .ef-circle:hover { background: #fbf6ee; color: var(--red); border-color: #fbf6ee; }
+        .ef-circle:hover { background: #ffffff; color: var(--red); border-color: #ffffff; }
         .ef-circle strong {
           display: flex; align-items: flex-end; justify-content: center;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 32px; line-height: 1; letter-spacing: 0; font-weight: 800; height: 32px; width: 100%;
         }
         .ef-circle span { display: block; }
         .ef-reads-annotation {
           display: flex; flex-direction: column; align-items: center; gap: 8px;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-style: italic;
-          font-size: 14px; color: #fbf6ee;
+          font-size: 14px; color: #ffffff;
           text-align: center; line-height: 1.3; flex-shrink: 0;
         }
 
         /* FOOTER */
         .ef-footer {
           padding: 46px 7vw 34px;
-          background: #fbf6ee;
+          background: #ffffff;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -319,7 +319,7 @@ export default function Feed({
           gap: 34px;
           justify-content: center;
           flex-wrap: wrap;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 12px;
           font-weight: 800;
           letter-spacing: .2em;
@@ -353,7 +353,7 @@ export default function Feed({
           .ef-section { padding: 40px 24px 48px; }
           .ef-section-head { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 16px; margin-bottom: 22px; }
           .ef-section-head h2 { font-size: 28px; }
-          .ef-section-head a { font-size: 13px; font-style: normal; font-family: Inter, system-ui, sans-serif; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 10px 18px; border: 1px solid var(--red); border-radius: 2px; }
+          .ef-section-head a { font-size: 13px; font-style: normal; font-family: var(--font-subhead); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 10px 18px; border: 1px solid var(--red); border-radius: 2px; }
           .ef-grid { grid-template-columns: 1fr; gap: 0; }
           .ef-card { border-right: 0; border-bottom: 1px solid var(--line); padding: 28px 0; }
           .ef-card:first-child { padding-top: 0; }
@@ -377,7 +377,7 @@ export default function Feed({
           .ef-section-tabs::-webkit-scrollbar { display: none; }
           .ef-section-tabs a {
             flex-shrink: 0;
-            font-family: Inter, system-ui, sans-serif;
+            font-family: var(--font-subhead);
             font-size: 11px;
             font-weight: 700;
             letter-spacing: .14em;
@@ -388,7 +388,7 @@ export default function Feed({
             color: var(--ink);
             white-space: nowrap;
           }
-          .ef-section-tabs a:active { background: var(--ink); color: #fbf6ee; }
+          .ef-section-tabs a:active { background: var(--ink); color: #ffffff; }
           .ef-reads { grid-template-columns: 1fr auto auto; gap: 12px; padding: 28px 20px; }
           .ef-reads-label { font-size: 22px; margin-bottom: 7px; }
           .ef-reads-sub { font-size: 14px; }
@@ -406,23 +406,23 @@ export default function Feed({
       {/* SEARCH RESULTS */}
       {q && (
         <section style={{ width: "100%", maxWidth: 1180, margin: "0 auto", padding: "56px 44px 72px", boxSizing: "border-box" }}>
-          <div style={{ borderBottom: "1px solid #171412", paddingBottom: 20, marginBottom: 36 }}>
-            <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#8e0d0d", margin: "0 0 10px" }}>Search</p>
-            <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
+          <div style={{ borderBottom: "1px solid #000000", paddingBottom: 20, marginBottom: 36 }}>
+            <p style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#990000", margin: "0 0 10px" }}>Search</p>
+            <h1 style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
           </div>
           {searchResults.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {searchResults.map(p => (
-                <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #cfc3b3", textDecoration: "none", color: "inherit" }}>
-                  <div style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#8e0d0d", marginBottom: 8 }}>{p.section}</div>
-                  <h2 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
-                  {p.subheadline && <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 18, fontStyle: "italic", color: "#463f37", margin: 0 }}>{p.subheadline}</p>}
-                  <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#171412", margin: "10px 0 0" }}>By {p.byline}</p>
+                <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #d9d9d9", textDecoration: "none", color: "inherit" }}>
+                  <div style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#990000", marginBottom: 8 }}>{p.section}</div>
+                  <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
+                  {p.subheadline && <p style={{ fontFamily: 'var(--font-headline)', fontSize: 18, fontStyle: "italic", color: "#000000", margin: 0 }}>{p.subheadline}</p>}
+                  <p style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#000000", margin: "10px 0 0" }}>By {p.byline}</p>
                 </Link>
               ))}
             </div>
           ) : (
-            <p style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 22, fontStyle: "italic", color: "#171412" }}>No stories found for "{searchQuery}".</p>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 22, fontStyle: "italic", color: "#000000" }}>No stories found for "{searchQuery}".</p>
           )}
         </section>
       )}

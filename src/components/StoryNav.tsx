@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 
-const CRIMSON = "#8B0000";
+const CRIMSON = "#990000";
 
 export default function StoryNav() {
   const [sectionsOpen, setSectionsOpen] = useState(false);
@@ -17,7 +17,7 @@ export default function StoryNav() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, [sectionsOpen]);
 
-  const linkStyle = { fontFamily: "var(--font-inter), sans-serif", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" } as const;
+  const linkStyle = { fontFamily: "var(--font-subhead)", fontSize: "0.85rem", fontWeight: 700, color: "white", textDecoration: "none", letterSpacing: "0.05em" } as const;
 
   return (
     <nav className="story-nav">
@@ -34,8 +34,8 @@ export default function StoryNav() {
         {sectionsOpen && (
           <div style={{ position: "absolute", top: "calc(100% + 0.6rem)", right: 0, background: "white", border: "1px solid #e1e8ed", borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 160, zIndex: 100, overflow: "hidden" }}>
             {(["Micro-Memoirs", "Narratives", "Essays"] as const).map(s => (
-              <Link key={s} href={`/?tab=${s}`} onClick={() => setSectionsOpen(false)} style={{ display: "block", padding: "0.65rem 1rem", fontFamily: "var(--font-inter), sans-serif", fontSize: "0.88rem", fontWeight: 500, color: "#1c2938", textDecoration: "none", letterSpacing: "0.02em" }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#f5f8fa")}
+              <Link key={s} href={`/?tab=${s}`} onClick={() => setSectionsOpen(false)} style={{ display: "block", padding: "0.65rem 1rem", fontFamily: "var(--font-subhead)", fontSize: "0.88rem", fontWeight: 500, color: "#000000", textDecoration: "none", letterSpacing: "0.02em" }}
+                onMouseEnter={e => (e.currentTarget.style.background = "#ffffff")}
                 onMouseLeave={e => (e.currentTarget.style.background = "white")}>
                 {s}
               </Link>

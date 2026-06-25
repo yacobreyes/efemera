@@ -35,16 +35,16 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
   return (
     <div className="listing-page">
       <style>{`
-        .listing-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
+        .listing-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .listing-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
-        .listing-head { border-bottom: 1px solid #171412; padding-bottom: 24px; margin-bottom: 40px; }
+        .listing-head { border-bottom: 1px solid #000000; padding-bottom: 24px; margin-bottom: 40px; }
         .listing-kicker {
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #8e0d0d; margin-bottom: 14px;
+          color: #990000; margin-bottom: 14px;
         }
         .listing-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
         }
         .brief-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
@@ -52,11 +52,11 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
           font-family: Inter, system-ui, sans-serif;
           font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
           padding: 9px 18px; border-radius: 999px; text-decoration: none;
-          border: 1px solid #cfc3b3; color: #171412; transition: all .15s;
+          border: 1px solid #d9d9d9; color: #000000; transition: all .15s;
         }
-        .brief-tab:hover { border-color: #8e0d0d; color: #8e0d0d; }
-        .brief-tab.active { background: #8e0d0d; border-color: #8e0d0d; color: #fbf6ee; }
-        .listing-empty { font-family: var(--font-cormorant), Georgia, serif; font-size: 22px; font-style: italic; color: #171412; }
+        .brief-tab:hover { border-color: #990000; color: #990000; }
+        .brief-tab.active { background: #990000; border-color: #990000; color: #ffffff; }
+        .listing-empty { font-family: var(--font-headline); font-size: 22px; font-style: italic; color: #000000; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>
       <MagHeader />

@@ -43,14 +43,14 @@ export default async function GangreyPage() {
   });
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#f5efe4", color: "#171412" }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#000000" }}>
       <style>{`
         .gr-wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 64px 44px 100px; box-sizing: border-box; flex: 1; }
         .gr-head { margin-bottom: 48px; }
-        .gr-kicker { font-family: Inter, system-ui, sans-serif; font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #8e0d0d; margin-bottom: 16px; }
-        .gr-title { font-family: var(--font-cormorant), Georgia, serif; font-size: clamp(48px, 7vw, 80px); line-height: .95; letter-spacing: -.035em; margin: 0 0 20px; }
-        .gr-sub { font-family: var(--font-cormorant), Georgia, serif; font-size: clamp(18px, 2.5vw, 24px); color: #5a5048; margin: 0; line-height: 1.4; max-width: 560px; }
-        .gr-stats { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: #8a7f6f; letter-spacing: .08em; margin-top: 20px; }
+        .gr-kicker { font-family: var(--font-subhead); font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #990000; margin-bottom: 16px; }
+        .gr-title { font-family: var(--font-headline); font-size: clamp(48px, 7vw, 80px); line-height: .95; letter-spacing: -.035em; margin: 0 0 20px; }
+        .gr-sub { font-family: var(--font-subhead); font-size: clamp(18px, 2.5vw, 24px); color: #000000; margin: 0; line-height: 1.4; max-width: 560px; }
+        .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #555555; letter-spacing: .08em; margin-top: 20px; }
         @media (max-width: 760px) {
           .gr-wrap { padding: 40px 20px 72px; }
         }
@@ -64,7 +64,7 @@ export default async function GangreyPage() {
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
         </div>
         {deduped.length === 0
-          ? <p style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: 22, fontStyle: "italic", color: "#6f655b" }}>No stories yet.</p>
+          ? <p style={{ fontFamily: "var(--font-headline)", fontSize: 22, fontStyle: "italic", color: "#000000" }}>No stories yet.</p>
           : <GangreyArchive posts={deduped} />
         }
       </main>

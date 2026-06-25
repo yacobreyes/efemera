@@ -6,14 +6,14 @@ export default function StorePage() {
   return (
     <div className="store-page">
       <style>{`
-        .store-page { min-height: 100vh; display: flex; flex-direction: column; background: #f5efe4; color: #171412; }
+        .store-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .store-main {
           flex: 1; display: flex; flex-direction: column;
           align-items: center; justify-content: center;
           text-align: center; padding: 24px;
         }
         .store-title {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: clamp(48px, 9vw, 88px); line-height: .98;
           letter-spacing: -.03em; margin: 0;
         }

@@ -33,50 +33,50 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
         .sg-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
         .sg-thumb:hover img { transform: scale(1.03); }
         .sg-label {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px;
           font-weight: 800;
           letter-spacing: .22em;
-          color: #8e0d0d;
+          color: #990000;
           text-transform: uppercase;
           margin-bottom: 12px;
         }
         .sg-card h3 {
           margin: 0 0 10px;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 28px;
           line-height: 1.05;
           letter-spacing: -.025em;
           transition: color .15s;
         }
-        .sg-card a.sg-headline { text-decoration: none; color: #171412; }
-        .sg-card a.sg-headline:hover h3 { color: #8e0d0d; }
+        .sg-card a.sg-headline { text-decoration: none; color: #000000; }
+        .sg-card a.sg-headline:hover h3 { color: #990000; }
         .sg-byline {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           margin-bottom: 12px;
           font-size: 19px;
           font-style: italic;
-          color: #463f37;
+          color: #000000;
         }
         .sg-excerpt {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 18px;
           line-height: 1.45;
-          color: #211c17;
+          color: #000000;
           margin-bottom: 12px;
         }
         .sg-time {
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px;
           font-weight: 700;
           letter-spacing: .12em;
           text-transform: uppercase;
-          color: #8e0d0d;
+          color: #990000;
           margin-top: auto;
         }
         @media (max-width: 900px) {
           .sg-grid { grid-template-columns: 1fr; gap: 0; }
-          .sg-card { border-bottom: 1px solid #cfc3b3; padding: 28px 0; }
+          .sg-card { border-bottom: 1px solid #d9d9d9; padding: 28px 0; }
           .sg-card:first-child { padding-top: 0; }
         }
       `}</style>
@@ -120,42 +120,42 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           display: flex;
           flex-direction: column;
           padding: 30px 0 32px;
-          border-top: 2px solid #171412;
+          border-top: 2px solid #000000;
         }
         .ag-card + .ag-card { /* keep rules tight across rows handled by grid */ }
         .ag-meta {
           display: flex;
           align-items: baseline;
           gap: 12px;
-          font-family: Inter, system-ui, sans-serif;
+          font-family: var(--font-subhead);
           font-size: 11px;
           font-weight: 800;
           letter-spacing: .2em;
           text-transform: uppercase;
-          color: #8e0d0d;
+          color: #990000;
           margin-bottom: 16px;
         }
-        .ag-meta .ag-dot { color: #cfc3b3; }
-        .ag-meta .ag-time { color: #8a7f6f; font-weight: 700; }
+        .ag-meta .ag-dot { color: #d9d9d9; }
+        .ag-meta .ag-time { color: #555555; font-weight: 700; }
         .ag-card h3 {
           margin: 0;
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 34px;
           line-height: 1.02;
           letter-spacing: -.028em;
           transition: color .15s;
         }
-        .ag-card a.ag-headline { text-decoration: none; color: #171412; }
-        .ag-card a.ag-headline:hover h3 { color: #8e0d0d; }
+        .ag-card a.ag-headline { text-decoration: none; color: #000000; }
+        .ag-card a.ag-headline:hover h3 { color: #990000; }
         .ag-byline {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 19px;
           font-style: italic;
-          color: #463f37;
+          color: #000000;
           margin: 12px 0 0;
         }
         .ag-excerpt {
-          font-family: var(--font-cormorant), Georgia, serif;
+          font-family: var(--font-headline);
           font-size: 18.5px;
           line-height: 1.5;
           color: #2b251f;
@@ -166,7 +166,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           -webkit-initial-letter: 2;
           font-weight: 600;
           margin-right: 8px;
-          color: #8e0d0d;
+          color: #990000;
         }
         @media (max-width: 760px) {
           .ag-grid { grid-template-columns: 1fr; gap: 0; }
