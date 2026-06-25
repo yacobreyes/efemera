@@ -38,7 +38,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://use.typekit.net" crossOrigin="" />
-        <link rel="stylesheet" href="https://use.typekit.net/exw0hho.css" />
+        <link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css" />
       </head>
       <body><SessionProviderWrapper>{children}</SessionProviderWrapper></body>
     </html>
