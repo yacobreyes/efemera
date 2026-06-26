@@ -67,7 +67,12 @@ export default function ImagePickerModal({
         const { assetId, url } = await uploadImage(fd);
         onSelect({ assetId, url, caption, alt });
         onClose();
-      } catch (err) { alert(err instanceof Error ? err.message : "Upload failed."); }
+      } catch (err) {
+        alert(
+          (err instanceof Error ? err.message : "Upload failed.") +
+          "\n\nIf this is a large photo, try an image under 12MB."
+        );
+      }
       finally { setUploading(false); }
     }
   }

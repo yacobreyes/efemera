@@ -4,6 +4,13 @@ import { revalidatePath } from "next/cache";
 import { parseBody } from "@/lib/parseBody";
 import { requireAuth } from "@/lib/adminAuth";
 import { client } from "@/lib/sanity";
+import { straightenQuotes, straightenBlocks } from "@/lib/straighten";
+
+// Enforce house style (straight quotes) on every text field at save time, so
+// stored data is straight regardless of where it was typed (rich editor or
+// plain input). Guarded for null/undefined.
+const sq = (s: string | null | undefined) =>
+  typeof s === "string" ? straightenQuotes(s) : s;
 
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
@@ -150,26 +157,28 @@ export async function savePost(formData: FormData) {
     body = parseBody(bodyRaw);
   }
 
+  const straightBody = Array.isArray(body) ? straightenBlocks(body) : body;
+
   const doc: Record<string, unknown> = {
     _id: id || `post-${slug}`,
     _type: "post",
-    headline, subheadline,
+    headline: sq(headline), subheadline: sq(subheadline),
     slug: { _type: "slug", current: slug },
-    section, byline, date, body, status,
+    section, byline: sq(byline), date, body: straightBody, status,
     ...(readingTime ? { readingTime } : { readingTime: null }),
     ...(sortOrder != null ? { sortOrder } : {}),
     ...(scheduledAt ? { scheduledAt } : {}),
-    ...(seoHeadline ? { seoHeadline } : {}),
-    ...(socialHeadline ? { socialHeadline } : {}),
-    ...(socialDescription ? { socialDescription } : {}),
+    ...(seoHeadline ? { seoHeadline: sq(seoHeadline) } : {}),
+    ...(socialHeadline ? { socialHeadline: sq(socialHeadline) } : {}),
+    ...(socialDescription ? { socialDescription: sq(socialDescription) } : {}),
   };
 
   if (imageAssetId) {
     doc.image = {
       _type: "image",
       asset: { _type: "reference", _ref: imageAssetId },
-      ...(imageCaption ? { caption: imageCaption } : {}),
-      ...(imageAlt ? { alt: imageAlt } : {}),
+      ...(imageCaption ? { caption: sq(imageCaption) } : {}),
+      ...(imageAlt ? { alt: sq(imageAlt) } : {}),
     };
   }
 
