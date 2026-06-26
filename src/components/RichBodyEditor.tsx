@@ -107,6 +107,14 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
           "background:transparent",
         ].join(";"),
       },
+      // Convert curly quotes the moment they're typed. macOS/iOS "smart
+      // punctuation" substitutes straight quotes for curly ones at the input
+      // layer; intercept that text and straighten it before it lands.
+      handleTextInput(view, from, to, text) {
+        if (!CURLY.test(text)) return false;
+        view.dispatch(view.state.tr.insertText(straightenQuotes(text), from, to));
+        return true;
+      },
       handleKeyDown(view, event) {
         // Cmd+K / Ctrl+K → open link modal
         if ((event.metaKey || event.ctrlKey) && event.key === "k") {
