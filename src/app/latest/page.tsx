@@ -47,7 +47,7 @@ export default async function LatestPage() {
       <main className="listing-main">
         <div className="listing-head">
           <h1 className="listing-title">The Latest</h1>
-          <p className="listing-sub">The newest writing from Gangrey.</p>
+          <p className="listing-sub">The newest voices and stories from Gangrey.</p>
         </div>
         {published.length > 0
           ? <StoryCardGrid posts={published} />
