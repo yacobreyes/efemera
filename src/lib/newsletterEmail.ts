@@ -121,7 +121,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   const date = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   const sectionLabel = (name: string) =>
-    `<div style="padding-top:1.25rem;font-family:${FONT};font-size:0.65rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin-bottom:0.4rem;">${name}</div>`;
+    `<div style="padding-top:20px;font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin-bottom:6px;">${name}</div>`;
 
   const cardsHtml = cards.map((card, idx) => {
     const type = effectiveType(card, idx);
@@ -129,17 +129,17 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
     if (type === "narratives") {
       const img = card.image?.url
-        ? `<div style="margin:0 -2.5rem 1.75rem;">
+        ? `<div style="margin:0 -40px 28px;">
              <img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:400px;object-fit:cover;display:block;" />
-             ${card.image.caption ? `<p style="font-family:${FONT};font-size:0.7rem;font-style:italic;color:${TEXT_MUTED};margin:0.4rem 1rem 0;">${esc(card.image.caption)}</p>` : ""}
+             ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 16px 0;">${esc(card.image.caption)}</p>` : ""}
            </div>`
         : "";
       return `<div>
         ${sectionLabel(sectionName)}
-        <div style="padding-top:1rem;padding-bottom:2rem;">
+        <div style="padding-top:16px;padding-bottom:32px;">
           ${img}
-          <h1 style="font-family:${SERIF};font-size:1.9rem;font-weight:700;line-height:1.15;color:${CRIMSON};text-align:center;margin:0 0 1rem;">${esc(card.headline ?? "")}</h1>
-          ${card.byline ? `<p style="font-family:${FONT};font-size:0.8rem;font-weight:700;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 1rem;">By ${esc(card.byline)}</p>` : ""}
+          <h1 style="font-family:${SERIF};font-size:30px;font-weight:700;line-height:1.15;color:${CRIMSON};text-align:center;margin:0 0 16px;">${esc(card.headline ?? "")}</h1>
+          ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 16px;">By ${esc(card.byline)}</p>` : ""}
           ${renderBody(card.body ?? [])}
         </div>
       </div>`;
@@ -147,18 +147,18 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
     if (type === "essays") {
       const img = card.image?.url
-        ? `<div style="margin:0 0 0.85rem;">
+        ? `<div style="margin:0 0 14px;">
              <img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:240px;object-fit:cover;display:block;" />
-             ${card.image.caption ? `<p style="font-family:${FONT};font-size:0.7rem;font-style:italic;color:${TEXT_MUTED};margin:0.4rem 0 0;">${esc(card.image.caption)}</p>` : ""}
+             ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 0 0;">${esc(card.image.caption)}</p>` : ""}
            </div>`
         : "";
       return `<div>
         ${sectionLabel(sectionName)}
-        <div style="padding-bottom:1.75rem;">
-          <div style="border-top:2px solid ${CRIMSON};padding-top:0.85rem;margin-bottom:0.85rem;">
-            <h2 style="font-family:${SERIF};font-size:1.5rem;font-weight:400;line-height:1.25;color:${CRIMSON};margin:0;">${esc(card.headline ?? "")}</h2>
+        <div style="padding-bottom:28px;">
+          <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
+            <h2 style="font-family:${SERIF};font-size:24px;font-weight:400;line-height:1.25;color:${CRIMSON};margin:0;">${esc(card.headline ?? "")}</h2>
           </div>
-          ${card.byline ? `<p style="font-family:${FONT};font-size:0.8rem;font-weight:700;letter-spacing:0.02em;color:${INK};margin:0 0 0.85rem;">By ${esc(card.byline)}</p>` : ""}
+          ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:0 0 14px;">By ${esc(card.byline)}</p>` : ""}
           ${img}
           ${renderBody(card.body ?? [])}
         </div>
@@ -167,10 +167,10 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
     return `<div>
       ${sectionLabel(sectionName)}
-      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:2rem 2rem 2.5rem;text-align:center;margin:0.375rem -2.5rem 0;">
-        <p style="font-family:${SERIF};font-size:1.7rem;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};margin:0 0 0.35rem;">${esc(card.headline ?? "")}</p>
-        <p style="font-family:${FONT};font-size:0.7rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin:0 0 1.5rem;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
-        <div style="width:32px;height:1px;background:${LINE};margin:0 auto 1.5rem;"></div>
+      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:6px -40px 0;">
+        <p style="font-family:${SERIF};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};margin:0 0 6px;">${esc(card.headline ?? "")}</p>
+        <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
+        <div style="width:32px;height:1px;background:${LINE};margin:0 auto 24px;"></div>
         <div>${renderBody(card.body ?? [])}</div>
       </div>
     </div>`;
@@ -183,17 +183,17 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
     : "";
 
   return `${masthead}
-    <div style="background:${CRIMSON};padding:0.6rem 2.5rem 1.5rem;text-align:center;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
-        <span style="font-family:${FONT};font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</span>
-        <span style="font-family:${FONT};font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " · " : ""}${issue ? `No. ${esc(issue)}` : ""}</span>
+    <div style="background:${CRIMSON};padding:10px 40px 24px;text-align:center;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+        <span style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</span>
+        <span style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " · " : ""}${issue ? `No. ${esc(issue)}` : ""}</span>
       </div>
       ${intro ? `<div style="max-width:440px;margin:0 auto;">
-        <p style="font-family:${SERIF};font-size:1rem;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>
-        ${author ? `<p style="font-family:${FONT};font-size:0.72rem;font-weight:700;color:${CREAM};opacity:0.8;margin:0.6rem 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
+        <p style="font-family:${SERIF};font-size:16px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>
+        ${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;color:${CREAM};opacity:0.8;margin:10px 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
       </div>` : ""}
     </div>
-    <div style="padding:0 2.5rem 2.5rem;">
+    <div style="padding:0 40px 40px;">
       ${cardsHtml}
     </div>`;
 }
@@ -203,7 +203,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 function renderNewsletterSheet(opts: NlOpts): string {
   return `<div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
     ${renderNewsletterContent(opts, { masthead: true })}
-    <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
+    <div style="background:${CRIMSON};padding:20px 40px;text-align:center;">
       <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
       <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
     </div>
