@@ -59,7 +59,7 @@ export default async function IssuesPage() {
         }
         .issue-desc {
           font-family: var(--font-headline);
-          font-size: 18px; font-style: italic; color: #000000; margin: 0; line-height: 1.4;
+          font-size: 18px; color: #000000; margin: 0; line-height: 1.4;
         }
         .issue-date {
           font-family: var(--font-subhead);
