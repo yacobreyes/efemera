@@ -164,7 +164,7 @@ export default function Feed({
         }
 
         /* CARDS SECTION */
-        .ef-section { padding: 70px 7vw 86px; background: var(--paper); }
+        .ef-section { padding: 70px 7vw 86px; background: #b8b8ba; }
         .ef-section-head {
           display: flex;
           justify-content: space-between;
@@ -179,7 +179,7 @@ export default function Feed({
           font-size: 38px;
           line-height: 1;
           letter-spacing: -.03em;
-          color: #b8b8ba;
+          color: #000000;
         }
         .ef-section-head a {
           color: var(--red);
