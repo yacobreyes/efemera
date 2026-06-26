@@ -523,7 +523,7 @@ export default function Feed({
           <a href="mailto:hello@efemera.co">Submit</a>
           <SubscribeButton>Subscribe</SubscribeButton>
         </nav>
-        <p className="ef-footer-copy">© 2026 Efemera | A Journal of Creative Nonfiction.</p>
+        <p className="ef-footer-copy">© 2026 Gangrey | A Literary Magazine.</p>
       </footer>
     </>
   );

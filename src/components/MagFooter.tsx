@@ -48,7 +48,7 @@ export default function MagFooter() {
         <a href="mailto:yacob@efemera.org">Submit</a>
         <SubscribeButton>Subscribe</SubscribeButton>
       </nav>
-      <p className="mag-footer-copy">© 2026 Efemera | A Journal of Creative Nonfiction.</p>
+      <p className="mag-footer-copy">© 2026 Gangrey | A Literary Magazine.</p>
     </footer>
   );
 }
