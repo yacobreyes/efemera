@@ -111,6 +111,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   const intro = raw.intro ? straightenQuotes(raw.intro) : raw.intro;
   const author = raw.author ? straightenQuotes(raw.author) : raw.author;
   const { volume, issue } = raw;
+  const base = (raw.baseUrl ?? SITE_URL).replace(/\/$/, "");
   const cards = raw.cards.map(c => ({
     ...c,
     headline: c.headline ? straightenQuotes(c.headline) : c.headline,
@@ -178,7 +179,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
   const masthead = opts.masthead
     ? `<div style="background:${CREAM};padding:28px 24px 22px;text-align:center;border-bottom:1px solid ${LINE};">
-         <span style="font-family:${SERIF};font-size:46px;line-height:1;font-weight:700;letter-spacing:-0.02em;color:${CRIMSON};">Gangrey</span>
+         <img src="${base}/Wordmark.png" alt="Gangrey" width="380" height="127" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;border:0;" />
        </div>`
     : "";
 
