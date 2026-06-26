@@ -248,6 +248,10 @@ export function renderNewsletterHtml(opts: NlOpts): string {
 </style></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
-  ${renderNewsletterSheet(opts, true)}
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0;padding:0;border-collapse:collapse;background:${CREAM};">
+    <tr><td align="center" style="padding:0;">
+      ${renderNewsletterSheet(opts, true)}
+    </td></tr>
+  </table>
 </body></html>`;
 }
