@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
 import { Plugin, PluginKey } from "@tiptap/pm/state";
+import type { EditorState, Transaction } from "@tiptap/pm/state";
+import type { EditorView } from "@tiptap/pm/view";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
@@ -14,16 +16,44 @@ import { straightenQuotes } from "@/lib/straighten";
 
 const CURLY = /[‘’‚‛′“”„‟″]/;
 
+// Scan the whole doc and replace every curly quote with its straight equivalent.
+// Returns true if it dispatched a change. Position math is safe because every
+// replacement is the same length as the text it replaces.
+function straightenDoc(view: { state: EditorState; dispatch: (tr: Transaction) => void }): boolean {
+  const { state } = view;
+  let tr = state.tr;
+  let changed = false;
+  state.doc.descendants((node, pos) => {
+    if (!node.isText || !node.text || !CURLY.test(node.text)) return;
+    tr = tr.insertText(straightenQuotes(node.text), pos, pos + node.text.length);
+    changed = true;
+  });
+  if (changed) view.dispatch(tr.setMeta("addToHistory", false));
+  return changed;
+}
+
 // Forces straight quotes: rewrites any curly/smart quote the moment it lands in
-// the document — whether typed, OS-substituted, or pasted.
+// the document — whether typed, OS-substituted, or pasted. appendTransaction
+// covers desktop typing and paste; the compositionend handler (registered in
+// editorProps) covers mobile/IME smart-punctuation, where a mid-composition
+// transaction would be reverted by the browser.
 const StraightQuotes = Extension.create({
   name: "straightQuotes",
   addProseMirrorPlugins() {
+    let pmView: EditorView | null = null;
     return [
       new Plugin({
         key: new PluginKey("straightQuotes"),
+        view(view) {
+          pmView = view;
+          return { destroy() { pmView = null; } };
+        },
         appendTransaction(transactions, _oldState, newState) {
           if (!transactions.some(t => t.docChanged)) return null;
+          // Don't fight an active IME composition (mobile smart-punctuation):
+          // a mid-composition edit gets reverted by the browser. The
+          // compositionend handler straightens once the composition resolves.
+          if (pmView?.composing) return null;
           let tr = newState.tr;
           let changed = false;
           newState.doc.descendants((node, pos) => {
@@ -81,14 +111,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
       // The StraightQuotes plugin only fires on doc changes, so existing/pasted
       // content loaded on open keeps its curly quotes until edited. Straighten
       // the whole doc once up front so opened drafts match house style.
-      let tr = editor.state.tr;
-      let changed = false;
-      editor.state.doc.descendants((node, pos) => {
-        if (!node.isText || !node.text || !CURLY.test(node.text)) return;
-        tr = tr.insertText(straightenQuotes(node.text), pos, pos + node.text.length);
-        changed = true;
-      });
-      if (changed) editor.view.dispatch(tr.setMeta("addToHistory", false));
+      straightenDoc(editor.view);
     },
     onUpdate({ editor }) {
       onChange(editor.getJSON());
@@ -107,13 +130,26 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
           "background:transparent",
         ].join(";"),
       },
-      // Convert curly quotes the moment they're typed. macOS/iOS "smart
+      // Convert curly quotes the moment they're typed. macOS "smart
       // punctuation" substitutes straight quotes for curly ones at the input
       // layer; intercept that text and straighten it before it lands.
       handleTextInput(view, from, to, text) {
         if (!CURLY.test(text)) return false;
         view.dispatch(view.state.tr.insertText(straightenQuotes(text), from, to));
         return true;
+      },
+      handleDOMEvents: {
+        // iOS/mobile "Smart Punctuation" inserts curly quotes through an IME
+        // composition, which bypasses handleTextInput; dispatching during the
+        // composition would be reverted by the browser. Straighten once the
+        // composition has finished so the change sticks. The timeout lets the
+        // browser commit the composition before we rewrite it.
+        compositionend(view) {
+          setTimeout(() => {
+            if (!view.isDestroyed) straightenDoc(view);
+          }, 0);
+          return false;
+        },
       },
       handleKeyDown(view, event) {
         // Cmd+K / Ctrl+K → open link modal
