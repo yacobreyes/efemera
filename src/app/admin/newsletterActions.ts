@@ -280,10 +280,11 @@ export async function deleteNewsletter(id: string) {
 // Gated on RESEND_API_KEY + NEWSLETTER_FROM — returns a clear error until they're set.
 export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: number; failed?: number; error?: string }> {
   await requireAuth();
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.NEWSLETTER_FROM; // e.g. "Gangrey <newsletter@gangrey.org>"
+  // Prefer GANGREY_RESEND_KEY so the Vercel-Resend integration can't overwrite it.
+  const apiKey = process.env.GANGREY_RESEND_KEY ?? process.env.RESEND_API_KEY;
+  const from = process.env.NEWSLETTER_FROM;
   if (!apiKey || !from) {
-    return { ok: false, error: "Email sending isn't configured yet. Add RESEND_API_KEY and NEWSLETTER_FROM in Vercel env vars." };
+    return { ok: false, error: "Email sending isn't configured yet. Add GANGREY_RESEND_KEY and NEWSLETTER_FROM in Vercel env vars." };
   }
   if (!id) return { ok: false, error: "missing id" };
 
