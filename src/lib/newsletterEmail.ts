@@ -127,8 +127,16 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   }));
   const date = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
+  // Horizontal padding for text. Images live OUTSIDE this padding so they bleed
+  // to the 600px edges in every client — Gmail strips the negative-margin
+  // breakout trick, so we never use it; only text is inset.
+  const PADX = "padding-left:40px;padding-right:40px;";
+
   const sectionLabel = (name: string) =>
-    `<div style="padding-top:20px;font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin-bottom:6px;">${name}</div>`;
+    `<div style="${PADX}padding-top:20px;font-family:${FONT};font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin-bottom:6px;">${name}</div>`;
+
+  const caption = (text?: string) =>
+    text ? `<p style="${PADX}font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 0 0;">${esc(text)}</p>` : "";
 
   const cardsHtml = cards.map((card, idx) => {
     const type = effectiveType(card, idx);
@@ -136,18 +144,18 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
     if (type === "narratives") {
       const img = card.image?.url
-        ? `<div style="margin:0 -40px 28px;">
+        ? `<div style="margin:0 0 28px;">
              <img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:400px;object-fit:cover;display:block;" />
-             ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 16px 0;">${esc(card.image.caption)}</p>` : ""}
+             ${caption(card.image.caption)}
            </div>`
         : "";
       return `<div>
         ${sectionLabel(sectionName)}
         <div style="padding-top:16px;padding-bottom:32px;">
           ${img}
-          <h1 style="font-family:${SERIF};font-size:30px;font-weight:700;line-height:1.15;color:${CRIMSON};text-align:center;margin:0 0 16px;">${esc(card.headline ?? "")}</h1>
-          ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 16px;">By ${esc(card.byline)}</p>` : ""}
-          ${renderBody(card.body ?? [])}
+          <h1 style="${PADX}font-family:${SERIF};font-size:30px;font-weight:700;line-height:1.15;color:${CRIMSON};text-align:center;margin:0 0 16px;">${esc(card.headline ?? "")}</h1>
+          ${card.byline ? `<p style="${PADX}font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 16px;">By ${esc(card.byline)}</p>` : ""}
+          <div style="${PADX}">${renderBody(card.body ?? [])}</div>
         </div>
       </div>`;
     }
@@ -156,25 +164,25 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
       const img = card.image?.url
         ? `<div style="margin:0 0 14px;">
              <img src="${esc(card.image.url)}" alt="${esc(card.image.alt ?? "")}" style="width:100%;max-height:240px;object-fit:cover;display:block;" />
-             ${card.image.caption ? `<p style="font-family:${FONT};font-size:11px;font-style:italic;color:${TEXT_MUTED};margin:6px 0 0;">${esc(card.image.caption)}</p>` : ""}
+             ${caption(card.image.caption)}
            </div>`
         : "";
       return `<div>
         ${sectionLabel(sectionName)}
         <div style="padding-bottom:28px;">
-          <div style="border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
+          <div style="${PADX}border-top:2px solid ${CRIMSON};padding-top:14px;margin-bottom:14px;">
             <h2 style="font-family:${SERIF};font-size:24px;font-weight:400;line-height:1.25;color:${CRIMSON};margin:0;">${esc(card.headline ?? "")}</h2>
           </div>
-          ${card.byline ? `<p style="font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:0 0 14px;">By ${esc(card.byline)}</p>` : ""}
+          ${card.byline ? `<p style="${PADX}font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:0 0 14px;">By ${esc(card.byline)}</p>` : ""}
           ${img}
-          ${renderBody(card.body ?? [])}
+          <div style="${PADX}">${renderBody(card.body ?? [])}</div>
         </div>
       </div>`;
     }
 
     return `<div>
       ${sectionLabel(sectionName)}
-      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:6px -40px 0;">
+      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:6px 0 0;">
         <p style="font-family:${SERIF};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};margin:0 0 6px;">${esc(card.headline ?? "")}</p>
         <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
         <div style="width:32px;height:1px;background:${LINE};margin:0 auto 24px;"></div>
@@ -184,8 +192,8 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   }).join("");
 
   const masthead = opts.masthead
-    ? `<div style="background:${CREAM};padding:28px 24px 22px;text-align:center;border-bottom:1px solid ${LINE};">
-         <img src="${base}/Wordmark.png" alt="Gangrey" width="380" height="127" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;border:0;" />
+    ? `<div style="background:${CREAM};padding:16px 24px 14px;text-align:center;border-bottom:1px solid ${LINE};">
+         <img src="${base}/Wordmark.png" alt="Gangrey" width="300" height="100" style="width:100%;max-width:300px;height:auto;display:block;margin:0 auto;border:0;" />
        </div>`
     : "";
 
@@ -202,7 +210,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
         ${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;color:${CREAM};opacity:0.8;margin:10px 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
       </div>` : ""}
     </div>
-    <div style="padding:0 40px 40px;">
+    <div style="padding:0 0 40px;">
       ${cardsHtml}
     </div>`;
 }
