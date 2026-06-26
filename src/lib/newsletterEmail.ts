@@ -27,11 +27,11 @@ const SERIF = "Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
-// Normalize: strip trailing slash, and guarantee an https:// scheme so email
-// links never resolve as a relative path (e.g. a bare "gangrey.org" would
-// become "mail.google.com/gangrey.org/..." → 404).
-const RAW_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://gangrey.org").trim().replace(/\/$/, "");
-const SITE_URL = /^https?:\/\//i.test(RAW_SITE_URL) ? RAW_SITE_URL : `https://${RAW_SITE_URL}`;
+// Canonical public host for email links (wordmark image, unsubscribe). Hardcoded
+// to the production domain rather than read from NEXT_PUBLIC_SITE_URL, which has
+// historically been left pointing at the old "efemera.org" project and sent
+// recipients to a dead unsubscribe page.
+const SITE_URL = "https://gangrey.org";
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
