@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { parseBody } from "@/lib/parseBody";
 import { requireAuth } from "@/lib/adminAuth";
 import { client } from "@/lib/sanity";
@@ -180,6 +181,15 @@ export async function savePost(formData: FormData) {
     headline, subheadline,
     body: Array.isArray(body) ? body : [],
   });
+  // On publish, invalidate the cached public pages so the change appears
+  // immediately instead of waiting for the 60s revalidate window.
+  if (status === "published") {
+    revalidatePath(`/stories/${slug}`);
+    revalidatePath("/");
+    revalidatePath("/latest");
+    revalidatePath("/archive");
+    revalidatePath("/brief");
+  }
   return { slug };
 }
 

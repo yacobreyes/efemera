@@ -86,12 +86,12 @@ export async function getPost(slug: string): Promise<SanityPost | null> {
   return client.fetch(
     `*[_type == "post" && slug.current == $slug][0] { ${POST_FIELDS} }`,
     { slug },
-    { cache: "no-store" }
+    { next: { revalidate: 60 } }
   );
 }
 
 export async function getAllSlugs(): Promise<string[]> {
-  return client.fetch(`*[_type == "post"].slug.current`, {}, { cache: "no-store" });
+  return client.fetch(`*[_type == "post"].slug.current`, {}, { next: { revalidate: 300 } });
 }
 
 export interface SanityIssue {
