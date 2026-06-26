@@ -198,14 +198,26 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
     </div>`;
 }
 
-// Web reader version — used on /issues/[slug]. No masthead (MagHeader shows the
-// wordmark) and no email shell.
-export function renderNewsletterPageHtml(opts: NlOpts): string {
-  return `<div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">${renderNewsletterContent(opts, { masthead: false })}</div>`;
+// The full newsletter sheet — masthead, content, and unsubscribe footer.
+// Shared by the email and the web reader so both look identical.
+function renderNewsletterSheet(opts: NlOpts): string {
+  return `<div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
+    ${renderNewsletterContent(opts, { masthead: true })}
+    <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
+      <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
+      <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
+    </div>
+  </div>`;
 }
 
-// Email version — same editor markup, wrapped with the email shell (preview
-// text, masthead, unsubscribe footer).
+// Web reader version — used on /issues/[slug]. Renders the same masthead +
+// footer sheet as the sent email so the on-site render matches the inbox.
+export function renderNewsletterPageHtml(opts: NlOpts): string {
+  return renderNewsletterSheet(opts);
+}
+
+// Email version — same sheet, wrapped with the email document shell (preview
+// text, light color-scheme lock).
 export function renderNewsletterHtml(opts: NlOpts): string {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -219,12 +231,6 @@ export function renderNewsletterHtml(opts: NlOpts): string {
 </style></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
-  <div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
-    ${renderNewsletterContent(opts, { masthead: true })}
-    <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
-      <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
-      <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
-    </div>
-  </div>
+  ${renderNewsletterSheet(opts)}
 </body></html>`;
 }
