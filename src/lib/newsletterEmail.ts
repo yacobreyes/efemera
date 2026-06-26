@@ -189,7 +189,7 @@ function renderNewsletterContent({ intro, author, volume, issue, cards }: NlOpts
 // Web reader version — used on /issues/[slug]. No masthead (MagHeader shows the
 // wordmark) and no email shell.
 export function renderNewsletterPageHtml(opts: NlOpts): string {
-  return `<div style="width:100%;margin:0 auto;background:${CREAM};">${renderNewsletterContent(opts, { masthead: false })}</div>`;
+  return `<div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">${renderNewsletterContent(opts, { masthead: false })}</div>`;
 }
 
 // Email version — same editor markup, wrapped with the email shell (preview
@@ -199,7 +199,7 @@ export function renderNewsletterHtml(opts: NlOpts): string {
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css"></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
-  <div style="width:100%;margin:0 auto;background:${CREAM};">
+  <div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
     ${renderNewsletterContent(opts, { masthead: true })}
     <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
       <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
