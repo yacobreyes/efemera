@@ -153,7 +153,6 @@ function renderNewsletterContent({ intro, author, volume, issue, cards }: NlOpts
     return `<div>
       ${sectionLabel(sectionName)}
       <div style="background:${PAPER_DARK};border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:2rem 2rem 2.5rem;text-align:center;margin:0.375rem -2.5rem 0;">
-        <img src="${SITE_URL}/Flying%20Mayfly%20Kicker.webp" alt="" style="display:block;height:200px;width:auto;margin:-35px auto -60px;" />
         <p style="font-family:${SERIF};font-size:1.7rem;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};margin:0 0 0.35rem;">${esc(card.headline ?? "")}</p>
         <p style="font-family:${FONT};font-size:0.7rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin:0 0 1.5rem;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
         <div style="width:32px;height:1px;background:${LINE};margin:0 auto 1.5rem;"></div>

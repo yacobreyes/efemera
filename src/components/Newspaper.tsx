@@ -112,16 +112,7 @@ export default function Feed({
           background-position: center;
         }
         .ef-hero-inner { position: relative; z-index: 2; max-width: 760px; }
-        .ef-hero-fly {
-          position: absolute;
-          top: 32px;
-          right: 44px;
-          height: 80px;
-          width: auto;
-          opacity: .9;
-          z-index: 3;
-        }
-        .ef-kicker {
+.ef-kicker {
           font-family: var(--font-subhead);
           font-size: 13px;
           font-weight: 800;
@@ -308,14 +299,7 @@ export default function Feed({
           align-items: center;
           text-align: center;
         }
-        .ef-footer-fly { margin-bottom: 20px; }
-        .ef-footer-fly img {
-          height: 46px;
-          width: auto;
-          opacity: .8;
-          display: block;
-        }
-        .ef-footer-links {
+.ef-footer-links {
           display: flex;
           gap: 34px;
           justify-content: center;
@@ -435,7 +419,6 @@ export default function Feed({
           style={heroImg ? { backgroundImage: `linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%), url(${heroImg})` } : undefined}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Cream Mayfly.png" alt="" className="ef-hero-fly" />
           <div className="ef-hero-inner">
             <div className="ef-kicker">Editor's Choice:</div>
             <Link href={`/stories/${hero.slug}`} style={{ outline: "none" }}>
@@ -517,7 +500,6 @@ export default function Feed({
       {/* FOOTER */}
       <footer className="ef-footer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <div className="ef-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
         <nav className="ef-footer-links">
           <Link href="/authors">Authors</Link>
           <a href="mailto:hello@efemera.co">Submit</a>

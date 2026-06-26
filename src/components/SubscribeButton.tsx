@@ -79,9 +79,6 @@ export default function SubscribeButton({
               }}
             >×</button>
 
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Cream Mayfly.png" alt="" style={{ height: 52, width: "auto", opacity: .9, marginBottom: 22 }} />
-
             <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
               Join the Collective.
             </h2>

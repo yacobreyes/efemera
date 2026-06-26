@@ -14,8 +14,6 @@ export default function MagFooter() {
           align-items: center;
           text-align: center;
         }
-        .mag-footer-fly { margin-bottom: 20px; }
-        .mag-footer-fly img { height: 46px; width: auto; display: block; filter: brightness(0); }
         .mag-footer-links {
           display: flex;
           gap: 34px;
@@ -41,8 +39,6 @@ export default function MagFooter() {
           .mag-footer-links { gap: 24px; }
         }
       `}</style>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <div className="mag-footer-fly"><img src="/Black Mayfly.png" alt="" /></div>
       <nav className="mag-footer-links">
         <Link href="/authors">Authors</Link>
         <a href="mailto:yacob@gangrey.org">Submit</a>
