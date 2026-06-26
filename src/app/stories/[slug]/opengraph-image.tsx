@@ -49,7 +49,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
             </div>
           )}
           <div style={{ marginTop: 40, fontSize: 22, color: "rgba(255,255,255,0.45)", letterSpacing: "0.1em" }}>
-            efemera
+            Gangrey Magazine
           </div>
         </div>
         {photoUrl && (
