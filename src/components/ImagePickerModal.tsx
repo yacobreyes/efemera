@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { uploadImage } from "@/app/admin/actions";
+import { uploadImage, updateMediaAsset } from "@/app/admin/actions";
 import { straightenQuotes } from "@/lib/straighten";
 
 const CRIMSON = "#490000";
@@ -66,6 +66,7 @@ export default function ImagePickerModal({
       try {
         const fd = new FormData(); fd.set("file", uploadFile);
         const { assetId, url } = await uploadImage(fd);
+        await updateMediaAsset(assetId, { description: caption, ...(alt ? { altText: alt } : {}) });
         onSelect({ assetId, url, caption, alt });
         onClose();
       } catch (err) {

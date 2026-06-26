@@ -184,6 +184,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           font-size: 22px;
           line-height: 1.65;
           color: #000000;
+          font-feature-settings: "calt" 0, "liga" 0;
         }
         .story-body > p:first-of-type::first-letter {
           font-weight: 700;

@@ -128,6 +128,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
           "outline:none",
           "border:none",
           "background:transparent",
+          "font-feature-settings:\"calt\" 0,\"liga\" 0",
         ].join(";"),
       },
       // Convert curly quotes the moment they're typed. macOS "smart

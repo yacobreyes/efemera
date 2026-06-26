@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPost, getVersions } from "./actions";
+import { savePost, deletePost, trashPost, restorePost, uploadImage, unpublishPost, getVersions, updateMediaAsset } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
 import type { PostVersion } from "./actions";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -700,6 +700,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                     try {
                       const fd = new FormData(); fd.set("file", bodyUploadFile);
                       const { assetId } = await uploadImage(fd);
+                      if (bodyUploadAlt) await updateMediaAsset(assetId, { altText: bodyUploadAlt });
                       // fetch the URL back
                       const res = await fetch("/api/media"); const assets: MediaAsset[] = await res.json();
                       const uploaded = assets.find(a => a._id === assetId);
