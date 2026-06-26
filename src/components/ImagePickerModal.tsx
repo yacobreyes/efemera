@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { uploadImage } from "@/app/admin/actions";
 
-const CRIMSON = "#8B0000";
-const BORDER = "#e1e8ed";
-const TEXT_DARK = "#1c2938";
-const TEXT_MUTED = "#526270";
+const CRIMSON = "#490000";
+const BORDER = "#b8b8ba";
+const TEXT_DARK = "#000000";
+const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -154,7 +154,7 @@ export default function ImagePickerModal({
         </div>
 
         {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#fafbfc" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#ffffff" }}>
           <button type="button" onClick={onClose} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer", color: TEXT_DARK }}>Cancel</button>
           <button type="button" onClick={handleUse} disabled={uploading || (tab === "library" && !selected) || (tab === "upload" && (!uploadFile || !caption.trim()))}
             style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", opacity: (tab === "library" && !selected) || (tab === "upload" && (!uploadFile || !caption.trim())) ? 0.5 : 1 }}>

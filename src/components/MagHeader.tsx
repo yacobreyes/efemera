@@ -36,7 +36,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           grid-template-columns: 1fr auto 1fr;
           align-items: center;
           padding: 0 44px;
-          border-bottom: 1px solid #d9d9d9;
+          border-bottom: 1px solid #b8b8ba;
           background: #ffffff;
           position: sticky;
           top: 0;
@@ -55,12 +55,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           color: #000000;
         }
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
-        .mag-nav-group a:hover { color: #990000; }
+        .mag-nav-group a:hover { color: #490000; }
         .mag-nav-group.right { justify-content: flex-end; gap: 28px; }
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; }
         .mag-logo img { height: 58px; width: auto; display: block; }
         .mag-nav-cta {
-          background: #990000;
+          background: #490000;
           color: #fff !important;
           padding: 7px 14px;
           border-radius: 2px;
@@ -82,7 +82,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           align-items: center;
           transition: color .15s;
         }
-        .mag-search-btn:hover { color: #990000; }
+        .mag-search-btn:hover { color: #490000; }
 
         /* Desktop search overlay */
         .mag-search-bar {
@@ -101,7 +101,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           display: flex;
           align-items: center;
           gap: 12px;
-          border: 1px solid #d9d9d9;
+          border: 1px solid #b8b8ba;
           border-radius: 30px;
           padding: 10px 20px;
           background: #fff;
@@ -117,7 +117,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           font-size: 15px;
           color: #000000;
         }
-        .mag-search-form input::placeholder { color: #d9d9d9; }
+        .mag-search-form input::placeholder { color: #b8b8ba; }
         .mag-search-cancel {
           background: none;
           border: none;
@@ -132,7 +132,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           padding: 4px 0;
           transition: color .15s;
         }
-        .mag-search-cancel:hover { color: #990000; }
+        .mag-search-cancel:hover { color: #490000; }
 
         .mag-toggle { display: none; }
         .mag-mob-sub { display: none; }
@@ -183,7 +183,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             letter-spacing: .12em;
             text-transform: uppercase;
             color: #fff;
-            background: #990000;
+            background: #490000;
             padding: 7px 12px;
             border-radius: 2px;
             border: none;
@@ -193,7 +193,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             flex-direction: column;
             width: 100%;
             order: 4;
-            border-top: 1px solid #d9d9d9;
+            border-top: 1px solid #b8b8ba;
             padding: 12px 0 24px;
           }
           .mag-drawer a {
@@ -211,7 +211,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             display: flex;
             align-items: center;
             gap: 8px;
-            border-bottom: 1px solid #d9d9d9;
+            border-bottom: 1px solid #b8b8ba;
             margin-bottom: 4px;
             padding: 12px 4px;
           }
@@ -225,7 +225,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             font-weight: 600;
             color: #000000;
           }
-          .mag-drawer-search input::placeholder { color: #d9d9d9; font-weight: 500; }
+          .mag-drawer-search input::placeholder { color: #b8b8ba; font-weight: 500; }
           .mag-drawer-search svg { flex-shrink: 0; color: #000000; }
           .mag-nav.open .mag-drawer { display: flex; }
           .mag-nav.open .mag-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
@@ -237,7 +237,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       {/* Desktop search overlay — sits on top of the normal nav */}
       <div className="mag-search-bar">
         <form className="mag-search-form" onSubmit={submitSearch}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d9d9d9" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8b8ba" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
           <input

@@ -3,7 +3,7 @@ import NewsletterSignup from "./NewsletterSignup";
 export default function SiteFooter() {
   return (
     <footer style={{
-      background: "#990000",
+      background: "#490000",
       marginTop: "auto",
       padding: "2.5rem 1.5rem 2rem",
       display: "flex",

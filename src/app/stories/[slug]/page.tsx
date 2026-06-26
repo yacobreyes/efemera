@@ -121,7 +121,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           font-weight: 800;
           letter-spacing: .24em;
           text-transform: uppercase;
-          color: #990000;
+          color: #490000;
           margin-bottom: 20px;
         }
         .story-h1 {
@@ -153,7 +153,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           gap: 12px;
           align-items: center;
         }
-        .story-meta .dot { color: #990000; }
+        .story-meta .dot { color: #490000; }
         .story-hero {
           width: 100%;
           max-width: 1100px;
@@ -190,15 +190,15 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
           line-height: .72;
           float: left;
           margin: .06em .1em 0 0;
-          color: #990000;
+          color: #490000;
         }
         .story-body p { margin: 1.2rem 0 0; }
         .story-body > p:first-of-type { margin-top: 0; }
-        .story-body a { color: #990000; text-decoration: underline; }
+        .story-body a { color: #490000; text-decoration: underline; }
         .story-body ul { list-style: disc; padding-left: 1.4em; margin: 1.2rem 0 0; }
         .story-body ol { list-style: decimal; padding-left: 1.4em; margin: 1.2rem 0 0; }
         .story-body li { display: list-item; margin-bottom: .25em; }
-        .story-rule { width: 60px; height: 2px; background: #990000; border: 0; margin: 44px auto 0; }
+        .story-rule { width: 60px; height: 2px; background: #490000; border: 0; margin: 44px auto 0; }
         .story-actions {
           margin-top: 30px;
           display: flex;
@@ -267,7 +267,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
                   <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: "1.5rem", margin: "1.8rem 0 0", lineHeight: 1.2 }}>{children}</h3>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #990000", fontStyle: "italic", color: "#000000" }}>{children}</blockquote>
+                  <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #490000", fontStyle: "italic", color: "#000000" }}>{children}</blockquote>
                 ),
               },
               list: {

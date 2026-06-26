@@ -76,10 +76,10 @@ export default function Feed({
       <style>{`
         :root {
           --paper: #ffffff;
-          --paper-dark: #dfd4c4;
+          --paper-dark: #b8b8ba;
           --ink: #000000;
-          --red: #990000;
-          --line: #d9d9d9;
+          --red: #490000;
+          --line: #b8b8ba;
         }
         * { box-sizing: border-box; }
         html { background: #ffffff; }
@@ -107,7 +107,7 @@ export default function Feed({
           color: #ffffff;
           background:
             linear-gradient(to top, rgba(18,14,11,.85) 0%, rgba(18,14,11,.48) 42%, rgba(18,14,11,.18) 100%),
-            linear-gradient(125deg, #4a4038, #2a2420);
+            linear-gradient(125deg, #392a22, #000000);
           background-size: cover;
           background-position: center;
         }
@@ -240,7 +240,7 @@ export default function Feed({
         .ef-excerpt {
           font-size: 19px;
           line-height: 1.45;
-          color: #3f3934;
+          color: #392a22;
         }
         .ef-time {
           margin-top: 26px;
@@ -407,14 +407,14 @@ export default function Feed({
       {q && (
         <section style={{ width: "100%", maxWidth: 1180, margin: "0 auto", padding: "56px 44px 72px", boxSizing: "border-box" }}>
           <div style={{ borderBottom: "1px solid #000000", paddingBottom: 20, marginBottom: 36 }}>
-            <p style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#990000", margin: "0 0 10px" }}>Search</p>
+            <p style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".2em", textTransform: "uppercase", color: "#490000", margin: "0 0 10px" }}>Search</p>
             <h1 style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(36px, 5vw, 58px)", lineHeight: .98, letterSpacing: "-.03em", margin: 0 }}>"{searchQuery}"</h1>
           </div>
           {searchResults.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
               {searchResults.map(p => (
-                <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #d9d9d9", textDecoration: "none", color: "inherit" }}>
-                  <div style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#990000", marginBottom: 8 }}>{p.section}</div>
+                <Link key={p._id} href={`/stories/${p.slug}`} style={{ display: "block", padding: "28px 0", borderBottom: "1px solid #b8b8ba", textDecoration: "none", color: "inherit" }}>
+                  <div style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 800, letterSpacing: ".18em", textTransform: "uppercase", color: "#490000", marginBottom: 8 }}>{p.section}</div>
                   <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 700, lineHeight: 1.1, margin: "0 0 6px", letterSpacing: "-.02em" }}>{p.headline}</h2>
                   {p.subheadline && <p style={{ fontFamily: 'var(--font-headline)', fontSize: 18, fontStyle: "italic", color: "#000000", margin: 0 }}>{p.subheadline}</p>}
                   <p style={{ fontFamily: "var(--font-subhead)", fontSize: 11, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#000000", margin: "10px 0 0" }}>By {p.byline}</p>

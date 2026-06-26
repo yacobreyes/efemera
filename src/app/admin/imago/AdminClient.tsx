@@ -11,10 +11,10 @@ import ImagePickerModal from "@/components/ImagePickerModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
-const CRIMSON = "#8B0000";
-const BORDER = "#e1e8ed";
-const TEXT_DARK = "#1c2938";
-const TEXT_MUTED = "#526270";
+const CRIMSON = "#490000";
+const BORDER = "#b8b8ba";
+const TEXT_DARK = "#000000";
+const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -314,7 +314,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   if (!auth) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff" }}>
         <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "2.5rem 2rem", width: 300, display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center", textAlign: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}>
             <span style={{ color: CRIMSON }}>i</span>mago
@@ -357,13 +357,13 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: visible; }
         .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
-        .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
+        .admin-main { background: #ffffff; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
-        .admin-nav-btn:hover { background: #f5f0f0; color: ${CRIMSON}; }
-        .admin-nav-btn.active { background: #f0e8e8; color: ${CRIMSON}; font-weight: 700; border-left: 3px solid ${CRIMSON}; padding-left: calc(0.85rem - 3px); }
+        .admin-nav-btn:hover { background: #ffffff; color: ${CRIMSON}; }
+        .admin-nav-btn.active { background: #ffffff; color: ${CRIMSON}; font-weight: 700; border-left: 3px solid ${CRIMSON}; padding-left: calc(0.85rem - 3px); }
         .post-row { padding: 0.85rem 1.25rem; border-bottom: 1px solid ${BORDER}; display: flex; align-items: center; gap: 1rem; cursor: pointer; }
-        .post-row:hover { background: #f5f8fa; }
+        .post-row:hover { background: #ffffff; }
         .post-row:last-child { border-bottom: none; }
         @media (max-width: 700px) {
           .admin-sidebar { display: none; }
@@ -472,7 +472,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 {activePanel === "dashboard" && (
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 )}
               </div>
@@ -496,12 +496,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     {showCreateMenu && (
                       <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 6, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", minWidth: 150, zIndex: 100, overflow: "hidden" }}>
                         <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; startNew(); }} style={{ display: "flex", alignItems: "center", gap: "0.55rem", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                          onMouseEnter={e => { e.currentTarget.style.background = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
                           Story
                         </button>
                         <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; createNewNewsletter(); }} style={{ display: "flex", alignItems: "center", gap: "0.55rem", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "#f5f8fa"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                          onMouseEnter={e => { e.currentTarget.style.background = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2 6 12 13 22 6"/></svg>
                           Newsletter
                         </button>
@@ -559,7 +559,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 <div style={{ padding: "0 1rem 0.6rem" }}>
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#f5f8fa", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 </div>
               )}
@@ -589,7 +589,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
                   {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ["subscribers", "Subscribers"]] as [Panel, string][]).map(([panel, label]) => (
-                    <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#f5f0f0" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
+                    <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#ffffff" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
                   ))}
@@ -639,7 +639,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         {showSortMenu && (
                           <div style={{ position: "absolute", right: 0, top: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", zIndex: 20, minWidth: 160 }}>
                             {(["lastEdited", "dateCreated"] as const).map(opt => (
-                              <button key={opt} onClick={() => { setSortBy(opt); setShowSortMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: sortBy === opt ? "#f5f8fa" : "none", border: "none", cursor: "pointer", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK, padding: "0.55rem 0.85rem" }}>
+                              <button key={opt} onClick={() => { setSortBy(opt); setShowSortMenu(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: sortBy === opt ? "#ffffff" : "none", border: "none", cursor: "pointer", fontFamily: FONT, fontSize: "0.82rem", color: TEXT_DARK, padding: "0.55rem 0.85rem" }}>
                                 {opt === "lastEdited" ? "Last edited" : "Date created"}
                               </button>
                             ))}
@@ -665,7 +665,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                             onClick={() => openNewsletter(n)}
                             onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, kind: "newsletter", newsletter: n }); }}
                             style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 100px 80px" : "1fr 140px 120px", gap: isMobile ? "0 0.5rem" : "0 1rem", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
-                            onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#ffffff")}
                             onMouseLeave={e => (e.currentTarget.style.background = "white")}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
@@ -683,7 +683,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                             onClick={() => startEdit(post)}
                             onContextMenu={e => { e.preventDefault(); setContextMenu({ x: e.clientX, y: e.clientY, kind: "post", post }); }}
                             style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 100px 80px" : "1fr 140px 120px", gap: isMobile ? "0 0.5rem" : "0 1rem", padding: "0.85rem 1rem", borderBottom: `1px solid ${BORDER}`, cursor: "pointer", alignItems: "center" }}
-                            onMouseEnter={e => (e.currentTarget.style.background = "#f9fafb")}
+                            onMouseEnter={e => (e.currentTarget.style.background = "#ffffff")}
                             onMouseLeave={e => (e.currentTarget.style.background = "white")}>
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -737,7 +737,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                     <div key={s.email + i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1.25rem", borderBottom: `1px solid ${BORDER}`, gap: "0.75rem" }}>
                       <span style={{ fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.email}</span>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexShrink: 0 }}>
-                        <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: s.status === "active" ? "#2e7d32" : s.status === "inactive" ? "#b71c1c" : TEXT_MUTED }}>{s.status ?? "neutral"}</span>
+                        <span style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: s.status === "active" ? "#392a22" : s.status === "inactive" ? "#490000" : TEXT_MUTED }}>{s.status ?? "neutral"}</span>
                         <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{s.createdAt ? s.createdAt.slice(0, 10) : "—"}</span>
                         <button type="button" onClick={() => removeSub(s.email)} disabled={removingSubscriber === s.email}
                           style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.7rem", fontFamily: FONT, fontSize: "0.72rem", cursor: removingSubscriber === s.email ? "default" : "pointer", color: TEXT_MUTED, opacity: removingSubscriber === s.email ? 0.5 : 1 }}>
@@ -756,12 +756,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
             <form onSubmit={e => { e.preventDefault(); const fd = new FormData(); fd.set("body", JSON.stringify(tiptapToPortableText(aboutDoc))); startTransition(async () => { try { await saveAbout(fd); setSuccess("Saved!"); setTimeout(() => setSuccess(""), 2000); } catch (err: any) { setError(err.message); } }); }} style={{ maxWidth: 600, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <h2 style={{ fontFamily: FONT, fontSize: "1.2rem", color: TEXT_DARK, margin: 0 }}>About Page</h2>
               <div style={{ border: `1px solid ${BORDER}`, borderRadius: 4, overflow: "hidden" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.35rem 0.5rem", background: "#fafafa", borderBottom: `1px solid ${BORDER}` }}>
-                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor?.isActive("bold") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1rem", fontFamily: FONT }}>B</button>
-                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor?.isActive("italic") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1rem", fontFamily: FONT }}>I</button>
-                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor?.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 30, cursor: "pointer", color: aboutEditor?.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.85rem", fontFamily: FONT }}>H2</button>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.35rem 0.5rem", background: "#ffffff", borderBottom: `1px solid ${BORDER}` }}>
+                  <button type="button" title="Bold" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleBold().run(); }} style={{ background: aboutEditor?.isActive("bold") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("bold") ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "1rem", fontFamily: FONT }}>B</button>
+                  <button type="button" title="Italic" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleItalic().run(); }} style={{ background: aboutEditor?.isActive("italic") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 30, height: 30, cursor: "pointer", color: aboutEditor?.isActive("italic") ? CRIMSON : TEXT_MUTED, fontStyle: "italic", fontSize: "1rem", fontFamily: FONT }}>I</button>
+                  <button type="button" title="Heading" onMouseDown={e => { e.preventDefault(); aboutEditor?.chain().focus().toggleHeading({ level: 2 }).run(); }} style={{ background: aboutEditor?.isActive("heading", { level: 2 }) ? "#ffffff" : "none", border: "none", borderRadius: 4, padding: "0 6px", height: 30, cursor: "pointer", color: aboutEditor?.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontWeight: 700, fontSize: "0.85rem", fontFamily: FONT }}>H2</button>
                   <div style={{ width: 1, height: 18, background: BORDER, margin: "0 0.25rem" }} />
-                  <button type="button" title="Link" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor?.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor?.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+                  <button type="button" title="Link" onMouseDown={e => { e.preventDefault(); aboutToolbar?.openLink(); }} style={{ background: aboutEditor?.isActive("link") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: aboutEditor?.isActive("link") ? CRIMSON : TEXT_MUTED }}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                   </button>
                 </div>
@@ -769,7 +769,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <RichBodyEditor initialContent={aboutDoc} onChange={setAboutDoc} onEditor={setAboutEditor} onToolbar={setAboutToolbar} />
                 </div>
               </div>
-              {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#2e7d32", margin: 0 }}>{success}</p>}
+              {success && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: "#392a22", margin: 0 }}>{success}</p>}
               {error && <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: CRIMSON, margin: 0 }}>{error}</p>}
               <button type="submit" disabled={isPending} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 4, padding: "0.6rem 1.2rem", fontFamily: FONT, fontSize: "0.9rem", cursor: "pointer", alignSelf: "flex-start" }}>{isPending ? "Saving…" : "Save"}</button>
             </form>
@@ -815,10 +815,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <label style={LABEL}>Image URL</label>
                   <div style={{ display: "flex", gap: "0.4rem" }}>
                     <input readOnly style={{ ...INPUT, flex: 1, color: TEXT_MUTED, fontSize: "0.72rem" }} value={inspectAsset.url} />
-                    <button type="button" onClick={() => { navigator.clipboard.writeText(inspectAsset.url).catch(() => {}); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }} style={{ background: urlCopied ? "#6a0000" : CRIMSON, border: "none", borderRadius: 4, padding: "0 0.65rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: "white", whiteSpace: "nowrap", transition: "background 0.15s" }}>{urlCopied ? "Copied!" : "Copy"}</button>
+                    <button type="button" onClick={() => { navigator.clipboard.writeText(inspectAsset.url).catch(() => {}); setUrlCopied(true); setTimeout(() => setUrlCopied(false), 2000); }} style={{ background: urlCopied ? "#490000" : CRIMSON, border: "none", borderRadius: 4, padding: "0 0.65rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: "white", whiteSpace: "nowrap", transition: "background 0.15s" }}>{urlCopied ? "Copied!" : "Copy"}</button>
                   </div>
                 </div>
-                <button type="button" onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(inspectAsset._id).then(() => { const next = mediaAssets.filter(a => a._id !== inspectAsset._id); setMediaAssets(next); setInspectAsset(next[0] ?? null); setInspectAltText(next[0]?.altText ?? ""); }).catch(() => {}); }} style={{ background: "none", border: `1px solid #f5a5a5`, borderRadius: 4, padding: "0.4rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: CRIMSON, alignSelf: "flex-start" }}>Delete image</button>
+                <button type="button" onClick={() => { if (confirm("Delete permanently?")) deleteMediaAsset(inspectAsset._id).then(() => { const next = mediaAssets.filter(a => a._id !== inspectAsset._id); setMediaAssets(next); setInspectAsset(next[0] ?? null); setInspectAltText(next[0]?.altText ?? ""); }).catch(() => {}); }} style={{ background: "none", border: `1px solid #b8b8ba`, borderRadius: 4, padding: "0.4rem 0.75rem", fontFamily: FONT, fontSize: "0.82rem", cursor: "pointer", color: CRIMSON, alignSelf: "flex-start" }}>Delete image</button>
               </div>
             ) : null;
 
@@ -897,7 +897,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                           <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED }}>on <a href={`/stories/${c.slug}`} target="_blank" rel="noreferrer" style={{ color: TEXT_MUTED }}>{c.slug}</a></span>
                           <span style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED }}>{new Date(c._createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                         </div>
-                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: "#2d2d2d", margin: 0, lineHeight: 1.6 }}>{c.text}</p>
+                        <p style={{ fontFamily: FONT, fontSize: "0.9rem", color: "#000000", margin: 0, lineHeight: 1.6 }}>{c.text}</p>
                       </div>
                       <button
                         onClick={() => { if (!confirm("Delete this comment? This cannot be undone.")) return; startTransition(async () => { await fetch("/api/comments", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: c._id }) }); setAdminComments(prev => prev.filter(x => x._id !== c._id)); }); }}
@@ -935,7 +935,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 20, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "0.75rem", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", minWidth: 240 }}>
                           <label style={{ ...LABEL, marginBottom: "0.4rem" }}>Publish at</label>
                           <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} style={{ ...INPUT, marginBottom: "0.5rem" }} />
-                          <button type="submit" disabled={!scheduledAt || isPending} onClick={() => { submitStatusRef.current = "scheduled"; setShowScheduler(false); }} style={{ width: "100%", background: "#1565c0", color: "white", border: "none", borderRadius: 4, padding: "0.45rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Confirm schedule</button>
+                          <button type="submit" disabled={!scheduledAt || isPending} onClick={() => { submitStatusRef.current = "scheduled"; setShowScheduler(false); }} style={{ width: "100%", background: "#490000", color: "white", border: "none", borderRadius: 4, padding: "0.45rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer" }}>Confirm schedule</button>
                         </div>
                       )}
                     </div>
@@ -956,7 +956,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         {tab === "content" ? "Story content" : "Metadata"}
                       </button>
                     ))}
-                    {success && <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "#2e7d32", margin: "1rem 1rem 0", lineHeight: 1.4 }}>{success}</p>}
+                    {success && <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: "#392a22", margin: "1rem 1rem 0", lineHeight: 1.4 }}>{success}</p>}
                     {error && <p style={{ fontFamily: FONT, fontSize: "0.75rem", color: CRIMSON, margin: "1rem 1rem 0", lineHeight: 1.4 }}>{error}</p>}
                   </div>
 
@@ -983,7 +983,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                           </div>
                         ) : (
                           <div>
-                            {imagePreview !== "existing" ? <img src={imagePreview} alt="" style={{ width: "100%", maxHeight: 320, objectFit: "cover", borderRadius: 6 }} /> : <div style={{ padding: "0.75rem", background: "#f5f8fa", borderRadius: 6, fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED }}>Existing photo attached</div>}
+                            {imagePreview !== "existing" ? <img src={imagePreview} alt="" style={{ width: "100%", maxHeight: 320, objectFit: "cover", borderRadius: 6 }} /> : <div style={{ padding: "0.75rem", background: "#ffffff", borderRadius: 6, fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED }}>Existing photo attached</div>}
                             <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
                               <input placeholder="Caption" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageCaption} onChange={e => setImageCaption(e.target.value)} />
                               <input placeholder="Alt text" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageAlt} onChange={e => setImageAlt(e.target.value)} />
@@ -1011,7 +1011,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         {editing && editing.status === "trashed" && (
                           <div style={{ display: "flex", gap: "0.5rem" }}>
                             <button type="button" onClick={() => startTransition(async () => { await restorePost(editing._id); refreshPosts(); setActivePanel("dashboard"); setEditing(null); })} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.3rem 0.6rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: TEXT_DARK }}>Restore</button>
-                            <button type="button" onClick={() => { if (confirm("Delete FOREVER?")) startTransition(async () => { await deletePost(editing._id); refreshPosts(); setActivePanel("dashboard"); setEditing(null); }); }} style={{ background: "none", border: "1px solid #f5a5a5", borderRadius: 4, padding: "0.3rem 0.6rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: CRIMSON }}>Delete forever</button>
+                            <button type="button" onClick={() => { if (confirm("Delete FOREVER?")) startTransition(async () => { await deletePost(editing._id); refreshPosts(); setActivePanel("dashboard"); setEditing(null); }); }} style={{ background: "none", border: "1px solid #b8b8ba", borderRadius: 4, padding: "0.3rem 0.6rem", fontFamily: FONT, fontSize: "0.78rem", cursor: "pointer", color: CRIMSON }}>Delete forever</button>
                           </div>
                         )}
                       </div>
@@ -1069,8 +1069,8 @@ function PostRow({ post, onClick }: { post: SanityPost; onClick: () => void }) {
   return (
     <div className="post-row" onClick={onClick}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#1c2938", margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline}</p>
-        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#657786", margin: 0 }}>{post.section} · {post.date}</p>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.9rem", fontWeight: 600, color: "#000000", margin: "0 0 0.15rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline}</p>
+        <p style={{ fontFamily: "var(--font-inter), sans-serif", fontSize: "0.72rem", color: "#392a22", margin: 0 }}>{post.section} · {post.date}</p>
       </div>
     </div>
   );

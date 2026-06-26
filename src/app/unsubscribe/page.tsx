@@ -52,17 +52,17 @@ function UnsubscribeForm() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
-              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "12px 14px", border: "1px solid #d9d9d9", borderRadius: 2, outline: "none", background: "#fff", color: "#000000" }}
+              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 15, padding: "12px 14px", border: "1px solid #b8b8ba", borderRadius: 2, outline: "none", background: "#fff", color: "#000000" }}
             />
             <button
               type="submit"
               disabled={status === "loading"}
-              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", background: "#990000", border: "none", padding: "12px 14px", borderRadius: 2, cursor: status === "loading" ? "default" : "pointer", opacity: status === "loading" ? 0.7 : 1 }}
+              style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: ".14em", textTransform: "uppercase", color: "#fff", background: "#490000", border: "none", padding: "12px 14px", borderRadius: 2, cursor: status === "loading" ? "default" : "pointer", opacity: status === "loading" ? 0.7 : 1 }}
             >
               {status === "loading" ? "Unsubscribing…" : "Unsubscribe"}
             </button>
             {status === "error" && (
-              <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#990000", margin: 0 }}>{error}</p>
+              <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, color: "#490000", margin: 0 }}>{error}</p>
             )}
           </form>
         </>

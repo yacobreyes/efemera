@@ -40,7 +40,7 @@ export default function NewsletterSignup() {
             style={{ flex: 1, minWidth: 0, fontFamily: "var(--font-subhead)", fontSize: "0.85rem", padding: "0.5rem 0.7rem", border: "none", borderRadius: 4, outline: "none", color: "#000000", background: "white" }}
           />
           <button type="submit" disabled={status === "loading"}
-            style={{ background: "white", color: "#990000", border: "none", borderRadius: 4, padding: "0.5rem 0.9rem", fontFamily: "var(--font-subhead)", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", opacity: status === "loading" ? 0.6 : 1 }}>
+            style={{ background: "white", color: "#490000", border: "none", borderRadius: 4, padding: "0.5rem 0.9rem", fontFamily: "var(--font-subhead)", fontSize: "0.82rem", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", opacity: status === "loading" ? 0.6 : 1 }}>
             {status === "loading" ? "…" : "Subscribe"}
           </button>
         </form>

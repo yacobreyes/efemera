@@ -59,37 +59,37 @@ export default function GangreyArchive({ posts }: { posts: Post[] }) {
       <style>{`
         .gr-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 28px; }
         .gr-search-wrap { position: relative; flex: 1 1 220px; max-width: 340px; }
-        .gr-search { width: 100%; box-sizing: border-box; font-family: var(--font-subhead); font-size: 13px; padding: 8px 32px 8px 12px; border: 1px solid #d9d9d9; border-radius: 2px; background: #ffffff; color: #000000; outline: none; }
-        .gr-search:focus { border-color: #990000; }
-        .gr-search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #555555; font-size: 16px; line-height: 1; padding: 0; }
+        .gr-search { width: 100%; box-sizing: border-box; font-family: var(--font-subhead); font-size: 13px; padding: 8px 32px 8px 12px; border: 1px solid #b8b8ba; border-radius: 2px; background: #ffffff; color: #000000; outline: none; }
+        .gr-search:focus { border-color: #490000; }
+        .gr-search-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #392a22; font-size: 16px; line-height: 1; padding: 0; }
         .gr-year-nav { display: flex; flex-wrap: wrap; gap: 6px 4px; }
-        .gr-year-btn { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #000000; background: none; padding: 5px 10px; border: 1px solid #d9d9d9; border-radius: 2px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
-        .gr-year-btn:hover { background: #f0f0f0; border-color: #555555; }
-        .gr-year-btn.active { background: #990000; color: #fff; border-color: #990000; }
+        .gr-year-btn { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #000000; background: none; padding: 5px 10px; border: 1px solid #b8b8ba; border-radius: 2px; cursor: pointer; transition: background .15s, color .15s, border-color .15s; }
+        .gr-year-btn:hover { background: #ffffff; border-color: #392a22; }
+        .gr-year-btn.active { background: #490000; color: #fff; border-color: #490000; }
         .gr-no-results { font-family: var(--font-headline); font-size: 22px; font-style: italic; color: #000000; margin-top: 48px; }
 
         .gr-year-block { display: grid; grid-template-columns: 100px 1fr; gap: 0 48px; }
-        .gr-year-block + .gr-year-block { border-top: 1px solid #d9d9d9; }
+        .gr-year-block + .gr-year-block { border-top: 1px solid #b8b8ba; }
         .gr-year-col { padding-top: 32px; }
-        .gr-year-label { font-family: var(--font-headline); font-size: 56px; font-weight: 700; line-height: 1; color: #990000; letter-spacing: -.04em; position: sticky; top: 20px; }
-        .gr-stories { border-left: 1px solid #d9d9d9; }
-        .gr-row { display: grid; grid-template-columns: 1fr auto; gap: 0 32px; padding: 28px 0 28px 40px; border-bottom: 1px solid #e8e0d4; align-items: start; transition: background .15s; }
-        .gr-row:hover { background: #f0f0f0; }
+        .gr-year-label { font-family: var(--font-headline); font-size: 56px; font-weight: 700; line-height: 1; color: #490000; letter-spacing: -.04em; position: sticky; top: 20px; }
+        .gr-stories { border-left: 1px solid #b8b8ba; }
+        .gr-row { display: grid; grid-template-columns: 1fr auto; gap: 0 32px; padding: 28px 0 28px 40px; border-bottom: 1px solid #b8b8ba; align-items: start; transition: background .15s; }
+        .gr-row:hover { background: #ffffff; }
         .gr-row:last-child { border-bottom: none; }
-        .gr-date { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #555555; text-transform: uppercase; margin-bottom: 10px; }
+        .gr-date { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; color: #392a22; text-transform: uppercase; margin-bottom: 10px; }
         .gr-headline { font-family: var(--font-headline); font-size: clamp(22px, 2.8vw, 32px); line-height: 1.05; letter-spacing: -.02em; color: #000000; text-decoration: none; display: block; margin-bottom: 6px; transition: color .15s; }
-        .gr-row:hover .gr-headline { color: #990000; }
+        .gr-row:hover .gr-headline { color: #490000; }
         .gr-byline { font-family: var(--font-headline); font-size: 17px; font-style: italic; color: #000000; margin-bottom: 10px; }
-        .gr-excerpt { font-family: var(--font-headline); font-size: 17px; line-height: 1.55; color: #3d3530; margin: 0; }
+        .gr-excerpt { font-family: var(--font-headline); font-size: 17px; line-height: 1.55; color: #392a22; margin: 0; }
         .gr-row-right { padding-top: 4px; text-align: right; white-space: nowrap; }
-        .gr-time { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #990000; }
-        .gr-search-count { font-family: var(--font-subhead); font-size: 12px; color: #555555; letter-spacing: .06em; }
+        .gr-time { font-family: var(--font-subhead); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #490000; }
+        .gr-search-count { font-family: var(--font-subhead); font-size: 12px; color: #392a22; letter-spacing: .06em; }
 
         @media (max-width: 760px) {
           .gr-year-block { grid-template-columns: 1fr; gap: 0; }
           .gr-year-col { padding-top: 24px; padding-bottom: 8px; }
           .gr-year-label { font-size: 40px; position: static; }
-          .gr-stories { border-left: none; border-top: 1px solid #d9d9d9; }
+          .gr-stories { border-left: none; border-top: 1px solid #b8b8ba; }
           .gr-row { padding: 20px 0; grid-template-columns: 1fr; gap: 8px; }
           .gr-row:hover { background: transparent; }
           .gr-row-right { text-align: left; }

@@ -8,7 +8,7 @@ export default function MagFooter() {
         .mag-footer {
           padding: 46px 7vw 34px;
           background: #ffffff;
-          border-top: 1px solid #d9d9d9;
+          border-top: 1px solid #b8b8ba;
           display: flex;
           flex-direction: column;
           align-items: center;

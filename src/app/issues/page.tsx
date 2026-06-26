@@ -29,7 +29,7 @@ export default async function IssuesPage() {
         .issues-kicker {
           font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #990000; margin-bottom: 14px;
+          color: #490000; margin-bottom: 14px;
         }
         .issues-title {
           font-family: var(--font-headline);
@@ -42,7 +42,7 @@ export default async function IssuesPage() {
           align-items: baseline;
           gap: 24px;
           padding: 28px 0;
-          border-bottom: 1px solid #d9d9d9;
+          border-bottom: 1px solid #b8b8ba;
           text-decoration: none;
           color: inherit;
         }
@@ -51,7 +51,7 @@ export default async function IssuesPage() {
         .issue-number {
           font-family: var(--font-subhead);
           font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase;
-          color: #990000; margin-bottom: 8px;
+          color: #490000; margin-bottom: 8px;
         }
         .issue-title {
           font-family: var(--font-headline);
@@ -66,7 +66,7 @@ export default async function IssuesPage() {
           font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
           color: #000000; white-space: nowrap;
         }
-        .issue-arrow { color: #990000; font-size: 18px; margin-left: 8px; }
+        .issue-arrow { color: #490000; font-size: 18px; margin-left: 8px; }
         .issues-empty {
           font-family: var(--font-headline);
           font-size: 22px; font-style: italic; color: #000000;

@@ -47,10 +47,10 @@ export default async function GangreyPage() {
       <style>{`
         .gr-wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 64px 44px 100px; box-sizing: border-box; flex: 1; }
         .gr-head { margin-bottom: 48px; }
-        .gr-kicker { font-family: var(--font-subhead); font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #990000; margin-bottom: 16px; }
+        .gr-kicker { font-family: var(--font-subhead); font-size: 11px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #490000; margin-bottom: 16px; }
         .gr-title { font-family: var(--font-headline); font-size: clamp(48px, 7vw, 80px); line-height: .95; letter-spacing: -.035em; margin: 0 0 20px; }
         .gr-sub { font-family: var(--font-subhead); font-size: clamp(18px, 2.5vw, 24px); color: #000000; margin: 0; line-height: 1.4; max-width: 560px; }
-        .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #555555; letter-spacing: .08em; margin-top: 20px; }
+        .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #392a22; letter-spacing: .08em; margin-top: 20px; }
         @media (max-width: 760px) {
           .gr-wrap { padding: 40px 20px 72px; }
         }

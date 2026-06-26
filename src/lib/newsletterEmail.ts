@@ -10,12 +10,12 @@ export type NlCard = {
   byline?: string;
 };
 
-const CRIMSON = "#8e0d0d";
-const INK = "#171412";
-const TEXT_MUTED = "#463f37";
-const CREAM = "#fbf6ee";
-const PAPER_DARK = "#f5efe4";
-const LINE = "#cfc3b3";
+const CRIMSON = "#490000";
+const INK = "#000000";
+const TEXT_MUTED = "#392a22";
+const CREAM = "#ffffff";
+const PAPER_DARK = "#ffffff";
+const LINE = "#b8b8ba";
 const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
 const SERIF = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
 

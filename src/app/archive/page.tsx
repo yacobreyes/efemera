@@ -28,7 +28,7 @@ export default async function ArchivePage() {
         .listing-kicker {
           font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #990000; margin-bottom: 14px;
+          color: #490000; margin-bottom: 14px;
         }
         .listing-title {
           font-family: var(--font-headline);

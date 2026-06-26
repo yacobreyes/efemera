@@ -11,10 +11,10 @@ import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
 
-const CRIMSON = "#8B0000";
-const BORDER = "#e1e8ed";
-const TEXT_DARK = "#1c2938";
-const TEXT_MUTED = "#526270";
+const CRIMSON = "#490000";
+const BORDER = "#b8b8ba";
+const TEXT_DARK = "#000000";
+const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -577,7 +577,7 @@ export default function NewsletterEditorClient({
             <div style={{ padding: "1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.75rem", borderBottom: `1px solid ${BORDER}` }}>
               <input value={findQuery} onChange={e => setFindQuery(e.target.value)} placeholder="Search by headline, keyword or url" style={INPUT} />
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", cursor: "pointer" }} onClick={() => setFindShowDraftScheduled(v => !v)}>
-                <span style={{ width: 32, height: 18, borderRadius: 10, background: findShowDraftScheduled ? CRIMSON : "#ccd3d8", position: "relative", transition: "background 0.15s", flexShrink: 0 }}>
+                <span style={{ width: 32, height: 18, borderRadius: 10, background: findShowDraftScheduled ? CRIMSON : "#b8b8ba", position: "relative", transition: "background 0.15s", flexShrink: 0 }}>
                   <span style={{ position: "absolute", top: 2, left: findShowDraftScheduled ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "white", transition: "left 0.15s" }} />
                 </span>
                 <span style={{ fontFamily: FONT, fontSize: "0.82rem", color: TEXT_MUTED }}>Only draft and scheduled</span>
@@ -641,30 +641,30 @@ export default function NewsletterEditorClient({
               ["I", nlActiveE.isActive("italic"), () => nlActiveE.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
             ] as [string, boolean, () => void, React.CSSProperties][]).map(([label, active, action, style]) => (
               <button key={label} type="button" onMouseDown={e => { e.preventDefault(); action(); }}
-                style={{ background: active ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
+                style={{ background: active ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
                 {label}
               </button>
             ))}
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBlockquote().run(); }}
-              style={{ background: nlActiveE.isActive("blockquote") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: nlActiveE.isActive("blockquote") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleHeading({ level: 2 }).run(); }}
-              style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
+              style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#ffffff" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
               H2
             </button>
             <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBulletList().run(); }}
-              style={{ background: nlActiveE.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: nlActiveE.isActive("bulletList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </button>
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleOrderedList().run(); }}
-              style={{ background: nlActiveE.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: nlActiveE.isActive("orderedList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
             </button>
             <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openLink(); }}
-              style={{ background: nlActiveE.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: nlActiveE.isActive("link") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_MUTED }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </button>
             <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openImage(); }}
@@ -735,12 +735,12 @@ export default function NewsletterEditorClient({
 
       {/* Content — when the find panel is open on desktop, reserve its width on
           the left so the centered page never slides underneath it. */}
-      <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
+      <div style={{ flex: 1, overflowY: "auto", background: "#ffffff", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
         {/* Magazine page — 600px to match the email's inbox-safe width */}
-        <div style={{ maxWidth: 600, margin: "0 auto", background: "#fbf6ee", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto", background: "#ffffff", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead — crimson wordmark on cream, like site header */}
-          <div style={{ background: "#fbf6ee", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #cfc3b3` }}>
+          <div style={{ background: "#ffffff", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/Crimson Wordmark.png" alt="efemera" style={{ height: 58, width: "auto", display: "inline-block" }} />
           </div>
@@ -748,8 +748,8 @@ export default function NewsletterEditorClient({
           {/* Dateline + intro in one crimson band */}
           <div style={{ background: CRIMSON, padding: "0.6rem 2.5rem 1.5rem", textAlign: "center" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.1rem" }}>
-              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>{todayLabel}</span>
-              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#fbf6ee" }}>
+              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#ffffff" }}>{todayLabel}</span>
+              <span style={{ fontFamily: FONT, fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "#ffffff" }}>
                 {nlVolume ? `Vol. ${nlVolume}` : ""}{nlVolume && nlIssue ? "  ·  " : ""}{nlIssue ? `No. ${nlIssue}` : ""}
               </span>
             </div>
@@ -760,10 +760,10 @@ export default function NewsletterEditorClient({
                 onChange={e => setNlIntro(e.target.value)}
                 placeholder="A note to readers…"
                 rows={1}
-                style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1rem", lineHeight: 1.6, color: "#fbf6ee", border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
+                style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1rem", lineHeight: 1.6, color: "#ffffff", border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
               />
               {nlAuthor && (
-                <p style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, color: "#fbf6ee", opacity: 0.8, margin: "0.6rem 0 0", letterSpacing: "0.08em", textTransform: "uppercase" }}>By {nlAuthor}</p>
+                <p style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, color: "#ffffff", opacity: 0.8, margin: "0.6rem 0 0", letterSpacing: "0.08em", textTransform: "uppercase" }}>By {nlAuthor}</p>
               )}
             </div>
           </div>
@@ -850,7 +850,7 @@ export default function NewsletterEditorClient({
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ display: "block", width: "100%", margin: "0 0 1.75rem", background: "#fbf6ee", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "3rem 0", cursor: "pointer", textAlign: "center", boxSizing: "border-box" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ display: "block", width: "100%", margin: "0 0 1.75rem", background: "#ffffff", border: `2px dashed ${BORDER}`, color: TEXT_MUTED, fontFamily: FONT, fontSize: "0.85rem", padding: "3rem 0", cursor: "pointer", textAlign: "center", boxSizing: "border-box" }}>
                             + Add a featured image
                           </button>
                         )}
@@ -883,7 +883,7 @@ export default function NewsletterEditorClient({
                             </div>
                           </div>
                         ) : (
-                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "#fbf6ee", border: `1px dashed ${BORDER}`, fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.75rem", padding: "0.6rem 1rem", borderRadius: 4, display: "block", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
+                          <button type="button" onClick={() => setNlImgPickerCard(card.id)} style={{ background: "#ffffff", border: `1px dashed ${BORDER}`, fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, cursor: "pointer", marginBottom: "0.75rem", padding: "0.6rem 1rem", borderRadius: 4, display: "block", width: "100%", textAlign: "center", boxSizing: "border-box" }}>
                             + Add image
                           </button>
                         )}
@@ -897,7 +897,7 @@ export default function NewsletterEditorClient({
 
                     {/* MICRO-MEMOIR card — literary magazine style */}
                     {type === "micro-memoir" && (
-                      <div style={{ background: "#f5efe4", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #cfc3b3`, borderBottom: `1px solid #cfc3b3`, margin: "0 -2.5rem" }}>
+                      <div style={{ background: "#ffffff", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #b8b8ba`, borderBottom: `1px solid #b8b8ba`, margin: "0 -2.5rem" }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src="/Flying Mayfly Kicker.webp" alt="" style={{ display: "block", height: 200, width: "auto", margin: "-35px auto -60px" }} />
                         <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
@@ -917,7 +917,7 @@ export default function NewsletterEditorClient({
                             </span>
                           )}
                         </div>
-                        <div style={{ width: 32, height: 1, background: "#cfc3b3", margin: "0 auto 1.5rem" }} />
+                        <div style={{ width: 32, height: 1, background: "#b8b8ba", margin: "0 auto 1.5rem" }} />
                         <div style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.1rem", lineHeight: 1.85, textAlign: "center" }}>
                           <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}

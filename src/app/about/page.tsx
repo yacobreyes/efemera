@@ -30,7 +30,7 @@ export default async function AboutPage() {
         .about-body { font-family: var(--font-headline); font-size: 22px; line-height: 1.62; color: #000000; }
         .about-body p { margin: 1.2rem 0 0; }
         .about-body p:first-child { margin-top: 0; }
-        .about-body a { color: #990000; text-decoration: underline; }
+        .about-body a { color: #490000; text-decoration: underline; }
         .about-empty { font-family: var(--font-headline); font-size: 22px; font-style: italic; color: #000000; }
         @media (max-width: 900px) { .about-main { padding: 40px 24px 48px; } }
       `}</style>
@@ -46,7 +46,7 @@ export default async function AboutPage() {
                   normal: ({ children }) => <p>{children}</p>,
                   h2: ({ children }) => <h2 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: "1.9rem", margin: "2rem 0 0", letterSpacing: "-.02em" }}>{children}</h2>,
                   h3: ({ children }) => <h3 style={{ fontFamily: 'var(--font-headline)', fontWeight: 700, fontSize: "1.5rem", margin: "1.7rem 0 0" }}>{children}</h3>,
-                  blockquote: ({ children }) => <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #990000", fontStyle: "italic", color: "#000000" }}>{children}</blockquote>,
+                  blockquote: ({ children }) => <blockquote style={{ margin: "1.5rem 0 0", padding: "0.2rem 0 0.2rem 1.2rem", borderLeft: "3px solid #490000", fontStyle: "italic", color: "#000000" }}>{children}</blockquote>,
                 },
                 marks: {
                   strong: ({ children }) => <strong>{children}</strong>,

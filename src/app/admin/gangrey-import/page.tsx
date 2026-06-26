@@ -164,22 +164,22 @@ export default function GangreyImportPage() {
 
   const pct = total ? Math.round((processed / total) * 100) : 0;
   const btnStyle = (primary: boolean): React.CSSProperties => ({
-    background: primary ? "#8B0000" : "#fff",
-    color: primary ? "#fff" : "#8B0000",
-    border: primary ? "none" : "1px solid #8B0000",
+    background: primary ? "#490000" : "#fff",
+    color: primary ? "#fff" : "#490000",
+    border: primary ? "none" : "1px solid #490000",
     borderRadius: 6, padding: "12px 22px", fontWeight: 700, fontSize: 15,
     cursor: running ? "default" : "pointer", opacity: running ? 0.6 : 1,
   });
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem", fontFamily: "Inter, system-ui, sans-serif", color: "#1c2938" }}>
+    <div style={{ maxWidth: 760, margin: "0 auto", padding: "3rem 1.5rem", fontFamily: "var(--font-subhead)", color: "#000000" }}>
       <h1 style={{ fontFamily: 'var(--font-cormorant), Georgia, serif', fontSize: 40, margin: "0 0 4px" }}>Gangrey Archive Import</h1>
       {savedCount !== null && (
-        <p style={{ fontFamily: "Inter, system-ui, sans-serif", fontSize: 13, fontWeight: 700, color: "#1a7f37", margin: "0 0 8px" }}>
+        <p style={{ fontFamily: "var(--font-subhead)", fontSize: 13, fontWeight: 700, color: "#392a22", margin: "0 0 8px" }}>
           {savedCount} stories currently in Sanity
         </p>
       )}
-      <p style={{ color: "#526270", margin: "0 0 24px" }}>
+      <p style={{ color: "#392a22", margin: "0 0 24px" }}>
         Pulls every story from the Wayback Machine snapshot of gangrey.com and imports it as a
         Gangrey&nbsp;Redux post. Runs in batches — keep this tab open until it finishes.
         Auto-retries on errors.
@@ -199,7 +199,7 @@ export default function GangreyImportPage() {
             Stop
           </button>
         )}
-        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#526270" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, color: "#392a22" }}>
           <input type="checkbox" checked={dry} disabled={running} onChange={e => setDry(e.target.checked)} />
           Test run (parse only, don't save)
         </label>
@@ -207,18 +207,18 @@ export default function GangreyImportPage() {
 
       {total > 0 && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ height: 10, background: "#e1e8ed", borderRadius: 6, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${pct}%`, background: done ? "#1a7f37" : "#8B0000", transition: "width .3s" }} />
+          <div style={{ height: 10, background: "#b8b8ba", borderRadius: 6, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${pct}%`, background: done ? "#392a22" : "#490000", transition: "width .3s" }} />
           </div>
-          <div style={{ fontSize: 13, color: "#526270", marginTop: 6 }}>
+          <div style={{ fontSize: 13, color: "#392a22", marginTop: 6 }}>
             {processed} / {total} processed · {written} imported {done ? "· done ✅" : ""}
           </div>
         </div>
       )}
 
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #b8b8ba" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Fix story dates</h2>
-        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+        <p style={{ fontSize: 13, color: "#392a22", margin: "0 0 12px" }}>
           Harvests exact publication dates from Gangrey&apos;s archived RSS feeds (hundreds of Wayback
           snapshots, 2005&ndash;2016). Run this first, then start a fresh import so the dates get applied.
         </p>
@@ -228,9 +228,9 @@ export default function GangreyImportPage() {
         {mapResult && <p style={{ marginTop: 10, fontSize: 13, fontWeight: 600 }}>{mapResult}</p>}
       </div>
 
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #b8b8ba" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Probe feed snapshot</h2>
-        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+        <p style={{ fontSize: 13, color: "#392a22", margin: "0 0 12px" }}>
           Fetches one feed snapshot and shows the raw XML + how many dates were extracted. Use offset 0, 1, 2… to inspect different snapshots.
         </p>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -261,9 +261,9 @@ export default function GangreyImportPage() {
         )}
       </div>
 
-      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #e1e8ed" }}>
+      <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #b8b8ba" }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 8px" }}>Clean up duplicates</h2>
-        <p style={{ fontSize: 13, color: "#526270", margin: "0 0 12px" }}>
+        <p style={{ fontSize: 13, color: "#392a22", margin: "0 0 12px" }}>
           Finds stories with the same headline in Sanity and deletes the lower-quality copy (keeps the one with a byline and a path-based slug).
         </p>
         <button onClick={runDedup} disabled={deduping || running} style={{ ...btnStyle(false), fontSize: 14 }}>

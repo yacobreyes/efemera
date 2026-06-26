@@ -26,7 +26,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
         .sg-thumb {
           aspect-ratio: 1.35 / 1;
           margin-bottom: 20px;
-          background: #dfd4c4;
+          background: #b8b8ba;
           overflow: hidden;
           display: block;
         }
@@ -37,7 +37,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
           font-size: 11px;
           font-weight: 800;
           letter-spacing: .22em;
-          color: #990000;
+          color: #490000;
           text-transform: uppercase;
           margin-bottom: 12px;
         }
@@ -50,7 +50,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
           transition: color .15s;
         }
         .sg-card a.sg-headline { text-decoration: none; color: #000000; }
-        .sg-card a.sg-headline:hover h3 { color: #990000; }
+        .sg-card a.sg-headline:hover h3 { color: #490000; }
         .sg-byline {
           font-family: var(--font-headline);
           margin-bottom: 12px;
@@ -71,12 +71,12 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
           font-weight: 700;
           letter-spacing: .12em;
           text-transform: uppercase;
-          color: #990000;
+          color: #490000;
           margin-top: auto;
         }
         @media (max-width: 900px) {
           .sg-grid { grid-template-columns: 1fr; gap: 0; }
-          .sg-card { border-bottom: 1px solid #d9d9d9; padding: 28px 0; }
+          .sg-card { border-bottom: 1px solid #b8b8ba; padding: 28px 0; }
           .sg-card:first-child { padding-top: 0; }
         }
       `}</style>
@@ -91,7 +91,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
               {imgSrc
                 // eslint-disable-next-line @next/next/no-img-element
                 ? <img src={imgSrc} alt={post.image?.alt ?? post.headline} />
-                : <div style={{ width: "100%", height: "100%", background: "#dfd4c4" }} />
+                : <div style={{ width: "100%", height: "100%", background: "#b8b8ba" }} />
               }
             </Link>
             <div className="sg-label">{sectionLabel(post.section)}</div>
@@ -132,11 +132,11 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           font-weight: 800;
           letter-spacing: .2em;
           text-transform: uppercase;
-          color: #990000;
+          color: #490000;
           margin-bottom: 16px;
         }
-        .ag-meta .ag-dot { color: #d9d9d9; }
-        .ag-meta .ag-time { color: #555555; font-weight: 700; }
+        .ag-meta .ag-dot { color: #b8b8ba; }
+        .ag-meta .ag-time { color: #392a22; font-weight: 700; }
         .ag-card h3 {
           margin: 0;
           font-family: var(--font-headline);
@@ -146,7 +146,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           transition: color .15s;
         }
         .ag-card a.ag-headline { text-decoration: none; color: #000000; }
-        .ag-card a.ag-headline:hover h3 { color: #990000; }
+        .ag-card a.ag-headline:hover h3 { color: #490000; }
         .ag-byline {
           font-family: var(--font-headline);
           font-size: 19px;
@@ -158,7 +158,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           font-family: var(--font-headline);
           font-size: 18.5px;
           line-height: 1.5;
-          color: #2b251f;
+          color: #392a22;
           margin: 14px 0 0;
         }
         .ag-excerpt::first-letter {
@@ -166,7 +166,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
           -webkit-initial-letter: 2;
           font-weight: 600;
           margin-right: 8px;
-          color: #990000;
+          color: #490000;
         }
         @media (max-width: 760px) {
           .ag-grid { grid-template-columns: 1fr; gap: 0; }

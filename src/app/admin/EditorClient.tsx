@@ -13,10 +13,10 @@ import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 
-const CRIMSON = "#8B0000";
-const BORDER = "#e1e8ed";
-const TEXT_DARK = "#1c2938";
-const TEXT_MUTED = "#526270";
+const CRIMSON = "#490000";
+const BORDER = "#b8b8ba";
+const TEXT_DARK = "#000000";
+const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -228,7 +228,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           top: calc(100% + 6px);
           left: 50%;
           transform: translateX(-50%);
-          background: #1c2938;
+          background: #000000;
           color: #fff;
           font-family: var(--font-inter), sans-serif;
           font-size: 11px;
@@ -270,35 +270,35 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               ["I", "Italic", editor.isActive("italic"), () => editor.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
             ] as [string, string, boolean, () => void, React.CSSProperties][]).map(([label, title, active, action, style]) => (
               <button key={label} type="button" title={title} data-tooltip={title} className="tb-btn" onMouseDown={e => { e.preventDefault(); action(); }}
-                style={{ background: active ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
+                style={{ background: active ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
                 {label}
               </button>
             ))}
             {/* Quote */}
             <button type="button" title="Quote" data-tooltip="Quote" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run(); }}
-              style={{ background: editor.isActive("blockquote") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: editor.isActive("blockquote") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </button>
             {/* Headline */}
             <button type="button" title="Headline" data-tooltip="Headline" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run(); }}
-              style={{ background: editor.isActive("heading", { level: 2 }) ? "#f0f0f0" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
+              style={{ background: editor.isActive("heading", { level: 2 }) ? "#ffffff" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
               H2
             </button>
             <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             {/* Bullet List */}
             <button type="button" title="Bullet List" data-tooltip="Bullet List" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
-              style={{ background: editor.isActive("bulletList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: editor.isActive("bulletList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </button>
             {/* Number List */}
             <button type="button" title="Number List" data-tooltip="Number List" className="tb-btn" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run(); }}
-              style={{ background: editor.isActive("orderedList") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: editor.isActive("orderedList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
               <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
             </button>
             <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
             {/* Link */}
             <button type="button" title="Link" data-tooltip="Link" className="tb-btn" onMouseDown={e => { e.preventDefault(); toolbar?.openLink(); }}
-              style={{ background: editor.isActive("link") ? "#f0f0f0" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+              style={{ background: editor.isActive("link") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("link") ? CRIMSON : TEXT_MUTED }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
             </button>
             {/* Image */}
@@ -402,7 +402,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               }
               if (node.type === "blockquote") {
                 const text = (node.content?.[0]?.content ?? []).map((n: JSONContent) => n.text ?? "").join("");
-                return <blockquote key={i} style={{ borderLeft: `3px solid ${CRIMSON}`, margin: "1em 0", padding: "0.1em 0 0.1em 1.2em", fontStyle: "italic", color: "#526270", fontFamily: FONT }}>{text}</blockquote>;
+                return <blockquote key={i} style={{ borderLeft: `3px solid ${CRIMSON}`, margin: "1em 0", padding: "0.1em 0 0.1em 1.2em", fontStyle: "italic", color: "#392a22", fontFamily: FONT }}>{text}</blockquote>;
               }
               if (node.type === "bulletList") {
                 return <ul key={i} style={{ fontFamily: "'Georgia', serif", fontSize: "1rem", color: TEXT_DARK, lineHeight: 1.75, margin: "0 0 1.2rem", paddingLeft: "1.4em" }}>
@@ -680,7 +680,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 </div>
               )}
             </div>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#fafbfc" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", padding: "0.85rem 1.5rem", borderTop: `1px solid ${BORDER}`, background: "#ffffff" }}>
               <button type="button" onClick={() => setShowBodyImageModal(false)} style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.4rem 1.1rem", fontFamily: FONT, fontSize: "0.88rem", cursor: "pointer", color: TEXT_DARK }}>Cancel</button>
               <button type="button"
                 disabled={bodyUploadingNew || (bodyImageTab === "library" && !bodySelectedAsset) || (bodyImageTab === "upload" && !bodyUploadFile)}

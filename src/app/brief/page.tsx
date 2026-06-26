@@ -41,7 +41,7 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
         .listing-kicker {
           font-family: var(--font-subhead);
           font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #990000; margin-bottom: 14px;
+          color: #490000; margin-bottom: 14px;
         }
         .listing-title {
           font-family: var(--font-headline);
@@ -52,10 +52,10 @@ export default async function BriefPage({ searchParams }: { searchParams: Promis
           font-family: var(--font-subhead);
           font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
           padding: 9px 18px; border-radius: 999px; text-decoration: none;
-          border: 1px solid #d9d9d9; color: #000000; transition: all .15s;
+          border: 1px solid #b8b8ba; color: #000000; transition: all .15s;
         }
-        .brief-tab:hover { border-color: #990000; color: #990000; }
-        .brief-tab.active { background: #990000; border-color: #990000; color: #ffffff; }
+        .brief-tab:hover { border-color: #490000; color: #490000; }
+        .brief-tab.active { background: #490000; border-color: #490000; color: #ffffff; }
         .listing-empty { font-family: var(--font-headline); font-size: 22px; font-style: italic; color: #000000; }
         @media (max-width: 900px) { .listing-main { padding: 40px 24px 64px; } }
       `}</style>

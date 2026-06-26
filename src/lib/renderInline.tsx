@@ -3,7 +3,7 @@ import React from "react";
 // Renders inline markdown: [text](url) links, **bold**, _italic_, **_both_**
 const INLINE_RE = /\[([^\]]+)\]\(([^)]+)\)|\*\*_(.+?)_\*\*|\*\*(.+?)\*\*|_(.+?)_/g;
 
-export function renderInline(text: string, linkColor = "#8B0000"): React.ReactNode[] {
+export function renderInline(text: string, linkColor = "#490000"): React.ReactNode[] {
   const nodes: React.ReactNode[] = [];
   const regex = new RegExp(INLINE_RE.source, "g");
   let last = 0;

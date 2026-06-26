@@ -61,7 +61,7 @@ export default function SubscribeButton({
             style={{
               position: "relative",
               width: "100%", maxWidth: 440,
-              background: "#990000",
+              background: "#490000",
               color: "#ffffff",
               borderRadius: 4,
               padding: "44px 36px 38px",

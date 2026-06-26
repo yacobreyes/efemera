@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --crimson: #990000;
+  --crimson: #490000;
   --ink: #000000;
+  --earth: #392a22;
+  --rule: #b8b8ba;
   --paper: #ffffff;
-  --rule: #d9d9d9;
 
   /* Typography */
   --font-headline: "astoria", "Arial Narrow", sans-serif;
@@ -33,7 +34,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 { font-weight: 700; }
 
-.card-headline:hover { color: #990000 !important; transition: color 0.15s; }
+.card-headline:hover { color: #490000 !important; transition: color 0.15s; }
 
 /* ── Intro overlay ── */
 .intro-overlay {

@@ -9,9 +9,9 @@ import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
 import type { JSONContent } from "@tiptap/react";
 
-const CRIMSON = "#8B0000";
-const TEXT_DARK = "#1c2938";
-const BORDER = "#e1e8ed";
+const CRIMSON = "#490000";
+const TEXT_DARK = "#000000";
+const BORDER = "#b8b8ba";
 const FONT = "var(--font-inter), sans-serif";
 
 export interface ToolbarHandles {
@@ -150,7 +150,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
         .ProseMirror p:last-child { margin-bottom: 0; }
         .ProseMirror h2 { font-family: ${FONT}; font-size: 1.25rem; font-weight: 700; color: ${TEXT_DARK}; margin: 1.4em 0 0.4em; }
         .ProseMirror h3 { font-family: ${FONT}; font-size: 1.05rem; font-weight: 700; color: ${TEXT_DARK}; margin: 1.2em 0 0.3em; }
-        .ProseMirror blockquote { border-left: 3px solid ${CRIMSON}; margin: 1em 0; padding: 0.1em 0 0.1em 1.2em; font-style: italic; color: #526270; }
+        .ProseMirror blockquote { border-left: 3px solid ${CRIMSON}; margin: 1em 0; padding: 0.1em 0 0.1em 1.2em; font-style: italic; color: #392a22; }
         .ProseMirror ul { list-style-type: disc; padding-left: 1.4em; margin: 0 0 1em; }
         .ProseMirror ol { list-style-type: decimal; padding-left: 1.4em; margin: 0 0 1em; }
         .ProseMirror li { margin-bottom: 0.25em; display: list-item; }
@@ -180,9 +180,9 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
             />
             <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
               {editor.isActive("link") && (
-                <button type="button" onClick={() => { editor.chain().focus().unsetLink().run(); setLinkModal(false); }} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#657786" }}>Remove</button>
+                <button type="button" onClick={() => { editor.chain().focus().unsetLink().run(); setLinkModal(false); }} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#392a22" }}>Remove</button>
               )}
-              <button type="button" onClick={() => setLinkModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#657786" }}>Cancel</button>
+              <button type="button" onClick={() => setLinkModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#392a22" }}>Cancel</button>
               <button type="button" onClick={applyLink} style={{ background: CRIMSON, border: "none", borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "white" }}>Apply</button>
             </div>
           </div>
@@ -203,7 +203,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
               style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem", border: `1px solid ${BORDER}`, borderRadius: 4, outline: "none", width: "100%", boxSizing: "border-box" }}
             />
             <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setImageModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#657786" }}>Cancel</button>
+              <button type="button" onClick={() => setImageModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#392a22" }}>Cancel</button>
               <button type="button" onClick={applyImage} disabled={!imageUrl.trim()} style={{ background: CRIMSON, border: "none", borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "white", opacity: imageUrl.trim() ? 1 : 0.5 }}>Insert</button>
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
               style={{ fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem", border: `1px solid ${BORDER}`, borderRadius: 4, outline: "none", width: "100%", boxSizing: "border-box" }}
             />
             <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-              <button type="button" onClick={() => setEmbedModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#657786" }}>Cancel</button>
+              <button type="button" onClick={() => setEmbedModal(false)} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", cursor: "pointer", color: "#392a22" }}>Cancel</button>
               <button type="button" onClick={applyEmbed} disabled={!embedUrl.trim()} style={{ background: CRIMSON, border: "none", borderRadius: 4, padding: "0.4rem 0.8rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", color: "white", opacity: embedUrl.trim() ? 1 : 0.5 }}>Embed</button>
             </div>
           </div>
