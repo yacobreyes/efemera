@@ -155,7 +155,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
           ${img}
           <h1 style="${PADX}font-family:${SERIF};font-size:30px;font-weight:700;line-height:1.15;color:${CRIMSON};text-align:center;margin:0 0 16px;">${esc(card.headline ?? "")}</h1>
           ${card.byline ? `<p style="${PADX}font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};text-align:center;margin:0 0 16px;">By ${esc(card.byline)}</p>` : ""}
-          <div style="${PADX}">${renderBody(card.body ?? [])}</div>
+          <div style="${PADX}text-align:left;">${renderBody(card.body ?? [])}</div>
         </div>
       </div>`;
     }
@@ -175,7 +175,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
           </div>
           ${card.byline ? `<p style="${PADX}font-family:${FONT};font-size:13px;font-weight:700;letter-spacing:0.02em;color:${INK};margin:0 0 14px;">By ${esc(card.byline)}</p>` : ""}
           ${img}
-          <div style="${PADX}">${renderBody(card.body ?? [])}</div>
+          <div style="${PADX}text-align:left;">${renderBody(card.body ?? [])}</div>
         </div>
       </div>`;
     }
