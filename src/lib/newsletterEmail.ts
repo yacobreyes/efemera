@@ -21,7 +21,7 @@ const SERIF = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org").replace(/\/$/, "");
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

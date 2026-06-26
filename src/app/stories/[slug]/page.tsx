@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ? urlFor(post.image.asset).width(1200).height(630).fit("crop").auto("format").url()
     : null;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
   const postUrl = `${siteUrl}/stories/${slug}`;
   const ogImage = imageUrl
     ? { url: imageUrl, width: 1200, height: 630, alt: post.headline }
@@ -80,7 +80,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
   const post = await getPost(slug);
   if (!post) notFound();
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
 
 export const metadata: Metadata = {
   title: "Gangrey | A Literary Magazine",

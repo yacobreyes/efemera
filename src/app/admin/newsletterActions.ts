@@ -313,7 +313,7 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
     issue: nl.issue ?? "",
     cards: (nl.cards ?? []) as NlCard[],
   });
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app").replace(/\/$/, "");
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org").replace(/\/$/, "");
 
   // Resend's batch endpoint allows up to 100 distinct emails per call. Each
   // recipient gets their own open-tracking pixel so we know who's engaged.

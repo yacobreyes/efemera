@@ -3,7 +3,7 @@ import { getAllPosts } from "@/lib/sanity";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://efemera.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
   const posts = await getAllPosts();
 
   const items = posts

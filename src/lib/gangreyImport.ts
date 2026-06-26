@@ -398,7 +398,7 @@ export async function probeUrl(original: string, ts = "20161217014844") {
 
 export async function fetchWayback(timestamp: string, url: string): Promise<string> {
   const res = await fetchRetry(`${WB}/${timestamp}id_/${url}`, {
-    headers: { "User-Agent": "gangrey-archive-importer/1.0 (+mailto:yacob@efemera.org)" },
+    headers: { "User-Agent": "gangrey-archive-importer/1.0 (+mailto:yacob@gangrey.org)" },
   });
   if (!res.ok) throw new Error(`Wayback ${res.status}`);
   return res.text();
