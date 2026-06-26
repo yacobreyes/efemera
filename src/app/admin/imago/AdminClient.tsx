@@ -706,7 +706,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                             <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", minWidth: 0 }}>
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                               <div style={{ minWidth: 0 }}>
-                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</span>}</p>
+                                <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 400, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <span style={{ color: TEXT_MUTED }}>No headline</span>}</p>
                                 <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
                               </div>
                             </div>
