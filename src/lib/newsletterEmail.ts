@@ -215,11 +215,12 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
     </div>`;
 }
 
-// The full newsletter sheet — masthead, content, and unsubscribe footer.
-// Shared by the email and the web reader so both look identical.
-function renderNewsletterSheet(opts: NlOpts): string {
+// The full newsletter sheet — content + unsubscribe footer. The masthead
+// (wordmark) is included only in the email; the web reader omits it because the
+// site's MagHeader already shows the wordmark (avoids a double header).
+function renderNewsletterSheet(opts: NlOpts, includeMasthead: boolean): string {
   return `<div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
-    ${renderNewsletterContent(opts, { masthead: true })}
+    ${renderNewsletterContent(opts, { masthead: includeMasthead })}
     <div style="background:${CRIMSON};padding:20px 40px;text-align:center;">
       <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
       <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
@@ -227,10 +228,10 @@ function renderNewsletterSheet(opts: NlOpts): string {
   </div>`;
 }
 
-// Web reader version — used on /issues/[slug]. Renders the same masthead +
-// footer sheet as the sent email so the on-site render matches the inbox.
+// Web reader version — used on /issues/[slug]. No wordmark masthead (MagHeader
+// already shows it), so the on-site render isn't double-headed.
 export function renderNewsletterPageHtml(opts: NlOpts): string {
-  return renderNewsletterSheet(opts);
+  return renderNewsletterSheet(opts, false);
 }
 
 // Email version — same sheet, wrapped with the email document shell (preview
@@ -247,6 +248,6 @@ export function renderNewsletterHtml(opts: NlOpts): string {
 </style></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
-  ${renderNewsletterSheet(opts)}
+  ${renderNewsletterSheet(opts, true)}
 </body></html>`;
 }
