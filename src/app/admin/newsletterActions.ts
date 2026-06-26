@@ -318,24 +318,15 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
 
   const resend = new Resend(apiKey);
 
-  // Resend's batch endpoint allows up to 100 distinct emails per call. Each
-  // recipient gets their own open-tracking pixel so we know who's engaged.
   const emails = subscribers.map(s => s.email).filter(Boolean);
-  const chunks: string[][] = [];
-  for (let i = 0; i < emails.length; i += 100) chunks.push(emails.slice(i, i + 100));
-
   let sent = 0;
   const errors: string[] = [];
-  for (const chunk of chunks) {
-    const batch = chunk.map(email => ({
-      from,
-      to: [email],
-      subject: nl.subject,
-      html: `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}&nid=${encodeURIComponent(id)}" width="1" height="1" alt="" style="display:none" />`,
-    }));
-    const { error } = await resend.batch.send(batch);
-    if (error) errors.push(error.message);
-    else sent += chunk.length;
+
+  for (const email of emails) {
+    const html = `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}&nid=${encodeURIComponent(id)}" width="1" height="1" alt="" style="display:none" />`;
+    const { error } = await resend.emails.send({ from, to: [email], subject: nl.subject, html });
+    if (error) errors.push(`${email}: ${error.message}`);
+    else sent++;
   }
 
   if (errors.length && sent === 0) return { ok: false, error: `Send failed: ${errors[0]}` };
