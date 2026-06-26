@@ -16,8 +16,11 @@ const TEXT_MUTED = "#392a22";
 const CREAM = "#ffffff";
 const PAPER_DARK = "#ffffff";
 const LINE = "#b8b8ba";
-const FONT = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-const SERIF = "'Cormorant Garamond', Georgia, 'Times New Roman', serif";
+// Match the editor/site typography. Browser-based renders (the preview iframe
+// and the /issues web reader) load Astoria via the Adobe Typekit link injected
+// below; email clients that can't load it fall back to the listed system fonts.
+const FONT = "'astoria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const SERIF = "'astoria', Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
@@ -163,7 +166,7 @@ function renderNewsletterContent({ intro, author, volume, issue, cards }: NlOpts
 
   const masthead = opts.masthead
     ? `<div style="background:${CREAM};padding:1.25rem 0;text-align:center;border-bottom:1px solid ${LINE};">
-         <span style="font-family:Georgia,serif;font-size:48px;font-weight:400;color:#000000;line-height:1;">Gangrey Magazine</span>
+         <span style="font-family:'amador',Georgia,serif;font-size:48px;font-weight:400;color:#000000;line-height:1;">Gangrey Magazine</span>
        </div>`
     : "";
 
@@ -193,13 +196,13 @@ export function renderNewsletterPageHtml(opts: NlOpts): string {
 // text, masthead, unsubscribe footer).
 export function renderNewsletterHtml(opts: NlOpts): string {
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css"></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
   <div style="width:100%;margin:0 auto;background:${CREAM};">
     ${renderNewsletterContent(opts, { masthead: true })}
     <div style="background:${CRIMSON};padding:20px 2.5rem;text-align:center;">
-      <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to efemera</p>
+      <p style="font-family:${FONT};font-size:10px;color:#ffffff;letter-spacing:0.2em;text-transform:uppercase;margin:0 0 6px;">You're receiving this because you subscribed to Gangrey</p>
       <a href="${SITE_URL}/unsubscribe" target="_blank" rel="noopener" style="font-family:${FONT};font-size:10px;font-weight:600;color:#ffffff;letter-spacing:0.18em;text-transform:uppercase;text-decoration:none;">Unsubscribe</a>
     </div>
   </div>
