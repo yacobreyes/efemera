@@ -7,7 +7,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
 export const metadata: Metadata = {
   title: "Gangrey | A Literary Magazine",
   description: "True stories for the time you have.",
-  icons: { icon: "/favicon.png" },
+  icons: { icon: "/favicon.png", shortcut: "/favicon.png", apple: "/favicon.png" },
   metadataBase: new URL(siteUrl),
   alternates: {
     types: { "application/rss+xml": `${siteUrl}/feed.xml` },
