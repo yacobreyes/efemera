@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { straightenQuotes } from "@/lib/straighten";
 
 interface Comment { _id: string; name: string; text: string; _createdAt: string; }
 
@@ -27,7 +28,7 @@ export default function CommentSection({ slug }: { slug: string }) {
       const res = await fetch("/api/comments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, name: name.trim(), text: text.trim() }),
+        body: JSON.stringify({ slug, name: straightenQuotes(name.trim()), text: straightenQuotes(text.trim()) }),
       });
       if (res.ok) {
         try { localStorage.setItem("efemera_commenter_name", name.trim()); } catch {}
@@ -65,8 +66,8 @@ export default function CommentSection({ slug }: { slug: string }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
             {comments.map(c => (
               <div key={c._id} style={{ background: "#ffffff", border: "1px solid #b8b8ba", borderRadius: 4, padding: "0.75rem 1rem" }}>
-                <p style={{ fontFamily: "var(--font-subhead)", fontWeight: 600, fontSize: "0.78rem", color: "#490000", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{c.name}</p>
-                <p style={{ fontFamily: "var(--font-subhead)", fontSize: "0.95rem", lineHeight: 1.6, color: "#000000", margin: 0 }}>{c.text}</p>
+                <p style={{ fontFamily: "var(--font-subhead)", fontWeight: 600, fontSize: "0.78rem", color: "#490000", margin: "0 0 0.3rem", textTransform: "uppercase", letterSpacing: "0.05em" }}>{straightenQuotes(c.name)}</p>
+                <p style={{ fontFamily: "var(--font-subhead)", fontSize: "0.95rem", lineHeight: 1.6, color: "#000000", margin: 0 }}>{straightenQuotes(c.text)}</p>
               </div>
             ))}
           </div>

@@ -77,6 +77,19 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
       Youtube.configure({ width: 640, height: 360, nocookie: true }),
     ],
     content: initialContent,
+    onCreate({ editor }) {
+      // The StraightQuotes plugin only fires on doc changes, so existing/pasted
+      // content loaded on open keeps its curly quotes until edited. Straighten
+      // the whole doc once up front so opened drafts match house style.
+      let tr = editor.state.tr;
+      let changed = false;
+      editor.state.doc.descendants((node, pos) => {
+        if (!node.isText || !node.text || !CURLY.test(node.text)) return;
+        tr = tr.insertText(straightenQuotes(node.text), pos, pos + node.text.length);
+        changed = true;
+      });
+      if (changed) editor.view.dispatch(tr.setMeta("addToHistory", false));
+    },
     onUpdate({ editor }) {
       onChange(editor.getJSON());
     },
