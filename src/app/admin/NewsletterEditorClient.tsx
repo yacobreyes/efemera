@@ -553,6 +553,7 @@ export default function NewsletterEditorClient({
             <iframe title="Newsletter preview" style={{ flex: 1, border: "none", width: "100%" }}
               srcDoc={renderNewsletterHtml({
                 subject: nlSubject, preview: nlPreview, intro: nlIntro, author: nlAuthor, volume: nlVolume, issue: nlIssue,
+                baseUrl: typeof window !== "undefined" ? window.location.origin : undefined,
                 cards: nlCards.map(c => ({ headline: c.headline, body: tiptapToPortableText(c.doc), image: c.image ? { url: c.image.url, caption: c.image.caption, alt: c.image.alt } : null, cardType: c.cardType, byline: c.byline })),
               })} />
           </div>
@@ -740,8 +741,8 @@ export default function NewsletterEditorClient({
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#ffffff", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
           {/* Masthead */}
-          <div style={{ background: "#ffffff", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
-            <img src="/Wordmark.png" alt="Gangrey" style={{ maxWidth: 220, height: "auto", display: "block", margin: "0 auto" }} />
+          <div style={{ background: "#ffffff", padding: "1.5rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
+            <img src="/Wordmark.png" alt="Gangrey" style={{ width: "100%", maxWidth: 380, height: "auto", display: "block", margin: "0 auto" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           {/* Dateline + intro in one crimson band */}

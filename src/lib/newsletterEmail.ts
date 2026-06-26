@@ -99,7 +99,7 @@ function effectiveType(card: NlCard, idx: number): "narratives" | "essays" | "mi
   return "essays";
 }
 
-type NlOpts = { subject: string; preview: string; intro?: string; author?: string; volume?: string; issue?: string; cards: NlCard[] };
+type NlOpts = { subject: string; preview: string; intro?: string; author?: string; volume?: string; issue?: string; cards: NlCard[]; baseUrl?: string };
 
 // Single source of truth — produces the exact markup the admin editor canvas
 // renders. Both the web reader (/issues/[slug]) and the email reuse this so the
@@ -111,6 +111,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   const intro = raw.intro ? straightenQuotes(raw.intro) : raw.intro;
   const author = raw.author ? straightenQuotes(raw.author) : raw.author;
   const { volume, issue } = raw;
+  const base = (raw.baseUrl ?? SITE_URL).replace(/\/$/, "");
   const cards = raw.cards.map(c => ({
     ...c,
     headline: c.headline ? straightenQuotes(c.headline) : c.headline,
@@ -177,8 +178,8 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   }).join("");
 
   const masthead = opts.masthead
-    ? `<div style="background:${CREAM};padding:1.25rem 0;text-align:center;border-bottom:1px solid ${LINE};">
-         <img src="${SITE_URL}/Wordmark.png" alt="Gangrey" style="max-width:220px;height:auto;display:block;margin:0 auto;" />
+    ? `<div style="background:${CREAM};padding:1.5rem 0;text-align:center;border-bottom:1px solid ${LINE};">
+         <img src="${base}/Wordmark.png" alt="Gangrey" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;" />
        </div>`
     : "";
 
