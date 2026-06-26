@@ -21,8 +21,7 @@
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
 html { scrollbar-gutter: stable; }
-html { background: #b8b8ba; }
-body { background: #ffffff; }
+html, body { background: #b8b8ba; }
 
 body {
   margin: 0;
