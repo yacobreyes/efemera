@@ -28,6 +28,7 @@ function truncate(text: string, max = 180) {
 
 function sectionLabel(section: SanityPost["section"]) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
+  if (section === "Gangrey Redux") return "The Archive";
   return section;
 }
 
@@ -64,8 +65,7 @@ export default function Feed({
     : [];
 
   const hero = nonGangrey[0];
-  // 3 non-Gangrey cards + 1 Gangrey Redux card
-  const cards = [...nonGangrey.slice(1, 4), ...(gangrey[0] ? [gangrey[0]] : [])];
+  const cards = nonGangrey.slice(1, 4);
 
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1400).height(600).fit("crop").auto("format").url()
@@ -84,7 +84,6 @@ export default function Feed({
         * { box-sizing: border-box; }
         body {
           margin: 0;
-          background: #ffffff;
           color: var(--ink);
           font-family: var(--font-headline);
           -webkit-font-smoothing: antialiased;
@@ -440,7 +439,7 @@ export default function Feed({
       {!q && cards.length > 0 && (
         <section className="ef-section">
           <div className="ef-section-head">
-            <h2>Latest from the Collective</h2>
+            <h2>Latest from the Magazine</h2>
             <Link href="/latest">View all stories →</Link>
           </div>
           <div className="ef-grid">
