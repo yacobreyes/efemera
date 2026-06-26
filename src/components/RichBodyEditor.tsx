@@ -2,12 +2,41 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
 import type { JSONContent } from "@tiptap/react";
+import { straightenQuotes } from "@/lib/straighten";
+
+const CURLY = /[‘’‚‛′“”„‟″]/;
+
+// Forces straight quotes: rewrites any curly/smart quote the moment it lands in
+// the document — whether typed, OS-substituted, or pasted.
+const StraightQuotes = Extension.create({
+  name: "straightQuotes",
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey("straightQuotes"),
+        appendTransaction(transactions, _oldState, newState) {
+          if (!transactions.some(t => t.docChanged)) return null;
+          let tr = newState.tr;
+          let changed = false;
+          newState.doc.descendants((node, pos) => {
+            if (!node.isText || !node.text || !CURLY.test(node.text)) return;
+            tr = tr.insertText(straightenQuotes(node.text), pos, pos + node.text.length);
+            changed = true;
+          });
+          return changed ? tr : null;
+        },
+      }),
+    ];
+  },
+});
 
 const CRIMSON = "#490000";
 const TEXT_DARK = "#000000";
@@ -41,6 +70,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
     immediatelyRender: false,
     extensions: [
       StarterKit,
+      StraightQuotes,
       Placeholder.configure({ placeholder }),
       Link.configure({ openOnClick: false, autolink: true }),
       Image.configure({ inline: false }),

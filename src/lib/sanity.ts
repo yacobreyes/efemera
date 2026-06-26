@@ -1,4 +1,5 @@
 import { createClient } from "next-sanity";
+import { straightenQuotes, straightenBlocks } from "./straighten";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SanityImageSource = any;
 
@@ -92,25 +93,49 @@ const POSTS_QUERY = `*[_type == "post" && (
   (status == "scheduled" && scheduledAt <= now())
 )] | order(date desc) { ${POST_FIELDS} }`;
 
+const sQ = (s?: string) => (typeof s === "string" ? straightenQuotes(s) : s);
+
+// Enforce straight quotes on the way out so existing/archive content (which
+// was imported with curly quotes) renders in house style everywhere.
+function straightenPost(p: SanityPost): SanityPost {
+  return {
+    ...p,
+    headline: sQ(p.headline) as string,
+    subheadline: sQ(p.subheadline) as string,
+    byline: sQ(p.byline) as string,
+    seoHeadline: sQ(p.seoHeadline),
+    socialHeadline: sQ(p.socialHeadline),
+    socialDescription: sQ(p.socialDescription),
+    searchText: sQ(p.searchText),
+    body: p.body ? straightenBlocks(p.body) : p.body,
+    image: p.image
+      ? { ...p.image, caption: sQ(p.image.caption), alt: sQ(p.image.alt) }
+      : p.image,
+  };
+}
+
 export async function getAllPosts(): Promise<SanityPost[]> {
-  return client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
+  const posts: SanityPost[] = await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
+  return posts.map(straightenPost);
 }
 
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
-  return client.fetch(
+  const posts: SanityPost[] = await client.fetch(
     `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_LIST_FIELDS} }`,
     {},
     { cache: "no-store" }
   );
+  return posts.map(straightenPost);
 }
 
 export async function getPost(slug: string): Promise<SanityPost | null> {
-  return client.fetch(
+  const post: SanityPost | null = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0] { ${POST_FIELDS} }`,
     { slug },
     { next: { revalidate: 60 } }
   );
+  return post ? straightenPost(post) : null;
 }
 
 export async function getAllSlugs(): Promise<string[]> {

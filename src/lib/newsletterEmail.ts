@@ -1,6 +1,7 @@
 // Renders newsletter cards (portable text) into a self-contained HTML email.
 // Kept dependency-free: a small serializer for the block types our editor emits.
 import type { PortableTextBlock } from "@portabletext/types";
+import { straightenQuotes, straightenBlocks } from "./straighten";
 
 export type NlCard = {
   headline?: string;
@@ -105,7 +106,18 @@ type NlOpts = { subject: string; preview: string; intro?: string; author?: strin
 // preview, the sent email, and the editor all look identical. The only knob is
 // whether to include the cream wordmark masthead (the web reader omits it
 // because MagHeader already shows the wordmark above it).
-function renderNewsletterContent({ intro, author, volume, issue, cards }: NlOpts, opts: { masthead: boolean }): string {
+function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): string {
+  // Enforce straight quotes across all newsletter text (matches site house style).
+  const intro = raw.intro ? straightenQuotes(raw.intro) : raw.intro;
+  const author = raw.author ? straightenQuotes(raw.author) : raw.author;
+  const { volume, issue } = raw;
+  const cards = raw.cards.map(c => ({
+    ...c,
+    headline: c.headline ? straightenQuotes(c.headline) : c.headline,
+    byline: c.byline ? straightenQuotes(c.byline) : c.byline,
+    body: c.body ? straightenBlocks(c.body) : c.body,
+    image: c.image ? { ...c.image, caption: c.image.caption ? straightenQuotes(c.image.caption) : c.image.caption } : c.image,
+  }));
   const date = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   const sectionLabel = (name: string) =>
