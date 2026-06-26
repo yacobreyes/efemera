@@ -82,7 +82,6 @@ export default function Feed({
           --line: #b8b8ba;
         }
         * { box-sizing: border-box; }
-        html { background: #b8b8ba; }
         body {
           margin: 0;
           background: #ffffff;
