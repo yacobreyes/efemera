@@ -17,11 +17,13 @@ const TEXT_MUTED = "#392a22";
 const CREAM = "#ffffff";
 const PAPER_DARK = "#ffffff";
 const LINE = "#b8b8ba";
-// Match the editor/site typography. Browser-based renders (the preview iframe
-// and the /issues web reader) load Astoria via the Adobe Typekit link injected
-// below; email clients that can't load it fall back to the listed system fonts.
-const FONT = "'astoria', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
-const SERIF = "'astoria', Georgia, 'Times New Roman', serif";
+// Email + web-reader typography. Astoria is deliberately NOT used here: mail
+// clients (Gmail especially) load Astoria but render its straight apostrophe/
+// quote glyphs as curls, and they strip the @font-face unicode-range override
+// that fixes that on the website. Georgia/system fonts draw straight quotes
+// everywhere. The brand is carried by the wordmark image in the masthead.
+const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+const SERIF = "Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
@@ -185,10 +187,12 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
   return `${masthead}
     <div style="background:${CRIMSON};padding:10px 40px 24px;text-align:center;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-        <span style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</span>
-        <span style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " · " : ""}${issue ? `No. ${esc(issue)}` : ""}</span>
-      </div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:18px;">
+        <tr>
+          <td align="left" style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${date}</td>
+          <td align="right" style="font-family:${FONT};font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:${CREAM};">${volume ? `Vol. ${esc(volume)}` : ""}${volume && issue ? " · " : ""}${issue ? `No. ${esc(issue)}` : ""}</td>
+        </tr>
+      </table>
       ${intro ? `<div style="max-width:440px;margin:0 auto;">
         <p style="font-family:${SERIF};font-size:16px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>
         ${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;color:${CREAM};opacity:0.8;margin:10px 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
