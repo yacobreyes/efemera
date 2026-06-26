@@ -57,8 +57,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
         .mag-nav-group a:hover { color: #490000; }
         .mag-nav-group.right { justify-content: flex-end; gap: 28px; }
-        .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; }
-        .mag-logo img { height: 58px; width: auto; display: block; }
+        .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; }
+        .mag-logo-text {
+          font-family: "amador", Georgia, serif;
+          font-size: 32px;
+          font-weight: 400;
+          color: #000000;
+          letter-spacing: 0;
+          line-height: 1;
+          display: block;
+        }
         .mag-nav-cta {
           background: #490000;
           color: #fff !important;
@@ -173,7 +181,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             order: 2;
             justify-self: unset;
           }
-          .mag-logo img { height: 40px; margin: 0 auto; }
+          .mag-logo-text { font-size: 24px; }
           .mag-mob-sub {
             display: block;
             order: 3;
@@ -261,12 +269,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       {onLogoClick ? (
         <button className="mag-logo" onClick={onLogoClick} aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Crimson Wordmark.png" alt="efemera" />
+          <span className="mag-logo-text">Gangrey Magazine</span>
         </button>
       ) : (
         <Link href="/" className="mag-logo" aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/Crimson Wordmark.png" alt="efemera" />
+          <span className="mag-logo-text">Gangrey Magazine</span>
         </Link>
       )}
 

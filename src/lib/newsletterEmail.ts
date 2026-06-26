@@ -163,7 +163,7 @@ function renderNewsletterContent({ intro, author, volume, issue, cards }: NlOpts
 
   const masthead = opts.masthead
     ? `<div style="background:${CREAM};padding:1.25rem 0;text-align:center;border-bottom:1px solid ${LINE};">
-         <img src="${SITE_URL}/Crimson%20Wordmark.png" alt="efemera" style="height:58px;width:auto;display:inline-block;" />
+         <span style="font-family:Georgia,serif;font-size:32px;font-weight:400;color:#000000;line-height:1;">Gangrey Magazine</span>
        </div>`
     : "";
 

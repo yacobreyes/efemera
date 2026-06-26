@@ -739,10 +739,9 @@ export default function NewsletterEditorClient({
         {/* Magazine page — 600px to match the email's inbox-safe width */}
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#ffffff", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
-          {/* Masthead — crimson wordmark on cream, like site header */}
+          {/* Masthead */}
           <div style={{ background: "#ffffff", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Crimson Wordmark.png" alt="efemera" style={{ height: 58, width: "auto", display: "inline-block" }} />
+            <span style={{ fontFamily: '"amador", Georgia, serif', fontSize: 32, fontWeight: 400, color: "#000000", lineHeight: 1 }}>Gangrey Magazine</span>
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           {/* Dateline + intro in one crimson band */}
