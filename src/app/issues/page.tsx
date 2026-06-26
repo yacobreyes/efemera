@@ -80,7 +80,7 @@ export default async function IssuesPage() {
       <MagHeader />
       <main className="issues-main">
         <div className="issues-head">
-          <h1 className="issues-title">We&#x27;ve got issues</h1>
+          <h1 className="issues-title">We have issues</h1>
         </div>
         {issues.length > 0 ? (
           <div className="issues-list">
