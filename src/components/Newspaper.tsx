@@ -66,6 +66,7 @@ export default function Feed({
 
   const hero = nonGangrey[0];
   const cards = nonGangrey.slice(1, 4);
+  const archiveFeature = gangrey.find(p => p.slug === "starting-somewhere") ?? null;
 
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1400).height(600).fit("crop").auto("format").url()
@@ -443,7 +444,8 @@ export default function Feed({
             <Link href="/latest">View all stories →</Link>
           </div>
           <div className="ef-grid">
-            {cards.map(post => {
+            {[...cards, ...(archiveFeature ? [archiveFeature] : [])].map(post => {
+              const isArchive = post.section === "Gangrey Redux";
               const imgSrc = post.image?.asset
                 ? urlFor(post.image.asset).width(600).height(445).fit("crop").auto("format").url()
                 : null;
@@ -456,7 +458,12 @@ export default function Feed({
                       : <div style={{ width: "100%", height: "100%", background: "var(--paper-dark)" }} />
                     }
                   </Link>
-                  <div className="ef-label">{sectionLabel(post.section)}</div>
+                  <div className="ef-label">
+                    {isArchive
+                      ? <span>From the Archive</span>
+                      : sectionLabel(post.section)
+                    }
+                  </div>
                   <h3>
                     <Link href={`/stories/${post.slug}`}>{post.headline}</Link>
                   </h3>
