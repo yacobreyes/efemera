@@ -22,6 +22,7 @@
 html, body { overflow-x: hidden; max-width: 100vw; }
 html { scrollbar-gutter: stable; }
 html, body { background: #ffffff; }
+html { background-color: #b8b8ba; }
 
 body {
   margin: 0;
