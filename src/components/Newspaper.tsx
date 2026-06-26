@@ -66,7 +66,10 @@ export default function Feed({
 
   const hero = nonGangrey[0];
   const cards = nonGangrey.slice(1, 4);
-  const archiveFeature = gangrey.find(p => p.slug === "starting-somewhere") ?? null;
+  const archiveFeature = gangrey.find(p =>
+    p.slug === "starting-somewhere" ||
+    p.headline?.toLowerCase().includes("starting somewhere")
+  ) ?? null;
 
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1400).height(600).fit("crop").auto("format").url()

@@ -16,7 +16,7 @@ const CRIMSON = "#490000";
 const BORDER = "#b8b8ba";
 const TEXT_DARK = "#000000";
 const TEXT_MUTED = "#392a22";
-const FONT = "var(--font-inter), sans-serif";
+const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 const INPUT: React.CSSProperties = {
   fontFamily: FONT, fontSize: "0.9rem", padding: "0.5rem 0.7rem",
