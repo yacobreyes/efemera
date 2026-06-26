@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { uploadImage } from "@/app/admin/actions";
+import { straightenQuotes } from "@/lib/straighten";
 
 const CRIMSON = "#490000";
 const BORDER = "#b8b8ba";
@@ -117,8 +118,8 @@ export default function ImagePickerModal({
                 <div style={{ width: 260, flexShrink: 0, borderLeft: `1px solid ${BORDER}`, padding: "1rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={selected.url} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 6 }} />
-                  <div><label style={LABEL}>Caption</label><input style={INPUT} value={caption} onChange={e => setCaption(e.target.value)} placeholder="Add a caption…" /></div>
-                  <div><label style={LABEL}>Alt text</label><input style={INPUT} value={alt} onChange={e => setAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                  <div><label style={LABEL}>Caption</label><input style={INPUT} value={caption} onChange={e => setCaption(straightenQuotes(e.target.value))} placeholder="Add a caption…" /></div>
+                  <div><label style={LABEL}>Alt text</label><input style={INPUT} value={alt} onChange={e => setAlt(straightenQuotes(e.target.value))} placeholder="Describe this image…" /></div>
                 </div>
               )}
             </>
@@ -149,10 +150,10 @@ export default function ImagePickerModal({
               <div style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
                 <div>
                   <label style={LABEL}>Caption <span style={{ color: CRIMSON }}>*</span></label>
-                  <input style={INPUT} value={caption} onChange={e => setCaption(e.target.value)} placeholder="Credit the original source…" />
+                  <input style={INPUT} value={caption} onChange={e => setCaption(straightenQuotes(e.target.value))} placeholder="Credit the original source…" />
                   <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: "0.3rem 0 0" }}>Required before using this image</p>
                 </div>
-                <div><label style={LABEL}>Alt text</label><input style={INPUT} value={alt} onChange={e => setAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                <div><label style={LABEL}>Alt text</label><input style={INPUT} value={alt} onChange={e => setAlt(straightenQuotes(e.target.value))} placeholder="Describe this image…" /></div>
               </div>
             </div>
           )}

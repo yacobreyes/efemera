@@ -9,6 +9,7 @@ import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert"
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
+import { straightenQuotes } from "@/lib/straighten";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
@@ -478,13 +479,13 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   placeholder="Type your headline"
                   style={{ fontFamily: FONT, fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}
                   value={form.headline}
-                  onChange={e => updateForm({ headline: e.target.value, ...(post.slug.startsWith("untitled-") ? { slug: slugify(e.target.value) || post.slug } : {}) })}
+                  onChange={e => { const v = straightenQuotes(e.target.value); updateForm({ headline: v, ...(post.slug.startsWith("untitled-") ? { slug: slugify(v) || post.slug } : {}) }); }}
                 />
                 <input
                   placeholder="Type your subheadline"
                   style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4, padding: 0, margin: 0 }}
                   value={form.subheadline}
-                  onChange={e => updateForm({ subheadline: e.target.value })}
+                  onChange={e => updateForm({ subheadline: straightenQuotes(e.target.value) })}
                 />
               </div>
               {!imagePreview ? (
@@ -496,8 +497,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={imagePreview} alt="" style={{ width: "100%", maxHeight: 320, objectFit: "cover", borderRadius: 6 }} />
                   <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-                    <input placeholder="Caption" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageCaption} onChange={e => setImageCaption(e.target.value)} />
-                    <input placeholder="Alt text" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageAlt} onChange={e => setImageAlt(e.target.value)} />
+                    <input placeholder="Caption" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageCaption} onChange={e => setImageCaption(straightenQuotes(e.target.value))} />
+                    <input placeholder="Alt text" style={{ ...INPUT, flex: 1, minWidth: 140 }} value={imageAlt} onChange={e => setImageAlt(straightenQuotes(e.target.value))} />
                     <button type="button" onClick={openImageModal} style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.3rem 0.75rem", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>Change</button>
                     <button type="button" onClick={() => { setImagePreview(""); setImageAssetId(""); }} style={{ background: "none", border: "none", fontFamily: FONT, fontSize: "0.8rem", cursor: "pointer", color: TEXT_MUTED }}>Remove</button>
                   </div>
@@ -524,7 +525,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                   <option value="Gangrey Redux">The Archive</option>
                 </select>
               </div>
-              <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: e.target.value })} /></div>
+              <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: straightenQuotes(e.target.value) })} /></div>
               <div>
                 <label style={LABEL}>Publish date</label>
                 <input type="date" style={INPUT} value={(form.date || "").slice(0, 10)} onChange={e => updateForm({ date: e.target.value })} />
@@ -652,7 +653,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                     <div style={{ width: 260, flexShrink: 0, borderLeft: `1px solid ${BORDER}`, padding: "1rem", overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={bodySelectedAsset.url} alt="" style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 6 }} />
-                      <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                      <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(straightenQuotes(e.target.value))} placeholder="Describe this image…" /></div>
                     </div>
                   )}
                 </>
@@ -679,7 +680,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                     )}
                   </div>
                   <div style={{ width: 260, flexShrink: 0, display: "flex", flexDirection: "column", gap: "1rem" }}>
-                    <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(e.target.value)} placeholder="Describe this image…" /></div>
+                    <div><label style={LABEL}>Alt text</label><input style={INPUT} value={bodyUploadAlt} onChange={e => setBodyUploadAlt(straightenQuotes(e.target.value))} placeholder="Describe this image…" /></div>
                   </div>
                 </div>
               )}
