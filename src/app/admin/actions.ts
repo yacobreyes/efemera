@@ -50,7 +50,7 @@ export async function straightenAllPosts(): Promise<{ scanned: number; updated: 
   if (!res.ok) throw new Error(`Query failed: ${await res.text()}`);
   const { result } = await res.json() as { result: Record<string, unknown>[] };
 
-  const CURLY = /[‘’‚‛′“”„‟″]/;
+  const CURLY = /[‘’‚‛′‵ʼʻʽ＇❛❜“”„‟″‶＂❝❞]/;
   const hasCurly = (v: unknown): boolean => {
     if (typeof v === "string") return CURLY.test(v);
     if (Array.isArray(v)) return v.some(hasCurly);

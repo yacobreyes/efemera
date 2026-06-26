@@ -2,8 +2,12 @@
 // apostrophes only (per house style) — dashes and ellipses are left alone.
 export function straightenQuotes(input: string): string {
   return input
-    .replace(/[‘’‚‛′]/g, "'")  // ' ' ‚ ‛ ′ → '
-    .replace(/[“”„‟″]/g, '"'); // " " „ ‟ ″ → "
+    // Single: curly ‘ ’, low-9 ‚, high-reversed-9 ‛, prime ′ ‵, modifier
+    // apostrophe/turned-comma ʼ ʻ ʽ, fullwidth ＇, ornamental ❛ ❜
+    .replace(/[‘’‚‛′‵ʼʻʽ＇❛❜]/g, "'")
+    // Double: curly “ ”, low-9 „, high-reversed-9 ‟, double-prime ″ ‶,
+    // fullwidth ＂, ornamental ❝ ❞
+    .replace(/[“”„‟″‶＂❝❞]/g, '"');
 }
 
 // Recursively straighten the text of every span in a portable-text block array.

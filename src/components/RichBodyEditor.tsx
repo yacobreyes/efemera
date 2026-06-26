@@ -14,7 +14,7 @@ import Youtube from "@tiptap/extension-youtube";
 import type { JSONContent } from "@tiptap/react";
 import { straightenQuotes } from "@/lib/straighten";
 
-const CURLY = /[‘’‚‛′“”„‟″]/;
+const CURLY = /[‘’‚‛′‵ʼʻʽ＇❛❜“”„‟″‶＂❝❞]/;
 
 // Scan the whole doc and replace every curly quote with its straight equivalent.
 // Returns true if it dispatched a change. Position math is safe because every
