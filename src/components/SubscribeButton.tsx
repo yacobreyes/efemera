@@ -80,7 +80,7 @@ export default function SubscribeButton({
             >×</button>
 
             <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
-              Join the Collective.
+              Subscribe to Gangrey.
             </h2>
             <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
               Get our latest issue delivered to your inbox.
