@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+/* The "astoria" display face (Adobe Fonts) draws the straight apostrophe
+   (U+0027) and straight double quote (U+0022) as curly typographic glyphs.
+   That's why quotes looked curly everywhere — site and CMS, desktop and
+   mobile — no matter how the text data was straightened: the font itself
+   was substituting the shapes. Render ONLY those two codepoints from a
+   system sans (which draws them straight), and let astoria handle the rest.
+   Listed first in every --font-* stack below so it wins for U+0022/U+0027. */
+@font-face {
+  font-family: "StraightQuotes";
+  src: local("Arial"), local("Helvetica Neue"), local("Helvetica"),
+       local("Roboto"), local("Segoe UI"), local("Liberation Sans");
+  unicode-range: U+0022, U+0027;
+}
+
 :root {
   --crimson: #490000;
   --ink: #000000;
@@ -8,9 +22,9 @@
   --paper: #ffffff;
 
   /* Typography */
-  --font-headline: "astoria", "Arial Narrow", sans-serif;
-  --font-subhead:  "astoria", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-body:     "astoria", Georgia, sans-serif;
+  --font-headline: "StraightQuotes", "astoria", "Arial Narrow", sans-serif;
+  --font-subhead:  "StraightQuotes", "astoria", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body:     "StraightQuotes", "astoria", Georgia, sans-serif;
 
   /* Legacy aliases — keep so admin/editor styles still compile */
   --font-inter:      var(--font-subhead);

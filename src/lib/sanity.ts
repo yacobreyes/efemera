@@ -169,10 +169,15 @@ export interface SanityIssue {
 }
 
 export async function getAllIssues(): Promise<SanityIssue[]> {
-  return client.fetch(
+  const issues: SanityIssue[] = await client.fetch(
     `*[_type == "issue"] | order(publishedAt desc) { _id, "slug": slug.current, number, title, description, publishedAt, url, newsletterId }`,
     {}, { next: { revalidate: 60 } }
   );
+  return issues.map(i => ({
+    ...i,
+    title: sQ(i.title) as string,
+    description: sQ(i.description),
+  }));
 }
 
 export interface SanityAbout {
@@ -180,7 +185,10 @@ export interface SanityAbout {
 }
 
 export async function getAboutPage(): Promise<SanityAbout | null> {
-  return client.fetch(`*[_type == "about" && _id == "about"][0] { body }`, {}, { next: { revalidate: 300 } });
+  const about: SanityAbout | null = await client.fetch(
+    `*[_type == "about" && _id == "about"][0] { body }`, {}, { next: { revalidate: 300 } }
+  );
+  return about?.body ? { ...about, body: straightenBlocks(about.body) } : about;
 }
 
 export interface SanityLately {
@@ -195,17 +203,32 @@ export interface SanityLately {
 }
 
 export async function getLately(): Promise<SanityLately | null> {
-  return client.fetch(
+  const lately: SanityLately | null = await client.fetch(
     `*[_type == "lately" && _id == "lately"][0] { reading, readingAuthor, readingUrl, listening, listeningArtist, listeningUrl, watching, watchingUrl }`,
     {}, { next: { revalidate: 300 } }
   );
+  if (!lately) return lately;
+  return {
+    ...lately,
+    reading: sQ(lately.reading),
+    readingAuthor: sQ(lately.readingAuthor),
+    listening: sQ(lately.listening),
+    listeningArtist: sQ(lately.listeningArtist),
+    watching: sQ(lately.watching),
+  };
 }
 
 export interface SanityWelcome { headline: string; body: string; }
 
 export async function getWelcome(): Promise<SanityWelcome | null> {
-  return client.fetch(
+  const welcome: SanityWelcome | null = await client.fetch(
     `*[_type == "welcome" && _id == "welcome"][0]{ headline, body }`,
     {}, { next: { revalidate: 60 } }
   );
+  if (!welcome) return welcome;
+  return {
+    ...welcome,
+    headline: sQ(welcome.headline) as string,
+    body: sQ(welcome.body) as string,
+  };
 }

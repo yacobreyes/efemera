@@ -377,6 +377,7 @@ export async function saveAbout(formData: FormData) {
   } catch {
     body = parseBody(raw);
   }
+  if (Array.isArray(body)) body = straightenBlocks(body);
   await mutate([{ createOrReplace: { _id: "about", _type: "about", body } }]);
 }
 
@@ -404,7 +405,7 @@ export async function clearCloudDraft() {
 
 export async function saveWelcome(headline: string, body: string) {
   await requireAuth();
-  await mutate([{ createOrReplace: { _id: "welcome", _type: "welcome", headline, body } }]);
+  await mutate([{ createOrReplace: { _id: "welcome", _type: "welcome", headline: sq(headline), body: sq(body) } }]);
 }
 
 export async function saveLately(formData: FormData) {
@@ -419,7 +420,9 @@ export async function saveLately(formData: FormData) {
   const watchingUrl = formData.get("watchingUrl") as string;
   const doc: Record<string, unknown> = {
     _id: "lately", _type: "lately",
-    reading, readingAuthor, readingUrl, listening, listeningArtist, listeningUrl, watching, watchingUrl,
+    reading: sq(reading), readingAuthor: sq(readingAuthor), readingUrl,
+    listening: sq(listening), listeningArtist: sq(listeningArtist), listeningUrl,
+    watching: sq(watching), watchingUrl,
   };
 
   await mutate([{ createOrReplace: doc }]);
