@@ -178,18 +178,9 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   useEffect(() => {
     refreshPosts();
     refreshNewsletters();
-    // One delayed retry to catch any brief read-after-write lag on a fresh load.
-    const retryTimer = setTimeout(() => { refreshPosts(); refreshNewsletters(); }, 1500);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
-    fetch("/api/media").then(r => r.json()).then(data => {
-      if (Array.isArray(data)) {
-        setMediaAssets(data);
-        if (!isMobile && data.length > 0) { setInspectAsset(prev => prev ?? data[0]); setInspectAltText(data[0].altText ?? ""); }
-      }
-    }).catch(() => {});
-    return () => clearTimeout(retryTimer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

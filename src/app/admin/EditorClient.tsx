@@ -177,13 +177,17 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     if (editor) editor.commands.setContent(body);
   }, [versions, editor]);
 
-  // Auto-save every 5s when dirty
+  const autosaveCount = useRef(0);
+
+  // Auto-save after 6s of inactivity; snapshot every 5th autosave to reduce Sanity load
   useEffect(() => {
     if (!isDirty) return;
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
-      doSave(form.status === "published" ? "published" : "draft", false, true);
-    }, 3000);
+      autosaveCount.current += 1;
+      const snapshot = autosaveCount.current % 5 === 0;
+      doSave(form.status === "published" ? "published" : "draft", false, snapshot);
+    }, 6000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, imageAssetId, imageCaption, imageAlt, doSave]);
