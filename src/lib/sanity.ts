@@ -40,7 +40,30 @@ export interface SanityPost {
   socialDescription?: string;
   readingTime?: number;
   sortOrder?: number;
+  searchText?: string;
 }
+
+// Lightweight field set for the admin dashboard list — excludes the heavy
+// portable-text `body` (which can be huge across the full archive) and
+// replaces it with a server-computed plain-text string for search only.
+const POST_LIST_FIELDS = `
+  _id,
+  "slug": slug.current,
+  section,
+  headline,
+  subheadline,
+  byline,
+  date,
+  _updatedAt,
+  _createdAt,
+  "body": [],
+  "searchText": pt::text(body),
+  image { asset, caption, alt },
+  status,
+  scheduledAt,
+  readingTime,
+  sortOrder
+`;
 
 const POST_FIELDS = `
   _id,
@@ -76,7 +99,7 @@ export async function getAllPosts(): Promise<SanityPost[]> {
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   return client.fetch(
-    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_FIELDS} }`,
+    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_LIST_FIELDS} }`,
     {},
     { cache: "no-store" }
   );

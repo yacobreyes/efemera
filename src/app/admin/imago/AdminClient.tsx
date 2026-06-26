@@ -603,7 +603,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
                 const q = query.trim().toLowerCase();
                 const filtered = q ? list.filter(p => {
-                  const bodyText = ptPlainText(p.body as { _type?: string; children?: { text?: string }[] }[]).toLowerCase();
+                  const bodyText = (p.searchText ?? ptPlainText(p.body as { _type?: string; children?: { text?: string }[] }[])).toLowerCase();
                   return p.headline.toLowerCase().includes(q) || p.subheadline?.toLowerCase().includes(q) || bodyText.includes(q);
                 }) : list;
                 const nlStatusKey = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled" : "published";
