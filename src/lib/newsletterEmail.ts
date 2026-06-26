@@ -111,7 +111,6 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   const intro = raw.intro ? straightenQuotes(raw.intro) : raw.intro;
   const author = raw.author ? straightenQuotes(raw.author) : raw.author;
   const { volume, issue } = raw;
-  const base = (raw.baseUrl ?? SITE_URL).replace(/\/$/, "");
   const cards = raw.cards.map(c => ({
     ...c,
     headline: c.headline ? straightenQuotes(c.headline) : c.headline,
@@ -178,8 +177,8 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
   }).join("");
 
   const masthead = opts.masthead
-    ? `<div style="background:${CREAM};padding:1.5rem 0;text-align:center;border-bottom:1px solid ${LINE};">
-         <img src="${base}/Wordmark.png" alt="Gangrey" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;" />
+    ? `<div style="background:${CREAM};padding:28px 24px 22px;text-align:center;border-bottom:1px solid ${LINE};">
+         <span style="font-family:${SERIF};font-size:46px;line-height:1;font-weight:700;letter-spacing:-0.02em;color:${CRIMSON};">Gangrey</span>
        </div>`
     : "";
 
@@ -209,7 +208,15 @@ export function renderNewsletterPageHtml(opts: NlOpts): string {
 // text, masthead, unsubscribe footer).
 export function renderNewsletterHtml(opts: NlOpts): string {
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css"></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
+<link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css">
+<style>
+  :root { color-scheme: light only; supported-color-schemes: light only; }
+  /* Keep brand colors fixed in clients that force dark mode. */
+  u + .body .force-light { background-color: inherit !important; }
+  [data-ogsc] .force-light, [data-ogsb] .force-light { background-color: inherit !important; }
+</style></head>
 <body style="margin:0;padding:0;background:${CREAM};">
   <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${esc(opts.preview)}</span>
   <div style="width:100%;max-width:600px;margin:0 auto;background:${CREAM};">
