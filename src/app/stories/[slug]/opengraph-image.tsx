@@ -8,7 +8,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
   const { slug } = await params;
   const post = await getPost(slug);
 
-  const headline = post?.headline ?? "Efemera";
+  const headline = post?.headline ?? "Gangrey";
   const subheadline = post?.subheadline ?? "";
   const section = post?.section ?? "";
   const photoUrl = post?.image?.asset

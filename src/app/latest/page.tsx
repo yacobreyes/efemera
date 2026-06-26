@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAllPosts } from "@/lib/sanity";
+import { getPostsLight } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import StoryCardGrid from "@/components/StoryCardGrid";
@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default async function LatestPage() {
-  let posts = [] as Awaited<ReturnType<typeof getAllPosts>>;
-  try { posts = await getAllPosts(); } catch {}
+  let posts = [] as Awaited<ReturnType<typeof getPostsLight>>;
+  try { posts = await getPostsLight(); } catch {}
   const published = posts.filter(p =>
     (!p.status || p.status === "published" ||
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())) &&

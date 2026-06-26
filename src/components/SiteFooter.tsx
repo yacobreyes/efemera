@@ -14,10 +14,10 @@ export default function SiteFooter() {
       <NewsletterSignup />
 
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/wordmark.webp" alt="efemera" width={1772} height={1181} style={{ width: "clamp(150px, 18vw, 180px)", height: "auto", opacity: 0.9 }} />
+      <img src="/wordmark.webp" alt="Gangrey" width={1772} height={1181} style={{ width: "clamp(150px, 18vw, 180px)", height: "auto", opacity: 0.9 }} />
 
       <p style={{ fontFamily: "var(--font-subhead)", fontSize: "0.7rem", color: "white", margin: 0, letterSpacing: "0.05em" }}>
-        © 2026 Efemera · Yacob Reyes
+        © 2026 Gangrey · Yacob Reyes
       </p>
     </footer>
   );

@@ -7,8 +7,8 @@ import MagFooter from "@/components/MagFooter";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Issues — Efemera",
-  description: "Every newsletter issue from Efemera, a literary collective.",
+  title: "Issues — Gangrey",
+  description: "Every newsletter issue from Gangrey, a literary magazine.",
 };
 
 function formatDate(dateStr: string) {

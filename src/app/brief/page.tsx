@@ -9,8 +9,8 @@ import StoryCardGrid from "@/components/StoryCardGrid";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Life, in Brief — Efemera",
-  description: "Short reads, sized to your window. One-, three-, and five-minute stories from Efemera.",
+  title: "Life, in Brief — Gangrey",
+  description: "Short reads, sized to your window. One-, three-, and five-minute stories from Gangrey.",
 };
 
 const BUCKETS = [

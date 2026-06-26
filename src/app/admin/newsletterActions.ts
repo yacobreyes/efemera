@@ -280,7 +280,7 @@ export async function deleteNewsletter(id: string) {
 export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: number; failed?: number; error?: string }> {
   await requireAuth();
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.NEWSLETTER_FROM; // e.g. "Efemera <newsletter@efemera.blog>"
+  const from = process.env.NEWSLETTER_FROM; // e.g. "Gangrey <newsletter@gangrey.org>"
   if (!apiKey || !from) {
     return { ok: false, error: "Email sending isn't configured yet. Add RESEND_API_KEY and NEWSLETTER_FROM in Vercel env vars." };
   }

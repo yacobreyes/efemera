@@ -1,5 +1,5 @@
 import HomeClient from "@/components/HomeClient";
-import { getAllPosts, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
+import { getPostsLight, getAboutPage, getLately, getWelcome, type SanityLately, type SanityWelcome } from "@/lib/sanity";
 import { ptToParagraphs } from "@/lib/parseBody";
 
 export const revalidate = 60;
@@ -11,7 +11,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Essays", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
 
   const [postsResult, aboutResult, latelyResult, welcomeResult] = await Promise.allSettled([
-    getAllPosts(),
+    getPostsLight(),
     getAboutPage(),
     getLately(),
     getWelcome(),

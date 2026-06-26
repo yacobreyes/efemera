@@ -6,7 +6,7 @@ import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
 // Gated on RESEND_API_KEY + NEWSLETTER_FROM — returns a clear error until they're set.
 export async function POST(req: NextRequest) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.NEWSLETTER_FROM; // e.g. "Efemera <newsletter@efemera.blog>"
+  const from = process.env.NEWSLETTER_FROM; // e.g. "Gangrey <newsletter@gangrey.org>"
   if (!apiKey || !from) {
     return NextResponse.json(
       { error: "Email sending isn't configured yet. Add RESEND_API_KEY and NEWSLETTER_FROM in Vercel env vars." },

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     types: { "application/rss+xml": `${siteUrl}/feed.xml` },
   },
   openGraph: {
-    siteName: "Efemera",
+    siteName: "Gangrey",
     title: "Gangrey | A Literary Magazine",
     description: "True stories for the time you have.",
     url: siteUrl,

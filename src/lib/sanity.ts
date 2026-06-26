@@ -62,7 +62,7 @@ const POST_LIST_FIELDS = `
   image { asset, caption, alt },
   status,
   scheduledAt,
-  readingTime,
+  "readingTime": coalesce(readingTime, round(length(pt::text(body)) / 1100) + 1),
   sortOrder
 `;
 
@@ -116,6 +116,21 @@ function straightenPost(p: SanityPost): SanityPost {
 
 export async function getAllPosts(): Promise<SanityPost[]> {
   const posts: SanityPost[] = await client.fetch(POSTS_QUERY, {}, { next: { revalidate: 60 } });
+  return posts.map(straightenPost);
+}
+
+// Lightweight variant for listing pages (homepage, /latest) that only display
+// metadata and need body solely for client-side search. Drops the heavy
+// portable-text body and substitutes a server-computed plain-text searchText,
+// drastically shrinking the payload shipped to the browser.
+const POSTS_LIGHT_QUERY = `*[_type == "post" && (
+  status == "published" ||
+  !defined(status) ||
+  (status == "scheduled" && scheduledAt <= now())
+)] | order(date desc) { ${POST_LIST_FIELDS} }`;
+
+export async function getPostsLight(): Promise<SanityPost[]> {
+  const posts: SanityPost[] = await client.fetch(POSTS_LIGHT_QUERY, {}, { next: { revalidate: 60 } });
   return posts.map(straightenPost);
 }
 

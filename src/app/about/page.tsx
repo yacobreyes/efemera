@@ -7,8 +7,8 @@ import MagFooter from "@/components/MagFooter";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "About — Efemera",
-  description: "About Efemera, a literary collective by Yacob Reyes.",
+  title: "About — Gangrey",
+  description: "About Gangrey, a literary magazine by Yacob Reyes.",
 };
 
 export default async function AboutPage() {

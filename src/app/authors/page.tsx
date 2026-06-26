@@ -7,11 +7,13 @@ import AuthorsClient from "./AuthorsClient";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Authors — Efemera",
-  description: "Writers featured in Efemera.",
+  title: "Authors — Gangrey",
+  description: "Writers featured in Gangrey.",
 };
 
-const QUERY = `*[_type == "post" && (status == "published" || !defined(status)) && defined(byline) && byline != ""] {
+// Exclude archive (Gangrey Redux) pieces — the author board only lists
+// writers featured in Gangrey proper, not the imported archive.
+const QUERY = `*[_type == "post" && (status == "published" || !defined(status)) && defined(byline) && byline != "" && section != "Gangrey Redux"] {
   "byline": byline
 }`;
 

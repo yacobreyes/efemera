@@ -38,7 +38,7 @@ function UnsubscribeForm() {
       </h1>
       {status === "done" ? (
         <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, lineHeight: 1.5, color: "#000000" }}>
-          You&rsquo;ve been unsubscribed. You won&rsquo;t receive any more emails from efemera.
+          You&rsquo;ve been unsubscribed. You won&rsquo;t receive any more emails from Gangrey.
         </p>
       ) : (
         <>

@@ -8,6 +8,7 @@ import LikeButton from "@/components/LikeButton";
 import ShareButton from "@/components/ShareButton";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
+import StoryBackLink from "@/components/StoryBackLink";
 import StoryVisitTracker from "@/components/StoryVisitTracker";
 import { postReadingTime } from "@/lib/readingTime";
 
@@ -51,17 +52,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const postUrl = `${siteUrl}/stories/${slug}`;
   const ogImage = imageUrl
     ? { url: imageUrl, width: 1200, height: 630, alt: post.headline }
-    : { url: "/og-image.png", width: 1200, height: 630, alt: "Efemera" };
+    : { url: "/og-image.png", width: 1200, height: 630, alt: "Gangrey" };
 
   return {
-    title: `${seoTitle} — Efemera`,
+    title: `${seoTitle} — Gangrey`,
     description: seoDescription,
     openGraph: {
       type: "article",
       url: postUrl,
       title: socialTitle,
       description,
-      siteName: "Efemera",
+      siteName: "Gangrey",
       publishedTime: post.date,
       authors: [post.byline],
       images: [ogImage],
@@ -89,7 +90,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
     author: { "@type": "Person", name: post.byline },
     datePublished: post.date,
     dateModified: post._updatedAt ?? post.date,
-    publisher: { "@type": "Organization", name: "Efemera", url: siteUrl },
+    publisher: { "@type": "Organization", name: "Gangrey", url: siteUrl },
     url: `${siteUrl}/stories/${slug}`,
     ...(post.image?.asset ? { image: urlFor(post.image.asset).width(1200).height(630).url() } : {}),
   };
@@ -230,7 +231,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <MagHeader />
 
       <header className="story-head">
-        <Link href="/" className="story-label">← {sectionLabel(post.section)}</Link>
+        <StoryBackLink label={sectionLabel(post.section)} fallbackHref={post.section === "Gangrey Redux" ? "/archive" : "/latest"} />
         <h1 className="story-h1">{post.headline}</h1>
         {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
         <div className="story-meta">

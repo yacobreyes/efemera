@@ -81,7 +81,7 @@ export default function StoryCardGrid({ posts, variant = "default" }: { posts: S
         }
       `}</style>
       {posts.map(post => {
-        const plain = plainText(post.body);
+        const plain = post.searchText ?? plainText(post.body);
         const imgSrc = post.image?.asset
           ? urlFor(post.image.asset).width(600).height(445).fit("crop").auto("format").url()
           : null;
@@ -173,7 +173,7 @@ function ArchiveCardGrid({ posts }: { posts: SanityPost[] }) {
         }
       `}</style>
       {posts.map(post => {
-        const plain = plainText(post.body);
+        const plain = post.searchText ?? plainText(post.body);
         return (
           <article key={post._id} className="ag-card">
             <div className="ag-meta">

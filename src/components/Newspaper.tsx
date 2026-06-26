@@ -60,7 +60,7 @@ export default function Feed({
         p.headline.toLowerCase().includes(q) ||
         p.byline.toLowerCase().includes(q) ||
         p.subheadline?.toLowerCase().includes(q) ||
-        portableToPlainText(p.body).toLowerCase().includes(q)
+        (p.searchText ?? portableToPlainText(p.body)).toLowerCase().includes(q)
       )
     : [];
 
@@ -500,7 +500,7 @@ export default function Feed({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <nav className="ef-footer-links">
           <Link href="/authors">Authors</Link>
-          <a href="mailto:hello@efemera.co">Submit</a>
+          <a href="mailto:yacob@gangrey.org">Submit</a>
           <SubscribeButton>Subscribe</SubscribeButton>
         </nav>
         <p className="ef-footer-copy">© 2026 Gangrey | A Literary Magazine.</p>

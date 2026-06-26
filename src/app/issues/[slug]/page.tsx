@@ -33,9 +33,9 @@ async function getNewsletter(id: string): Promise<NewsletterDoc | null> {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const issue = await getIssue(slug);
-  if (!issue) return { title: "Issue — Efemera" };
+  if (!issue) return { title: "Issue — Gangrey" };
   return {
-    title: `${issue.title ?? "Issue"} — Efemera`,
+    title: `${issue.title ?? "Issue"} — Gangrey`,
     description: issue.description ?? undefined,
   };
 }
