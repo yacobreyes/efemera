@@ -34,6 +34,60 @@ async function mutate(mutations: unknown[]) {
   return res.json();
 }
 
+// One-time migration: strip curly/smart quotes out of stored post content so
+// imported archive data is straight at the source — fixing it everywhere
+// (editor, published site, search) regardless of render-layer straightening.
+// Safe to run repeatedly: only documents that actually contain curly quotes are
+// patched, and re-running finds nothing to change.
+export async function straightenAllPosts(): Promise<{ scanned: number; updated: number }> {
+  await requireAuth();
+  const { token, projectId, dataset } = sanityConfig();
+  const query = `*[_type == "post"]{ _id, headline, subheadline, byline, seoHeadline, socialHeadline, socialDescription, body, image }`;
+  const res = await fetch(
+    `https://${projectId}.api.sanity.io/v2024-01-01/data/query/${dataset}?query=${encodeURIComponent(query)}`,
+    { headers: { Authorization: `Bearer ${token}` }, cache: "no-store" }
+  );
+  if (!res.ok) throw new Error(`Query failed: ${await res.text()}`);
+  const { result } = await res.json() as { result: Record<string, unknown>[] };
+
+  const CURLY = /[‘’‚‛′“”„‟″]/;
+  const hasCurly = (v: unknown): boolean => {
+    if (typeof v === "string") return CURLY.test(v);
+    if (Array.isArray(v)) return v.some(hasCurly);
+    if (v && typeof v === "object") return Object.values(v).some(hasCurly);
+    return false;
+  };
+
+  const STR_FIELDS = ["headline", "subheadline", "byline", "seoHeadline", "socialHeadline", "socialDescription"] as const;
+  const mutations: unknown[] = [];
+  for (const p of result) {
+    if (!hasCurly(p)) continue;
+    const set: Record<string, unknown> = {};
+    for (const f of STR_FIELDS) {
+      if (typeof p[f] === "string") set[f] = straightenQuotes(p[f] as string);
+    }
+    if (Array.isArray(p.body)) set.body = straightenBlocks(p.body);
+    const img = p.image as { caption?: unknown; alt?: unknown } | undefined;
+    if (img && (typeof img.caption === "string" || typeof img.alt === "string")) {
+      set.image = {
+        ...img,
+        ...(typeof img.caption === "string" ? { caption: straightenQuotes(img.caption) } : {}),
+        ...(typeof img.alt === "string" ? { alt: straightenQuotes(img.alt) } : {}),
+      };
+    }
+    if (Object.keys(set).length) mutations.push({ patch: { id: p._id as string, set } });
+  }
+
+  if (mutations.length) {
+    // Chunk to stay well under Sanity's mutation limits.
+    for (let i = 0; i < mutations.length; i += 50) {
+      await mutate(mutations.slice(i, i + 50));
+    }
+    revalidatePath("/", "layout");
+  }
+  return { scanned: result.length, updated: mutations.length };
+}
+
 export async function uploadImage(formData: FormData) {
   await requireAuth();
   const { token, projectId, dataset } = sanityConfig();

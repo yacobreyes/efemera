@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { savePost, deletePost, trashPost, restorePost, saveAbout, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
+import { savePost, deletePost, trashPost, restorePost, saveAbout, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft, straightenAllPosts } from "../actions";
 import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
@@ -221,6 +221,20 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   function startEdit(post: SanityPost) {
     router.push(`/admin/imago/posts/${post.slug}`);
+  }
+
+  async function runStraightenQuotes() {
+    setShowCreateMenu(false);
+    if (!confirm("Replace curly/smart quotes with straight quotes across all stored posts? This updates the saved content.")) return;
+    try {
+      const { scanned, updated } = await straightenAllPosts();
+      refreshPosts();
+      alert(updated === 0
+        ? `All ${scanned} posts already use straight quotes.`
+        : `Straightened quotes in ${updated} of ${scanned} posts.`);
+    } catch (err: any) {
+      alert(`Couldn't straighten quotes: ${err?.message ?? "unknown error"}`);
+    }
   }
 
   function tryNav(panel: Panel) {
@@ -497,6 +511,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2 6 12 13 22 6"/></svg>
                           Newsletter
                         </button>
+                        <div style={{ borderTop: `1px solid ${BORDER}` }} />
+                        <button onClick={runStraightenQuotes} style={{ display: "flex", alignItems: "center", gap: "0.55rem", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                          Fix curly quotes
+                        </button>
                       </div>
                     )}
                   </div>
@@ -536,6 +556,12 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                         <button onClick={() => { setShowCreateMenu(false); if (isDirty && !confirm("Discard unsaved changes?")) return; createNewNewsletter(); }} style={{ display: "flex", alignItems: "center", gap: "0.55rem", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}>
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2 6 12 13 22 6"/></svg>
                           Newsletter
+                        </button>
+                        <div style={{ borderTop: `1px solid ${BORDER}` }} />
+                        <button onClick={runStraightenQuotes} style={{ display: "flex", alignItems: "center", gap: "0.55rem", width: "100%", textAlign: "left", padding: "0.6rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, background: "none", border: "none", cursor: "pointer" }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "#ffffff"; }} onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, color: TEXT_MUTED }}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                          Fix curly quotes
                         </button>
                       </div>
                     )}
