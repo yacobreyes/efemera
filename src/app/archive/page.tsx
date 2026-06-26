@@ -58,7 +58,6 @@ export default async function GangreyPage() {
       <MagHeader />
       <main className="gr-wrap">
         <div className="gr-head">
-          <div className="gr-kicker">Archive</div>
           <h1 className="gr-title">The Archive</h1>
           <p className="gr-sub">Writing once featured on the now-defunct Gangrey.com.</p>
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
