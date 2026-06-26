@@ -7,8 +7,8 @@ import StoryCardGrid from "@/components/StoryCardGrid";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "The Latest — Efemera",
-  description: "Every story from Efemera, a literary collective.",
+  title: "The Latest — Gangrey",
+  description: "The newest writing from Gangrey.",
 };
 
 export default async function LatestPage() {
@@ -47,7 +47,7 @@ export default async function LatestPage() {
       <main className="listing-main">
         <div className="listing-head">
           <h1 className="listing-title">The Latest</h1>
-          <p className="listing-sub">Every Efemera post.</p>
+          <p className="listing-sub">The newest writing from Gangrey.</p>
         </div>
         {published.length > 0
           ? <StoryCardGrid posts={published} />
