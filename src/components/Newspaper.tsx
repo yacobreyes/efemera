@@ -293,7 +293,7 @@ export default function Feed({
         /* FOOTER */
         .ef-footer {
           padding: 46px 7vw 34px;
-          background: #ffffff;
+          background: #b8b8ba;
           display: flex;
           flex-direction: column;
           align-items: center;
