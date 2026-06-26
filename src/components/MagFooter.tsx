@@ -7,7 +7,7 @@ export default function MagFooter() {
       <style>{`
         .mag-footer {
           padding: 46px 7vw 34px;
-          background: #ffffff;
+          background: #b8b8ba;
           border-top: 1px solid #b8b8ba;
           display: flex;
           flex-direction: column;

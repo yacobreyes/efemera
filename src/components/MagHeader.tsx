@@ -37,7 +37,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           align-items: center;
           padding: 0 44px;
           border-bottom: 1px solid #b8b8ba;
-          background: #ffffff;
+          background: #b8b8ba;
           position: sticky;
           top: 0;
           z-index: 20;
@@ -97,7 +97,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           display: none;
           position: absolute;
           inset: 0;
-          background: #ffffff;
+          background: #b8b8ba;
           align-items: center;
           padding: 0 44px;
           gap: 20px;
