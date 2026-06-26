@@ -27,7 +27,11 @@ const SERIF = "Georgia, 'Times New Roman', serif";
 
 // Email clients (and the preview iframe) can't load a relative path, so the
 // masthead image needs an absolute URL to match the in-app editor's wordmark.
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org").replace(/\/$/, "");
+// Normalize: strip trailing slash, and guarantee an https:// scheme so email
+// links never resolve as a relative path (e.g. a bare "gangrey.org" would
+// become "mail.google.com/gangrey.org/..." → 404).
+const RAW_SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://gangrey.org").trim().replace(/\/$/, "");
+const SITE_URL = /^https?:\/\//i.test(RAW_SITE_URL) ? RAW_SITE_URL : `https://${RAW_SITE_URL}`;
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -227,7 +231,6 @@ export function renderNewsletterHtml(opts: NlOpts): string {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
-<link rel="stylesheet" href="https://use.typekit.net/umi3ufr.css">
 <style>
   :root { color-scheme: light only; supported-color-schemes: light only; }
   /* Keep brand colors fixed in clients that force dark mode. */
