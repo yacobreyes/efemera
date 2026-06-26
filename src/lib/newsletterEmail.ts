@@ -181,8 +181,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
     }
 
     return `<div>
-      ${sectionLabel(sectionName)}
-      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:6px 0 0;">
+      <div style="background:#b8b8ba;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};padding:32px 32px 40px;text-align:center;margin:20px 0 0;">
         <p style="font-family:${SERIF};font-size:27px;font-weight:400;line-height:1.2;letter-spacing:0.02em;color:${INK};margin:0 0 6px;">${esc(card.headline ?? "")}</p>
         <p style="font-family:${FONT};font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:${CRIMSON};margin:0 0 24px;">A Micro-Memoir${card.byline ? ` by ${esc(card.byline)}` : ""}</p>
         <div style="width:32px;height:1px;background:${LINE};margin:0 auto 24px;"></div>

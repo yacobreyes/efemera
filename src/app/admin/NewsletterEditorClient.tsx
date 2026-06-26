@@ -806,10 +806,13 @@ export default function NewsletterEditorClient({
                     </div>
                   ) : (<>
 
-                    {/* Section label — small-caps flag, non-editable */}
-                    <div style={{ paddingTop: "1.25rem", fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.18em", color: CRIMSON, marginBottom: "0.4rem" }}>
-                      {sectionLabel}
-                    </div>
+                    {/* Section label — small-caps flag, non-editable. Omitted for
+                        micro-memoir, whose byline already reads "A Micro-Memoir by…". */}
+                    {type !== "micro-memoir" && (
+                      <div style={{ paddingTop: "1.25rem", fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.18em", color: CRIMSON, marginBottom: "0.4rem" }}>
+                        {sectionLabel}
+                      </div>
+                    )}
 
                     {/* Card hover toolbar */}
                     {!nlMovingId && (
