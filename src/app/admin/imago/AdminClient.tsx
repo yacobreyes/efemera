@@ -305,7 +305,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   if (!auth) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#ffffff" }}>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
         <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "2.5rem 2rem", width: 300, display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center", textAlign: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}>
             <span style={{ color: CRIMSON }}>i</span>mago
@@ -322,7 +322,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     );
   }
 
-  if (!mounted) return <div style={{ minHeight: "100vh", background: "white" }} />;
+  if (!mounted) return <div style={{ minHeight: "100vh", background: "#f5f8fa" }} />;
 
   const drafts = posts.filter(p => p.status === "draft");
   const scheduled = posts.filter(p => p.status === "scheduled");
@@ -331,7 +331,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   return (
     <>
       <style>{`
-        body { background: white !important; }
+        body { background: #f5f8fa !important; }
         .admin-layout { display: flex; min-height: 100vh; }
         .admin-sidebar {
           width: ${sidebarOpen ? "220px" : "60px"};
