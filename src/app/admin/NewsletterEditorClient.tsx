@@ -741,7 +741,7 @@ export default function NewsletterEditorClient({
 
           {/* Masthead */}
           <div style={{ background: "#ffffff", padding: "1.25rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
-            <span style={{ fontFamily: '"amador", Georgia, serif', fontSize: 32, fontWeight: 400, color: "#000000", lineHeight: 1 }}>Gangrey Magazine</span>
+            <span style={{ fontFamily: '"amador", Georgia, serif', fontSize: 48, fontWeight: 400, color: "#000000", lineHeight: 1 }}>Gangrey Magazine</span>
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           {/* Dateline + intro in one crimson band */}

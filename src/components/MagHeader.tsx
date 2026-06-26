@@ -60,7 +60,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; }
         .mag-logo-text {
           font-family: "amador", Georgia, serif;
-          font-size: 32px;
+          font-size: 48px;
           font-weight: 400;
           color: #000000;
           letter-spacing: 0;
@@ -181,7 +181,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             order: 2;
             justify-self: unset;
           }
-          .mag-logo-text { font-size: 24px; }
+          .mag-logo-text { font-size: 36px; }
           .mag-mob-sub {
             display: block;
             order: 3;
