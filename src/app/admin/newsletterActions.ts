@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/adminAuth";
 import { client } from "@/lib/sanity";
 import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
+import { Resend } from "resend";
 
 function sanityConfig() {
   const token = process.env.SANITY_API_WRITE_TOKEN ?? process.env.SANITY_WRITE_TOKEN;
@@ -315,6 +316,8 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   });
   const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org").replace(/\/$/, "");
 
+  const resend = new Resend(apiKey);
+
   // Resend's batch endpoint allows up to 100 distinct emails per call. Each
   // recipient gets their own open-tracking pixel so we know who's engaged.
   const emails = subscribers.map(s => s.email).filter(Boolean);
@@ -330,13 +333,9 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
       subject: nl.subject,
       html: `${baseHtml}<img src="${siteUrl}/api/track-open?id=${encodeURIComponent(subscriberId(email))}&nid=${encodeURIComponent(id)}" width="1" height="1" alt="" style="display:none" />`,
     }));
-    const res = await fetch("https://api.resend.com/emails/batch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify(batch),
-    });
-    if (res.ok) sent += chunk.length;
-    else errors.push(await res.text());
+    const { error } = await resend.batch.send(batch);
+    if (error) errors.push(error.message);
+    else sent += chunk.length;
   }
 
   if (errors.length && sent === 0) return { ok: false, error: `Send failed: ${errors[0]}` };
