@@ -61,10 +61,10 @@ export default async function IssuePage({ params }: { params: Promise<{ slug: st
     <div className="issue-read-page">
       <style>{`
         .issue-read-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; }
-        .issue-read-main { flex: 1; width: 100%; padding: 0 0 48px; background: #ffffff; }
-        /* Newsletter sheet bleeds to its own edges — match the editor's 600px
-           canvas exactly, with no white gutter around the content. */
-        .issue-read-main > div { max-width: 600px; margin: 0 auto; }
+        .issue-read-main { flex: 1; width: 100%; padding: 32px 0 48px; background: #ffffff; }
+        /* 600px sheet centered on white, with a soft drop shadow so the narrow
+           column reads as a distinct sheet against the white background. */
+        .issue-read-main > div { max-width: 600px; margin: 0 auto; box-shadow: 0 2px 24px rgba(0,0,0,0.16); }
       `}</style>
       <MagHeader />
       <main className="issue-read-main">

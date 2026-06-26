@@ -763,7 +763,7 @@ export default function NewsletterEditorClient({
                 style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1rem", lineHeight: 1.6, color: "#ffffff", border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
               />
               {nlAuthor && (
-                <p style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, color: "#ffffff", opacity: 0.8, margin: "0.6rem 0 0", letterSpacing: "0.08em", textTransform: "uppercase" }}>By {nlAuthor}</p>
+                <p style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, color: "#ffffff", margin: "0.6rem 0 0", letterSpacing: "0.08em", textTransform: "uppercase" }}>By {nlAuthor}</p>
               )}
             </div>
           </div>

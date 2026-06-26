@@ -207,7 +207,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
       </table>
       ${intro ? `<div style="max-width:440px;margin:0 auto;">
         <p style="font-family:${SERIF};font-size:16px;line-height:1.6;color:${CREAM};margin:0;white-space:pre-line;">${esc(intro)}</p>
-        ${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;color:${CREAM};opacity:0.8;margin:10px 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
+        ${author ? `<p style="font-family:${FONT};font-size:12px;font-weight:700;color:#ffffff;margin:10px 0 0;letter-spacing:0.08em;text-transform:uppercase;">By ${esc(author)}</p>` : ""}
       </div>` : ""}
     </div>
     <div style="padding:0 0 40px;">
