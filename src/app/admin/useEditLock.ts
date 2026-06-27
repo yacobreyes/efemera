@@ -57,9 +57,21 @@ export function useEditLock(targetId: string | null) {
       } catch { /* transient network — retry next tick */ }
     }, HEARTBEAT_MS);
 
+    // Release reliably even on a hard navigation/tab close: sendBeacon survives
+    // page unload, where the async releaseLock() call would be cut off.
+    const beaconRelease = () => {
+      try {
+        const blob = new Blob([JSON.stringify({ targetId, sessionId: sid })], { type: "application/json" });
+        navigator.sendBeacon("/api/admin/release-lock", blob);
+      } catch { /* ignore */ }
+    };
+    window.addEventListener("pagehide", beaconRelease);
+
     return () => {
       alive = false;
       clearInterval(iv);
+      window.removeEventListener("pagehide", beaconRelease);
+      beaconRelease();
       releaseLock(targetId, sid).catch(() => {});
     };
   }, [targetId, apply]);

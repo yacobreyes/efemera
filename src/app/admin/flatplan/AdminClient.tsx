@@ -80,7 +80,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     let alive = true;
     const poll = () => getActiveLocks(new Date().toISOString()).then(l => { if (alive) setActiveLocks(l); }).catch(() => {});
     poll();
-    const iv = setInterval(poll, 15000);
+    const iv = setInterval(poll, 8000);
     return () => { alive = false; clearInterval(iv); };
   }, [auth]);
   const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
