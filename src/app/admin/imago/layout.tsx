@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "flatplan",
   icons: {
-    icon: [{ url: "/imago-favicon.png", type: "image/png" }],
-    shortcut: [{ url: "/imago-favicon.png", type: "image/png" }],
+    icon: [{ url: "/favicon.png", type: "image/png" }],
+    shortcut: [{ url: "/favicon.png", type: "image/png" }],
   },
 };
 
