@@ -11,7 +11,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ t
   const initialTab: Tab = (["Home", "About", "Micro-Memoirs", "Narratives", "Essays", "Archive"].includes(tab ?? "") ? tab : "Home") as Tab;
 
   const [postsResult, aboutResult, latelyResult, welcomeResult] = await Promise.allSettled([
-    getPostsLight(),
+    // Only pull the heavy full-text search field when the user is actually
+    // searching — keeps normal homepage loads light and fast.
+    getPostsLight(!!q?.trim()),
     getAboutPage(),
     getLately(),
     getWelcome(),

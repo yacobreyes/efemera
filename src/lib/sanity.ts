@@ -58,12 +58,18 @@ const POST_LIST_FIELDS = `
   _updatedAt,
   _createdAt,
   "body": [],
-  "searchText": pt::text(body),
   image { asset, caption, alt },
   status,
   scheduledAt,
   "readingTime": coalesce(readingTime, round(length(pt::text(body)) / 1100) + 1),
   sortOrder
+`;
+
+// Same as above plus the heavy full-text search field. Only used when a search
+// query is active — shipping every post's body text on a normal homepage load
+// bloats the payload across the whole archive and slows navigation.
+const POST_LIST_FIELDS_SEARCH = `${POST_LIST_FIELDS},
+  "searchText": pt::text(body)
 `;
 
 const POST_FIELDS = `
@@ -123,21 +129,28 @@ export async function getAllPosts(): Promise<SanityPost[]> {
 // metadata and need body solely for client-side search. Drops the heavy
 // portable-text body and substitutes a server-computed plain-text searchText,
 // drastically shrinking the payload shipped to the browser.
-const POSTS_LIGHT_QUERY = `*[_type == "post" && (
+const POSTS_LIGHT_FILTER = `*[_type == "post" && (
   status == "published" ||
   !defined(status) ||
   (status == "scheduled" && scheduledAt <= now())
-)] | order(date desc) { ${POST_LIST_FIELDS} }`;
+)] | order(date desc)`;
 
-export async function getPostsLight(): Promise<SanityPost[]> {
-  const posts: SanityPost[] = await client.fetch(POSTS_LIGHT_QUERY, {}, { next: { revalidate: 60 } });
+// `withSearch` pulls each post's full body text for client-side search. Default
+// (false) keeps the homepage payload small for fast navigation back to it.
+export async function getPostsLight(withSearch = false): Promise<SanityPost[]> {
+  const fields = withSearch ? POST_LIST_FIELDS_SEARCH : POST_LIST_FIELDS;
+  const posts: SanityPost[] = await client.fetch(
+    `${POSTS_LIGHT_FILTER} { ${fields} }`,
+    {},
+    { next: { revalidate: 60 } }
+  );
   return posts.map(straightenPost);
 }
 
 
 export async function getAllPostsAdmin(): Promise<SanityPost[]> {
   const posts: SanityPost[] = await client.fetch(
-    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_LIST_FIELDS} }`,
+    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${POST_LIST_FIELDS_SEARCH} }`,
     {},
     { cache: "no-store" }
   );
