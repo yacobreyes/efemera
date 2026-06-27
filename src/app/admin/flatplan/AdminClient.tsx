@@ -8,6 +8,7 @@ import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
+import UsersPanel from "./UsersPanel";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 import { straightenQuotes } from "@/lib/straighten";
@@ -54,11 +55,14 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscribers";
+type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscribers" | "users";
 
-export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard" }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel }) {
+export type CurrentUser = { name: string; email: string; role: "admin" | "editor" };
+
+export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
   const router = useRouter();
   const [auth] = useState(initialAuth);
+  const isAdmin = currentUser?.role === "admin";
 
   async function signOutEverywhere() {
     const { signOut } = await import("next-auth/react");
@@ -425,6 +429,8 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               ["media", "Media Library", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
               ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
               ["subscribers", "Subscribers", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>],
+              // Users management is admin-only.
+              ...(isAdmin ? [["users", "Users", <svg key="u" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>]] as [Panel, string, React.ReactNode][] : []),
             ] as [Panel, string, React.ReactNode][]).map(([panel, label, icon]) => (
               <button key={panel} onClick={() => tryNav(panel)} className={`admin-nav-btn${activePanel === panel ? " active" : ""}`} title={!sidebarOpen ? label : undefined}>
                 <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{icon}</span>
@@ -500,7 +506,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "about" ? "About" : activePanel === "subscribers" ? "Subscribers" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "about" ? "About" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : ""}
                   </span>
                 )}
               </div>
@@ -540,7 +546,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "about" ? "About" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "about" ? "About" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : ""}
                   </span>
                 )}
               </div>
@@ -739,6 +745,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 </div>
               )}
             </div>
+          )}
+
+          {/* USERS (admin only) */}
+          {activePanel === "users" && isAdmin && currentUser && (
+            <UsersPanel currentEmail={currentUser.email} />
           )}
 
           {/* ABOUT EDITOR */}

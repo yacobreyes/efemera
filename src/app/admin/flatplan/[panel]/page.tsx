@@ -1,14 +1,21 @@
 import AdminClient from "../AdminClient";
-import { isAuthed } from "@/lib/adminAuth";
+import { getCurrentUser } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
-type Panel = "dashboard" | "media" | "comments" | "about";
-const VALID_PANELS: Panel[] = ["dashboard", "media", "comments", "about"];
+type Panel = "dashboard" | "media" | "comments" | "about" | "users";
+const VALID_PANELS: Panel[] = ["dashboard", "media", "comments", "about", "users"];
 
-export default async function AdminImagoPanelPage({ params }: { params: Promise<{ panel: string }> }) {
+export default async function AdminFlatplanPanelPage({ params }: { params: Promise<{ panel: string }> }) {
   const { panel } = await params;
-  const authed = await isAuthed();
+  const me = await getCurrentUser();
   const resolvedPanel: Panel = VALID_PANELS.includes(panel as Panel) ? (panel as Panel) : "dashboard";
-  return <AdminClient posts={[]} initialAuth={authed} initialPanel={resolvedPanel} />;
+  return (
+    <AdminClient
+      posts={[]}
+      initialAuth={!!me}
+      initialPanel={resolvedPanel}
+      currentUser={me ? { name: [me.firstName, me.lastName].filter(Boolean).join(" ") || me.email, email: me.email, role: me.role } : null}
+    />
+  );
 }
