@@ -438,12 +438,15 @@ export default function NewsletterEditorClient({
     return () => clearTimeout(timer);
   }, [nlSignature, nlPayload, nlSave]);
 
-  async function exit() { await releaseLockNow(); window.location.href = "/admin/flatplan"; }
-
-  function saveAndExit() {
+  async function saveAndExit() {
     const payload = nlPayload();
-    if (payload.subject || payload.cards.some(c => c.headline || (c.body && c.body.length))) nlSave(payload);
-    exit();
+    const needsSave = !nlDeleting.current && !nlLockedRef.current &&
+      (payload.subject || payload.cards.some(c => c.headline || (c.body && c.body.length)));
+    await Promise.all([
+      needsSave ? saveNewsletter(payload) : Promise.resolve(),
+      releaseLockNow(),
+    ]);
+    window.location.href = "/admin/flatplan";
   }
 
   async function publishNewsletter() {

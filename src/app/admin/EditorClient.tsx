@@ -260,7 +260,24 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" onClick={async () => { if (!locked) { doSave(form.status === "published" ? "published" : "draft", false, true); await releaseLockNow(); } window.location.href = "/admin/flatplan"; }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+        <button type="button" onClick={async () => {
+          if (!locked) {
+            // Build save payload and fire save + lock-release in parallel,
+            // then navigate — two Sanity calls become one round-trip wait.
+            const status = form.status === "published" ? "published" : "draft";
+            const fd = new FormData();
+            const { body, ...rest } = form;
+            Object.entries({ ...rest, status }).forEach(([k, v]) => fd.set(k, String(v)));
+            fd.set("body", JSON.stringify(tiptapToPortableText(body)));
+            fd.set("id", post._id);
+            if (imageAssetId) fd.set("imageAssetId", imageAssetId);
+            if (imageCaption) fd.set("imageCaption", imageCaption);
+            if (imageAlt) fd.set("imageAlt", imageAlt);
+            fd.set("snapshot", "1");
+            await Promise.all([savePost(fd), releaseLockNow()]);
+          }
+          window.location.href = "/admin/flatplan";
+        }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           {!isMobile && (locked ? "Go Back" : "Save & Exit")}
         </button>
