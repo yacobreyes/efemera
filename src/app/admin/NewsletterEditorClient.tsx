@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
@@ -89,6 +90,10 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
 export default function NewsletterEditorClient({
   newsletterId, initial, initialVersions,
 }: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[] }) {
+  const router = useRouter();
+  useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
+  const [nlExiting, setNlExiting] = useState(false);
+
   // Edit lock — pause autosave & warn when someone else (or another tab) is in it.
   const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: nlLocked } = useEditLock(newsletterId);
   const nlLockedRef = useRef(false);
@@ -439,11 +444,18 @@ export default function NewsletterEditorClient({
   }, [nlSignature, nlPayload, nlSave]);
 
   async function saveAndExit() {
+    if (nlExiting) return;
+    setNlExiting(true);
     const isDirty = nlSignature() !== nlLastSaved.current;
-    if (!nlDeleting.current && !nlLockedRef.current && isDirty) {
-      await saveNewsletter(nlPayload());
+    // Release the lock and (if dirty) save together, then soft-navigate to the
+    // prefetched dashboard so presence clears before it renders. No full reload.
+    const work: Promise<unknown>[] = [];
+    if (!nlLockedRef.current) {
+      work.push(releaseLockNow());
+      if (!nlDeleting.current && isDirty) work.push(saveNewsletter(nlPayload()).catch(() => {}));
     }
-    window.location.href = "/admin/flatplan";
+    await Promise.all(work);
+    router.push("/admin/flatplan");
   }
 
   async function publishNewsletter() {
@@ -482,8 +494,8 @@ export default function NewsletterEditorClient({
   async function removeNewsletter() {
     if (!confirm("Delete this newsletter? This cannot be undone.")) return;
     nlDeleting.current = true;
-    try { await deleteNewsletter(newsletterId); } catch {}
-    window.location.href = "/admin/flatplan";
+    try { await Promise.all([deleteNewsletter(newsletterId), releaseLockNow()]); } catch {}
+    router.push("/admin/flatplan");
   }
 
   function restoreNlVersion(v: NlVersion) {
@@ -626,9 +638,9 @@ export default function NewsletterEditorClient({
 
       {/* Top bar — matches story editor */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "fixed", top: 0, left: 0, right: 0, zIndex: 410 }}>
-        <button onClick={nlLocked ? () => { window.location.href = "/admin/flatplan"; } : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+        <button disabled={nlExiting} onClick={nlLocked ? () => router.push("/admin/flatplan") : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: nlExiting ? "default" : "pointer", opacity: nlExiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          {nlLocked ? "Go Back" : "Save & Exit"}
+          {nlExiting ? "Saving…" : nlLocked ? "Go Back" : "Save & Exit"}
         </button>
 
         {/* Formatting toolbar — drives the focused card editor */}

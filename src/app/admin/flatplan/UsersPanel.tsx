@@ -90,7 +90,7 @@ export default function UsersPanel({ currentEmail }: { currentEmail: string }) {
     <div style={{ maxWidth: 760 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
         <p style={{ fontFamily: FONT, fontSize: "0.85rem", color: TEXT_MUTED, margin: 0 }}>
-          People who can sign in to Flatplan. Admins can manage users; editors can write and publish.
+          People who can sign in to FlatPlan. Admins can manage users; editors can write and publish.
         </p>
         <button onClick={openNew} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.45rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>+ Add user</button>
       </div>

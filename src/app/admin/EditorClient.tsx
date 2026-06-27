@@ -60,6 +60,12 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const lockedRef = useRef(false);
   useEffect(() => { lockedRef.current = locked; }, [locked]);
 
+  // Warm the dashboard route so exiting is an instant client-side transition
+  // instead of a cold full-page load.
+  useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
+
+  const [exiting, setExiting] = useState(false);
+
   const initialForm: FormState = {
     headline: post.headline ?? "",
     subheadline: post.subheadline ?? "",
@@ -260,10 +266,15 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" onClick={async () => {
+        <button type="button" disabled={exiting} onClick={async () => {
+          if (exiting) return;
+          setExiting(true);
+          // Release the lock and (if there are unsaved edits) save — together, so
+          // the dashboard never flashes a stale "is writing" badge — then do a soft
+          // client-side nav to the prefetched dashboard. No full page reload.
+          const work: Promise<unknown>[] = [];
           if (!locked) {
-            // Release the lock via sendBeacon (fired on pagehide) — no need to await it here.
-            // Only block navigation if there are unsaved changes; autosave covers the common case.
+            work.push(releaseLockNow());
             if (isDirty) {
               const status = form.status === "published" ? "published" : "draft";
               const fd = new FormData();
@@ -275,13 +286,14 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               if (imageCaption) fd.set("imageCaption", imageCaption);
               if (imageAlt) fd.set("imageAlt", imageAlt);
               fd.set("snapshot", "1");
-              await savePost(fd);
+              work.push(savePost(fd).catch(() => {}));
             }
           }
-          window.location.href = "/admin/flatplan";
-        }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+          await Promise.all(work);
+          router.push("/admin/flatplan");
+        }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: exiting ? "default" : "pointer", opacity: exiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          {!isMobile && (locked ? "Go Back" : "Save & Exit")}
+          {!isMobile && (exiting ? "Saving…" : locked ? "Go Back" : "Save & Exit")}
         </button>
 
         {/* Formatting toolbar — only shown on story content tab, desktop only */}
