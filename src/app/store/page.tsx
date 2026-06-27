@@ -14,7 +14,7 @@ export default function StorePage() {
         }
         .store-title {
           font-family: var(--font-headline);
-          font-size: clamp(48px, 9vw, 88px); line-height: .98;
+          font-size: clamp(44px, 7vw, 72px); line-height: .98;
           letter-spacing: -.03em; margin: 0;
         }
       `}</style>
