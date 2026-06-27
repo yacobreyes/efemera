@@ -9,6 +9,8 @@ import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert"
 import RichBodyEditor from "@/components/RichBodyEditor";
 import type { ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
+import { useEditLock } from "./useEditLock";
+import EditLockBanner from "./EditLockBanner";
 import { straightenQuotes } from "@/lib/straighten";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
@@ -51,6 +53,12 @@ type MediaAsset = { _id: string; url: string; originalFilename?: string; title?:
 
 export default function EditorClient({ post }: { post: SanityPost }) {
   const router = useRouter();
+
+  // Edit lock: warn (and pause autosave) if someone else — or you in another
+  // tab — is editing this post, so concurrent edits can't clobber each other.
+  const { holder: lockHolder, selfOtherTab, takeOver, readOnly: locked } = useEditLock(post._id);
+  const lockedRef = useRef(false);
+  useEffect(() => { lockedRef.current = locked; }, [locked]);
 
   const initialForm: FormState = {
     headline: post.headline ?? "",
@@ -125,6 +133,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     imageAssetId !== lastSavedImg.id || imageCaption !== lastSavedImg.caption || imageAlt !== lastSavedImg.alt;
 
   const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false, snapshot = false) => {
+    // Don't write while another session holds the lock — avoids clobbering.
+    if (lockedRef.current) return;
     setSaveStatus("saving");
     const fd = new FormData();
     const { body, ...rest } = form;
@@ -221,6 +231,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
+      <EditLockBanner holder={locked ? lockHolder : null} selfOtherTab={selfOtherTab} onTakeOver={takeOver} />
       <style>{`
         body { background: white !important; }
         .tb-btn { position: relative; }

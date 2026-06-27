@@ -9,6 +9,7 @@ import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert"
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
 import UsersPanel from "./UsersPanel";
+import { getActiveLocks, type LockHolder } from "../lockActions";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 import { straightenQuotes } from "@/lib/straighten";
@@ -71,6 +72,17 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
   const [activePanel, setActivePanel] = useState<Panel>(initialPanel);
+
+  // Live "who's editing" presence for the dashboard rows, keyed by document id.
+  const [activeLocks, setActiveLocks] = useState<Record<string, LockHolder>>({});
+  useEffect(() => {
+    if (!auth) return;
+    let alive = true;
+    const poll = () => getActiveLocks(new Date().toISOString()).then(l => { if (alive) setActiveLocks(l); }).catch(() => {});
+    poll();
+    const iv = setInterval(poll, 15000);
+    return () => { alive = false; clearInterval(iv); };
+  }, [auth]);
   const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   const [editing, setEditing] = useState<SanityPost | null>(null);
 
@@ -667,7 +679,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
                               <div style={{ minWidth: 0 }}>
                                 <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{n.subject || <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>Untitled newsletter</span>}</p>
-                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{n.author || "Yacob Reyes"}</p>
+                                {activeLocks[n._id] ? (
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: "#9a6a00", margin: 0, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    {activeLocks[n._id].name} is writing
+                                  </p>
+                                ) : (
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{n.author || "Yacob Reyes"}</p>
+                                )}
                               </div>
                             </div>
                             <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Newsletter</span>
@@ -685,7 +704,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={TEXT_MUTED} strokeWidth="1.8" strokeLinecap="round" style={{ flexShrink: 0 }}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                               <div style={{ minWidth: 0 }}>
                                 <p style={{ fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.headline || <span style={{ color: TEXT_MUTED, fontWeight: 400 }}>No headline</span>}</p>
-                                <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
+                                {activeLocks[post._id] ? (
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: "#9a6a00", margin: 0, display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    {activeLocks[post._id].name} is editing
+                                  </p>
+                                ) : (
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
+                                )}
                               </div>
                             </div>
                             <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.section}</span>

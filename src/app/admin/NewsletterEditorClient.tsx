@@ -6,6 +6,8 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { straightenQuotes } from "@/lib/straighten";
+import { useEditLock } from "./useEditLock";
+import EditLockBanner from "./EditLockBanner";
 import { saveNewsletter, deleteNewsletter, sendNewsletter, sendTestNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
 import { createPostFromNewsletterCard, checkSlugsExist } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
@@ -87,6 +89,11 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
 export default function NewsletterEditorClient({
   newsletterId, initial, initialVersions,
 }: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[] }) {
+  // Edit lock — pause autosave & warn when someone else (or another tab) is in it.
+  const { holder: lockHolder, selfOtherTab, takeOver, readOnly: nlLocked } = useEditLock(newsletterId);
+  const nlLockedRef = useRef(false);
+  useEffect(() => { nlLockedRef.current = nlLocked; }, [nlLocked]);
+
   const [isMobile, setIsMobile] = useState(false);
   const [todayLabel, setTodayLabel] = useState("");
   useEffect(() => {
@@ -403,7 +410,7 @@ export default function NewsletterEditorClient({
   }), [nlStatus, nlScheduledAt, nlSubject, nlPreview, nlAuthor, nlVolume, nlIssue, nlIntro, nlCards]);
 
   const nlSave = useCallback(async (payload: ReturnType<typeof nlPayload>, signature?: string) => {
-    if (nlDeleting.current) return;
+    if (nlDeleting.current || nlLockedRef.current) return;
     setNlSaveStatus("saving");
     try {
       const data = await saveNewsletter(payload);
@@ -508,6 +515,7 @@ export default function NewsletterEditorClient({
 
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "white" }}>
+      <EditLockBanner holder={nlLocked ? lockHolder : null} selfOtherTab={selfOtherTab} onTakeOver={takeOver} />
       <style>{`
         .nl-tb-btn { position: relative; }
         .nl-add-zone .nl-add-line, .nl-add-zone .nl-add-label { opacity: 0; transition: opacity 0.12s; }
