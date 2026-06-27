@@ -9,7 +9,7 @@ import StoryCardGrid from "@/components/StoryCardGrid";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Gangrey - Life, in Brief.",
+  title: "Gangrey | A Literary Magazine",
   description: "Short reads, sized to your window. One-, three-, and five-minute stories from Gangrey.",
 };
 
