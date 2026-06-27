@@ -193,7 +193,8 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
   const autosaveCount = useRef(0);
 
-  // Auto-save after 6s of inactivity; snapshot every 5th autosave to reduce Sanity load
+  // Auto-save after 3s of inactivity (matches the newsletter editor); snapshot
+  // every 5th autosave to reduce Sanity load.
   useEffect(() => {
     if (!isDirty) return;
     setSaveStatus("unsaved");
@@ -201,7 +202,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
       autosaveCount.current += 1;
       const snapshot = autosaveCount.current % 5 === 0;
       doSave(form.status === "published" ? "published" : "draft", false, snapshot);
-    }, 6000);
+    }, 3000);
     return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, imageAssetId, imageCaption, imageAlt, doSave]);
