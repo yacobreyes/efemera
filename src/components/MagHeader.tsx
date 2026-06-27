@@ -60,12 +60,13 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; }
         .mag-logo-text {
           font-family: "amador", Georgia, serif;
-          font-size: 48px;
+          font-size: clamp(30px, 4vw, 48px);
           font-weight: 400;
           color: #000000;
           letter-spacing: 0;
           line-height: 1;
           display: block;
+          white-space: nowrap;
         }
         .mag-nav-cta {
           background: #490000;
@@ -176,12 +177,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           }
           .mag-logo {
             flex: 1;
+            min-width: 0;
             text-align: center;
             padding: 16px 0;
             order: 2;
             justify-self: unset;
           }
-          .mag-logo-text { font-size: 36px; }
+          /* Scale to fit the row and never wrap to a second line — keeps the
+             wordmark inline between the menu toggle and the subscribe button
+             instead of stacking on its own row on narrow screens. */
+          .mag-logo-text { font-size: clamp(16px, 5vw, 34px); white-space: nowrap; }
           .mag-mob-sub {
             display: block;
             order: 3;
