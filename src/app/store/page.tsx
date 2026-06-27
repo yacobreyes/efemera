@@ -1,6 +1,7 @@
 "use client";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
+import ListingHeader from "@/components/ListingHeader";
 
 export default function StorePage() {
   return (
@@ -12,15 +13,10 @@ export default function StorePage() {
           align-items: center; justify-content: center;
           text-align: center; padding: 24px;
         }
-        .store-title {
-          font-family: var(--font-headline);
-          font-size: clamp(44px, 7vw, 72px); line-height: .98;
-          letter-spacing: -.03em; margin: 0;
-        }
       `}</style>
       <MagHeader />
       <main className="store-main">
-        <h1 className="store-title">Coming Soon</h1>
+        <ListingHeader title="Coming Soon" align="center" bordered={false} marginBottom={0} />
       </main>
       <MagFooter />
     </div>

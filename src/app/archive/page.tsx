@@ -3,6 +3,7 @@ import { getAllPosts } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import GangreyArchive from "@/components/GangreyArchive";
+import ListingHeader from "@/components/ListingHeader";
 import { normalizeHeadline } from "@/lib/gangreyDedup";
 
 export const revalidate = 60;
@@ -46,10 +47,6 @@ export default async function GangreyPage() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#000000" }}>
       <style>{`
         .gr-wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 64px 44px 100px; box-sizing: border-box; flex: 1; }
-        .gr-head { margin-bottom: 48px; }
-        .gr-kicker { font-family: var(--font-subhead); font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; color: #490000; margin-bottom: 16px; }
-        .gr-title { font-family: var(--font-headline); font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0 0 20px; }
-        .gr-sub { font-family: var(--font-subhead); font-size: clamp(20px, 3vw, 28px); color: #000000; margin: 0; line-height: 1.4; max-width: 560px; }
         .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #392a22; letter-spacing: .08em; margin-top: 20px; }
         @media (max-width: 760px) {
           .gr-wrap { padding: 40px 20px 72px; }
@@ -57,11 +54,9 @@ export default async function GangreyPage() {
       `}</style>
       <MagHeader />
       <main className="gr-wrap">
-        <div className="gr-head">
-          <h1 className="gr-title">The Archive</h1>
-          <p className="gr-sub">Writing once featured on the original Gangrey.</p>
+        <ListingHeader title="The Archive" sub="Writing once featured on the original Gangrey." bordered={false} marginBottom={48}>
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
-        </div>
+        </ListingHeader>
         {deduped.length === 0
           ? <p style={{ fontFamily: "var(--font-headline)", fontSize: 22, fontStyle: "italic", color: "#000000" }}>No stories yet.</p>
           : <GangreyArchive posts={deduped} />

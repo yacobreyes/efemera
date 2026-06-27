@@ -3,6 +3,7 @@ import { PortableText } from "@portabletext/react";
 import { getAboutPage } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
+import ListingHeader from "@/components/ListingHeader";
 
 export const revalidate = 300;
 
@@ -21,12 +22,6 @@ export default async function AboutPage() {
       <style>{`
         .about-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .about-main { flex: 1; width: 100%; max-width: 680px; margin: 0 auto; padding: 64px 24px 64px; box-sizing: border-box; }
-        .about-title {
-          font-family: var(--font-headline);
-          font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em;
-          margin: 0 0 40px; padding-bottom: 24px; border-bottom: 1px solid #000000;
-          text-align: center;
-        }
         .about-body { font-family: var(--font-headline); font-size: 22px; line-height: 1.62; color: #000000; }
         .about-body p { margin: 1.2rem 0 0; }
         .about-body p:first-child { margin-top: 0; }
@@ -36,7 +31,7 @@ export default async function AboutPage() {
       `}</style>
       <MagHeader />
       <main className="about-main">
-        <h1 className="about-title">About</h1>
+        <ListingHeader title="About" align="center" />
         {body.length > 0 ? (
           <div className="about-body">
             <PortableText

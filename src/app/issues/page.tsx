@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAllIssues } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
+import ListingHeader from "@/components/ListingHeader";
 
 export const revalidate = 60;
 
@@ -25,16 +26,6 @@ export default async function IssuesPage() {
       <style>{`
         .issues-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .issues-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
-        .issues-head { border-bottom: 1px solid #000000; padding-bottom: 24px; margin-bottom: 40px; }
-        .issues-kicker {
-          font-family: var(--font-subhead);
-          font-size: 12px; font-weight: 800; letter-spacing: .22em; text-transform: uppercase;
-          color: #490000; margin-bottom: 14px;
-        }
-        .issues-title {
-          font-family: var(--font-headline);
-          font-size: clamp(44px, 7vw, 72px); line-height: .98; letter-spacing: -.03em; margin: 0;
-        }
         .issues-list { display: flex; flex-direction: column; gap: 0; max-width: 760px; }
         .issue-row {
           display: flex;
@@ -79,9 +70,7 @@ export default async function IssuesPage() {
       `}</style>
       <MagHeader />
       <main className="issues-main">
-        <div className="issues-head">
-          <h1 className="issues-title">We have issues</h1>
-        </div>
+        <ListingHeader title="We have issues" />
         {issues.length > 0 ? (
           <div className="issues-list">
             {issues.map(issue => {
