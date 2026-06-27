@@ -626,9 +626,9 @@ export default function NewsletterEditorClient({
 
       {/* Top bar — matches story editor */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "fixed", top: 0, left: 0, right: 0, zIndex: 410 }}>
-        <button onClick={saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
+        <button onClick={nlLocked ? () => { window.location.href = "/admin/flatplan"; } : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: "pointer", padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          Save &amp; Exit
+          {nlLocked ? "Go Back" : "Save & Exit"}
         </button>
 
         {/* Formatting toolbar — drives the focused card editor */}
