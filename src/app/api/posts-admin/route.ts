@@ -7,7 +7,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   if (!(await isAuthed())) return NextResponse.json([], { status: 401 });
   try {
-    const posts = await getAllPostsAdmin();
+    // Full searchable payload — the dashboard hydrates this after its fast,
+    // body-free first paint so client-side search works.
+    const posts = await getAllPostsAdmin(true);
     return NextResponse.json(posts);
   } catch {
     return NextResponse.json([]);
