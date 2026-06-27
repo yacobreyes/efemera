@@ -26,7 +26,7 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
 
 export default async function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/imago");
+  if (!authed) redirect("/admin/flatplan");
 
   const { slug } = await params;
   const post = await client.fetch<SanityPost | null>(QUERY, { slug }, { cache: "no-store" });

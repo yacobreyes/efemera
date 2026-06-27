@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Renders the exact HTML subscribers receive, inside a full-screen iframe.
 export default async function NewsletterPreviewPage({ params }: { params: Promise<{ id: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/imago");
+  if (!authed) redirect("/admin/flatplan");
 
   const { id } = await params;
   const nl = await client.fetch(`*[_id == $id][0]{ subject, preview, intro, author, volume, issue, cards }`, { id }, { cache: "no-store" });

@@ -10,7 +10,7 @@ const NL_FIELDS = `subject, preview, author, cards, status, scheduledAt, volume,
 
 export default async function EditNewsletterPage({ params }: { params: Promise<{ id: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/imago");
+  if (!authed) redirect("/admin/flatplan");
 
   const { id } = await params;
 

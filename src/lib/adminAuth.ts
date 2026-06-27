@@ -19,8 +19,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/admin/imago",
-    error: "/admin/imago",
+    signIn: "/admin/flatplan",
+    error: "/admin/flatplan",
   },
 };
 

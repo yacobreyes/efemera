@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "flatplan",
+  title: "Flatplan",
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png" }],
     shortcut: [{ url: "/favicon.png", type: "image/png" }],

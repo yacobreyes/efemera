@@ -13,7 +13,7 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/imago");
+  if (!authed) redirect("/admin/flatplan");
 
   const { id } = await params;
 
@@ -35,7 +35,7 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   }
 
   const post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
-  if (!post) redirect("/admin/imago");
+  if (!post) redirect("/admin/flatplan");
 
   return <EditorClient post={post} />;
 }

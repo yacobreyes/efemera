@@ -65,7 +65,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
 
   async function signOutEverywhere() {
     const { signOut } = await import("next-auth/react");
-    await signOut({ callbackUrl: "/admin/imago" });
+    await signOut({ callbackUrl: "/admin/flatplan" });
   }
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
@@ -128,7 +128,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   const createMenuRef = useRef<HTMLDivElement>(null);
 
   // Newsletter list (the dashboard mixes these into the story lists).
-  // The editor itself lives at /admin/imago/newsletters/[id].
+  // The editor itself lives at /admin/flatplan/newsletters/[id].
   type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string; cards?: NlCard[] };
   const [newsletters, setNewsletters] = useState<NlListItem[]>([]);
 
@@ -193,15 +193,15 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     fetch("/api/newsletter", { cache: "no-store" }).then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
   }, []);
 
-  // The newsletter editor now lives at its own route (/admin/imago/newsletters/[id]),
+  // The newsletter editor now lives at its own route (/admin/flatplan/newsletters/[id]),
   // mirroring the story editor. Route to an in-memory id so the editor opens
   // instantly; the first autosave persists the doc. (Eager server-side
   // creation added a write+redirect+fetch round-trip that showed a blank/lag.)
   function createNewNewsletter() {
-    router.push(`/admin/imago/newsletters/newsletter-${Date.now()}`);
+    router.push(`/admin/flatplan/newsletters/newsletter-${Date.now()}`);
   }
   function openNewsletter(item: NlListItem) {
-    router.push(`/admin/imago/newsletters/${item._id}`);
+    router.push(`/admin/flatplan/newsletters/${item._id}`);
   }
 
   useEffect(() => {
@@ -216,11 +216,11 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     // Route to an in-memory placeholder so the editor opens instantly; the
     // first autosave persists the doc. (Eager server-side creation added a
     // write+redirect+fetch round-trip that showed a blank/lag.)
-    router.push(`/admin/imago/posts/untitled-${Date.now()}`);
+    router.push(`/admin/flatplan/posts/untitled-${Date.now()}`);
   }
 
   function startEdit(post: SanityPost) {
-    router.push(`/admin/imago/posts/${post.slug}`);
+    router.push(`/admin/flatplan/posts/${post.slug}`);
   }
 
   async function runStraightenQuotes() {
@@ -243,7 +243,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     if (panel !== "editor") {
       setEditing(null);
       setIsDirty(false);
-      const url = panel === "dashboard" ? "/admin/imago" : `/admin/imago/${panel}`;
+      const url = panel === "dashboard" ? "/admin/flatplan" : `/admin/flatplan/${panel}`;
       window.history.pushState(null, "", url);
     }
     if (panel === "media") {
@@ -323,10 +323,10 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f5f8fa" }}>
         <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, padding: "2.5rem 2rem", width: 300, display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center", textAlign: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.02em" }}>
-            <span style={{ color: CRIMSON }}>flat</span><span style={{ color: "#000000" }}>plan</span>
+            <span style={{ color: CRIMSON }}>Flat</span><span style={{ color: "#000000" }}>plan</span>
           </span>
           <button
-            onClick={() => { import("next-auth/react").then(({ signIn }) => signIn("google", { callbackUrl: "/admin/imago" })); }}
+            onClick={() => { import("next-auth/react").then(({ signIn }) => signIn("google", { callbackUrl: "/admin/flatplan" })); }}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", width: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
           >
             <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v8.51h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.14z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.55 10.78l7.98-6.19z"/><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.55 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/></svg>
@@ -430,7 +430,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
           {/* Logo */}
           <div style={{ padding: "0 0.75rem", display: "flex", alignItems: "center", justifyContent: sidebarOpen ? "flex-start" : "center", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0 }}>
             <span style={{ fontFamily: FONT, fontSize: "1.05rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
-              <span style={{ color: CRIMSON }}>flat</span>{sidebarOpen ? <span style={{ color: "#000000" }}>plan</span> : ""}
+              <span style={{ color: CRIMSON }}>Flat</span>{sidebarOpen ? <span style={{ color: "#000000" }}>plan</span> : ""}
             </span>
           </div>
           {/* Nav items */}
@@ -538,7 +538,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
                 <span style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 900, color: TEXT_DARK, letterSpacing: "-0.02em" }}>
-                  <span style={{ color: CRIMSON }}>flat</span><span style={{ color: "#000000" }}>plan</span>
+                  <span style={{ color: CRIMSON }}>Flat</span><span style={{ color: "#000000" }}>plan</span>
                 </span>
                 {activePanel === "dashboard" ? (
                   <div ref={!createMenuRef.current ? createMenuRef : undefined} style={{ position: "relative" }}>
@@ -600,7 +600,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
               <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} />
               <div style={{ position: "absolute", top: 0, left: 0, width: 260, height: "100%", background: "white", display: "flex", flexDirection: "column", overflowY: "auto", boxSizing: "border-box", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }} onClick={e => e.stopPropagation()}>
                 <div style={{ padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 900, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>flat</span><span style={{ color: "#000000" }}>plan</span></span>
+                  <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 900, color: TEXT_DARK }}><span style={{ color: CRIMSON }}>Flat</span><span style={{ color: "#000000" }}>plan</span></span>
                   <button onClick={() => setShowMobileNav(false)} style={{ background: "none", border: "none", cursor: "pointer", color: TEXT_MUTED, padding: 0, display: "flex" }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
@@ -928,7 +928,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
             </div>
           )}
 
-          {/* POST EDITOR is now at /admin/imago/posts/[id] and /admin/imago/posts/new */}
+          {/* POST EDITOR is now at /admin/flatplan/posts/[id] and /admin/flatplan/posts/new */}
           {activePanel === "editor" && (
             <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
@@ -1057,21 +1057,21 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
                 </>
               ) : (
                 <>
-                  <button onClick={() => { setContextMenu(null); router.push(`/admin/imago/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
+                  <button onClick={() => { setContextMenu(null); router.push(`/admin/flatplan/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
                   <div style={{ borderTop: `1px solid ${BORDER}` }} />
                   <button onClick={() => { const p = contextMenu.post; setContextMenu(null); if (confirm(`Delete "${p.headline || "this post"}"? This cannot be undone.`)) startTransition(async () => { await deletePost(p._id); refreshPosts(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
                 </>
               )
             ) : contextMenu.newsletter.status === "draft" ? (
               <>
-                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/imago/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/flatplan/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); if (confirm(`Delete "${n.subject || "this draft"}"?`)) startTransition(async () => { await deleteNewsletterDoc(n._id); refreshNewsletters(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
               </>
             ) : (
               <>
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); openNewsletter(n); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
-                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/imago/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/flatplan/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); if (confirm(`Delete "${n.subject || "this newsletter"}"? This cannot be undone.`)) startTransition(async () => { await deleteNewsletterDoc(n._id); refreshNewsletters(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
               </>

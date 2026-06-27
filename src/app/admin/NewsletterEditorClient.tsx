@@ -317,7 +317,7 @@ export default function NewsletterEditorClient({
         image: card.image ? { assetId: card.image.assetId, caption: card.image.caption, alt: card.image.alt } : null,
       });
       nlUpdateCard(card.id, { sourceSlug: slug });
-      window.open(`/admin/imago/posts/${slug}`, "_blank");
+      window.open(`/admin/flatplan/posts/${slug}`, "_blank");
     } catch {
       alert("Couldn't create the draft. Try again.");
     } finally {
@@ -353,7 +353,7 @@ export default function NewsletterEditorClient({
     if (card.sourceSlug) {
       return (
         <div style={{ display: "flex", justifyContent: justify, marginTop: "1rem" }}>
-          <a href={`/admin/imago/posts/${card.sourceSlug}`} target="_blank" rel="noreferrer"
+          <a href={`/admin/flatplan/posts/${card.sourceSlug}`} target="_blank" rel="noreferrer"
             style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, color: TEXT_MUTED, textDecoration: "none", letterSpacing: "0.02em", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
             Open linked story draft →
           </a>
@@ -433,7 +433,7 @@ export default function NewsletterEditorClient({
     return () => clearTimeout(timer);
   }, [nlSignature, nlPayload, nlSave]);
 
-  function exit() { window.location.href = "/admin/imago"; }
+  function exit() { window.location.href = "/admin/flatplan"; }
 
   function saveAndExit() {
     const payload = nlPayload();

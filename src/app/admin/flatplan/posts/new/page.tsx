@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export default async function NewPostPage() {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/imago");
+  if (!authed) redirect("/admin/flatplan");
   const { slug } = await createDraft();
-  redirect(`/admin/imago/posts/${slug}`);
+  redirect(`/admin/flatplan/posts/${slug}`);
 }
