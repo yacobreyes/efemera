@@ -187,7 +187,7 @@ function renderNewsletterContent(raw: NlOpts, opts: { masthead: boolean }): stri
 
   const masthead = opts.masthead
     ? `<div style="background:${CREAM};padding:16px 24px 14px;text-align:center;border-bottom:1px solid ${LINE};">
-         <img src="${base}/Wordmark.png" alt="Gangrey" width="380" height="66" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;border:0;" />
+         <img src="${base}/Wordmark.png?v=2" alt="Gangrey" width="380" height="66" style="width:100%;max-width:380px;height:auto;display:block;margin:0 auto;border:0;" />
        </div>`
     : "";
 
