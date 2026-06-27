@@ -439,13 +439,10 @@ export default function NewsletterEditorClient({
   }, [nlSignature, nlPayload, nlSave]);
 
   async function saveAndExit() {
-    const payload = nlPayload();
-    const needsSave = !nlDeleting.current && !nlLockedRef.current &&
-      (payload.subject || payload.cards.some(c => c.headline || (c.body && c.body.length)));
-    await Promise.all([
-      needsSave ? saveNewsletter(payload) : Promise.resolve(),
-      releaseLockNow(),
-    ]);
+    const isDirty = nlSignature() !== nlLastSaved.current;
+    if (!nlDeleting.current && !nlLockedRef.current && isDirty) {
+      await saveNewsletter(nlPayload());
+    }
     window.location.href = "/admin/flatplan";
   }
 
@@ -486,7 +483,7 @@ export default function NewsletterEditorClient({
     if (!confirm("Delete this newsletter? This cannot be undone.")) return;
     nlDeleting.current = true;
     try { await deleteNewsletter(newsletterId); } catch {}
-    exit();
+    window.location.href = "/admin/flatplan";
   }
 
   function restoreNlVersion(v: NlVersion) {
