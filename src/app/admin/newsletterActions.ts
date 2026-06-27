@@ -48,7 +48,9 @@ export async function getPostsForNewsletter(): Promise<NlPickablePost[]> {
   return client.fetch(
     `*[_type == "post" && !(_id in path("drafts.**")) && status != "trashed"] | order(_updatedAt desc){
       "id": _id, "slug": slug.current, headline, byline, section, date, status, body,
-      image{ "assetId": asset._ref, "url": asset->url, caption, alt }
+      image{ "assetId": asset._ref, "url": asset->url,
+        "caption": coalesce(caption, asset->description),
+        "alt": coalesce(alt, asset->altText) }
     }`,
     {},
     { cache: "no-store" }
