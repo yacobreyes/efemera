@@ -1,11 +1,32 @@
 import { getServerSession, type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { getUserByEmail, type FlatplanUser, type UserRole } from "./users";
+import { sanityMutate } from "./sanityWrite";
 
 // The bootstrap owner. This email is always allowed and always treated as an
 // admin, even before any `user` records exist — so the first sign-in can create
 // the rest of the team and nobody can lock themselves out.
 const BOOTSTRAP_EMAIL = (process.env.ADMIN_GOOGLE_EMAIL ?? "").trim().toLowerCase();
+
+// Materialize the bootstrap owner as a real admin `user` record on first
+// sign-in, so they appear in the Users list and in presence with their name.
+// Idempotent (createIfNotExists) and best-effort — never blocks sign-in.
+async function ensureBootstrapRecord(email: string, name?: string | null) {
+  const [firstName, ...rest] = (name ?? "").trim().split(" ");
+  try {
+    await sanityMutate([{
+      createIfNotExists: {
+        _id: `user-${email.replace(/[^a-z0-9]/g, "-")}`,
+        _type: "user",
+        email,
+        firstName: firstName || "Yacob",
+        lastName: rest.join(" ") || "Reyes",
+        role: "admin",
+        active: true,
+      },
+    }]);
+  } catch { /* token/network issue — bootstrap access still works without it */ }
+}
 
 function bootstrapUser(email: string, name?: string | null): FlatplanUser {
   const [firstName, ...rest] = (name ?? "").split(" ");
@@ -29,9 +50,13 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // Allow the bootstrap owner, or any active user in the Sanity user list.
     async signIn({ profile }) {
-      const email = (profile as { email?: string } | undefined)?.email?.trim().toLowerCase();
+      const p = profile as { email?: string; name?: string } | undefined;
+      const email = p?.email?.trim().toLowerCase();
       if (!email) return false;
-      if (email === BOOTSTRAP_EMAIL) return true;
+      if (email === BOOTSTRAP_EMAIL) {
+        await ensureBootstrapRecord(email, p?.name);
+        return true;
+      }
       return !!(await getUserByEmail(email));
     },
     async session({ session }) {
