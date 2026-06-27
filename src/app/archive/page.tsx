@@ -46,10 +46,10 @@ export default async function GangreyPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#000000" }}>
       <style>{`
-        .gr-wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 64px 44px 100px; box-sizing: border-box; flex: 1; }
+        .gr-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
         .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #392a22; letter-spacing: .08em; margin-top: 20px; }
-        @media (max-width: 760px) {
-          .gr-wrap { padding: 40px 20px 72px; }
+        @media (max-width: 900px) {
+          .gr-wrap { padding: 40px 24px 64px; }
         }
       `}</style>
       <MagHeader />
