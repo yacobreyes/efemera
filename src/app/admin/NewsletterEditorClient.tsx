@@ -443,18 +443,17 @@ export default function NewsletterEditorClient({
     return () => clearTimeout(timer);
   }, [nlSignature, nlPayload, nlSave]);
 
-  async function saveAndExit() {
+  function saveAndExit() {
     if (nlExiting) return;
     setNlExiting(true);
     const isDirty = nlSignature() !== nlLastSaved.current;
-    // Release the lock and (if dirty) save together, then soft-navigate to the
-    // prefetched dashboard so presence clears before it renders. No full reload.
-    const work: Promise<unknown>[] = [];
+    // Navigate immediately; save + lock-release fire in the background. The
+    // server-action fetches are already dispatched so client nav won't cancel
+    // them, and the pagehide beacon backs up the lock release.
     if (!nlLockedRef.current) {
-      work.push(releaseLockNow());
-      if (!nlDeleting.current && isDirty) work.push(saveNewsletter(nlPayload()).catch(() => {}));
+      releaseLockNow();
+      if (!nlDeleting.current && isDirty) void saveNewsletter(nlPayload()).catch(() => {});
     }
-    await Promise.all(work);
     router.push("/admin/flatplan");
   }
 

@@ -266,15 +266,15 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" disabled={exiting} onClick={async () => {
+        <button type="button" disabled={exiting} onClick={() => {
           if (exiting) return;
           setExiting(true);
-          // Release the lock and (if there are unsaved edits) save — together, so
-          // the dashboard never flashes a stale "is writing" badge — then do a soft
-          // client-side nav to the prefetched dashboard. No full page reload.
-          const work: Promise<unknown>[] = [];
+          // Navigate immediately — the save and lock-release fire in the
+          // background. Their server-action fetches are already dispatched, so
+          // client navigation won't cancel them; the pagehide beacon + unmount
+          // cleanup are extra safety nets for the lock release.
           if (!locked) {
-            work.push(releaseLockNow());
+            releaseLockNow();
             if (isDirty) {
               const status = form.status === "published" ? "published" : "draft";
               const fd = new FormData();
@@ -285,11 +285,11 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               if (imageAssetId) fd.set("imageAssetId", imageAssetId);
               if (imageCaption) fd.set("imageCaption", imageCaption);
               if (imageAlt) fd.set("imageAlt", imageAlt);
-              fd.set("snapshot", "1");
-              work.push(savePost(fd).catch(() => {}));
+              // No snapshot on exit — autosave already versions periodically, and
+              // snapshotting adds 3 extra Sanity round-trips that made exit crawl.
+              void savePost(fd).catch(() => {});
             }
           }
-          await Promise.all(work);
           router.push("/admin/flatplan");
         }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: exiting ? "default" : "pointer", opacity: exiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
