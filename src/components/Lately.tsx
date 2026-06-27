@@ -1,4 +1,5 @@
 import type { SanityLately } from "@/lib/sanity";
+import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
 function MaybeLink({ url, children }: { url?: string; children: React.ReactNode }) {
   if (!url) return <>{children}</>;
@@ -7,10 +8,6 @@ function MaybeLink({ url, children }: { url?: string; children: React.ReactNode 
 }
 
 const FONT = "var(--font-subhead)";
-const BORDER = "#b8b8ba";
-const CRIMSON = "#490000";
-const TEXT_DARK = "#000000";
-const TEXT_MUTED = "#392a22";
 
 const ROW_LABEL: React.CSSProperties = {
   fontFamily: FONT, fontSize: "0.62rem", fontWeight: 700,

@@ -13,11 +13,8 @@ import { straightenQuotes } from "@/lib/straighten";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
+import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
-const CRIMSON = "#490000";
-const BORDER = "#b8b8ba";
-const TEXT_DARK = "#000000";
-const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -347,7 +344,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
                 )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 {post.status !== "trashed" ? (
-                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin/flatplan");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
+                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin/flatplan");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
                 ) : (
                   <>
                     <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin/flatplan");})} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Restore</button>

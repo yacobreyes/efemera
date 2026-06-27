@@ -11,11 +11,8 @@ import { createPostFromNewsletterCard, checkSlugsExist } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { PortableTextBlock } from "@portabletext/types";
+import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
-const CRIMSON = "#490000";
-const BORDER = "#b8b8ba";
-const TEXT_DARK = "#000000";
-const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 
 const INPUT: React.CSSProperties = {
@@ -696,8 +693,6 @@ export default function NewsletterEditorClient({
             </button>
             {showNlEllipsis && (
               <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowNlEllipsis(false)}>
-                <button type="button" onClick={() => setShowNlPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
-                <button type="button" onClick={() => { if (!nlScheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setNlScheduledAt(d.toISOString().slice(0, 16)); } setShowNlScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
                 <button type="button" onClick={async () => {
                   setNlSending(true);
                   try {
@@ -706,6 +701,8 @@ export default function NewsletterEditorClient({
                   } catch { alert("Test send failed."); }
                   finally { setNlSending(false); }
                 }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Send test email</button>
+                <button type="button" onClick={() => { if (!nlScheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setNlScheduledAt(d.toISOString().slice(0, 16)); } setShowNlScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                <button type="button" onClick={() => setShowNlPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 {nlStatus === "published" && (
                   <>
                     <button type="button" onClick={async () => {
@@ -722,7 +719,7 @@ export default function NewsletterEditorClient({
                   </>
                 )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
-                <button type="button" onClick={removeNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
+                <button type="button" onClick={removeNewsletter} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
               </div>
             )}
           </div>

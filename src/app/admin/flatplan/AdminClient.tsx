@@ -11,11 +11,8 @@ import ImagePickerModal from "@/components/ImagePickerModal";
 import type { JSONContent, Editor } from "@tiptap/react";
 import type { SanityPost } from "@/lib/sanity";
 import { straightenQuotes } from "@/lib/straighten";
+import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
-const CRIMSON = "#490000";
-const BORDER = "#b8b8ba";
-const TEXT_DARK = "#000000";
-const TEXT_MUTED = "#392a22";
 const FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
 
 const INPUT: React.CSSProperties = {

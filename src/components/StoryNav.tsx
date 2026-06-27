@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-
-const CRIMSON = "#490000";
+import { CRIMSON } from "@/lib/palette";
 
 export default function StoryNav() {
   const [sectionsOpen, setSectionsOpen] = useState(false);

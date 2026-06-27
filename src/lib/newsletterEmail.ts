@@ -2,6 +2,7 @@
 // Kept dependency-free: a small serializer for the block types our editor emits.
 import type { PortableTextBlock } from "@portabletext/types";
 import { straightenQuotes, straightenBlocks } from "./straighten";
+import { CRIMSON, INK, TEXT_MUTED, CREAM, PAPER_DARK, LINE } from "./palette";
 
 export type NlCard = {
   headline?: string;
@@ -11,12 +12,6 @@ export type NlCard = {
   byline?: string;
 };
 
-const CRIMSON = "#490000";
-const INK = "#000000";
-const TEXT_MUTED = "#392a22";
-const CREAM = "#ffffff";
-const PAPER_DARK = "#ffffff";
-const LINE = "#b8b8ba";
 // Email + web-reader typography. Astoria is deliberately NOT used here: mail
 // clients (Gmail especially) load Astoria but render its straight apostrophe/
 // quote glyphs as curls, and they strip the @font-face unicode-range override

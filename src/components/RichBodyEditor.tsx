@@ -13,6 +13,7 @@ import Image from "@tiptap/extension-image";
 import Youtube from "@tiptap/extension-youtube";
 import type { JSONContent } from "@tiptap/react";
 import { straightenQuotes } from "@/lib/straighten";
+import { CRIMSON, TEXT_DARK, BORDER } from "@/lib/palette";
 
 const CURLY = /[‘’‚‛′‵ʼʻʽ＇❛❜“”„‟″‶＂❝❞]/;
 
@@ -68,9 +69,6 @@ const StraightQuotes = Extension.create({
   },
 });
 
-const CRIMSON = "#490000";
-const TEXT_DARK = "#000000";
-const BORDER = "#b8b8ba";
 const FONT = "var(--font-inter), sans-serif";
 
 export interface ToolbarHandles {

@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
-const CRIMSON = "#490000";
-const BORDER = "#b8b8ba";
-const TEXT_DARK = "#000000";
-const TEXT_MUTED = "#392a22";
 const FONT = "var(--font-inter), sans-serif";
 const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
