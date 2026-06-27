@@ -6,7 +6,10 @@ import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import StoryCardGrid from "@/components/StoryCardGrid";
 
-export const revalidate = 60;
+// Force dynamic rendering. This page reads `?read=` and a stale/edge-cached
+// response for one query variant was surfacing as a 404; rendering on every
+// request guarantees each variant is freshly served.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Life, in Brief — Gangrey",
