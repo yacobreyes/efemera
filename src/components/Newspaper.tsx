@@ -491,7 +491,7 @@ export default function Feed({
           {[1, 3, 5].map(m => (
             <Link
               key={m}
-              href={`/brief?read=${m}`}
+              href={`/brief/${m}`}
               className="ef-circle"
             >
               <strong>{m}</strong>

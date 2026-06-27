@@ -251,7 +251,7 @@ export async function savePost(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/latest");
     revalidatePath("/archive");
-    revalidatePath("/brief");
+    revalidatePath("/brief/[read]", "page");
   }
   return { slug };
 }
