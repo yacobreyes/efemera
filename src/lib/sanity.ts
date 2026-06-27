@@ -161,6 +161,25 @@ export async function getAllPostsAdmin(withSearch = false): Promise<SanityPost[]
   return posts.map(straightenPost);
 }
 
+// Newsletter list for the dashboard, server-rendered so drafts appear on first
+// paint instead of popping in after a client fetch. Mirrors the shape returned
+// by /api/newsletter (which the client uses for live refreshes).
+export type AdminNewsletterListItem = {
+  _id: string; subject?: string; preview?: string; author?: string;
+  wordCount?: number; cards?: unknown[]; status?: "draft" | "published" | "scheduled";
+  scheduledAt?: string; createdAt?: string; updatedAt?: string; sentAt?: string;
+};
+export async function getAllNewslettersAdmin(): Promise<AdminNewsletterListItem[]> {
+  const list: AdminNewsletterListItem[] = await client.fetch(
+    `*[_type == "newsletter"] | order(coalesce(updatedAt, createdAt) desc){
+      _id, subject, preview, author, wordCount, cards, status, scheduledAt, createdAt, updatedAt, sentAt
+    }`,
+    {},
+    { cache: "no-store" }
+  );
+  return list ?? [];
+}
+
 export async function getPost(slug: string): Promise<SanityPost | null> {
   const post: SanityPost | null = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0] { ${POST_FIELDS} }`,

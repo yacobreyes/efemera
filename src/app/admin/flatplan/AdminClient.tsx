@@ -11,7 +11,7 @@ import ImagePickerModal from "@/components/ImagePickerModal";
 import UsersPanel from "./UsersPanel";
 import { getActiveLocks, type LockHolder } from "../lockActions";
 import type { JSONContent, Editor } from "@tiptap/react";
-import type { SanityPost } from "@/lib/sanity";
+import type { SanityPost, AdminNewsletterListItem } from "@/lib/sanity";
 import { straightenQuotes } from "@/lib/straighten";
 import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
@@ -60,7 +60,7 @@ type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscrib
 
 export type CurrentUser = { name: string; email: string; role: "admin" | "editor" };
 
-export default function AdminClient({ posts: initialPosts, initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
+export default function AdminClient({ posts: initialPosts, initialNewsletters = [], initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialNewsletters?: AdminNewsletterListItem[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
   const router = useRouter();
   const [auth] = useState(initialAuth);
   const isAdmin = currentUser?.role === "admin";
@@ -149,7 +149,7 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
   // Newsletter list (the dashboard mixes these into the story lists).
   // The editor itself lives at /admin/flatplan/newsletters/[id].
   type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string; cards?: NlCard[] };
-  const [newsletters, setNewsletters] = useState<NlListItem[]>([]);
+  const [newsletters, setNewsletters] = useState<NlListItem[]>(initialNewsletters as NlListItem[]);
 
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
   const [subscribersLoading, setSubscribersLoading] = useState(false);
