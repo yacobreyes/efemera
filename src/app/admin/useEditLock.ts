@@ -81,5 +81,12 @@ export function useEditLock(targetId: string | null) {
     claimLock(targetId, sessionRef.current, new Date().toISOString(), true).then(apply).catch(() => {});
   }, [targetId, apply]);
 
-  return { status, holder, selfOtherTab, takeOver, readOnly: status === "locked" };
+  // Explicitly drop the lock — call before navigating away on an exit button so
+  // presence clears immediately instead of waiting for the beacon/TTL.
+  const release = useCallback(async () => {
+    if (!targetId) return;
+    try { await releaseLock(targetId, sessionRef.current); } catch { /* ignore */ }
+  }, [targetId]);
+
+  return { status, holder, selfOtherTab, takeOver, release, readOnly: status === "locked" };
 }

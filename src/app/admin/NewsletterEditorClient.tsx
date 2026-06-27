@@ -90,7 +90,7 @@ export default function NewsletterEditorClient({
   newsletterId, initial, initialVersions,
 }: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[] }) {
   // Edit lock — pause autosave & warn when someone else (or another tab) is in it.
-  const { holder: lockHolder, selfOtherTab, takeOver, readOnly: nlLocked } = useEditLock(newsletterId);
+  const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: nlLocked } = useEditLock(newsletterId);
   const nlLockedRef = useRef(false);
   useEffect(() => { nlLockedRef.current = nlLocked; }, [nlLocked]);
 
@@ -438,7 +438,7 @@ export default function NewsletterEditorClient({
     return () => clearTimeout(timer);
   }, [nlSignature, nlPayload, nlSave]);
 
-  function exit() { window.location.href = "/admin/flatplan"; }
+  async function exit() { await releaseLockNow(); window.location.href = "/admin/flatplan"; }
 
   function saveAndExit() {
     const payload = nlPayload();

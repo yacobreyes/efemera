@@ -8,7 +8,7 @@ import { fullName } from "@/lib/users";
 // A lock is considered live only if it was refreshed within this window. The
 // editor heartbeats every ~20s, so 45s tolerates a missed beat before a lock is
 // treated as abandoned (e.g. the holder closed the tab without releasing).
-const LOCK_TTL_MS = 45_000;
+const LOCK_TTL_MS = 30_000;
 
 export type LockHolder = { name: string; email: string; sessionId: string; since: string };
 // selfOtherTab: the lock is held by *you*, but from a different tab/session.
