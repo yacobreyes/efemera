@@ -6,7 +6,7 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { straightenQuotes } from "@/lib/straighten";
-import { saveNewsletter, deleteNewsletter, sendNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
+import { saveNewsletter, deleteNewsletter, sendNewsletter, sendTestNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
 import { createPostFromNewsletterCard, checkSlugsExist } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
 import type { JSONContent, Editor } from "@tiptap/react";
@@ -698,6 +698,14 @@ export default function NewsletterEditorClient({
               <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowNlEllipsis(false)}>
                 <button type="button" onClick={() => setShowNlPreview(true)} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <button type="button" onClick={() => { if (!nlScheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setNlScheduledAt(d.toISOString().slice(0, 16)); } setShowNlScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                <button type="button" onClick={async () => {
+                  setNlSending(true);
+                  try {
+                    const d = await sendTestNewsletter(newsletterId);
+                    alert(d.ok ? "Test email sent to yacob@gangrey.org." : (d.error || "Test send failed."));
+                  } catch { alert("Test send failed."); }
+                  finally { setNlSending(false); }
+                }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Send test email</button>
                 {nlStatus === "published" && (
                   <>
                     <button type="button" onClick={async () => {

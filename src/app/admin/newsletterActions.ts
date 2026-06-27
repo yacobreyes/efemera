@@ -339,3 +339,45 @@ export async function sendNewsletter(id: string): Promise<{ ok: boolean; sent?: 
   } catch {}
   return { ok: true, sent, failed: emails.length - sent };
 }
+
+// Send a single preview copy to the editor so the rendered email can be checked
+// in a real inbox before blasting the list. Does not touch subscribers, the
+// open-tracking pixel, or the newsletter's status.
+const TEST_RECIPIENT = "yacob@gangrey.org";
+
+export async function sendTestNewsletter(id: string): Promise<{ ok: boolean; error?: string }> {
+  await requireAuth();
+  const apiKey = process.env.GANGREY_RESEND_KEY ?? process.env.RESEND_API_KEY;
+  const from = process.env.NEWSLETTER_FROM;
+  if (!apiKey || !from) {
+    return { ok: false, error: "Email sending isn't configured yet. Add GANGREY_RESEND_KEY and NEWSLETTER_FROM in Vercel env vars." };
+  }
+  if (!id) return { ok: false, error: "missing id" };
+
+  const nl = await client.fetch(
+    `*[_id == $id][0]{ subject, preview, author, volume, issue, intro, cards }`,
+    { id },
+    { cache: "no-store" }
+  );
+  if (!nl) return { ok: false, error: "Newsletter not found" };
+
+  const html = renderNewsletterHtml({
+    subject: nl.subject ?? "",
+    preview: nl.preview ?? "",
+    intro: nl.intro ?? "",
+    author: nl.author ?? "",
+    volume: nl.volume ?? "",
+    issue: nl.issue ?? "",
+    cards: (nl.cards ?? []) as NlCard[],
+  });
+
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({
+    from,
+    to: [TEST_RECIPIENT],
+    subject: `[TEST] ${nl.subject || "Untitled newsletter"}`,
+    html,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
