@@ -7,7 +7,7 @@ import MagFooter from "@/components/MagFooter";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "About — Gangrey",
+  title: "Gangrey | About",
   description: "About Gangrey, a literary magazine by Yacob Reyes.",
 };
 

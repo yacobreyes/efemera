@@ -7,7 +7,7 @@ import StoryCardGrid from "@/components/StoryCardGrid";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "The Latest — Gangrey",
+  title: "Gangrey | The Latest",
   description: "The newest writing from Gangrey.",
 };
 

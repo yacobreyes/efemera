@@ -8,7 +8,7 @@ import { normalizeHeadline } from "@/lib/gangreyDedup";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "The Archive — Gangrey",
+  title: "Gangrey | The Archive",
   description: "Writing once featured on the now-defunct Gangrey.com.",
 };
 

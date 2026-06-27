@@ -7,7 +7,7 @@ import AuthorsClient from "./AuthorsClient";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Authors — Gangrey",
+  title: "Gangrey | Authors",
   description: "Writers featured in Gangrey.",
 };
 

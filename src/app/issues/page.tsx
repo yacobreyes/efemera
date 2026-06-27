@@ -7,7 +7,7 @@ import MagFooter from "@/components/MagFooter";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Issues — Gangrey",
+  title: "Gangrey | Issues",
   description: "Every newsletter issue from Gangrey, a literary magazine.",
 };
 

@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : { url: "/og-image.png", width: 1200, height: 630, alt: "Gangrey" };
 
   return {
-    title: `${seoTitle} — Gangrey`,
+    title: `Gangrey | ${seoTitle}`,
     description: seoDescription,
     openGraph: {
       type: "article",
