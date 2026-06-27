@@ -5,7 +5,7 @@ import { claimLock, heartbeatLock, releaseLock, type LockHolder, type LockState 
 
 export type LockStatus = "loading" | "held" | "locked";
 
-const HEARTBEAT_MS = 7_000;
+const HEARTBEAT_MS = 4_000;
 
 // Unique per tab. Falls back to a random string if crypto.randomUUID is
 // unavailable — otherwise two tabs could share an empty id and be mistaken for
@@ -37,25 +37,36 @@ export function useEditLock(targetId: string | null) {
     setSelfOtherTab(!!s.selfOtherTab);
   }, []);
 
+  const broadcast = useCallback(() => {
+    try { new BroadcastChannel("flatplan-locks").postMessage({ type: "update" }); } catch { /* unsupported */ }
+  }, []);
+
   useEffect(() => {
     if (!targetId) return;
     let alive = true;
     const sid = sessionRef.current;
 
-    claimLock(targetId, sid, new Date().toISOString()).then(s => alive && apply(s)).catch(() => {});
-
-    const iv = setInterval(async () => {
+    const tick = async () => {
       if (!alive) return;
       try {
         const now = new Date().toISOString();
-        // Held → keep alive. Locked → keep trying to acquire (auto-takes over
-        // once the other session releases or its lock goes stale).
         const s = statusRef.current === "held"
           ? await heartbeatLock(targetId, sid, now)
           : await claimLock(targetId, sid, now);
         if (alive) apply(s);
       } catch { /* transient network — retry next tick */ }
-    }, HEARTBEAT_MS);
+    };
+
+    claimLock(targetId, sid, new Date().toISOString()).then(s => { if (alive) { apply(s); broadcast(); } }).catch(() => {});
+
+    const iv = setInterval(tick, HEARTBEAT_MS);
+
+    // When another tab releases a lock, try to acquire immediately.
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel("flatplan-locks");
+      bc.onmessage = () => { if (alive && statusRef.current !== "held") tick(); };
+    } catch { /* unsupported */ }
 
     // Release reliably even on a hard navigation/tab close: sendBeacon survives
     // page unload, where the async releaseLock() call would be cut off.
@@ -70,23 +81,24 @@ export function useEditLock(targetId: string | null) {
     return () => {
       alive = false;
       clearInterval(iv);
+      bc?.close();
       window.removeEventListener("pagehide", beaconRelease);
       beaconRelease();
-      releaseLock(targetId, sid).catch(() => {});
+      releaseLock(targetId, sid).then(() => broadcast()).catch(() => {});
     };
-  }, [targetId, apply]);
+  }, [targetId, apply, broadcast]);
 
   const takeOver = useCallback(() => {
     if (!targetId) return;
-    claimLock(targetId, sessionRef.current, new Date().toISOString(), true).then(apply).catch(() => {});
-  }, [targetId, apply]);
+    claimLock(targetId, sessionRef.current, new Date().toISOString(), true).then(s => { apply(s); broadcast(); }).catch(() => {});
+  }, [targetId, apply, broadcast]);
 
   // Explicitly drop the lock — call before navigating away on an exit button so
   // presence clears immediately instead of waiting for the beacon/TTL.
   const release = useCallback(async () => {
     if (!targetId) return;
-    try { await releaseLock(targetId, sessionRef.current); } catch { /* ignore */ }
-  }, [targetId]);
+    try { await releaseLock(targetId, sessionRef.current); broadcast(); } catch { /* ignore */ }
+  }, [targetId, broadcast]);
 
   return { status, holder, selfOtherTab, takeOver, release, readOnly: status === "locked" };
 }

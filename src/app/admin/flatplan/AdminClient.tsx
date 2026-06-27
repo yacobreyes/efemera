@@ -80,8 +80,14 @@ export default function AdminClient({ posts: initialPosts, initialAuth = false, 
     let alive = true;
     const poll = () => getActiveLocks(new Date().toISOString()).then(l => { if (alive) setActiveLocks(l); }).catch(() => {});
     poll();
-    const iv = setInterval(poll, 8000);
-    return () => { alive = false; clearInterval(iv); };
+    const iv = setInterval(poll, 4000);
+    // Instant update when another tab releases a lock.
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel("flatplan-locks");
+      bc.onmessage = () => { if (alive) poll(); };
+    } catch { /* unsupported */ }
+    return () => { alive = false; clearInterval(iv); bc?.close(); };
   }, [auth]);
   const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   const [editing, setEditing] = useState<SanityPost | null>(null);
