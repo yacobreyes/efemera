@@ -5,7 +5,17 @@ import { claimLock, heartbeatLock, releaseLock, type LockHolder, type LockState 
 
 export type LockStatus = "loading" | "held" | "locked";
 
-const HEARTBEAT_MS = 12_000;
+const HEARTBEAT_MS = 7_000;
+
+// Unique per tab. Falls back to a random string if crypto.randomUUID is
+// unavailable — otherwise two tabs could share an empty id and be mistaken for
+// the same session (so no lock conflict, no banner).
+function newSessionId() {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    try { return crypto.randomUUID(); } catch { /* fall through */ }
+  }
+  return `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 // Claims an edit lock for a document and keeps it alive while this editor is
 // open. If another session holds it, status becomes "locked" with the holder's
@@ -13,9 +23,7 @@ const HEARTBEAT_MS = 12_000;
 // tab gets a different sessionId, so it surfaces as "open in another tab."
 export function useEditLock(targetId: string | null) {
   const sessionRef = useRef<string>("");
-  if (!sessionRef.current && typeof crypto !== "undefined" && crypto.randomUUID) {
-    sessionRef.current = crypto.randomUUID();
-  }
+  if (!sessionRef.current) sessionRef.current = newSessionId();
   const [status, setStatus] = useState<LockStatus>("loading");
   const [holder, setHolder] = useState<LockHolder | null>(null);
   const [selfOtherTab, setSelfOtherTab] = useState(false);
