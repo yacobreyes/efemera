@@ -45,7 +45,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
         .mag-nav-group {
           display: flex;
-          gap: 38px;
+          gap: clamp(20px, 2.4vw, 38px);
           align-items: center;
           font-family: var(--font-subhead);
           font-size: 12px;
@@ -53,14 +53,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           letter-spacing: .16em;
           text-transform: uppercase;
           color: #000000;
+          white-space: nowrap;
         }
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
         .mag-nav-group a:hover { color: #490000; }
-        .mag-nav-group.right { justify-content: flex-end; gap: 28px; }
+        .mag-nav-group.right { justify-content: flex-end; gap: clamp(16px, 1.8vw, 28px); }
         .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; }
         .mag-logo-text {
           font-family: "amador", Georgia, serif;
-          font-size: clamp(30px, 4vw, 48px);
+          font-size: clamp(26px, 3.2vw, 46px);
+          padding: 0 18px;
           font-weight: 400;
           color: #000000;
           letter-spacing: 0;
@@ -147,7 +149,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-mob-sub { display: none; }
         .mag-drawer { display: none; }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1100px) {
           .mag-nav {
             height: auto;
             padding: 0 20px;

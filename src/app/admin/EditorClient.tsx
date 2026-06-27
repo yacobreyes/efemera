@@ -266,13 +266,13 @@ export default function EditorClient({ post }: { post: SanityPost }) {
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" disabled={exiting} onClick={() => {
+        <button type="button" disabled={exiting} onClick={async () => {
           if (exiting) return;
           setExiting(true);
-          // Navigate immediately — the save and lock-release fire in the
-          // background. Their server-action fetches are already dispatched, so
-          // client navigation won't cancel them; the pagehide beacon + unmount
-          // cleanup are extra safety nets for the lock release.
+          // Fire the lock release in the background (beacon + unmount cleanup back
+          // it up), but AWAIT the save so the draft is persisted before the
+          // dashboard re-fetches its list — otherwise a new draft is missing when
+          // we land. The save is light (no snapshot) so it's just one round-trip.
           if (!locked) {
             releaseLockNow();
             if (isDirty) {
@@ -287,7 +287,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               if (imageAlt) fd.set("imageAlt", imageAlt);
               // No snapshot on exit — autosave already versions periodically, and
               // snapshotting adds 3 extra Sanity round-trips that made exit crawl.
-              void savePost(fd).catch(() => {});
+              await savePost(fd).catch(() => {});
             }
           }
           router.push("/admin/flatplan");
