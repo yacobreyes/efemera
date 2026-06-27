@@ -6,7 +6,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gangrey.org";
 
 export const metadata: Metadata = {
   title: "Gangrey | A Literary Magazine",
-  description: "True stories for the time you have.",
+  description: "Gangrey is a literary magazine of true stories — narrative nonfiction, essays, and micro-memoirs, sized to the time you have.",
   metadataBase: new URL(siteUrl),
   alternates: {
     types: { "application/rss+xml": `${siteUrl}/feed.xml` },
@@ -14,14 +14,14 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Gangrey",
     title: "Gangrey | A Literary Magazine",
-    description: "True stories for the time you have.",
+    description: "Gangrey is a literary magazine of true stories — narrative nonfiction, essays, and micro-memoirs, sized to the time you have.",
     url: siteUrl,
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Gangrey Magazine" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Gangrey | A Literary Magazine",
-    description: "True stories for the time you have.",
+    description: "Gangrey is a literary magazine of true stories — narrative nonfiction, essays, and micro-memoirs, sized to the time you have.",
     images: ["/og-image.png"],
   },
 };
