@@ -810,27 +810,27 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                 if (!r.ok) { setAddEmailError(r.error ?? "Failed."); return; }
                 setAddEmailInput("");
                 setSubscribers(prev => [{ email: addEmailInput.trim().toLowerCase(), status: "neutral", createdAt: new Date().toISOString() }, ...prev]);
-              }} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
-                <input value={addEmailInput} onChange={e => { setAddEmailInput(e.target.value); setAddEmailError(""); }} placeholder="name@example.com" type="email" style={{ flex: 1, fontFamily: FONT, fontSize: "0.88rem", padding: "0.5rem 0.75rem", border: `1px solid ${addEmailError ? CRIMSON : BORDER}`, borderRadius: 4, outline: "none", color: TEXT_DARK }} />
+              }} style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                <input value={addEmailInput} onChange={e => { setAddEmailInput(e.target.value); setAddEmailError(""); }} placeholder="name@example.com" type="email" style={{ flex: 1, minWidth: 0, fontFamily: FONT, fontSize: "0.88rem", padding: "0.5rem 0.75rem", border: `1px solid ${addEmailError ? CRIMSON : BORDER}`, borderRadius: 4, outline: "none", color: TEXT_DARK, boxSizing: "border-box" }} />
                 <button type="submit" disabled={addEmailPending || !addEmailInput.trim()} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: addEmailPending || !addEmailInput.trim() ? "not-allowed" : "pointer", opacity: addEmailPending || !addEmailInput.trim() ? 0.6 : 1, whiteSpace: "nowrap" }}>
                   {addEmailPending ? "Adding…" : "Add subscriber"}
                 </button>
               </form>
               {addEmailError && <p style={{ fontFamily: FONT, fontSize: "0.8rem", color: CRIMSON, margin: "-0.75rem 0 1rem" }}>{addEmailError}</p>}
-              <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem" }}>
-                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? "0.6rem" : "1rem", marginBottom: "1.25rem" }}>
+                <div style={{ minWidth: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "0.75rem 0.9rem" : "1rem 1.25rem" }}>
                   <p style={LABEL}>Total subscribers</p>
                   <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>{subscribers.length}</p>
                 </div>
-                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+                <div style={{ minWidth: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "0.75rem 0.9rem" : "1rem 1.25rem" }}>
                   <p style={LABEL}>Active</p>
                   <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: CRIMSON, margin: 0 }}>{subscribers.filter(s => s.status === "active").length}</p>
                 </div>
-                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+                <div style={{ minWidth: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "0.75rem 0.9rem" : "1rem 1.25rem" }}>
                   <p style={LABEL}>Neutral</p>
                   <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: TEXT_DARK, margin: 0 }}>{subscribers.filter(s => (s.status ?? "neutral") === "neutral").length}</p>
                 </div>
-                <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
+                <div style={{ minWidth: 0, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: isMobile ? "0.75rem 0.9rem" : "1rem 1.25rem" }}>
                   <p style={LABEL}>Inactive</p>
                   <p style={{ fontFamily: FONT, fontSize: "1.6rem", fontWeight: 700, color: TEXT_MUTED, margin: 0 }}>{subscribers.filter(s => s.status === "inactive").length}</p>
                 </div>
