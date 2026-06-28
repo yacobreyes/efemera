@@ -17,6 +17,16 @@ export const client = createClient({
   token,
 });
 
+// CDN-backed, tokenless client for large reads of published content (e.g. the
+// 2500+ archive pieces). The edge CDN is far faster than the authenticated API,
+// and archive posts are all published so no token is needed.
+const clientCdn = createClient({
+  projectId,
+  dataset,
+  apiVersion: "2024-01-01",
+  useCdn: true,
+});
+
 // Re-exported for server-side call sites — client components should import
 // from "@/lib/sanityImage" directly so they don't pull in next-sanity's
 // createClient (this file) just to build an image URL.
@@ -164,13 +174,20 @@ export async function getAllPostsAdmin(withSearch = false, excludeArchive = fals
   return posts.map(straightenPost);
 }
 
-// Archive pieces only, light (no body) so all 2500+ load quickly for the
-// dashboard's dedicated Archive tab. Lazy-fetched on demand, not on first paint.
+// Archive pieces only, for the dashboard's Archive panel. The rows only render
+// headline/byline/section/date, so we fetch ONLY those — skipping the expensive
+// per-post readingTime computation (pt::text(body) over 2500 docs) and image
+// resolution that POST_LIST_FIELDS pays for. Cached briefly so repeat opens are
+// instant; archive content effectively never changes.
+const ARCHIVE_LIST_FIELDS = `
+  _id, "slug": slug.current, section, headline, byline, date,
+  _updatedAt, _createdAt, status, "body": []
+`;
 export async function getArchivePostsAdmin(): Promise<SanityPost[]> {
-  const posts: SanityPost[] = await client.fetch(
-    `*[_type == "post" && !(_id in path("drafts.**")) && section == "Archive"] | order(date desc) { ${POST_LIST_FIELDS} }`,
+  const posts: SanityPost[] = await clientCdn.fetch(
+    `*[_type == "post" && !(_id in path("drafts.**")) && section == "Archive"] | order(date desc) { ${ARCHIVE_LIST_FIELDS} }`,
     {},
-    { cache: "no-store" }
+    { next: { revalidate: 300 } }
   );
   return posts.map(straightenPost);
 }
