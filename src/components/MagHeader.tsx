@@ -153,10 +153,9 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-nav {
             height: auto;
             padding: 0 20px;
-            /* Keep the 1fr auto 1fr grid so the logo centers on the true
-               viewport center regardless of the toggle / subscribe widths. */
-            grid-template-columns: 1fr auto 1fr;
-            row-gap: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
           }
           .mag-nav-group { display: none; }
           .mag-search-btn { display: none; }
@@ -169,9 +168,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             border: none;
             cursor: pointer;
             padding: 8px 8px 8px 0;
-            grid-column: 1;
-            grid-row: 1;
-            justify-self: start;
+            order: 1;
           }
           .mag-toggle span {
             display: block;
@@ -181,12 +178,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             transition: all .2s;
           }
           .mag-logo {
-            grid-column: 2;
-            grid-row: 1;
-            justify-self: center;
+            flex: 1;
             min-width: 0;
             text-align: center;
             padding: 16px 0;
+            order: 2;
+            justify-self: unset;
           }
           /* Scale to fit the row and never wrap to a second line — keeps the
              wordmark inline between the menu toggle and the subscribe button
@@ -194,27 +191,23 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-logo-text { font-size: clamp(26px, 7vw, 36px); white-space: nowrap; }
           .mag-mob-sub {
             display: block;
-            grid-column: 3;
-            grid-row: 1;
-            justify-self: end;
+            order: 3;
             font-family: var(--font-subhead);
-            font-size: 9px;
+            font-size: 11px;
             font-weight: 700;
-            letter-spacing: .08em;
+            letter-spacing: .12em;
             text-transform: uppercase;
             color: #fff;
             background: #490000;
-            padding: 6px 9px;
+            padding: 7px 12px;
             border-radius: 2px;
             border: none;
             cursor: pointer;
-            white-space: nowrap;
           }
           .mag-drawer {
             flex-direction: column;
-            grid-column: 1 / -1;
-            grid-row: 2;
             width: 100%;
+            order: 4;
             border-top: 1px solid #b8b8ba;
             padding: 12px 0 24px;
           }
