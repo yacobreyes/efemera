@@ -468,9 +468,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
               ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>],
               ["media", "Media Library", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
               ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
-              ["subscribers", "Subscribers", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>],
-              // Users management is admin-only.
-              ...(isAdmin ? [["users", "Users", <svg key="u" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>]] as [Panel, string, React.ReactNode][] : []),
+              // Subscribers and Users management are admin-only.
+              ...(isAdmin ? [
+                ["subscribers", "Subscribers", <svg key="s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>],
+                ["users", "Users", <svg key="u" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>],
+              ] as [Panel, string, React.ReactNode][] : []),
             ] as [Panel, string, React.ReactNode][]).map(([panel, label, icon]) => (
               <button key={panel} onClick={() => tryNav(panel)} className={`admin-nav-btn${activePanel === panel ? " active" : ""}`} title={!sidebarOpen ? label : undefined}>
                 <span style={{ flexShrink: 0, display: "flex", alignItems: "center" }}>{icon}</span>
@@ -622,7 +624,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ["subscribers", "Subscribers"]] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ...(isAdmin ? [["subscribers", "Subscribers"]] as [Panel, string][] : [])] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#ffffff" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -752,8 +754,8 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
             </div>
           )}
 
-          {/* SUBSCRIBERS */}
-          {activePanel === "subscribers" && (
+          {/* SUBSCRIBERS (admin only) */}
+          {activePanel === "subscribers" && isAdmin && (
             <div style={{ maxWidth: 600 }}>
               {/* Add subscriber */}
               <form onSubmit={async e => {

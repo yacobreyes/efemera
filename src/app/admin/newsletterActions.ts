@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAuth } from "@/lib/adminAuth";
+import { requireAuth, requireAdmin } from "@/lib/adminAuth";
 import { client } from "@/lib/sanity";
 import { renderNewsletterHtml, type NlCard } from "@/lib/newsletterEmail";
 import { Resend } from "resend";
@@ -231,7 +231,7 @@ function classifyByOpens(openedCount: number, lookbackCount: number): "active" |
 }
 
 export async function getSubscribers(): Promise<Subscriber[]> {
-  await requireAuth();
+  await requireAdmin();
   await reconcileSubscriberStatuses();
   return client.fetch(
     `*[_type == "subscriber"] | order(createdAt desc){ email, status, createdAt }`,
@@ -259,12 +259,12 @@ async function reconcileSubscriberStatuses() {
 }
 
 export async function removeSubscriber(email: string) {
-  await requireAuth();
+  await requireAdmin();
   await mutate([{ delete: { id: subscriberId(email) } }]);
 }
 
 export async function addSubscriber(email: string): Promise<{ ok: boolean; error?: string }> {
-  await requireAuth();
+  await requireAdmin();
   const normalized = email.trim().toLowerCase();
   if (!normalized || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalized)) {
     return { ok: false, error: "Enter a valid email address." };

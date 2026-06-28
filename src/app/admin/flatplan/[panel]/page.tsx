@@ -21,7 +21,7 @@ export default async function AdminFlatplanPanelPage({ params }: { params: Promi
   if (me) {
     try {
       if (resolvedPanel === "media") initialMedia = await getMediaLibrary();
-      else if (resolvedPanel === "subscribers") initialSubscribers = await listSubscribers();
+      else if (resolvedPanel === "subscribers" && me.role === "admin") initialSubscribers = await listSubscribers();
       else if (resolvedPanel === "users" && me.role === "admin") initialUsers = await listAllUsers();
     } catch {}
   }
