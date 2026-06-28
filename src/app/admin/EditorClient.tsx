@@ -65,6 +65,10 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
 
   const [exiting, setExiting] = useState(false);
+  // Once an exit is in flight, suppress the pending autosave timer so it can't
+  // fire a second save mid-navigation (which kept the editor mounted through the
+  // transition and looked like the story "reopening").
+  const exitingRef = useRef(false);
 
   const initialForm: FormState = {
     headline: post.headline ?? "",
@@ -143,6 +147,8 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   const doSave = useCallback((status: "draft" | "published" | "scheduled", updateDate = false, snapshot = false) => {
     // Don't write while another session holds the lock — avoids clobbering.
     if (lockedRef.current) return;
+    // Don't start a fresh save once we're navigating away on exit.
+    if (exitingRef.current) return;
     setSaveStatus("saving");
     const fd = new FormData();
     const { body, ...rest } = form;
@@ -198,9 +204,10 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   // Auto-save after 3s of inactivity (matches the newsletter editor); snapshot
   // every 5th autosave to reduce Sanity load.
   useEffect(() => {
-    if (!isDirty) return;
+    if (!isDirty || exitingRef.current) return;
     setSaveStatus("unsaved");
     const timer = setTimeout(() => {
+      if (exitingRef.current) return;
       autosaveCount.current += 1;
       const snapshot = autosaveCount.current % 5 === 0;
       doSave(form.status === "published" ? "published" : "draft", false, snapshot);
@@ -280,6 +287,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
         <button type="button" disabled={exiting} onClick={async () => {
           if (exiting) return;
+          exitingRef.current = true;
           setExiting(true);
           // Fire the lock release in the background (beacon + unmount cleanup back
           // it up), but AWAIT the save so the draft is persisted before the
