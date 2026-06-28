@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { parseBody } from "@/lib/parseBody";
 import { requireAuth } from "@/lib/adminAuth";
+import { fullName } from "@/lib/users";
 import { client } from "@/lib/sanity";
 import { straightenQuotes, straightenBlocks } from "@/lib/straighten";
 
@@ -177,7 +178,7 @@ export async function createPostFromNewsletterCard(input: {
 }
 
 export async function savePost(formData: FormData) {
-  await requireAuth();
+  const me = await requireAuth();
   const id = formData.get("id") as string;
   const headline = formData.get("headline") as string;
   const subheadline = formData.get("subheadline") as string;
@@ -222,6 +223,8 @@ export async function savePost(formData: FormData) {
     ...(readingTime ? { readingTime } : { readingTime: null }),
     ...(sortOrder != null ? { sortOrder } : {}),
     ...(scheduledAt ? { scheduledAt } : {}),
+    // Record who scheduled it (cleared when it's no longer scheduled).
+    scheduledBy: status === "scheduled" ? fullName(me) : null,
     ...(seoHeadline ? { seoHeadline: sq(seoHeadline) } : {}),
     ...(socialHeadline ? { socialHeadline: sq(socialHeadline) } : {}),
     ...(socialDescription ? { socialDescription: sq(socialDescription) } : {}),

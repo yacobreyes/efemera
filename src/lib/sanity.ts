@@ -46,6 +46,7 @@ export interface SanityPost {
   image?: { asset: SanityImageSource; url?: string; caption?: string; alt?: string };
   status?: "draft" | "published" | "scheduled" | "trashed";
   scheduledAt?: string;
+  scheduledBy?: string;
   seoHeadline?: string;
   socialHeadline?: string;
   socialDescription?: string;

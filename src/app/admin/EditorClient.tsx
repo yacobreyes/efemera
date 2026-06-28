@@ -362,7 +362,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
       {viewMode && !locked && (() => {
         const isScheduled = form.status === "scheduled";
         const message = isScheduled
-          ? `This story is scheduled to publish on ${formatTime(post.scheduledAt ?? scheduledAt)}.`
+          ? `This story was scheduled${post.scheduledBy ? ` by ${post.scheduledBy}` : ""} for ${formatTime(post.scheduledAt ?? scheduledAt)}.`
           : viewLockHolder
             ? `${viewLockHolder.name} is currently editing this. Do you want to kick them out?`
             : "You’re viewing this story. Do you want to make changes?";

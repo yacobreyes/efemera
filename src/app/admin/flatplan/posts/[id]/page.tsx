@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   _id, "slug": slug.current, section, headline, subheadline, byline,
-  date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt, readingTime
+  date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt, scheduledBy, readingTime
 }`;
 
 export default async function EditPostPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
