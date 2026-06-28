@@ -69,9 +69,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const initialForm: FormState = {
     headline: post.headline ?? "",
     subheadline: post.subheadline ?? "",
-    byline: post.byline ?? "Yacob Reyes",
+    byline: post.byline ?? "",
     slug: post.slug,
-    section: post.section ?? "Narratives",
+    section: post.section ?? "",
     date: post.date ?? new Date().toISOString().slice(0, 10),
     body: post.body?.length ? portableTextToTiptap(post.body) : EMPTY_DOC,
     status: post.status === "published" || !post.status ? "published" : post.status === "scheduled" ? "scheduled" : "draft",
