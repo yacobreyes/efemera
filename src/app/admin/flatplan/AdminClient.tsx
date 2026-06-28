@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { savePost, deletePost, trashPost, restorePost, saveAbout, uploadImage, clearCloudDraft, deleteMediaAsset, updateMediaAsset, createDraft } from "../actions";
-import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, type Subscriber } from "../newsletterActions";
+import { deleteNewsletter as deleteNewsletterDoc, getSubscribers, removeSubscriber, addSubscriber, type Subscriber } from "../newsletterActions";
 import type { NlCard } from "@/lib/newsletterEmail";
 import { tiptapToPortableText, portableTextToTiptap } from "@/lib/tiptapConvert";
 import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor";
@@ -159,6 +159,9 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   // on a server-action round-trip each time.
   const [usersData, setUsersData] = useState<FlatplanUser[]>(initialUsers);
   const [removingSubscriber, setRemovingSubscriber] = useState<string | null>(null);
+  const [addEmailInput, setAddEmailInput] = useState("");
+  const [addEmailError, setAddEmailError] = useState("");
+  const [addEmailPending, setAddEmailPending] = useState(false);
 
   function removeSub(email: string) {
     if (!confirm(`Remove ${email} from the subscriber list? This cannot be undone.`)) return;
@@ -752,6 +755,23 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           {/* SUBSCRIBERS */}
           {activePanel === "subscribers" && (
             <div style={{ maxWidth: 600 }}>
+              {/* Add subscriber */}
+              <form onSubmit={async e => {
+                e.preventDefault();
+                setAddEmailError("");
+                setAddEmailPending(true);
+                const r = await addSubscriber(addEmailInput);
+                setAddEmailPending(false);
+                if (!r.ok) { setAddEmailError(r.error ?? "Failed."); return; }
+                setAddEmailInput("");
+                setSubscribers(prev => [{ email: addEmailInput.trim().toLowerCase(), status: "neutral", createdAt: new Date().toISOString() }, ...prev]);
+              }} style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
+                <input value={addEmailInput} onChange={e => { setAddEmailInput(e.target.value); setAddEmailError(""); }} placeholder="name@example.com" type="email" style={{ flex: 1, fontFamily: FONT, fontSize: "0.88rem", padding: "0.5rem 0.75rem", border: `1px solid ${addEmailError ? CRIMSON : BORDER}`, borderRadius: 4, outline: "none", color: TEXT_DARK }} />
+                <button type="submit" disabled={addEmailPending || !addEmailInput.trim()} style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.5rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: addEmailPending || !addEmailInput.trim() ? "not-allowed" : "pointer", opacity: addEmailPending || !addEmailInput.trim() ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                  {addEmailPending ? "Adding…" : "Add subscriber"}
+                </button>
+              </form>
+              {addEmailError && <p style={{ fontFamily: FONT, fontSize: "0.8rem", color: CRIMSON, margin: "-0.75rem 0 1rem" }}>{addEmailError}</p>}
               <div style={{ display: "flex", gap: "1rem", marginBottom: "1.25rem" }}>
                 <div style={{ flex: 1, background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "1rem 1.25rem" }}>
                   <p style={LABEL}>Total subscribers</p>

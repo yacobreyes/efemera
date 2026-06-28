@@ -263,6 +263,20 @@ export async function removeSubscriber(email: string) {
   await mutate([{ delete: { id: subscriberId(email) } }]);
 }
 
+export async function addSubscriber(email: string): Promise<{ ok: boolean; error?: string }> {
+  await requireAuth();
+  const normalized = email.trim().toLowerCase();
+  if (!normalized || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalized)) {
+    return { ok: false, error: "Enter a valid email address." };
+  }
+  try {
+    await mutate([{ createIfNotExists: { _id: subscriberId(normalized), _type: "subscriber", email: normalized, status: "neutral", createdAt: new Date().toISOString() } }]);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Failed to add subscriber." };
+  }
+}
+
 export async function getNewsletterVersions(id: string): Promise<NlVersion[]> {
   await requireAuth();
   return versionsFor(id);
