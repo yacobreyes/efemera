@@ -77,6 +77,20 @@ export async function setUserActive(id: string, active: boolean): Promise<{ ok: 
   }
 }
 
+// Admin-only. Permanently remove a user record. Use deactivate instead when you
+// want to preserve their byline/history; this fully deletes the document. An
+// admin cannot delete their own account (prevents self-lockout).
+export async function deleteUser(id: string): Promise<{ ok: boolean; error?: string }> {
+  const me = await requireAdmin();
+  if (id === me._id) return { ok: false, error: "You can't delete your own account." };
+  try {
+    await sanityMutate([{ delete: { id } }]);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Delete failed." };
+  }
+}
+
 // Admin-only. Upload a profile photo, returns the asset id to attach via saveUser.
 export async function uploadUserPhoto(formData: FormData): Promise<{ assetId: string; url: string }> {
   await requireAdmin();

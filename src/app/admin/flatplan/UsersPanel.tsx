@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
-import { listUsers, saveUser, setUserActive, uploadUserPhoto, type UserInput } from "../userActions";
+import { listUsers, saveUser, setUserActive, deleteUser, uploadUserPhoto, type UserInput } from "../userActions";
 import type { FlatplanUser, UserRole } from "@/lib/users";
 import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
@@ -25,18 +25,20 @@ type Draft = {
 
 const EMPTY: Draft = { firstName: "", lastName: "", email: "", byline: "", jobTitle: "", bio: "", role: "editor" };
 
-export default function UsersPanel({ currentEmail }: { currentEmail: string }) {
-  const [users, setUsers] = useState<FlatplanUser[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function UsersPanel({ currentEmail, initialUsers = [] }: { currentEmail: string; initialUsers?: FlatplanUser[] }) {
+  const [users, setUsers] = useState<FlatplanUser[]>(initialUsers);
+  // Seeded from the server render, so only show the loading state if we arrived
+  // with nothing.
+  const [loading, setLoading] = useState(initialUsers.length === 0);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
 
   function refresh() {
-    setLoading(true);
     listUsers().then(setUsers).catch(() => {}).finally(() => setLoading(false));
   }
+  // Refresh in the background to pick up changes; seeded data shows immediately.
   useEffect(refresh, []);
 
   function openNew() { setError(""); setDraft({ ...EMPTY }); }
@@ -86,6 +88,18 @@ export default function UsersPanel({ currentEmail }: { currentEmail: string }) {
     });
   }
 
+  function removeUser(u: FlatplanUser) {
+    if (u.email === currentEmail) return;
+    const name = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.email;
+    if (!confirm(`Delete ${name}? This removes their account entirely and can't be undone.`)) return;
+    // Optimistically drop the row so it disappears immediately instead of lingering.
+    setUsers(prev => prev.filter(x => x._id !== u._id));
+    startTransition(async () => {
+      const r = await deleteUser(u._id);
+      if (!r.ok) { alert(r.error ?? "Delete failed."); refresh(); }
+    });
+  }
+
   return (
     <div style={{ maxWidth: 760 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem" }}>
@@ -121,6 +135,10 @@ export default function UsersPanel({ currentEmail }: { currentEmail: string }) {
               <button onClick={() => toggleActive(u)} disabled={u.email === currentEmail}
                 style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, padding: "0.25rem 0.75rem", fontFamily: FONT, fontSize: "0.72rem", cursor: u.email === currentEmail ? "not-allowed" : "pointer", color: u.active ? CRIMSON : TEXT_MUTED, flexShrink: 0, opacity: u.email === currentEmail ? 0.4 : 1 }}>
                 {u.active ? "Deactivate" : "Reactivate"}
+              </button>
+              <button onClick={() => removeUser(u)} disabled={u.email === currentEmail} aria-label="Delete user" title="Delete user"
+                style={{ background: "none", border: "none", padding: "0.25rem", fontFamily: FONT, fontSize: "0.72rem", cursor: u.email === currentEmail ? "not-allowed" : "pointer", color: CRIMSON, flexShrink: 0, opacity: u.email === currentEmail ? 0.3 : 1, display: "flex", alignItems: "center" }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
             </div>
           ))}

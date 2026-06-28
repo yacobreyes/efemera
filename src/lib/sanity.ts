@@ -180,6 +180,50 @@ export async function getAllNewslettersAdmin(): Promise<AdminNewsletterListItem[
   return list ?? [];
 }
 
+// Media library for the admin panel, server-rendered so the grid paints
+// populated instead of popping in. Shared with /api/media (client refresh).
+export type AdminMediaAsset = {
+  _id: string; _createdAt: string; url: string; originalFilename?: string;
+  title?: string; description?: string; altText?: string;
+  metadata?: { dimensions?: { width: number; height: number }; size?: number };
+  usedIn?: { slug: string; headline: string }[];
+};
+export async function getMediaLibrary(): Promise<AdminMediaAsset[]> {
+  const [assets, posts] = await Promise.all([
+    client.fetch(
+      `*[_type == "sanity.imageAsset"] | order(_createdAt desc) {
+        _id, _createdAt, url, originalFilename, title, description, altText,
+        metadata { dimensions { width, height }, size }
+      }`,
+      {},
+      { cache: "no-store" }
+    ),
+    client.fetch(
+      `*[_type == "post" && defined(image.asset._ref)] { "slug": slug.current, headline, "assetId": image.asset._ref }`,
+      {},
+      { cache: "no-store" }
+    ),
+  ]);
+  const usageMap: Record<string, { slug: string; headline: string }[]> = {};
+  for (const p of posts ?? []) {
+    (usageMap[p.assetId] ??= []).push({ slug: p.slug, headline: p.headline });
+  }
+  return (assets ?? []).map((a: AdminMediaAsset) => ({ ...a, usedIn: usageMap[a._id] ?? [] }));
+}
+
+// Subscriber list for the admin panel, server-rendered for an instant first
+// paint. The panel still calls getSubscribers() in the background, which also
+// reconciles statuses against the provider.
+export type AdminSubscriber = { email: string; status?: "active" | "neutral" | "inactive"; createdAt?: string };
+export async function listSubscribers(): Promise<AdminSubscriber[]> {
+  const list: AdminSubscriber[] = await client.fetch(
+    `*[_type == "subscriber"] | order(createdAt desc){ email, status, createdAt }`,
+    {},
+    { cache: "no-store" }
+  );
+  return list ?? [];
+}
+
 export async function getPost(slug: string): Promise<SanityPost | null> {
   const post: SanityPost | null = await client.fetch(
     `*[_type == "post" && slug.current == $slug][0] { ${POST_FIELDS} }`,

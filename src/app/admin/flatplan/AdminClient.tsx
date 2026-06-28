@@ -10,8 +10,10 @@ import RichBodyEditor, { type ToolbarHandles } from "@/components/RichBodyEditor
 import ImagePickerModal from "@/components/ImagePickerModal";
 import UsersPanel from "./UsersPanel";
 import { getActiveLocks, type LockHolder } from "../lockActions";
+import { listUsers } from "../userActions";
 import type { JSONContent, Editor } from "@tiptap/react";
-import type { SanityPost, AdminNewsletterListItem } from "@/lib/sanity";
+import type { SanityPost, AdminNewsletterListItem, AdminMediaAsset } from "@/lib/sanity";
+import type { FlatplanUser } from "@/lib/users";
 import { straightenQuotes } from "@/lib/straighten";
 import { CRIMSON, TEXT_DARK, TEXT_MUTED, BORDER } from "@/lib/palette";
 
@@ -60,7 +62,7 @@ type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscrib
 
 export type CurrentUser = { name: string; email: string; role: "admin" | "editor" };
 
-export default function AdminClient({ posts: initialPosts, initialNewsletters = [], initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialNewsletters?: AdminNewsletterListItem[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
+export default function AdminClient({ posts: initialPosts, initialNewsletters = [], initialMedia = [], initialSubscribers = [], initialUsers = [], initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialNewsletters?: AdminNewsletterListItem[]; initialMedia?: AdminMediaAsset[]; initialSubscribers?: Subscriber[]; initialUsers?: FlatplanUser[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
   const router = useRouter();
   const [auth] = useState(initialAuth);
   const isAdmin = currentUser?.role === "admin";
@@ -115,7 +117,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   const [isPending, startTransition] = useTransition();
 
   type MediaAsset = { _id: string; _createdAt: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string; metadata?: { dimensions?: { width: number; height: number }; size?: number }; usedIn?: { slug: string; headline: string }[] };
-  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>(initialMedia as MediaAsset[]);
   const [mediaLoading, setMediaLoading] = useState(false);
   const [mediaUploading, setMediaUploading] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -151,8 +153,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string; cards?: NlCard[] };
   const [newsletters, setNewsletters] = useState<NlListItem[]>(initialNewsletters as NlListItem[]);
 
-  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers);
   const [subscribersLoading, setSubscribersLoading] = useState(false);
+  // Prefetched on mount so opening the Users panel is instant instead of waiting
+  // on a server-action round-trip each time.
+  const [usersData, setUsersData] = useState<FlatplanUser[]>(initialUsers);
   const [removingSubscriber, setRemovingSubscriber] = useState<string | null>(null);
 
   function removeSub(email: string) {
@@ -201,6 +206,18 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
+    // Warm the side-panel data in the background so opening Media / Subscribers /
+    // Users is instant and never flashes a loading state. Only fetch what we
+    // weren't already handed by the server render.
+    if (mediaAssets.length === 0) {
+      fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setMediaAssets(d); }).catch(() => {});
+    }
+    if (subscribers.length === 0) {
+      getSubscribers().then(d => { if (Array.isArray(d)) setSubscribers(d); }).catch(() => {});
+    }
+    if (isAdmin && usersData.length === 0) {
+      listUsers().then(setUsersData).catch(() => {});
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -262,11 +279,13 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
       }).catch(() => {});
     }
     if (panel === "comments") {
-      setCommentsLoading(true);
+      setCommentsLoading(adminComments.length === 0);
       fetch("/api/comments/all").then(r => r.json()).then(data => { if (Array.isArray(data)) setAdminComments(data); }).catch(() => {}).finally(() => setCommentsLoading(false));
     }
     if (panel === "subscribers") {
-      setSubscribersLoading(true);
+      // Only show the loading state if we have nothing yet — otherwise refresh
+      // silently behind the already-visible list.
+      setSubscribersLoading(subscribers.length === 0);
       getSubscribers().then(data => { if (Array.isArray(data)) setSubscribers(data); }).catch(() => {}).finally(() => setSubscribersLoading(false));
     }
   }
@@ -368,7 +387,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           overflow: visible;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: visible; }
-        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem 0 2.5rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
@@ -781,7 +800,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
           {/* USERS (admin only) */}
           {activePanel === "users" && isAdmin && currentUser && (
-            <UsersPanel currentEmail={currentUser.email} />
+            <UsersPanel currentEmail={currentUser.email} initialUsers={usersData} />
           )}
 
           {/* ABOUT EDITOR */}
