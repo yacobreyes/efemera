@@ -54,7 +54,7 @@ type FormState = {
 };
 const DEFAULT_FORM: FormState = {
   headline: "", subheadline: "", byline: "", slug: "",
-  section: "Narratives", date: new Date().toISOString().slice(0, 10),
+  section: "", date: new Date().toISOString().slice(0, 10),
   body: EMPTY_DOC, status: "draft",
 };
 
@@ -1055,7 +1055,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                         <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: straightenQuotes(e.target.value) })} /></div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
                           <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
-                          <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option>Micro-Memoir</option><option>Narratives</option><option>Essays</option><option>Gangrey Redux</option></select></div>
+                          <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option value="">— Select a section —</option><option>Micro-Memoir</option><option>Narratives</option><option>Essays</option><option>Archive</option></select></div>
                           <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
                         </div>
                         {editing && editing.status === "trashed" && (
