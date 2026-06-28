@@ -158,8 +158,8 @@ export async function createPostFromNewsletterCard(input: {
     headline: input.headline || "",
     subheadline: "",
     slug: { _type: "slug", current: slug },
-    section: input.section || "Narratives",
-    byline: input.byline || "Yacob Reyes",
+    section: input.section || "",
+    byline: input.byline || "",
     date: new Date().toISOString().slice(0, 10),
     body: Array.isArray(input.body) ? input.body : [],
     status: "draft",
@@ -181,7 +181,7 @@ export async function savePost(formData: FormData) {
   const id = formData.get("id") as string;
   const headline = formData.get("headline") as string;
   const subheadline = formData.get("subheadline") as string;
-  const byline = (formData.get("byline") as string) || "Yacob Reyes";
+  const byline = (formData.get("byline") as string) || "";
   const slug = formData.get("slug") as string;
   const section = formData.get("section") as string;
   const date = formData.get("date") as string;
@@ -237,13 +237,15 @@ export async function savePost(formData: FormData) {
   }
 
   await mutate([{ createOrReplace: doc }]);
-  await snapshotVersion({
-    postId: doc._id as string,
-    slug,
-    type: status === "published" ? "publish" : "autosave",
-    headline, subheadline,
-    body: Array.isArray(body) ? body : [],
-  });
+  if (shouldSnapshot || status === "published") {
+    await snapshotVersion({
+      postId: doc._id as string,
+      slug,
+      type: status === "published" ? "publish" : "autosave",
+      headline, subheadline,
+      body: Array.isArray(body) ? body : [],
+    });
+  }
   // On publish, invalidate the cached public pages so the change appears
   // immediately instead of waiting for the 60s revalidate window.
   if (status === "published") {
