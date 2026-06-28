@@ -20,8 +20,9 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(post ? [post] : []);
     }
     // Full searchable payload — the dashboard hydrates this after its fast,
-    // body-free first paint so client-side search works.
-    const posts = await getAllPostsAdmin(true);
+    // body-free first paint so client-side search works. Exclude the bulk
+    // Archive imports, matching the server render.
+    const posts = await getAllPostsAdmin(true, true);
     return NextResponse.json(posts);
   } catch {
     return NextResponse.json([]);

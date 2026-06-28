@@ -14,7 +14,7 @@ export default async function AdminFlatplanPage() {
   let newsletters: Awaited<ReturnType<typeof getAllNewslettersAdmin>> = [];
   if (authed) {
     try {
-      [posts, newsletters] = await Promise.all([getAllPostsAdmin(false), getAllNewslettersAdmin()]);
+      [posts, newsletters] = await Promise.all([getAllPostsAdmin(false, true), getAllNewslettersAdmin()]);
     } catch {}
   }
   return (

@@ -151,10 +151,13 @@ export async function getPostsLight(withSearch = false): Promise<SanityPost[]> {
 // `withSearch` pulls each post's full body text for client-side search. The
 // dashboard's first server render keeps it false so navigation isn't blocked by
 // shipping every post's body; the client then refetches the searchable version.
-export async function getAllPostsAdmin(withSearch = false): Promise<SanityPost[]> {
+// `excludeArchive` drops the bulk-imported Archive pieces (2500+) which would
+// otherwise make the editorial dashboard slow to load and unwieldy to scroll.
+export async function getAllPostsAdmin(withSearch = false, excludeArchive = false): Promise<SanityPost[]> {
   const fields = withSearch ? POST_LIST_FIELDS_SEARCH : POST_LIST_FIELDS;
+  const archiveFilter = excludeArchive ? ` && section != "Archive"` : "";
   const posts: SanityPost[] = await client.fetch(
-    `*[_type == "post" && !(_id in path("drafts.**"))] | order(_updatedAt desc) { ${fields} }`,
+    `*[_type == "post" && !(_id in path("drafts.**"))${archiveFilter}] | order(_updatedAt desc) { ${fields} }`,
     {},
     { cache: "no-store" }
   );
