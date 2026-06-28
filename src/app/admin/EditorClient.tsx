@@ -536,11 +536,11 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
                 )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 {post.status !== "trashed" ? (
-                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
+                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) { exitingRef.current = true; startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); } }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
                 ) : (
                   <>
                     <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin/imago");})} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Restore</button>
-                    <button type="button" onClick={() => { if (confirm("Delete forever?")) startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete forever</button>
+                    <button type="button" onClick={() => { if (confirm("Delete forever?")) { exitingRef.current = true; startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); } }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete forever</button>
                   </>
                 )}
               </div>
