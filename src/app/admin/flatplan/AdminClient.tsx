@@ -387,7 +387,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           overflow: visible;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: visible; }
-        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem 0 2.5rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
+        .admin-mobile-bar { display: flex; align-items: center; gap: 0.75rem; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
@@ -488,20 +488,20 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
         {/* Right side: top bar + main content */}
         <div className="admin-right" style={{ position: "relative" }}>
-          {/* Toggle button — on the left edge of admin-right = sidebar border */}
-          <button
-            onClick={() => setSidebarOpen(v => !v)}
-            style={{ position: "absolute", left: -14, top: 26, transform: "translateY(-50%)", background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: isMobile ? "none" : "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, zIndex: 250, boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-            </svg>
-          </button>
           {/* Top bar — desktop */}
           {!isMobile && (
             <div className="admin-mobile-bar">
+              {/* Sidebar toggle */}
+              <button
+                onClick={() => setSidebarOpen(v => !v)}
+                style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
+                </svg>
+              </button>
               {/* Left: search */}
-              <div style={{ width: 280, flexShrink: 0 }}>
+              <div style={{ width: 260, flexShrink: 0 }}>
                 {activePanel === "dashboard" && (
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -510,15 +510,15 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                 )}
               </div>
               {/* Center: tabs */}
-              <div style={{ flex: 1, display: "flex", justifyContent: "center", alignSelf: "stretch", alignItems: "flex-end" }}>
+              <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "0.25rem" }}>
                 {activePanel === "dashboard" && (["drafts", "scheduled", "published"] as const).map(tab => (
-                  <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, marginBottom: -1, padding: "0.5rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
+                  <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, padding: "0.4rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
                     {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
                   </button>
                 ))}
               </div>
               {/* Right: Create new (dashboard only) or panel title */}
-              <div style={{ width: 280, flexShrink: 0, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+              <div style={{ width: 260, flexShrink: 0, display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
                 {activePanel === "dashboard" ? (
                   <div ref={createMenuRef} style={{ position: "relative" }}>
                     <button onClick={() => setShowCreateMenu(v => !v)}
