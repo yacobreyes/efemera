@@ -58,7 +58,7 @@ const DEFAULT_FORM: FormState = {
   body: EMPTY_DOC, status: "draft",
 };
 
-type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscribers" | "users";
+type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscribers" | "users" | "archive";
 
 export type CurrentUser = { name: string; email: string; role: "admin" | "editor" };
 
@@ -91,7 +91,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     } catch { /* unsupported */ }
     return () => { alive = false; clearInterval(iv); bc?.close(); };
   }, [auth]);
-  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published" | "archive">("drafts");
+  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
   // Archive pieces are lazy-loaded the first time the Archive tab is opened —
   // they're excluded from the main dashboard fetch (2500+ would be slow).
   const [archivePosts, setArchivePosts] = useState<SanityPost[]>([]);
@@ -243,16 +243,16 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     setIsDirty(JSON.stringify(form) !== JSON.stringify(savedForm));
   }, [form, savedForm]);
 
-  // Lazy-load archive pieces the first time the Archive tab is opened.
+  // Lazy-load archive pieces the first time the Archive panel is opened.
   useEffect(() => {
-    if (postTab !== "archive" || archiveLoaded || archiveLoading) return;
+    if (activePanel !== "archive" || archiveLoaded || archiveLoading) return;
     setArchiveLoading(true);
     fetch("/api/posts-admin?archive=1", { cache: "no-store" })
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setArchivePosts(d); setArchiveLoaded(true); })
       .catch(() => {})
       .finally(() => setArchiveLoading(false));
-  }, [postTab, archiveLoaded, archiveLoading]);
+  }, [activePanel, archiveLoaded, archiveLoading]);
 
   const refreshNewsletters = useCallback(() => {
     fetch("/api/newsletter", { cache: "no-store" }).then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
@@ -494,6 +494,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
               ["about", "About", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>],
               ["media", "Media Library", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>],
               ["comments", "Comments", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>],
+              ["archive", "Archive", <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg>],
               // Subscribers and Users management are admin-only.
               ...(isAdmin ? [
                 ["subscribers", "Subscribers", <svg key="s" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>],
@@ -533,18 +534,18 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
             <div className="admin-mobile-bar">
               {/* Left: search */}
               <div style={{ width: 260, flexShrink: 0 }}>
-                {activePanel === "dashboard" && (
+                {(activePanel === "dashboard" || activePanel === "archive") && (
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search for stories and newsletters" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder={activePanel === "archive" ? "Search the archive" : "Search for stories and newsletters"} value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.82rem", padding: "0.38rem 0.8rem 0.38rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 )}
               </div>
               {/* Center: tabs */}
               <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "0.25rem" }}>
-                {activePanel === "dashboard" && (["drafts", "scheduled", "published", "archive"] as const).map(tab => (
+                {activePanel === "dashboard" && (["drafts", "scheduled", "published"] as const).map(tab => (
                   <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, padding: "0.4rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
-                    {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : tab === "published" ? "Published" : "Archive"}
+                    {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
                   </button>
                 ))}
               </div>
@@ -573,7 +574,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "1rem", fontWeight: 700, color: TEXT_DARK }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "about" ? "About" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "comments" ? "Comments" : activePanel === "about" ? "About" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : activePanel === "archive" ? "Archive" : ""}
                   </span>
                 )}
               </div>
@@ -612,25 +613,25 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                   </div>
                 ) : (
                   <span style={{ fontFamily: FONT, fontSize: "0.85rem", fontWeight: 700, color: TEXT_MUTED }}>
-                    {activePanel === "media" ? "Media Library" : activePanel === "about" ? "About" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : ""}
+                    {activePanel === "media" ? "Media Library" : activePanel === "about" ? "About" : activePanel === "comments" ? "Comments" : activePanel === "subscribers" ? "Subscribers" : activePanel === "users" ? "Users" : activePanel === "archive" ? "Archive" : ""}
                   </span>
                 )}
               </div>
-              {/* Row 2: search (dashboard only) */}
-              {activePanel === "dashboard" && (
+              {/* Row 2: search (dashboard + archive) */}
+              {(activePanel === "dashboard" || activePanel === "archive") && (
                 <div style={{ padding: "0 1rem 0.6rem" }}>
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input placeholder="Search for stories and newsletters…" value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
+                    <input placeholder={activePanel === "archive" ? "Search the archive…" : "Search for stories and newsletters…"} value={query} onChange={e => setQuery(e.target.value)} style={{ fontFamily: FONT, fontSize: "0.85rem", padding: "0.42rem 0.8rem 0.42rem 2.1rem", border: `1px solid ${BORDER}`, borderRadius: 20, background: "#ffffff", color: TEXT_DARK, outline: "none", width: "100%", boxSizing: "border-box" as const }} />
                   </div>
                 </div>
               )}
               {/* Row 3: tabs (dashboard only) */}
               {activePanel === "dashboard" && (
                 <div style={{ display: "flex", borderTop: `1px solid ${BORDER}` }}>
-                  {(["drafts", "scheduled", "published", "archive"] as const).map(tab => (
+                  {(["drafts", "scheduled", "published"] as const).map(tab => (
                     <button key={tab} onClick={() => setPostTab(tab)} style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, padding: "0.6rem 0", fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
-                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Sched." : tab === "published" ? "Pub." : "Archive"}
+                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Sched." : "Published"}
                     </button>
                   ))}
                 </div>
@@ -650,7 +651,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ...(isAdmin ? [["subscribers", "Subscribers"], ["users", "Users"]] as [Panel, string][] : [])] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ["archive", "Archive"], ...(isAdmin ? [["subscribers", "Subscribers"], ["users", "Users"]] as [Panel, string][] : [])] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#ffffff" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -665,13 +666,13 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
         <div className="admin-main">
 
-          {/* DASHBOARD */}
-          {activePanel === "dashboard" && (
+          {/* DASHBOARD + ARCHIVE (share the same list rendering) */}
+          {(activePanel === "dashboard" || activePanel === "archive") && (
             <div style={{ maxWidth: 900 }}>
 
               {/* Count + sort row */}
               {(() => {
-                const isArchive = postTab === "archive";
+                const isArchive = activePanel === "archive";
                 const list = isArchive ? archivePosts : postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
                 const q = query.trim().toLowerCase();
                 const filtered = q ? list.filter(p => {
