@@ -71,6 +71,19 @@ export async function releaseLock(targetId: string, sessionId: string): Promise<
   }
 }
 
+// Read the current lock without claiming it — used by view-mode watchers so
+// they can see who's editing without grabbing the lock themselves.
+export async function watchLock(targetId: string, nowIso: string): Promise<LockState> {
+  const me = await requireAuth();
+  const now = new Date(nowIso).getTime();
+  const existing = await readLock(targetId);
+  const live = isLive(existing, now);
+  if (live && existing) {
+    return { held: false, holder: toHolder(existing), selfOtherTab: existing.holderEmail === me.email };
+  }
+  return { held: false, holder: null };
+}
+
 // All currently-live locks, as { targetId: holder }, for dashboard presence.
 export async function getActiveLocks(nowIso: string): Promise<Record<string, LockHolder>> {
   await requireAuth();

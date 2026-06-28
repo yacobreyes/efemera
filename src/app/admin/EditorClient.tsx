@@ -11,6 +11,7 @@ import type { ToolbarHandles } from "@/components/RichBodyEditor";
 import ImagePickerModal from "@/components/ImagePickerModal";
 import { useEditLock } from "./useEditLock";
 import EditLockBanner from "./EditLockBanner";
+import { watchLock, type LockHolder } from "./lockActions";
 import { straightenQuotes } from "@/lib/straighten";
 import type { JSONContent } from "@tiptap/react";
 import type { Editor } from "@tiptap/react";
@@ -58,6 +59,20 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   // you don't accidentally edit (and don't grab the lock) just by looking. A
   // brand-new draft skips this and opens straight into editing.
   const [viewMode, setViewMode] = useState(!post.slug.startsWith("untitled-"));
+
+  // While in view mode, poll the lock without claiming it so we can show who's
+  // actively editing without blocking them.
+  const [viewLockHolder, setViewLockHolder] = useState<LockHolder | null>(null);
+  useEffect(() => {
+    if (!viewMode) { setViewLockHolder(null); return; }
+    let alive = true;
+    const check = () => watchLock(post._id, new Date().toISOString()).then(s => { if (alive) setViewLockHolder(s.holder); }).catch(() => {});
+    check();
+    const iv = setInterval(check, 4000);
+    let bc: BroadcastChannel | null = null;
+    try { bc = new BroadcastChannel("flatplan-locks"); bc.onmessage = () => { if (alive) check(); }; } catch { /* unsupported */ }
+    return () => { alive = false; clearInterval(iv); bc?.close(); };
+  }, [viewMode, post._id]);
 
   // Edit lock: only engaged once you're actually editing. Warns (and pauses
   // autosave) if someone else — or you in another tab — holds it. While in view
@@ -288,12 +303,16 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
           boxShadow: "0 -2px 16px rgba(0,0,0,0.08)", padding: "0.85rem 1.25rem",
           fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK,
         }}>
-          <span>You&rsquo;re viewing this story. Do you want to make changes?</span>
-          <button type="button" onClick={() => setViewMode(false)} style={{
+          <span>
+            {viewLockHolder
+              ? `${viewLockHolder.name} is editing this story.`
+              : "You’re viewing this story. Do you want to make changes?"}
+          </span>
+          <button type="button" onClick={() => { setViewMode(false); if (viewLockHolder) setTimeout(takeOver, 100); }} style={{
             background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
             padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
             cursor: "pointer", whiteSpace: "nowrap",
-          }}>Start editing</button>
+          }}>{viewLockHolder ? "Take over" : "Start editing"}</button>
         </div>
       )}
       <style>{`

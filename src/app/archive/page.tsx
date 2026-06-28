@@ -21,7 +21,7 @@ export default async function GangreyPage() {
     .filter(p => {
       const pub = !p.status || p.status === "published" ||
         (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date());
-      return pub && String(p.section).toLowerCase().includes("gangrey");
+      return pub && p.section === "Archive";
     })
     .sort((a, b) => {
       const dt = new Date(b.date).getTime() - new Date(a.date).getTime();

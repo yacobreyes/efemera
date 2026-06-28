@@ -204,19 +204,18 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   }
 
   useEffect(() => {
+    // Posts always start empty (server skips that fetch for fast navigation),
+    // so always refresh. Newsletters are server-rendered, only refresh if empty
+    // to avoid the flash where they disappear and reappear.
     refreshPosts();
-    refreshNewsletters();
-    // A Save & Exit fires the Sanity write in the background and navigates
-    // immediately, so the first refresh above may run before the write lands.
-    // A second pass a few seconds later catches the in-flight save.
-    const t = setTimeout(() => { refreshPosts(); refreshNewsletters(); }, 3000);
-    return () => clearTimeout(t);
+    if (newsletters.length === 0) refreshNewsletters();
+
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
-    // Warm the side-panel data in the background so opening Media / Subscribers /
-    // Users is instant and never flashes a loading state. Only fetch what we
-    // weren't already handed by the server render.
+
+    // Warm side-panel data in the background so opening Media / Subscribers /
+    // Users is instant. Only fetch what the server didn't already send.
     if (mediaAssets.length === 0) {
       fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setMediaAssets(d); }).catch(() => {});
     }
@@ -226,6 +225,12 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     if (isAdmin && usersData.length === 0) {
       listUsers().then(setUsersData).catch(() => {});
     }
+
+    // A Save & Exit fires the Sanity write in the background and navigates
+    // immediately, so the first refreshPosts() above may land before the write
+    // completes. A second pass a few seconds later catches the in-flight save.
+    const t = setTimeout(refreshPosts, 3000);
+    return () => clearTimeout(t);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
