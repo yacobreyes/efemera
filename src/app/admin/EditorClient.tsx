@@ -247,6 +247,36 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
     }
   }, [post._id]);
 
+  // From the scheduled view-mode banner: drop the schedule back to a draft and
+  // enter edit mode so the story can be changed.
+  const unscheduleToEdit = useCallback(() => {
+    setViewMode(false);
+    setForm(f => ({ ...f, status: "draft" }));
+    setLastSaved(s => ({ ...s, status: "draft" }));
+    unpublishPost(post._id).catch(() => {});
+  }, [post._id]);
+
+  // Schedule the story, then drop straight to the dashboard's Scheduled tab.
+  // Mirrors the fast Save & Exit: fire the save in the background and navigate
+  // immediately; the dashboard's delayed refresh picks up the persisted doc.
+  const scheduleAndExit = useCallback(() => {
+    const fd = new FormData();
+    const { body, ...rest } = form;
+    Object.entries({ ...rest, status: "scheduled" }).forEach(([k, v]) => fd.set(k, String(v)));
+    fd.set("body", JSON.stringify(tiptapToPortableText(body)));
+    fd.set("id", post._id);
+    if (imageAssetId) fd.set("imageAssetId", imageAssetId);
+    if (imageCaption) fd.set("imageCaption", imageCaption);
+    if (imageAlt) fd.set("imageAlt", imageAlt);
+    if (scheduledAt) fd.set("scheduledAt", new Date(scheduledAt).toISOString());
+    fd.set("snapshot", "1");
+    exitingRef.current = true;
+    setExiting(true);
+    releaseLockNow();
+    savePost(fd).catch(() => {});
+    router.push("/admin/flatplan?tab=scheduled");
+  }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt, releaseLockNow, router]);
+
   const revertToVersion = useCallback((i: number) => {
     const snap = versions[i];
     if (!snap) return;
@@ -329,26 +359,34 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
       <EditLockBanner holder={locked ? lockHolder : null} selfOtherTab={selfOtherTab} onTakeOver={takeOver} />
-      {viewMode && !locked && (
-        <div style={{
-          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 400,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem",
-          background: "#ffffff", borderTop: `1px solid ${BORDER}`,
-          boxShadow: "0 -2px 16px rgba(0,0,0,0.08)", padding: "0.85rem 1.25rem",
-          fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK,
-        }}>
-          <span>
-            {viewLockHolder
-              ? `${viewLockHolder.name} is currently editing this. Do you want to kick them out?`
-              : "You’re viewing this story. Do you want to make changes?"}
-          </span>
-          <button type="button" onClick={() => { setViewMode(false); if (viewLockHolder) setTimeout(takeOver, 100); }} style={{
-            background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
-            padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
-            cursor: "pointer", whiteSpace: "nowrap",
-          }}>{viewLockHolder ? "Kick them out" : "Start editing"}</button>
-        </div>
-      )}
+      {viewMode && !locked && (() => {
+        const isScheduled = form.status === "scheduled";
+        const message = isScheduled
+          ? `This story is scheduled to publish on ${formatTime(post.scheduledAt ?? scheduledAt)}.`
+          : viewLockHolder
+            ? `${viewLockHolder.name} is currently editing this. Do you want to kick them out?`
+            : "You’re viewing this story. Do you want to make changes?";
+        const action = isScheduled ? "Unschedule to edit" : viewLockHolder ? "Kick them out" : "Start editing";
+        const onClick = isScheduled
+          ? unscheduleToEdit
+          : () => { setViewMode(false); if (viewLockHolder) setTimeout(takeOver, 100); };
+        return (
+          <div style={{
+            position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 400,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem",
+            background: "#ffffff", borderTop: `1px solid ${BORDER}`,
+            boxShadow: "0 -2px 16px rgba(0,0,0,0.08)", padding: "0.85rem 1.25rem",
+            fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK,
+          }}>
+            <span>{message}</span>
+            <button type="button" onClick={onClick} style={{
+              background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
+              padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
+              cursor: "pointer", whiteSpace: "nowrap",
+            }}>{action}</button>
+          </div>
+        );
+      })()}
       <style>{`
         body { background: white !important; }
         .tb-btn { position: relative; }
@@ -533,7 +571,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
         <ScheduleModal
           value={scheduledAt}
           onChange={setScheduledAt}
-          onConfirm={() => { setShowScheduler(false); doSave("scheduled", false, true); }}
+          onConfirm={() => { setShowScheduler(false); scheduleAndExit(); }}
           onClose={() => setShowScheduler(false)}
           label="story"
           disabled={isPending}

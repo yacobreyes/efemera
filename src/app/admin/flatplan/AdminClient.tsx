@@ -62,7 +62,7 @@ type Panel = "dashboard" | "editor" | "about" | "media" | "comments" | "subscrib
 
 export type CurrentUser = { name: string; email: string; role: "admin" | "editor" };
 
-export default function AdminClient({ posts: initialPosts, initialNewsletters = [], initialMedia = [], initialSubscribers = [], initialUsers = [], initialAuth = false, initialPanel = "dashboard", currentUser = null }: { posts: SanityPost[]; initialNewsletters?: AdminNewsletterListItem[]; initialMedia?: AdminMediaAsset[]; initialSubscribers?: Subscriber[]; initialUsers?: FlatplanUser[]; initialAuth?: boolean; initialPanel?: Panel; currentUser?: CurrentUser | null }) {
+export default function AdminClient({ posts: initialPosts, initialNewsletters = [], initialMedia = [], initialSubscribers = [], initialUsers = [], initialAuth = false, initialPanel = "dashboard", initialPostTab = "drafts", currentUser = null }: { posts: SanityPost[]; initialNewsletters?: AdminNewsletterListItem[]; initialMedia?: AdminMediaAsset[]; initialSubscribers?: Subscriber[]; initialUsers?: FlatplanUser[]; initialAuth?: boolean; initialPanel?: Panel; initialPostTab?: "drafts" | "scheduled" | "published"; currentUser?: CurrentUser | null }) {
   const router = useRouter();
   const [auth] = useState(initialAuth);
   const isAdmin = currentUser?.role === "admin";
@@ -91,7 +91,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     } catch { /* unsupported */ }
     return () => { alive = false; clearInterval(iv); bc?.close(); };
   }, [auth]);
-  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
+  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">(initialPostTab);
   // Archive pieces are lazy-loaded the first time the Archive tab is opened —
   // they're excluded from the main dashboard fetch (2500+ would be slow).
   const [archivePosts, setArchivePosts] = useState<SanityPost[]>([]);
