@@ -14,7 +14,7 @@ import { postReadingTime } from "@/lib/readingTime";
 
 function sectionLabel(section: string) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
-  if (section === "Gangrey Redux") return "The Archive";
+  if (section === "Archive") return "The Archive";
   return section;
 }
 
@@ -232,7 +232,7 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
       <MagHeader />
 
       <header className="story-head">
-        <StoryBackLink label={sectionLabel(post.section)} fallbackHref={post.section === "Gangrey Redux" ? "/archive" : "/latest"} />
+        <StoryBackLink label={sectionLabel(post.section)} fallbackHref={post.section === "Archive" ? "/archive" : "/latest"} />
         <h1 className="story-h1">{post.headline}</h1>
         {post.subheadline && <p className="story-dek">{post.subheadline}</p>}
         <div className="story-meta">

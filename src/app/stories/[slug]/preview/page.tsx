@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 function sectionLabel(section: string) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
-  if (section === "Gangrey Redux") return "The Archive";
+  if (section === "Archive") return "The Archive";
   return section;
 }
 

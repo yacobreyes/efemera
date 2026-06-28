@@ -257,7 +257,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
     if (!form.headline.trim()) { alert(`Add a headline before ${verb}.`); return false; }
     if (!form.section.trim()) { alert(`Choose a section before ${verb}.`); return false; }
     if (!form.byline.trim()) { alert(`Add an author byline before ${verb}.`); return false; }
-    if (!imageAssetId && form.section !== "Gangrey Redux") { alert(`Add a featured image before ${verb}.`); return false; }
+    if (!imageAssetId && form.section !== "Archive") { alert(`Add a featured image before ${verb}.`); return false; }
     const bodyText = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join("").trim();
     if (!bodyText) { alert(`Write something in the body before ${verb}.`); return false; }
     return true;
@@ -622,7 +622,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
                   <option>Micro-Memoir</option>
                   <option>Narratives</option>
                   <option>Essays</option>
-                  <option value="Gangrey Redux">The Archive</option>
+                  <option value="Archive">The Archive</option>
                 </select>
               </div>
               <div><label style={LABEL}>Author</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: straightenQuotes(e.target.value) })} /></div>
@@ -639,7 +639,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
                   ))}
                 </select>
               </div>
-              {form.section === "Gangrey Redux" && (
+              {form.section === "Archive" && (
                 <div>
                   <label style={LABEL}>Sort order <span style={{ fontWeight: 400, color: TEXT_MUTED }}>(lower = earlier on same day)</span></label>
                   <input type="number" style={INPUT} value={form.sortOrder} onChange={e => updateForm({ sortOrder: e.target.value })} placeholder="e.g. 1, 2, 3…" />

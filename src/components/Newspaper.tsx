@@ -28,7 +28,7 @@ function truncate(text: string, max = 180) {
 
 function sectionLabel(section: SanityPost["section"]) {
   if (section === "Micro-Memoir") return "Micro-Memoir";
-  if (section === "Gangrey Redux") return "The Archive";
+  if (section === "Archive") return "The Archive";
   return section;
 }
 
@@ -50,7 +50,7 @@ export default function Feed({
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())
   );
 
-  const isGangrey = (p: { section?: string }) => p.section === "Gangrey Redux";
+  const isGangrey = (p: { section?: string }) => p.section === "Archive";
   const nonGangrey = published.filter(p => !isGangrey(p));
   const gangrey = published.filter(isGangrey);
 
@@ -448,7 +448,7 @@ export default function Feed({
           </div>
           <div className="ef-grid">
             {[...cards, ...(archiveFeature ? [archiveFeature] : [])].map(post => {
-              const isArchive = post.section === "Gangrey Redux";
+              const isArchive = post.section === "Archive";
               const imgSrc = post.image?.asset
                 ? urlFor(post.image.asset).width(600).height(445).fit("crop").auto("format").url()
                 : null;

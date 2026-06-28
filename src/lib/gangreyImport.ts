@@ -564,7 +564,7 @@ export function toSanityDoc(s: GangreyStory) {
   return {
     _id: `gangrey-import-${s.slug}`,
     _type: "post",
-    section: "Gangrey Redux",
+    section: "Archive",
     status: "published",
     headline: s.headline,
     subheadline: s.subheadline,

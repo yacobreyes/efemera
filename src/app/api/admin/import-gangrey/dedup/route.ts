@@ -13,8 +13,8 @@ export async function POST() {
 
   const base = `https://${projectId}.api.sanity.io/v2024-01-01/data`;
 
-  // Fetch all Gangrey Redux docs
-  const q = encodeURIComponent(`*[_type=="post" && section=="Gangrey Redux"]{_id, headline, byline, slug}`);
+  // Fetch all Archive docs
+  const q = encodeURIComponent(`*[_type=="post" && section=="Archive"]{_id, headline, byline, slug}`);
   const res = await fetch(`${base}/query/${dataset}?query=${q}`, {
     headers: { Authorization: `Bearer ${token}` },
   });

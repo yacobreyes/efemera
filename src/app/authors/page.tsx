@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   description: "Writers featured in Gangrey.",
 };
 
-// Exclude archive (Gangrey Redux) pieces — the author board only lists
+// Exclude archive (Archive) pieces — the author board only lists
 // writers featured in Gangrey proper, not the imported archive.
-const QUERY = `*[_type == "post" && (status == "published" || !defined(status)) && defined(byline) && byline != "" && section != "Gangrey Redux"] {
+const QUERY = `*[_type == "post" && (status == "published" || !defined(status)) && defined(byline) && byline != "" && section != "Archive"] {
   "byline": byline
 }`;
 

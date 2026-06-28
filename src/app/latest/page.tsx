@@ -18,7 +18,7 @@ export default async function LatestPage() {
   const published = posts.filter(p =>
     (!p.status || p.status === "published" ||
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())) &&
-    p.section !== "Gangrey Redux"
+    p.section !== "Archive"
   );
 
   return (

@@ -8,7 +8,7 @@ export async function GET() {
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
   if (!projectId) return NextResponse.json({ count: null });
 
-  const query = encodeURIComponent('count(*[_type=="post" && section=="Gangrey Redux" && status=="published"])');
+  const query = encodeURIComponent('count(*[_type=="post" && section=="Archive" && status=="published"])');
   try {
     const res = await fetch(
       `https://${projectId}.apicdn.sanity.io/v2024-01-01/data/query/${dataset}?query=${query}&returnQuery=false`,
