@@ -216,6 +216,19 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, imageAssetId, imageCaption, imageAlt, doSave]);
 
+  // A brand-new draft only lives in the URL until something persists it. With
+  // the byline auto-filled there's nothing "dirty" to trigger autosave, so an
+  // untouched draft would never show on the dashboard. Persist a stub once on
+  // mount so it appears immediately.
+  const stubSavedRef = useRef(false);
+  useEffect(() => {
+    if (stubSavedRef.current) return;
+    if (!post.slug.startsWith("untitled-")) return;
+    stubSavedRef.current = true;
+    doSave("draft");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   async function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
     setImagePreview(URL.createObjectURL(file)); setUploadingImage(true);
