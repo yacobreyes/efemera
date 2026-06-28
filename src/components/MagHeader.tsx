@@ -191,7 +191,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           /* Scale to fit the row and never wrap to a second line — keeps the
              wordmark inline between the menu toggle and the subscribe button
              instead of stacking on its own row on narrow screens. */
-          .mag-logo-text { font-size: clamp(26px, 7vw, 36px); white-space: nowrap; }
+          .mag-logo-text { font-size: clamp(20px, 5.4vw, 32px); white-space: nowrap; }
           .mag-mob-sub {
             display: block;
             grid-column: 3;
