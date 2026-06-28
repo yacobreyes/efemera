@@ -387,7 +387,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           overflow: visible;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: visible; }
-        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 2rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
@@ -501,7 +501,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           {!isMobile && (
             <div className="admin-mobile-bar">
               {/* Left: search */}
-              <div style={{ width: 260, flexShrink: 0, marginLeft: "1.5rem" }}>
+              <div style={{ width: 260, flexShrink: 0 }}>
                 {activePanel === "dashboard" && (
                   <div style={{ position: "relative" }}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" style={{ position: "absolute", left: "0.65rem", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
