@@ -53,7 +53,7 @@ type FormState = {
   status: "draft" | "published" | "scheduled";
 };
 const DEFAULT_FORM: FormState = {
-  headline: "", subheadline: "", byline: "Yacob Reyes", slug: "",
+  headline: "", subheadline: "", byline: "", slug: "",
   section: "Narratives", date: new Date().toISOString().slice(0, 10),
   body: EMPTY_DOC, status: "draft",
 };
