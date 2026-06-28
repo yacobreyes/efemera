@@ -221,11 +221,20 @@ export default function EditorClient({ post }: { post: SanityPost }) {
     setShowImageModal(true);
   }
 
-  function handlePublishClick() {
-    if (!form.headline.trim()) { alert("Add a headline before publishing."); return; }
-    if (!imageAssetId && form.section !== "Gangrey Redux") { alert("Add a featured image before publishing."); return; }
+  // Shared gate for publishing and scheduling (a scheduled story goes live
+  // automatically, so it needs the same required fields). Returns true if OK.
+  function validateForPublish(verb: string): boolean {
+    if (!form.headline.trim()) { alert(`Add a headline before ${verb}.`); return false; }
+    if (!form.section.trim()) { alert(`Choose a section before ${verb}.`); return false; }
+    if (!form.byline.trim()) { alert(`Add an author byline before ${verb}.`); return false; }
+    if (!imageAssetId && form.section !== "Gangrey Redux") { alert(`Add a featured image before ${verb}.`); return false; }
     const bodyText = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join("").trim();
-    if (!bodyText) { alert("Write something in the body before publishing."); return; }
+    if (!bodyText) { alert(`Write something in the body before ${verb}.`); return false; }
+    return true;
+  }
+
+  function handlePublishClick() {
+    if (!validateForPublish("publishing")) return;
     if (form.status === "published") {
       setShowPublishTimeModal(true);
     } else {
@@ -382,7 +391,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
             {showEllipsis && (
               <div style={{ position: "absolute", top: "calc(100% + 0.4rem)", right: 0, zIndex: 100, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 180, overflow: "hidden" }} onClick={() => setShowEllipsis(false)}>
                 <button type="button" onClick={() => { setShowEllipsis(false); doSave(form.status === "published" ? "published" : "draft"); setTimeout(() => window.open(`/stories/${form.slug}/preview`, "_blank"), 800); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
-                <button type="button" onClick={() => { setShowEllipsis(false); if (!scheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setScheduledAt(d.toISOString().slice(0, 16)); } setShowScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
+                <button type="button" onClick={() => { setShowEllipsis(false); if (!validateForPublish("scheduling")) return; if (!scheduledAt) { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); setScheduledAt(d.toISOString().slice(0, 16)); } setShowScheduler(true); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Schedule</button>
                 {form.status === "published" && (
                   <button type="button" onClick={() => { setShowEllipsis(false); revertToDraft(); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Unpublish</button>
                 )}
@@ -560,6 +569,7 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               <div>
                 <label style={LABEL}>Section</label>
                 <select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}>
+                  <option value="">— Select a section —</option>
                   <option>Micro-Memoir</option>
                   <option>Narratives</option>
                   <option>Essays</option>
