@@ -12,7 +12,7 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
   date, body, image { asset, "url": asset->url, caption, alt }, status, scheduledAt, readingTime
 }`;
 
-export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditPostPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
   const me = await getCurrentUser();
   if (!me) redirect("/admin/flatplan");
 
@@ -21,6 +21,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
   const defaultByline = (me.byline?.trim() || fullName(me)) ?? "";
 
   const { id } = await params;
+  const { new: isNewParam } = await searchParams;
+  // ?new=1 means the user just created this via "Create new" → open in edit
+  // mode. Any other entry (URL paste, second tab, dashboard click) opens in
+  // view mode so the user can read over someone's shoulder without claiming.
+  const isNew = isNewParam === "1";
 
   // For new drafts, render immediately with empty state — first auto-save creates the doc
   if (id.startsWith("untitled-")) {
@@ -36,11 +41,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
       body: [],
       status: "draft",
     };
-    return <EditorClient post={post} defaultByline={defaultByline} />;
+    return <EditorClient post={post} defaultByline={defaultByline} isNew={isNew} />;
   }
 
   const post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
   if (!post) redirect("/admin/flatplan");
 
-  return <EditorClient post={post} defaultByline={defaultByline} />;
+  return <EditorClient post={post} defaultByline={defaultByline} isNew={isNew} />;
 }

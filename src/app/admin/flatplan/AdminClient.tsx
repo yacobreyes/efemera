@@ -265,7 +265,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     // Route to an in-memory placeholder so the editor opens instantly; the
     // first autosave persists the doc. (Eager server-side creation added a
     // write+redirect+fetch round-trip that showed a blank/lag.)
-    router.push(`/admin/flatplan/posts/untitled-${Date.now()}`);
+    router.push(`/admin/flatplan/posts/untitled-${Date.now()}?new=1`);
   }
 
   function startEdit(post: SanityPost) {

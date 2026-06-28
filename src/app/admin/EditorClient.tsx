@@ -52,13 +52,14 @@ type FormState = {
 
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
 
-export default function EditorClient({ post, defaultByline = "" }: { post: SanityPost; defaultByline?: string }) {
+export default function EditorClient({ post, defaultByline = "", isNew = false }: { post: SanityPost; defaultByline?: string; isNew?: boolean }) {
   const router = useRouter();
 
-  // Existing stories opened from the dashboard start in read-only view mode so
-  // you don't accidentally edit (and don't grab the lock) just by looking. A
-  // brand-new draft skips this and opens straight into editing.
-  const [viewMode, setViewMode] = useState(!post.slug.startsWith("untitled-"));
+  // Every open starts in read-only view mode so you can watch the current
+  // editor type without claiming the lock. Only a brand-new draft created via
+  // "Create new" (isNew=true via ?new=1) skips this and opens straight into
+  // editing — second tabs and URL pastes always view first.
+  const [viewMode, setViewMode] = useState(!isNew);
 
   // While in view mode, poll the lock without claiming it so we can show who's
   // actively editing without blocking them.
@@ -133,6 +134,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   useEffect(() => {
     fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {});
   }, []);
+
   // Popup for re-publishing: ask whether to update publish date
   const [showPublishTimeModal, setShowPublishTimeModal] = useState(false);
 
@@ -147,6 +149,38 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   const [photoPickerAssets, setPhotoPickerAssets] = useState<MediaAsset[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [editor, setEditor] = useState<Editor | null>(null);
+
+  // Live "watch over the shoulder" sync: while in view mode, poll the post
+  // every 3s and update the editor with the current editor's typing.
+  useEffect(() => {
+    if (!viewMode) return;
+    let alive = true;
+    const sync = async () => {
+      try {
+        const r = await fetch(`/api/posts-admin?slug=${encodeURIComponent(post.slug)}`, { cache: "no-store" });
+        if (!r.ok || !alive) return;
+        const list = await r.json() as SanityPost[];
+        const fresh = Array.isArray(list) ? list.find(p => p.slug === post.slug) : null;
+        if (!fresh || !alive) return;
+        const freshBody = fresh.body?.length ? portableTextToTiptap(fresh.body) : EMPTY_DOC;
+        setForm(f => ({
+          ...f,
+          headline: fresh.headline ?? f.headline,
+          subheadline: fresh.subheadline ?? f.subheadline,
+          byline: fresh.byline ?? f.byline,
+          section: fresh.section ?? f.section,
+          date: fresh.date ?? f.date,
+          body: freshBody,
+        }));
+        if (editor && JSON.stringify(editor.getJSON()) !== JSON.stringify(freshBody)) {
+          editor.commands.setContent(freshBody);
+        }
+      } catch { /* transient — retry next tick */ }
+    };
+    sync();
+    const iv = setInterval(sync, 3000);
+    return () => { alive = false; clearInterval(iv); };
+  }, [viewMode, post.slug, editor]);
   const [toolbar, setToolbar] = useState<ToolbarHandles | null>(null);
   const [showBodyImageModal, setShowBodyImageModal] = useState(false);
   const [bodyImageTab, setBodyImageTab] = useState<"library" | "upload">("library");
