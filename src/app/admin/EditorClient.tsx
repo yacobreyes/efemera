@@ -357,9 +357,9 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
   const wordCount = (form.body.content ?? []).flatMap((n: JSONContent) => (n.content ?? []).map((c: JSONContent) => c.text ?? "")).join(" ").trim().split(/\s+/).filter(Boolean).length;
 
   // Single source for the formatting toolbar buttons. Rendered in the top bar
-  // on desktop (unchanged) and in a row below the top bar on mobile (matching
-  // the newsletter editor) — one fragment, two placements.
-  const toolbarButtons = editor ? (
+  // on desktop and in a row below the top bar on mobile (matching the newsletter
+  // editor) — one fragment, two placements. Hidden in read-only/view mode.
+  const toolbarButtons = editor && !readOnly ? (
     <>
       <button type="button" title="Undo" data-tooltip="Undo" className="tb-btn" disabled={!editor.can().undo()} onMouseDown={e => { e.preventDefault(); editor.chain().focus().undo().run(); }}
         style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: editor.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: editor.can().undo() ? 1 : 0.4 }}>
