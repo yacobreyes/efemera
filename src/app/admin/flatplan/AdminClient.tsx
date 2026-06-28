@@ -91,7 +91,12 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     } catch { /* unsupported */ }
     return () => { alive = false; clearInterval(iv); bc?.close(); };
   }, [auth]);
-  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published">("drafts");
+  const [postTab, setPostTab] = useState<"drafts" | "scheduled" | "published" | "archive">("drafts");
+  // Archive pieces are lazy-loaded the first time the Archive tab is opened —
+  // they're excluded from the main dashboard fetch (2500+ would be slow).
+  const [archivePosts, setArchivePosts] = useState<SanityPost[]>([]);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [archiveLoaded, setArchiveLoaded] = useState(false);
   const [editing, setEditing] = useState<SanityPost | null>(null);
 
   const [aboutDoc, setAboutDoc] = useState<JSONContent>(EMPTY_DOC);
@@ -238,6 +243,17 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     setIsDirty(JSON.stringify(form) !== JSON.stringify(savedForm));
   }, [form, savedForm]);
 
+  // Lazy-load archive pieces the first time the Archive tab is opened.
+  useEffect(() => {
+    if (postTab !== "archive" || archiveLoaded || archiveLoading) return;
+    setArchiveLoading(true);
+    fetch("/api/posts-admin?archive=1", { cache: "no-store" })
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d)) setArchivePosts(d); setArchiveLoaded(true); })
+      .catch(() => {})
+      .finally(() => setArchiveLoading(false));
+  }, [postTab, archiveLoaded, archiveLoading]);
+
   const refreshNewsletters = useCallback(() => {
     fetch("/api/newsletter", { cache: "no-store" }).then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
   }, []);
@@ -247,7 +263,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   // instantly; the first autosave persists the doc. (Eager server-side
   // creation added a write+redirect+fetch round-trip that showed a blank/lag.)
   function createNewNewsletter() {
-    router.push(`/admin/flatplan/newsletters/newsletter-${Date.now()}`);
+    router.push(`/admin/flatplan/newsletters/newsletter-${Date.now()}?new=1`);
   }
   function openNewsletter(item: NlListItem) {
     router.push(`/admin/flatplan/newsletters/${item._id}`);
@@ -526,9 +542,9 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
               </div>
               {/* Center: tabs */}
               <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "0.25rem" }}>
-                {activePanel === "dashboard" && (["drafts", "scheduled", "published"] as const).map(tab => (
+                {activePanel === "dashboard" && (["drafts", "scheduled", "published", "archive"] as const).map(tab => (
                   <button key={tab} onClick={() => setPostTab(tab)} style={{ background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, padding: "0.4rem 1rem", fontFamily: FONT, fontSize: "0.78rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer", whiteSpace: "nowrap" }}>
-                    {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : "Published"}
+                    {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Scheduled" : tab === "published" ? "Published" : "Archive"}
                   </button>
                 ))}
               </div>
@@ -612,9 +628,9 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
               {/* Row 3: tabs (dashboard only) */}
               {activePanel === "dashboard" && (
                 <div style={{ display: "flex", borderTop: `1px solid ${BORDER}` }}>
-                  {(["drafts", "scheduled", "published"] as const).map(tab => (
+                  {(["drafts", "scheduled", "published", "archive"] as const).map(tab => (
                     <button key={tab} onClick={() => setPostTab(tab)} style={{ flex: 1, background: "none", border: "none", borderBottom: `2px solid ${postTab === tab ? CRIMSON : "transparent"}`, padding: "0.6rem 0", fontFamily: FONT, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: postTab === tab ? CRIMSON : TEXT_MUTED, cursor: "pointer" }}>
-                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Sched." : "Published"}
+                      {tab === "drafts" ? "Drafts" : tab === "scheduled" ? "Sched." : tab === "published" ? "Pub." : "Archive"}
                     </button>
                   ))}
                 </div>
@@ -634,7 +650,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                   </button>
                 </div>
                 <div style={{ padding: "0.75rem", flex: 1 }}>
-                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ...(isAdmin ? [["subscribers", "Subscribers"]] as [Panel, string][] : [])] as [Panel, string][]).map(([panel, label]) => (
+                  {([["dashboard", "Posts"], ["about", "About"], ["media", "Media Library"], ["comments", "Comments"], ...(isAdmin ? [["subscribers", "Subscribers"], ["users", "Users"]] as [Panel, string][] : [])] as [Panel, string][]).map(([panel, label]) => (
                     <button key={panel} onClick={() => { tryNav(panel); setShowMobileNav(false); }} style={{ display: "block", width: "100%", background: activePanel === panel ? "#ffffff" : "none", border: "none", textAlign: "left", padding: "0.75rem", fontFamily: FONT, fontSize: "1rem", fontWeight: activePanel === panel ? 700 : 500, color: activePanel === panel ? CRIMSON : TEXT_DARK, cursor: "pointer", borderRadius: 6, marginBottom: "0.1rem" }}>
                       {label}
                     </button>
@@ -655,23 +671,30 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
               {/* Count + sort row */}
               {(() => {
-                const list = postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
+                const isArchive = postTab === "archive";
+                const list = isArchive ? archivePosts : postTab === "drafts" ? drafts : postTab === "scheduled" ? scheduled : published;
                 const q = query.trim().toLowerCase();
                 const filtered = q ? list.filter(p => {
                   const bodyText = (p.searchText ?? ptPlainText(p.body as { _type?: string; children?: { text?: string }[] }[])).toLowerCase();
                   return p.headline.toLowerCase().includes(q) || p.subheadline?.toLowerCase().includes(q) || bodyText.includes(q);
                 }) : list;
+                // Newsletters never appear under the Archive tab.
                 const nlStatusKey = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled" : "published";
-                const nlList = newsletters.filter(n => (n.status ?? "draft") === nlStatusKey);
+                const nlList = isArchive ? [] : newsletters.filter(n => (n.status ?? "draft") === nlStatusKey);
                 const nlFiltered = q ? nlList.filter(n => {
                   const cardsText = (n.cards ?? []).map(c => `${c.headline ?? ""} ${ptPlainText(c.body as { _type?: string; children?: { text?: string }[] }[])}`).join(" ").toLowerCase();
                   return (n.subject ?? "").toLowerCase().includes(q) || cardsText.includes(q);
                 }) : nlList;
                 const total = filtered.length + nlFiltered.length;
-                const label = postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled item" : "published item";
+                const label = isArchive ? "archive piece" : postTab === "drafts" ? "draft" : postTab === "scheduled" ? "scheduled item" : "published item";
                 const sortKey = (dateA?: string, createdA?: string) => sortBy === "dateCreated" ? (createdA ?? dateA ?? "") : (dateA ?? createdA ?? "");
                 const sortedNl = [...nlFiltered].sort((a, b) => sortKey(a.updatedAt, a.createdAt).localeCompare(sortKey(b.updatedAt, b.createdAt)) * -1);
-                const sortedPosts = [...filtered].sort((a, b) => sortKey(a._updatedAt, a._createdAt).localeCompare(sortKey(b._updatedAt, b._createdAt)) * -1);
+                const sortedPostsAll = [...filtered].sort((a, b) => sortKey(a._updatedAt, a._createdAt).localeCompare(sortKey(b._updatedAt, b._createdAt)) * -1);
+                // Cap rendered archive rows so 2500+ don't choke the DOM; search
+                // narrows it. Other tabs render everything.
+                const ARCHIVE_CAP = 200;
+                const sortedPosts = isArchive ? sortedPostsAll.slice(0, ARCHIVE_CAP) : sortedPostsAll;
+                const archiveOverflow = isArchive ? Math.max(0, sortedPostsAll.length - ARCHIVE_CAP) : 0;
                 const sortLabel = sortBy === "lastEdited" ? "Last edited" : "Date created";
                 return (
                   <>
@@ -700,7 +723,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                       ))}
                     </div>
                     {/* Rows */}
-                    {total === 0 ? (
+                    {isArchive && archiveLoading && !archiveLoaded ? (
+                      <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center", marginTop: "0.25rem" }}>
+                        <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>Loading archive…</p>
+                      </div>
+                    ) : total === 0 ? (
                       <div style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "3rem", textAlign: "center", marginTop: "0.25rem" }}>
                         <p style={{ fontFamily: FONT, color: TEXT_MUTED, margin: 0 }}>{query ? `No results for "${query}"` : `No ${label}s yet.`}</p>
                       </div>
@@ -756,6 +783,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                             <span style={{ fontFamily: FONT, fontSize: isMobile ? "0.7rem" : "0.8rem", color: TEXT_MUTED, whiteSpace: "nowrap" }}>{post.date}</span>
                           </div>
                         ))}
+                        {archiveOverflow > 0 && (
+                          <div style={{ padding: "0.85rem 1rem", textAlign: "center" }}>
+                            <p style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED, margin: 0 }}>Showing first {sortedPosts.length} of {sortedPosts.length + archiveOverflow}. Search to narrow results.</p>
+                          </div>
+                        )}
                       </div>
                     )}
                   </>

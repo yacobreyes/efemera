@@ -164,6 +164,17 @@ export async function getAllPostsAdmin(withSearch = false, excludeArchive = fals
   return posts.map(straightenPost);
 }
 
+// Archive pieces only, light (no body) so all 2500+ load quickly for the
+// dashboard's dedicated Archive tab. Lazy-fetched on demand, not on first paint.
+export async function getArchivePostsAdmin(): Promise<SanityPost[]> {
+  const posts: SanityPost[] = await client.fetch(
+    `*[_type == "post" && !(_id in path("drafts.**")) && section == "Archive"] | order(date desc) { ${POST_LIST_FIELDS} }`,
+    {},
+    { cache: "no-store" }
+  );
+  return posts.map(straightenPost);
+}
+
 // Newsletter list for the dashboard, server-rendered so drafts appear on first
 // paint instead of popping in after a client fetch. Mirrors the shape returned
 // by /api/newsletter (which the client uses for live refreshes).

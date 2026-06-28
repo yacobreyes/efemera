@@ -8,11 +8,15 @@ export const dynamic = "force-dynamic";
 
 const NL_FIELDS = `subject, preview, author, cards, status, scheduledAt, volume, issue, intro`;
 
-export default async function EditNewsletterPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditNewsletterPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
   const authed = await isAuthed();
   if (!authed) redirect("/admin/flatplan");
 
   const { id } = await params;
+  const { new: isNewParam } = await searchParams;
+  // ?new=1 (Create new) opens straight into editing; every other entry opens
+  // read-only so you can watch the current editor without claiming the lock.
+  const isNew = isNewParam === "1";
 
   // Both queries only need the id, so run them concurrently instead of
   // waiting on the draft fetch before starting the versions fetch.
@@ -41,5 +45,5 @@ export default async function EditNewsletterPage({ params }: { params: Promise<{
 
   const versions: NlVersion[] = rawVersions ?? [];
 
-  return <NewsletterEditorClient newsletterId={id} initial={initial} initialVersions={versions} />;
+  return <NewsletterEditorClient newsletterId={id} initial={initial} initialVersions={versions} isNew={isNew} />;
 }

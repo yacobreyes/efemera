@@ -9,6 +9,7 @@ import { renderNewsletterHtml } from "@/lib/newsletterEmail";
 import { straightenQuotes } from "@/lib/straighten";
 import { useEditLock } from "./useEditLock";
 import EditLockBanner from "./EditLockBanner";
+import { watchLock, type LockHolder } from "./lockActions";
 import { saveNewsletter, deleteNewsletter, sendNewsletter, sendTestNewsletter, getPostsForNewsletter, type NlVersion, type NlPickablePost } from "./newsletterActions";
 import { createPostFromNewsletterCard, checkSlugsExist } from "./actions";
 import ScheduleModal from "@/components/ScheduleModal";
@@ -88,16 +89,37 @@ function cardsFromStored(cards: StoredCard[]): NlEditorCard[] {
 }
 
 export default function NewsletterEditorClient({
-  newsletterId, initial, initialVersions,
-}: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[] }) {
+  newsletterId, initial, initialVersions, isNew = false,
+}: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[]; isNew?: boolean }) {
   const router = useRouter();
   useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
   const [nlExiting, setNlExiting] = useState(false);
 
+  // Every open starts read-only so you can watch the current editor without
+  // claiming the lock. Only a brand-new newsletter (isNew via ?new=1) opens
+  // straight into editing.
+  const [viewMode, setViewMode] = useState(!isNew);
+
+  // While viewing, poll the lock without claiming it so we can show who's
+  // editing. Pass null to useEditLock so no lock is grabbed.
+  const [viewLockHolder, setViewLockHolder] = useState<LockHolder | null>(null);
+  useEffect(() => {
+    if (!viewMode) { setViewLockHolder(null); return; }
+    let alive = true;
+    const check = () => watchLock(newsletterId, new Date().toISOString()).then(s => { if (alive) setViewLockHolder(s.holder); }).catch(() => {});
+    check();
+    const iv = setInterval(check, 4000);
+    let bc: BroadcastChannel | null = null;
+    try { bc = new BroadcastChannel("flatplan-locks"); bc.onmessage = () => { if (alive) check(); }; } catch { /* unsupported */ }
+    return () => { alive = false; clearInterval(iv); bc?.close(); };
+  }, [viewMode, newsletterId]);
+
   // Edit lock — pause autosave & warn when someone else (or another tab) is in it.
-  const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: nlLocked } = useEditLock(newsletterId);
+  const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: nlLocked } = useEditLock(viewMode ? null : newsletterId);
+  // View mode counts as read-only for all write guards.
+  const nlReadOnly = viewMode || nlLocked;
   const nlLockedRef = useRef(false);
-  useEffect(() => { nlLockedRef.current = nlLocked; }, [nlLocked]);
+  useEffect(() => { nlLockedRef.current = nlReadOnly; }, [nlReadOnly]);
 
   const [isMobile, setIsMobile] = useState(false);
   const [todayLabel, setTodayLabel] = useState("");
@@ -527,6 +549,26 @@ export default function NewsletterEditorClient({
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "white" }}>
       <EditLockBanner holder={nlLocked ? lockHolder : null} selfOtherTab={selfOtherTab} onTakeOver={takeOver} />
+      {viewMode && !nlLocked && (
+        <div style={{
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 400,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem",
+          background: "#ffffff", borderTop: `1px solid ${BORDER}`,
+          boxShadow: "0 -2px 16px rgba(0,0,0,0.08)", padding: "0.85rem 1.25rem",
+          fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK,
+        }}>
+          <span>
+            {viewLockHolder
+              ? `${viewLockHolder.name} is currently editing this. Do you want to kick them out?`
+              : "You’re viewing this newsletter. Do you want to make changes?"}
+          </span>
+          <button type="button" onClick={() => { setViewMode(false); if (viewLockHolder) setTimeout(takeOver, 100); }} style={{
+            background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
+            padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
+            cursor: "pointer", whiteSpace: "nowrap",
+          }}>{viewLockHolder ? "Kick them out" : "Start editing"}</button>
+        </div>
+      )}
       <style>{`
         .nl-tb-btn { position: relative; }
         .nl-add-zone .nl-add-line, .nl-add-zone .nl-add-label { opacity: 0; transition: opacity 0.12s; }
@@ -637,9 +679,9 @@ export default function NewsletterEditorClient({
 
       {/* Top bar — matches story editor */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "fixed", top: 0, left: 0, right: 0, zIndex: 410 }}>
-        <button disabled={nlExiting} onClick={nlLocked ? () => router.push("/admin/flatplan") : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: nlExiting ? "default" : "pointer", opacity: nlExiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
+        <button disabled={nlExiting} onClick={nlReadOnly ? () => router.push("/admin/flatplan") : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: nlExiting ? "default" : "pointer", opacity: nlExiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          {nlExiting ? "Saving…" : nlLocked ? "Go Back" : "Save & Exit"}
+          {nlExiting ? "Saving…" : nlReadOnly ? "Go Back" : "Save & Exit"}
         </button>
 
         {/* Formatting toolbar — drives the focused card editor */}
@@ -783,6 +825,7 @@ export default function NewsletterEditorClient({
                 ref={nlIntroRef}
                 value={nlIntro}
                 onChange={e => setNlIntro(e.target.value)}
+                readOnly={nlReadOnly}
                 placeholder="A note to readers…"
                 rows={1}
                 style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1rem", lineHeight: 1.6, color: "#ffffff", border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, resize: "none", boxSizing: "border-box", display: "block", textAlign: "center", overflow: "hidden" }}
@@ -884,10 +927,10 @@ export default function NewsletterEditorClient({
                             + Add a featured image
                           </button>
                         )}
-                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Feature headline"
+                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} readOnly={nlReadOnly} placeholder="Feature headline"
                           style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.9rem", fontWeight: 700, lineHeight: 1.15, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "1rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         {nlBylineField(card, "center")}
-                        <RichBodyEditor initialContent={card.doc} minHeight={80} placeholder="Lead paragraph…"
+                        <RichBodyEditor initialContent={card.doc} editable={!nlReadOnly} minHeight={80} placeholder="Lead paragraph…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; if (ed) { setNlActiveEditor(prev => prev && !prev.isDestroyed ? prev : ed); } else { setNlActiveEditor(prev => prev?.isDestroyed ? null : prev); } }}
                           onToolbar={tb => { nlToolbars.current[card.id] = tb; if (tb && i === 0) setNlActiveToolbar(prev => prev ?? tb); }} />
@@ -899,7 +942,7 @@ export default function NewsletterEditorClient({
                     {type === "essays" && (
                       <div style={{ paddingTop: "1rem", paddingBottom: "1.75rem" }}>
                         <div style={{ borderTop: `2px solid ${CRIMSON}`, paddingTop: "0.85rem", marginBottom: "0.85rem" }}>
-                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Essay title"
+                          <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} readOnly={nlReadOnly} placeholder="Essay title"
                             style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.5rem", fontWeight: 400, lineHeight: 1.25, color: CRIMSON, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, boxSizing: "border-box", display: "block" }} />
                         </div>
                         {nlBylineField(card, "left")}
@@ -920,7 +963,7 @@ export default function NewsletterEditorClient({
                             + Add image
                           </button>
                         )}
-                        <RichBodyEditor initialContent={card.doc} minHeight={60} placeholder="Write the story…"
+                        <RichBodyEditor initialContent={card.doc} editable={!nlReadOnly} minHeight={60} placeholder="Write the story…"
                           onChange={doc => nlUpdateCard(card.id, { doc })}
                           onEditor={ed => { nlEditors.current[card.id] = ed; }}
                           onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
@@ -931,7 +974,7 @@ export default function NewsletterEditorClient({
                     {/* MICRO-MEMOIR card — literary magazine style */}
                     {type === "micro-memoir" && (
                       <div style={{ background: "#b8b8ba", padding: "2rem 2rem 2.5rem", borderTop: `1px solid #b8b8ba`, borderBottom: `1px solid #b8b8ba`, margin: "0 -2.5rem" }}>
-                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} placeholder="Title"
+                        <input value={card.headline} onChange={e => nlUpdateCard(card.id, { headline: e.target.value })} readOnly={nlReadOnly} placeholder="Title"
                           style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.7rem", fontStyle: "normal", fontWeight: 400, lineHeight: 1.2, letterSpacing: "0.02em", color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", padding: 0, marginBottom: "0.35rem", display: "block", boxSizing: "border-box", textAlign: "center" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem", flexWrap: "wrap", margin: "0 0 1.5rem" }}>
                           <span style={{ fontFamily: FONT, fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: CRIMSON }}>A Micro-Memoir</span>
@@ -950,7 +993,7 @@ export default function NewsletterEditorClient({
                         </div>
                         <div style={{ width: 32, height: 1, background: "#b8b8ba", margin: "0 auto 1.5rem" }} />
                         <div style={{ fontFamily: "var(--font-cormorant), Georgia, serif", fontSize: "1.1rem", lineHeight: 1.85, textAlign: "center" }}>
-                          <RichBodyEditor initialContent={card.doc} minHeight={100} placeholder="Write intimately…"
+                          <RichBodyEditor initialContent={card.doc} editable={!nlReadOnly} minHeight={100} placeholder="Write intimately…"
                             onChange={doc => nlUpdateCard(card.id, { doc })}
                             onEditor={ed => { nlEditors.current[card.id] = ed; }}
                             onToolbar={tb => { nlToolbars.current[card.id] = tb; }} />
@@ -987,24 +1030,24 @@ export default function NewsletterEditorClient({
             <div style={{ display: "flex", gap: "0.75rem" }}>
               <div style={{ flex: 1 }}>
                 <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Volume</label>
-                <input value={nlVolume} onChange={e => setNlVolume(e.target.value)} placeholder="1" style={INPUT} />
+                <input value={nlVolume} onChange={e => setNlVolume(e.target.value)} readOnly={nlReadOnly} placeholder="1" style={INPUT} />
               </div>
               <div style={{ flex: 1 }}>
                 <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Issue</label>
-                <input value={nlIssue} onChange={e => setNlIssue(e.target.value)} placeholder="1" style={INPUT} />
+                <input value={nlIssue} onChange={e => setNlIssue(e.target.value)} readOnly={nlReadOnly} placeholder="1" style={INPUT} />
               </div>
             </div>
             <div>
               <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Author</label>
-              <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} style={INPUT} />
+              <input value={nlAuthor} onChange={e => setNlAuthor(e.target.value)} readOnly={nlReadOnly} style={INPUT} />
             </div>
             <div>
               <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Subject line<span style={{ color: CRIMSON }}>*</span></label>
-              <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} placeholder="Add a subject line" style={INPUT} />
+              <input value={nlSubject} onChange={e => setNlSubject(e.target.value)} readOnly={nlReadOnly} placeholder="Add a subject line" style={INPUT} />
             </div>
             <div>
               <label style={{ fontFamily: FONT, fontSize: "0.75rem", fontWeight: 600, color: TEXT_MUTED, display: "block", marginBottom: "0.3rem" }}>Preview text</label>
-              <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} placeholder="Add preview text" style={INPUT} />
+              <input value={nlPreview} onChange={e => setNlPreview(e.target.value)} readOnly={nlReadOnly} placeholder="Add preview text" style={INPUT} />
             </div>
           </div>
 
