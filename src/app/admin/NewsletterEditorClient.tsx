@@ -148,8 +148,6 @@ export default function NewsletterEditorClient({
   const [nlSending, setNlSending] = useState(false);
   const [nlImgPickerCard, setNlImgPickerCard] = useState<string | null>(null);
   const [showNlEllipsis, setShowNlEllipsis] = useState(false);
-  // Overflow menu for the mobile formatting toolbar (Link / Image / Embed).
-  const [showNlMobileFormatMore, setShowNlMobileFormatMore] = useState(false);
   const [showNlScheduler, setShowNlScheduler] = useState(false);
   const [showNlPreview, setShowNlPreview] = useState(false);
 
@@ -624,14 +622,14 @@ export default function NewsletterEditorClient({
       {/* Floating "find content" trigger — fixed to the left edge, hidden while the panel is open */}
       {!isMobile && !showFindContent && (
         <button type="button" title="Find content" onClick={() => setShowFindContent(true)}
-          style={{ position: "fixed", top: 80, left: 24, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: CRIMSON, color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
+          style={{ position: "fixed", top: 112, left: 24, zIndex: 50, width: 44, height: 44, borderRadius: "50%", background: CRIMSON, color: "white", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.2)" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         </button>
       )}
 
       {/* Find content panel — pull a story in as a new card */}
       {showFindContent && (
-        <div className="nl-find-panel" style={{ position: "fixed", top: 64, left: 12, height: "calc(100% - 76px)", width: 296, maxWidth: "88vw", zIndex: 400, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="nl-find-panel" style={{ position: "fixed", top: 108, left: 12, height: "calc(100% - 120px)", width: 296, maxWidth: "88vw", zIndex: 406, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "4px 0 24px rgba(0,0,0,0.12)", display: "flex", flexDirection: "column", overflowY: "auto" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "1rem 1.25rem", borderBottom: `1px solid ${BORDER}` }}>
               <span style={{ fontFamily: FONT, fontWeight: 700, color: TEXT_DARK }}>Find content</span>
               <button type="button" title="Close" onClick={() => setShowFindContent(false)} style={{ background: "none", border: "none", fontSize: "1.3rem", cursor: "pointer", color: TEXT_MUTED, lineHeight: 1 }}>×</button>
@@ -686,60 +684,6 @@ export default function NewsletterEditorClient({
           {nlExiting ? "Saving…" : nlReadOnly ? "Go Back" : "Save & Exit"}
         </button>
 
-        {/* Formatting toolbar — drives the focused card editor */}
-        {!isMobile && nlActiveE && !nlActiveE.isDestroyed && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.2rem" }}>
-            <button type="button" title="Undo" disabled={!nlActiveE.can().undo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().undo().run(); }}
-              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().undo() ? 1 : 0.4 }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
-            </button>
-            <button type="button" title="Redo" disabled={!nlActiveE.can().redo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().redo().run(); }}
-              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().redo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().redo() ? 1 : 0.4 }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
-            </button>
-            <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
-            {([
-              ["B", nlActiveE.isActive("bold"), () => nlActiveE.chain().focus().toggleBold().run(), { fontWeight: 700 }],
-              ["I", nlActiveE.isActive("italic"), () => nlActiveE.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
-            ] as [string, boolean, () => void, React.CSSProperties][]).map(([label, active, action, style]) => (
-              <button key={label} type="button" onMouseDown={e => { e.preventDefault(); action(); }}
-                style={{ background: active ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
-                {label}
-              </button>
-            ))}
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBlockquote().run(); }}
-              style={{ background: nlActiveE.isActive("blockquote") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </button>
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleHeading({ level: 2 }).run(); }}
-              style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#ffffff" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
-              H2
-            </button>
-            <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBulletList().run(); }}
-              style={{ background: nlActiveE.isActive("bulletList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            </button>
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleOrderedList().run(); }}
-              style={{ background: nlActiveE.isActive("orderedList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
-              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
-            </button>
-            <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem" }} />
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openLink(); }}
-              style={{ background: nlActiveE.isActive("link") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_MUTED }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            </button>
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openImage(); }}
-              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            </button>
-            <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openEmbed(); }}
-              style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            </button>
-          </div>
-        )}
-
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlReadOnly ? "Read only" : nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
           <button
@@ -789,46 +733,58 @@ export default function NewsletterEditorClient({
         </div>
       </div>
 
-      {/* Formatting toolbar — mobile: its own row below the top bar (Axios pattern) */}
-      {isMobile && nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly && (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.25rem 0.5rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "fixed", top: 52, left: 0, right: 0, zIndex: 405 }}>
-          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBold().run(); }}
-            style={{ background: nlActiveE.isActive("bold") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bold") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontWeight: 700 }}>B</button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleItalic().run(); }}
-            style={{ background: nlActiveE.isActive("italic") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("italic") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontStyle: "italic" }}>I</button>
+      {/* Formatting toolbar — its own row below the top bar (Axios position),
+          shown on desktop and mobile; scrolls horizontally on narrow screens */}
+      {nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly && (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", padding: "0.25rem 0.75rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "fixed", top: 52, left: 0, right: 0, zIndex: 405, overflowX: "auto" }}>
+          <button type="button" title="Undo" disabled={!nlActiveE.can().undo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().undo().run(); }}
+            style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().undo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().undo() ? 1 : 0.4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+          </button>
+          <button type="button" title="Redo" disabled={!nlActiveE.can().redo()} onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().redo().run(); }}
+            style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlActiveE.can().redo() ? "pointer" : "default", color: TEXT_MUTED, opacity: nlActiveE.can().redo() ? 1 : 0.4 }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 14 20 9 15 4"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+          </button>
+          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem", flexShrink: 0 }} />
+          {([
+            ["B", nlActiveE.isActive("bold"), () => nlActiveE.chain().focus().toggleBold().run(), { fontWeight: 700 }],
+            ["I", nlActiveE.isActive("italic"), () => nlActiveE.chain().focus().toggleItalic().run(), { fontStyle: "italic" }],
+          ] as [string, boolean, () => void, React.CSSProperties][]).map(([label, active, action, style]) => (
+            <button key={label} type="button" onMouseDown={e => { e.preventDefault(); action(); }}
+              style={{ background: active ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: active ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", ...style }}>
+              {label}
+            </button>
+          ))}
           <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBlockquote().run(); }}
-            style={{ background: nlActiveE.isActive("blockquote") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            style={{ background: nlActiveE.isActive("blockquote") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </button>
           <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleHeading({ level: 2 }).run(); }}
-            style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#f1f1f1" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 40, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>H2</button>
-          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.25rem" }} />
+            style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#ffffff" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 38, flexShrink: 0, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>
+            H2
+          </button>
+          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem", flexShrink: 0 }} />
           <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBulletList().run(); }}
-            style={{ background: nlActiveE.isActive("bulletList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            style={{ background: nlActiveE.isActive("bulletList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           </button>
           <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleOrderedList().run(); }}
-            style={{ background: nlActiveE.isActive("orderedList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+            style={{ background: nlActiveE.isActive("orderedList") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
           </button>
-          <div style={{ flex: 1 }} />
-          <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(v => !v); }}
-            style={{ background: showNlMobileFormatMore ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.3rem", flexShrink: 0 }} />
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openLink(); }}
+            style={{ background: nlActiveE.isActive("link") ? "#ffffff" : "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
           </button>
-          {showNlMobileFormatMore && (
-            <div style={{ position: "absolute", top: "calc(100% + 0.25rem)", right: "0.5rem", zIndex: 120, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 150, overflow: "hidden" }} onClick={() => setShowNlMobileFormatMore(false)}>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openLink(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Link
-              </button>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openImage(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
-              </button>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openEmbed(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Embed
-              </button>
-            </div>
-          )}
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openImage(); }}
+            style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveToolbar?.openEmbed(); }}
+            style={{ background: "none", border: "none", borderRadius: 4, width: 38, height: 38, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </button>
         </div>
       )}
 
@@ -848,7 +804,7 @@ export default function NewsletterEditorClient({
 
       {/* Content — when the find panel is open on desktop, reserve its width on
           the left so the centered page never slides underneath it. */}
-      <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: isMobile && nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly ? 101 : 52 }}>
+      <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly ? 101 : 52 }}>
         {/* Magazine page — 600px to match the email's inbox-safe width */}
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#ffffff", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
