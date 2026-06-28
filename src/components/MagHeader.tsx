@@ -170,6 +170,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             cursor: pointer;
             padding: 8px 8px 8px 0;
             grid-column: 1;
+            grid-row: 1;
             justify-self: start;
           }
           .mag-toggle span {
@@ -181,6 +182,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           }
           .mag-logo {
             grid-column: 2;
+            grid-row: 1;
             justify-self: center;
             min-width: 0;
             text-align: center;
@@ -193,6 +195,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-mob-sub {
             display: block;
             grid-column: 3;
+            grid-row: 1;
             justify-self: end;
             font-family: var(--font-subhead);
             font-size: 11px;
@@ -209,6 +212,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-drawer {
             flex-direction: column;
             grid-column: 1 / -1;
+            grid-row: 2;
             width: 100%;
             border-top: 1px solid #b8b8ba;
             padding: 12px 0 24px;
