@@ -305,14 +305,14 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
         }}>
           <span>
             {viewLockHolder
-              ? `${viewLockHolder.name} is editing this story.`
+              ? `${viewLockHolder.name} is currently editing this. Do you want to kick them out?`
               : "You’re viewing this story. Do you want to make changes?"}
           </span>
           <button type="button" onClick={() => { setViewMode(false); if (viewLockHolder) setTimeout(takeOver, 100); }} style={{
             background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
             padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
             cursor: "pointer", whiteSpace: "nowrap",
-          }}>{viewLockHolder ? "Take over" : "Start editing"}</button>
+          }}>{viewLockHolder ? "Kick them out" : "Start editing"}</button>
         </div>
       )}
       <style>{`

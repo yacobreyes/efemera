@@ -18,9 +18,9 @@ export default function EditLockBanner({
 }) {
   if (!holder) return null;
   const message = selfOtherTab
-    ? "Heads up! Looks like you already have this open in another tab."
-    : `${holder.name} is currently editing this. Do you want to take over?`;
-  const action = selfOtherTab ? "Start editing here" : "Take over";
+    ? "Looks like you already have this open in another tab."
+    : `${holder.name} is currently editing this. Do you want to kick them out?`;
+  const action = selfOtherTab ? "Start editing here" : "Kick them out";
 
   return (
     <div style={{
