@@ -215,7 +215,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     if (mediaAssets.length === 0) {
       fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setMediaAssets(d); }).catch(() => {});
     }
-    if (subscribers.length === 0) {
+    if (isAdmin && subscribers.length === 0) {
       getSubscribers().then(d => { if (Array.isArray(d)) setSubscribers(d); }).catch(() => {});
     }
     if (isAdmin && usersData.length === 0) {
@@ -713,7 +713,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                                     {activeLocks[n._id].name} is writing
                                   </p>
                                 ) : (
-                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{n.author || "Yacob Reyes"}</p>
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{n.author || ""}</p>
                                 )}
                               </div>
                             </div>
@@ -1077,7 +1077,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                         <div><label style={LABEL}>Byline</label><input style={INPUT} value={form.byline} onChange={e => updateForm({ byline: straightenQuotes(e.target.value) })} /></div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
                           <div><label style={LABEL}>Slug</label><input style={INPUT} value={form.slug} onChange={e => updateForm({ slug: e.target.value })} required /></div>
-                          <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option value="">— Select a section —</option><option>Micro-Memoir</option><option>Narratives</option><option>Essays</option><option>Archive</option></select></div>
+                          <div><label style={LABEL}>Section</label><select style={INPUT} value={form.section} onChange={e => updateForm({ section: e.target.value })}><option value="">— Select a section —</option><option>Micro-Memoir</option><option>Narratives</option><option>Essays</option><option value="Gangrey Redux">Archive</option></select></div>
                           <div><label style={LABEL}>Date</label><input type="date" style={INPUT} value={form.date} onChange={e => updateForm({ date: e.target.value })} required /></div>
                         </div>
                         {editing && editing.status === "trashed" && (
