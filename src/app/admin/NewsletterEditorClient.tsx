@@ -741,17 +741,17 @@ export default function NewsletterEditorClient({
         )}
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
+          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{nlReadOnly ? "Read only" : nlSending ? "Sending…" : nlSaveStatus === "saving" ? "Saving…" : nlSaveStatus === "unsaved" ? "Unsaved" : "Saved"}</span>
           <button
-            disabled={!nlSubject || nlSending}
+            disabled={nlReadOnly || !nlSubject || nlSending}
             onClick={publishNewsletter}
-            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: !nlSubject ? "not-allowed" : "pointer", opacity: !nlSubject || nlSending ? 0.5 : 1 }}>
+            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: nlReadOnly || !nlSubject ? "not-allowed" : "pointer", opacity: nlReadOnly || !nlSubject || nlSending ? 0.5 : 1 }}>
             {nlStatus === "published" ? "Update" : "Publish"}
           </button>
           {/* Ellipsis menu */}
           <div style={{ position: "relative" }}>
-            <button type="button" onClick={() => setShowNlEllipsis(v => !v)}
-              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+            <button type="button" disabled={nlReadOnly} onClick={() => setShowNlEllipsis(v => !v)}
+              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: nlReadOnly ? "default" : "pointer", color: TEXT_MUTED, opacity: nlReadOnly ? 0.5 : 1 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
             </button>
             {showNlEllipsis && (

@@ -510,12 +510,12 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
         )}
 
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{statusLabel}</span>
+          <span style={{ fontFamily: FONT, fontSize: "0.78rem", color: TEXT_MUTED }}>{readOnly ? "Read only" : statusLabel}</span>
           <button
             type="button"
-            disabled={isPending || uploadingImage}
+            disabled={readOnly || isPending || uploadingImage}
             onClick={handlePublishClick}
-            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: "pointer" }}
+            style={{ background: CRIMSON, color: "white", border: "none", borderRadius: 20, padding: "0.35rem 1.1rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, cursor: readOnly ? "default" : "pointer", opacity: readOnly ? 0.5 : 1 }}
           >
             {form.status === "published" ? "Update" : "Publish"}
           </button>
@@ -523,8 +523,9 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
           <div style={{ position: "relative" }}>
             <button
               type="button"
+              disabled={readOnly}
               onClick={() => setShowEllipsis(v => !v)}
-              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}
+              style={{ background: "none", border: `1px solid ${BORDER}`, borderRadius: 20, width: 34, height: 34, display: "flex", alignItems: "center", justifyContent: "center", cursor: readOnly ? "default" : "pointer", color: TEXT_MUTED, opacity: readOnly ? 0.5 : 1 }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
             </button>
