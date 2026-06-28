@@ -64,8 +64,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: "/admin/flatplan",
-    error: "/admin/flatplan",
+    signIn: "/admin/imago",
+    error: "/admin/imago",
   },
 };
 

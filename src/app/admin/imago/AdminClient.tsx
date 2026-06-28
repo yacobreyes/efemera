@@ -69,7 +69,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
   async function signOutEverywhere() {
     const { signOut } = await import("next-auth/react");
-    await signOut({ callbackUrl: "/admin/flatplan" });
+    await signOut({ callbackUrl: "/admin/imago" });
   }
 
   const [posts, setPosts] = useState<SanityPost[]>(initialPosts);
@@ -154,7 +154,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   const createMenuRef = useRef<HTMLDivElement>(null);
 
   // Newsletter list (the dashboard mixes these into the story lists).
-  // The editor itself lives at /admin/flatplan/newsletters/[id].
+  // The editor itself lives at /admin/imago/newsletters/[id].
   type NlListItem = { _id: string; subject?: string; preview?: string; author?: string; status?: "draft" | "published" | "scheduled"; createdAt?: string; updatedAt?: string; cards?: NlCard[] };
   const [newsletters, setNewsletters] = useState<NlListItem[]>(initialNewsletters as NlListItem[]);
 
@@ -258,15 +258,15 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     fetch("/api/newsletter", { cache: "no-store" }).then(r => r.json()).then(d => { if (Array.isArray(d?.newsletters)) setNewsletters(d.newsletters); }).catch(() => {});
   }, []);
 
-  // The newsletter editor now lives at its own route (/admin/flatplan/newsletters/[id]),
+  // The newsletter editor now lives at its own route (/admin/imago/newsletters/[id]),
   // mirroring the story editor. Route to an in-memory id so the editor opens
   // instantly; the first autosave persists the doc. (Eager server-side
   // creation added a write+redirect+fetch round-trip that showed a blank/lag.)
   function createNewNewsletter() {
-    router.push(`/admin/flatplan/newsletters/newsletter-${Date.now()}?new=1`);
+    router.push(`/admin/imago/newsletters/newsletter-${Date.now()}?new=1`);
   }
   function openNewsletter(item: NlListItem) {
-    router.push(`/admin/flatplan/newsletters/${item._id}`);
+    router.push(`/admin/imago/newsletters/${item._id}`);
   }
 
   useEffect(() => {
@@ -281,11 +281,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     // Route to an in-memory placeholder so the editor opens instantly; the
     // first autosave persists the doc. (Eager server-side creation added a
     // write+redirect+fetch round-trip that showed a blank/lag.)
-    router.push(`/admin/flatplan/posts/untitled-${Date.now()}?new=1`);
+    router.push(`/admin/imago/posts/untitled-${Date.now()}?new=1`);
   }
 
   function startEdit(post: SanityPost) {
-    router.push(`/admin/flatplan/posts/${post.slug}`);
+    router.push(`/admin/imago/posts/${post.slug}`);
   }
 
 
@@ -295,7 +295,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
     if (panel !== "editor") {
       setEditing(null);
       setIsDirty(false);
-      const url = panel === "dashboard" ? "/admin/flatplan" : `/admin/flatplan/${panel}`;
+      const url = panel === "dashboard" ? "/admin/imago" : `/admin/imago/${panel}`;
       window.history.pushState(null, "", url);
     }
     if (panel === "media") {
@@ -380,7 +380,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
             <span style={{ color: CRIMSON }}>i</span><span style={{ color: "#000000" }}>mago</span>
           </span>
           <button
-            onClick={() => { import("next-auth/react").then(({ signIn }) => signIn("google", { callbackUrl: "/admin/flatplan" })); }}
+            onClick={() => { import("next-auth/react").then(({ signIn }) => signIn("google", { callbackUrl: "/admin/imago" })); }}
             style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", width: "100%", background: "white", border: `1px solid ${BORDER}`, borderRadius: 4, padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.9rem", fontWeight: 600, color: TEXT_DARK, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
           >
             <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v8.51h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.14z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.55 10.78l7.98-6.19z"/><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.55 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/></svg>
@@ -1025,7 +1025,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
             </div>
           )}
 
-          {/* POST EDITOR is now at /admin/flatplan/posts/[id] and /admin/flatplan/posts/new */}
+          {/* POST EDITOR is now at /admin/imago/posts/[id] and /admin/imago/posts/new */}
           {activePanel === "editor" && (
             <div style={{ margin: "-2rem", minHeight: "100%", display: "flex", flexDirection: "column", background: "white" }}>
               <input ref={fileRef} type="file" accept="image/*" onChange={handleImageChange} style={{ display: "none" }} />
@@ -1154,21 +1154,21 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                 </>
               ) : (
                 <>
-                  <button onClick={() => { setContextMenu(null); router.push(`/admin/flatplan/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
+                  <button onClick={() => { setContextMenu(null); router.push(`/admin/imago/posts/${contextMenu.post.slug}`); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
                   <div style={{ borderTop: `1px solid ${BORDER}` }} />
                   <button onClick={() => { const p = contextMenu.post; setContextMenu(null); if (confirm(`Delete "${p.headline || "this post"}"? This cannot be undone.`)) startTransition(async () => { await deletePost(p._id); refreshPosts(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
                 </>
               )
             ) : contextMenu.newsletter.status === "draft" ? (
               <>
-                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/flatplan/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/imago/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); if (confirm(`Delete "${n.subject || "this draft"}"?`)) startTransition(async () => { await deleteNewsletterDoc(n._id); refreshNewsletters(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
               </>
             ) : (
               <>
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); openNewsletter(n); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Open</button>
-                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/flatplan/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
+                <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); window.open(`/admin/imago/newsletters/${n._id}/preview`, "_blank"); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Preview</button>
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 <button onClick={() => { const n = contextMenu.newsletter; setContextMenu(null); if (confirm(`Delete "${n.subject || "this newsletter"}"? This cannot be undone.`)) startTransition(async () => { await deleteNewsletterDoc(n._id); refreshNewsletters(); }); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete</button>
               </>

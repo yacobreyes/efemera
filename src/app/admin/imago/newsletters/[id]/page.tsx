@@ -10,7 +10,7 @@ const NL_FIELDS = `subject, preview, author, cards, status, scheduledAt, volume,
 
 export default async function EditNewsletterPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
   const authed = await isAuthed();
-  if (!authed) redirect("/admin/flatplan");
+  if (!authed) redirect("/admin/imago");
 
   const { id } = await params;
   const { new: isNewParam } = await searchParams;

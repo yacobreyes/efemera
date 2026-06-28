@@ -92,7 +92,7 @@ export default function NewsletterEditorClient({
   newsletterId, initial, initialVersions, isNew = false,
 }: { newsletterId: string; initial: InitialNewsletter; initialVersions: NlVersion[]; isNew?: boolean }) {
   const router = useRouter();
-  useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
+  useEffect(() => { router.prefetch("/admin/imago"); }, [router]);
   const [nlExiting, setNlExiting] = useState(false);
 
   // Every open starts read-only so you can watch the current editor without
@@ -349,7 +349,7 @@ export default function NewsletterEditorClient({
         image: card.image ? { assetId: card.image.assetId, caption: card.image.caption, alt: card.image.alt } : null,
       });
       nlUpdateCard(card.id, { sourceSlug: slug });
-      window.open(`/admin/flatplan/posts/${slug}`, "_blank");
+      window.open(`/admin/imago/posts/${slug}`, "_blank");
     } catch {
       alert("Couldn't create the draft. Try again.");
     } finally {
@@ -385,7 +385,7 @@ export default function NewsletterEditorClient({
     if (card.sourceSlug) {
       return (
         <div style={{ display: "flex", justifyContent: justify, marginTop: "1rem" }}>
-          <a href={`/admin/flatplan/posts/${card.sourceSlug}`} target="_blank" rel="noreferrer"
+          <a href={`/admin/imago/posts/${card.sourceSlug}`} target="_blank" rel="noreferrer"
             style={{ fontFamily: FONT, fontSize: "0.72rem", fontWeight: 600, color: TEXT_MUTED, textDecoration: "none", letterSpacing: "0.02em", display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
             Open linked story draft →
           </a>
@@ -476,7 +476,7 @@ export default function NewsletterEditorClient({
       releaseLockNow();
       if (!nlDeleting.current && isDirty) await saveNewsletter(nlPayload()).catch(() => {});
     }
-    router.push("/admin/flatplan");
+    router.push("/admin/imago");
   }
 
   async function publishNewsletter() {
@@ -516,7 +516,7 @@ export default function NewsletterEditorClient({
     if (!confirm("Delete this newsletter? This cannot be undone.")) return;
     nlDeleting.current = true;
     try { await Promise.all([deleteNewsletter(newsletterId), releaseLockNow()]); } catch {}
-    router.push("/admin/flatplan");
+    router.push("/admin/imago");
   }
 
   function restoreNlVersion(v: NlVersion) {
@@ -679,7 +679,7 @@ export default function NewsletterEditorClient({
 
       {/* Top bar — matches story editor */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white", position: "fixed", top: 0, left: 0, right: 0, zIndex: 410 }}>
-        <button disabled={nlExiting} onClick={nlReadOnly ? () => router.push("/admin/flatplan") : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: nlExiting ? "default" : "pointer", opacity: nlExiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
+        <button disabled={nlExiting} onClick={nlReadOnly ? () => router.push("/admin/imago") : saveAndExit} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: nlExiting ? "default" : "pointer", opacity: nlExiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           {nlExiting ? "Saving…" : nlReadOnly ? "Go Back" : "Save & Exit"}
         </button>

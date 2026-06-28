@@ -86,7 +86,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
 
   // Warm the dashboard route so exiting is an instant client-side transition
   // instead of a cold full-page load.
-  useEffect(() => { router.prefetch("/admin/flatplan"); }, [router]);
+  useEffect(() => { router.prefetch("/admin/imago"); }, [router]);
 
   const [exiting, setExiting] = useState(false);
   // Once an exit is in flight, suppress the pending autosave timer so it can't
@@ -274,7 +274,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
     setExiting(true);
     releaseLockNow();
     savePost(fd).catch(() => {});
-    router.push("/admin/flatplan?tab=scheduled");
+    router.push("/admin/imago?tab=scheduled");
   }, [form, post._id, imageAssetId, imageCaption, imageAlt, scheduledAt, releaseLockNow, router]);
 
   const revertToVersion = useCallback((i: number) => {
@@ -439,7 +439,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
               savePost(fd).catch(() => {});
             }
           }
-          router.push("/admin/flatplan");
+          router.push("/admin/imago");
         }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: exiting ? "default" : "pointer", opacity: exiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           {!isMobile && (exiting ? "Leaving…" : readOnly ? "Go Back" : "Save & Exit")}
@@ -535,11 +535,11 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
                 )}
                 <div style={{ borderTop: `1px solid ${BORDER}` }} />
                 {post.status !== "trashed" ? (
-                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin/flatplan");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
+                  <button type="button" onClick={() => { if (confirm(`Delete this post? This cannot be undone.`)) startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete draft</button>
                 ) : (
                   <>
-                    <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin/flatplan");})} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Restore</button>
-                    <button type="button" onClick={() => { if (confirm("Delete forever?")) startTransition(async () => { await deletePost(post._id); router.push("/admin/flatplan");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete forever</button>
+                    <button type="button" onClick={() => startTransition(async () => { await restorePost(post._id); router.push("/admin/imago");})} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: TEXT_DARK, cursor: "pointer" }}>Restore</button>
+                    <button type="button" onClick={() => { if (confirm("Delete forever?")) startTransition(async () => { await deletePost(post._id); router.push("/admin/imago");}); }} style={{ display: "block", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.65rem 1rem", fontFamily: FONT, fontSize: "0.88rem", color: CRIMSON, cursor: "pointer" }}>Delete forever</button>
                   </>
                 )}
               </div>

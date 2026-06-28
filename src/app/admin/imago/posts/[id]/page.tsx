@@ -14,7 +14,7 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
 
 export default async function EditPostPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ new?: string }> }) {
   const me = await getCurrentUser();
-  if (!me) redirect("/admin/flatplan");
+  if (!me) redirect("/admin/imago");
 
   // Byline the editor pre-fills onto a brand-new draft: the signed-in user's
   // preferred byline, falling back to their full name.
@@ -45,7 +45,7 @@ export default async function EditPostPage({ params, searchParams }: { params: P
   }
 
   const post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
-  if (!post) redirect("/admin/flatplan");
+  if (!post) redirect("/admin/imago");
 
   return <EditorClient post={post} defaultByline={defaultByline} isNew={isNew} />;
 }
