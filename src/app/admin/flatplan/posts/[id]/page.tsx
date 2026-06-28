@@ -1,4 +1,5 @@
-import { isAuthed } from "@/lib/adminAuth";
+import { getCurrentUser } from "@/lib/adminAuth";
+import { fullName } from "@/lib/users";
 import { redirect } from "next/navigation";
 import { client } from "@/lib/sanity";
 import type { SanityPost } from "@/lib/sanity";
@@ -12,8 +13,12 @@ const QUERY = `*[_type == "post" && slug.current == $slug][0]{
 }`;
 
 export default async function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
-  const authed = await isAuthed();
-  if (!authed) redirect("/admin/flatplan");
+  const me = await getCurrentUser();
+  if (!me) redirect("/admin/flatplan");
+
+  // Byline the editor pre-fills onto a brand-new draft: the signed-in user's
+  // preferred byline, falling back to their full name.
+  const defaultByline = (me.byline?.trim() || fullName(me)) ?? "";
 
   const { id } = await params;
 
@@ -31,11 +36,11 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
       body: [],
       status: "draft",
     };
-    return <EditorClient post={post} />;
+    return <EditorClient post={post} defaultByline={defaultByline} />;
   }
 
   const post = await client.fetch<SanityPost | null>(QUERY, { slug: id }, { cache: "no-store" });
   if (!post) redirect("/admin/flatplan");
 
-  return <EditorClient post={post} />;
+  return <EditorClient post={post} defaultByline={defaultByline} />;
 }

@@ -738,7 +738,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
                                     {activeLocks[post._id].name} is editing
                                   </p>
                                 ) : (
-                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0 }}>{post.byline}</p>
+                                  <p style={{ fontFamily: FONT, fontSize: "0.72rem", color: TEXT_MUTED, margin: 0, minHeight: "1.05em" }}>{post.byline || " "}</p>
                                 )}
                               </div>
                             </div>

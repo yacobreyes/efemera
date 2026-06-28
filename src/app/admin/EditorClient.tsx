@@ -51,7 +51,7 @@ type FormState = {
 
 type MediaAsset = { _id: string; url: string; originalFilename?: string; title?: string; description?: string; altText?: string };
 
-export default function EditorClient({ post }: { post: SanityPost }) {
+export default function EditorClient({ post, defaultByline = "" }: { post: SanityPost; defaultByline?: string }) {
   const router = useRouter();
 
   // Edit lock: warn (and pause autosave) if someone else — or you in another
@@ -69,7 +69,9 @@ export default function EditorClient({ post }: { post: SanityPost }) {
   const initialForm: FormState = {
     headline: post.headline ?? "",
     subheadline: post.subheadline ?? "",
-    byline: post.byline ?? "",
+    // New drafts auto-fill the byline with whoever opened them; existing posts
+    // keep their saved byline.
+    byline: post.byline || (post.slug.startsWith("untitled-") ? defaultByline : ""),
     slug: post.slug,
     section: post.section ?? "",
     date: post.date ?? new Date().toISOString().slice(0, 10),
