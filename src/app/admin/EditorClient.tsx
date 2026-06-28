@@ -119,8 +119,6 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
   const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
   const [isPending, startTransition] = useTransition();
   const [showEllipsis, setShowEllipsis] = useState(false);
-  // Overflow menu for the mobile formatting toolbar (Link / Image / Embed).
-  const [showMobileFormatMore, setShowMobileFormatMore] = useState(false);
   const [versionMenu, setVersionMenu] = useState<number | null>(null);
   const [showScheduler, setShowScheduler] = useState(false);
   const [scheduledAt, setScheduledAt] = useState(post.scheduledAt?.slice(0, 16) ?? "");
@@ -550,49 +548,6 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
           </div>
         </div>
       </div>
-
-      {/* Formatting toolbar — mobile: its own row below the top bar (Axios pattern) */}
-      {isMobile && editorTab === "content" && editor && !readOnly && (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.25rem 0.5rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "relative" }}>
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBold().run(); }}
-            style={{ background: editor.isActive("bold") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bold") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontWeight: 700 }}>B</button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleItalic().run(); }}
-            style={{ background: editor.isActive("italic") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("italic") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontStyle: "italic" }}>I</button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run(); }}
-            style={{ background: editor.isActive("blockquote") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run(); }}
-            style={{ background: editor.isActive("heading", { level: 2 }) ? "#f1f1f1" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 40, display: "flex", alignItems: "center", cursor: "pointer", color: editor.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>H2</button>
-          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.25rem" }} />
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
-            style={{ background: editor.isActive("bulletList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          </button>
-          <button type="button" onMouseDown={e => { e.preventDefault(); editor.chain().focus().toggleOrderedList().run(); }}
-            style={{ background: editor.isActive("orderedList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: editor.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
-          </button>
-          <div style={{ flex: 1 }} />
-          <button type="button" onMouseDown={e => { e.preventDefault(); setShowMobileFormatMore(v => !v); }}
-            style={{ background: showMobileFormatMore ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
-          </button>
-          {showMobileFormatMore && (
-            <div style={{ position: "absolute", top: "calc(100% + 0.25rem)", right: "0.5rem", zIndex: 120, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 150, overflow: "hidden" }} onClick={() => setShowMobileFormatMore(false)}>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowMobileFormatMore(false); toolbar?.openLink(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: editor.isActive("link") ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Link
-              </button>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowMobileFormatMore(false); toolbar?.openImage(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
-              </button>
-              <button type="button" onMouseDown={e => { e.preventDefault(); setShowMobileFormatMore(false); toolbar?.openEmbed(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Embed
-              </button>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Publish time modal */}
       {showPublishTimeModal && (
