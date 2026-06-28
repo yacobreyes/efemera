@@ -206,6 +206,11 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
   useEffect(() => {
     refreshPosts();
     refreshNewsletters();
+    // A Save & Exit fires the Sanity write in the background and navigates
+    // immediately, so the first refresh above may run before the write lands.
+    // A second pass a few seconds later catches the in-flight save.
+    const t = setTimeout(() => { refreshPosts(); refreshNewsletters(); }, 3000);
+    return () => clearTimeout(t);
     fetch("/api/about").then(r => r.json()).then(data => {
       if (data?.body?.length) setAboutDoc(portableTextToTiptap(data.body));
     }).catch(() => {});
