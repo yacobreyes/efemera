@@ -276,7 +276,10 @@ export default function EditorClient({ post }: { post: SanityPost }) {
           // we land. The save is light (no snapshot) so it's just one round-trip.
           if (!locked) {
             releaseLockNow();
-            if (isDirty) {
+            // Always save if the post has never been persisted (new draft that the
+            // user exits before autosave fires) so it shows up in the dashboard.
+            const isNewUnsaved = post.slug.startsWith("untitled-");
+            if (isDirty || isNewUnsaved) {
               const status = form.status === "published" ? "published" : "draft";
               const fd = new FormData();
               const { body, ...rest } = form;
@@ -286,8 +289,6 @@ export default function EditorClient({ post }: { post: SanityPost }) {
               if (imageAssetId) fd.set("imageAssetId", imageAssetId);
               if (imageCaption) fd.set("imageCaption", imageCaption);
               if (imageAlt) fd.set("imageAlt", imageAlt);
-              // No snapshot on exit — autosave already versions periodically, and
-              // snapshotting adds 3 extra Sanity round-trips that made exit crawl.
               await savePost(fd).catch(() => {});
             }
           }
