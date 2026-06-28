@@ -148,6 +148,8 @@ export default function NewsletterEditorClient({
   const [nlSending, setNlSending] = useState(false);
   const [nlImgPickerCard, setNlImgPickerCard] = useState<string | null>(null);
   const [showNlEllipsis, setShowNlEllipsis] = useState(false);
+  // Overflow menu for the mobile formatting toolbar (Link / Image / Embed).
+  const [showNlMobileFormatMore, setShowNlMobileFormatMore] = useState(false);
   const [showNlScheduler, setShowNlScheduler] = useState(false);
   const [showNlPreview, setShowNlPreview] = useState(false);
 
@@ -787,6 +789,49 @@ export default function NewsletterEditorClient({
         </div>
       </div>
 
+      {/* Formatting toolbar — mobile: its own row below the top bar (Axios pattern) */}
+      {isMobile && nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly && (
+        <div style={{ display: "flex", alignItems: "center", gap: "0.1rem", padding: "0.25rem 0.5rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "fixed", top: 52, left: 0, right: 0, zIndex: 405 }}>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBold().run(); }}
+            style={{ background: nlActiveE.isActive("bold") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bold") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontWeight: 700 }}>B</button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleItalic().run(); }}
+            style={{ background: nlActiveE.isActive("italic") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("italic") ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1.15rem", fontStyle: "italic" }}>I</button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBlockquote().run(); }}
+            style={{ background: nlActiveE.isActive("blockquote") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("blockquote") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleHeading({ level: 2 }).run(); }}
+            style={{ background: nlActiveE.isActive("heading", { level: 2 }) ? "#f1f1f1" : "none", border: "none", borderRadius: 4, padding: "0 8px", height: 40, display: "flex", alignItems: "center", cursor: "pointer", color: nlActiveE.isActive("heading", { level: 2 }) ? CRIMSON : TEXT_MUTED, fontFamily: FONT, fontSize: "1rem", fontWeight: 700 }}>H2</button>
+          <div style={{ width: 1, height: 22, background: BORDER, margin: "0 0.25rem" }} />
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleBulletList().run(); }}
+            style={{ background: nlActiveE.isActive("bulletList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("bulletList") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </button>
+          <button type="button" onMouseDown={e => { e.preventDefault(); nlActiveE.chain().focus().toggleOrderedList().run(); }}
+            style={{ background: nlActiveE.isActive("orderedList") ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: nlActiveE.isActive("orderedList") ? CRIMSON : TEXT_MUTED }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+          </button>
+          <div style={{ flex: 1 }} />
+          <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(v => !v); }}
+            style={{ background: showNlMobileFormatMore ? "#f1f1f1" : "none", border: "none", borderRadius: 4, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+          </button>
+          {showNlMobileFormatMore && (
+            <div style={{ position: "absolute", top: "calc(100% + 0.25rem)", right: "0.5rem", zIndex: 120, background: "white", border: `1px solid ${BORDER}`, borderRadius: 8, boxShadow: "0 4px 16px rgba(0,0,0,0.12)", minWidth: 150, overflow: "hidden" }} onClick={() => setShowNlMobileFormatMore(false)}>
+              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openLink(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: nlActiveE.isActive("link") ? CRIMSON : TEXT_DARK, cursor: "pointer" }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> Link
+              </button>
+              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openImage(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
+              </button>
+              <button type="button" onMouseDown={e => { e.preventDefault(); setShowNlMobileFormatMore(false); nlActiveToolbar?.openEmbed(); }} style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", background: "none", border: "none", textAlign: "left", padding: "0.7rem 1rem", fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK, cursor: "pointer" }}>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> Embed
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Floating drag chip */}
       {nlMovingId && (() => {
         const mc = nlCards.find(c => c.id === nlMovingId);
@@ -803,7 +848,7 @@ export default function NewsletterEditorClient({
 
       {/* Content — when the find panel is open on desktop, reserve its width on
           the left so the centered page never slides underneath it. */}
-      <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: 52 }}>
+      <div style={{ flex: 1, overflowY: "auto", background: "#f5f8fa", paddingTop: "2rem", paddingBottom: "4rem", paddingRight: "1rem", paddingLeft: showFindContent && !isMobile ? 320 : "1rem", transition: "padding-left 0.2s", marginTop: isMobile && nlActiveE && !nlActiveE.isDestroyed && !nlReadOnly ? 101 : 52 }}>
         {/* Magazine page — 600px to match the email's inbox-safe width */}
         <div style={{ maxWidth: 600, margin: "0 auto", background: "#ffffff", boxShadow: "0 4px 32px rgba(0,0,0,0.18)" }}>
 
