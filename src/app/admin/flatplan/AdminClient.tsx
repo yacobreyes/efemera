@@ -387,7 +387,7 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
           overflow: visible;
         }
         .admin-right { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: visible; }
-        .admin-mobile-bar { display: flex; align-items: center; gap: 0.75rem; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
+        .admin-mobile-bar { display: flex; align-items: center; justify-content: space-between; background: white; padding: 0 1.25rem; position: sticky; top: 0; z-index: 200; border-bottom: 1px solid ${BORDER}; box-shadow: 0 1px 4px rgba(0,0,0,0.08); height: 52px; box-sizing: border-box; }
         .admin-main { background: #f5f8fa; overflow-y: auto; padding: 2rem; flex: 1; display: flex; flex-direction: column; align-items: stretch; }
         .admin-main > * { max-width: 900px; width: 100%; margin-left: auto; margin-right: auto; }
         .admin-nav-btn { display: flex; align-items: center; gap: 0.75rem; width: 100%; background: none; border: none; text-align: left; padding: 0.65rem 0.85rem; font-family: ${FONT}; font-size: 0.88rem; font-weight: 500; color: ${TEXT_DARK}; cursor: pointer; border-radius: 6px; white-space: nowrap; overflow: hidden; }
@@ -488,18 +488,18 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
 
         {/* Right side: top bar + main content */}
         <div className="admin-right" style={{ position: "relative" }}>
+          {/* Toggle button — sits on the sidebar/content divider */}
+          <button
+            onClick={() => setSidebarOpen(v => !v)}
+            style={{ position: "absolute", left: -14, top: 26, transform: "translateY(-50%)", background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: isMobile ? "none" : "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, zIndex: 250, boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
+            </svg>
+          </button>
           {/* Top bar — desktop */}
           {!isMobile && (
             <div className="admin-mobile-bar">
-              {/* Sidebar toggle */}
-              <button
-                onClick={() => setSidebarOpen(v => !v)}
-                style={{ background: "white", border: `1px solid ${BORDER}`, borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: TEXT_MUTED, flexShrink: 0, boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  {sidebarOpen ? <polyline points="15 18 9 12 15 6"/> : <polyline points="9 18 15 12 9 6"/>}
-                </svg>
-              </button>
               {/* Left: search */}
               <div style={{ width: 260, flexShrink: 0 }}>
                 {activePanel === "dashboard" && (
