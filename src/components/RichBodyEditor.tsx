@@ -84,9 +84,10 @@ interface Props {
   onToolbar?: (handles: ToolbarHandles | null) => void;
   minHeight?: number;
   placeholder?: string;
+  editable?: boolean;
 }
 
-export default function RichBodyEditor({ initialContent, onChange, onEditor, onToolbar, minHeight = 320, placeholder = "Type your story" }: Props) {
+export default function RichBodyEditor({ initialContent, onChange, onEditor, onToolbar, minHeight = 320, placeholder = "Type your story", editable = true }: Props) {
   const [linkModal, setLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [imageModal, setImageModal] = useState(false);
@@ -105,6 +106,7 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
       Youtube.configure({ width: 640, height: 360, nocookie: true }),
     ],
     content: initialContent,
+    editable,
     onCreate({ editor }) {
       // The StraightQuotes plugin only fires on doc changes, so existing/pasted
       // content loaded on open keeps its curly quotes until edited. Straighten
@@ -180,6 +182,10 @@ export default function RichBodyEditor({ initialContent, onChange, onEditor, onT
     onEditor?.(editor ?? null);
     return () => onEditor?.(null);
   }, [editor]);
+
+  useEffect(() => {
+    if (editor && editor.isEditable !== editable) editor.setEditable(editable);
+  }, [editor, editable]);
 
   useEffect(() => {
     if (!editor) { onToolbar?.(null); return; }

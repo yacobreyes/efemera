@@ -54,11 +54,19 @@ type MediaAsset = { _id: string; url: string; originalFilename?: string; title?:
 export default function EditorClient({ post, defaultByline = "" }: { post: SanityPost; defaultByline?: string }) {
   const router = useRouter();
 
-  // Edit lock: warn (and pause autosave) if someone else — or you in another
-  // tab — is editing this post, so concurrent edits can't clobber each other.
-  const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: locked } = useEditLock(post._id);
+  // Existing stories opened from the dashboard start in read-only view mode so
+  // you don't accidentally edit (and don't grab the lock) just by looking. A
+  // brand-new draft skips this and opens straight into editing.
+  const [viewMode, setViewMode] = useState(!post.slug.startsWith("untitled-"));
+
+  // Edit lock: only engaged once you're actually editing. Warns (and pauses
+  // autosave) if someone else — or you in another tab — holds it. While in view
+  // mode we pass null so no lock is claimed.
+  const { holder: lockHolder, selfOtherTab, takeOver, release: releaseLockNow, readOnly: locked } = useEditLock(viewMode ? null : post._id);
+  // Treat view mode like a lock for write-guards: never autosave while viewing.
+  const readOnly = viewMode || locked;
   const lockedRef = useRef(false);
-  useEffect(() => { lockedRef.current = locked; }, [locked]);
+  useEffect(() => { lockedRef.current = readOnly; }, [readOnly]);
 
   // Warm the dashboard route so exiting is an instant client-side transition
   // instead of a cold full-page load.
@@ -256,6 +264,8 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   }
 
   function handlePublishClick() {
+    // Viewing — flip into edit mode first rather than publishing from view.
+    if (readOnly) { setViewMode(false); return; }
     if (!validateForPublish("publishing")) return;
     if (form.status === "published") {
       setShowPublishTimeModal(true);
@@ -270,6 +280,22 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "white", fontFamily: FONT }}>
       <EditLockBanner holder={locked ? lockHolder : null} selfOtherTab={selfOtherTab} onTakeOver={takeOver} />
+      {viewMode && !locked && (
+        <div style={{
+          position: "fixed", left: 0, right: 0, bottom: 0, zIndex: 400,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "1.25rem",
+          background: "#ffffff", borderTop: `1px solid ${BORDER}`,
+          boxShadow: "0 -2px 16px rgba(0,0,0,0.08)", padding: "0.85rem 1.25rem",
+          fontFamily: FONT, fontSize: "0.9rem", color: TEXT_DARK,
+        }}>
+          <span>You&rsquo;re viewing this story. Do you want to make changes?</span>
+          <button type="button" onClick={() => setViewMode(false)} style={{
+            background: CRIMSON, color: "#fff", border: "none", borderRadius: 22,
+            padding: "0.5rem 1.25rem", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600,
+            cursor: "pointer", whiteSpace: "nowrap",
+          }}>Start editing</button>
+        </div>
+      )}
       <style>{`
         body { background: white !important; }
         .tb-btn { position: relative; }
@@ -298,20 +324,18 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
 
       {/* Top bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isMobile ? "0 1rem" : "0 1.5rem", borderBottom: `1px solid ${BORDER}`, height: 52, boxSizing: "border-box", flexShrink: 0, background: "white" }}>
-        <button type="button" disabled={exiting} onClick={async () => {
+        <button type="button" disabled={exiting} onClick={() => {
           if (exiting) return;
           exitingRef.current = true;
           setExiting(true);
-          // Fire the lock release in the background (beacon + unmount cleanup back
-          // it up), but AWAIT the save so the draft is persisted before the
-          // dashboard re-fetches its list — otherwise a new draft is missing when
-          // we land. The save is light (no snapshot) so it's just one round-trip.
-          if (!locked) {
+          // Don't block navigation on the save. The draft is already persisted
+          // (stub-saved on open + continuous autosave), and a soft client-side
+          // nav doesn't abort an in-flight server action — so we fire one final
+          // save in the background and leave immediately. Awaiting it here is
+          // what made Save & Exit hang when the request was slow.
+          if (!readOnly) {
             releaseLockNow();
-            // Always save if the post has never been persisted (new draft that the
-            // user exits before autosave fires) so it shows up in the dashboard.
-            const isNewUnsaved = post.slug.startsWith("untitled-");
-            if (isDirty || isNewUnsaved) {
+            if (isDirty) {
               const status = form.status === "published" ? "published" : "draft";
               const fd = new FormData();
               const { body, ...rest } = form;
@@ -321,13 +345,13 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
               if (imageAssetId) fd.set("imageAssetId", imageAssetId);
               if (imageCaption) fd.set("imageCaption", imageCaption);
               if (imageAlt) fd.set("imageAlt", imageAlt);
-              await savePost(fd).catch(() => {});
+              savePost(fd).catch(() => {});
             }
           }
           router.push("/admin/flatplan");
         }} style={{ display: "flex", alignItems: "center", gap: "0.4rem", background: "none", border: "none", fontFamily: FONT, fontSize: "0.85rem", fontWeight: 600, color: TEXT_MUTED, cursor: exiting ? "default" : "pointer", opacity: exiting ? 0.55 : 1, padding: 0, whiteSpace: "nowrap" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-          {!isMobile && (exiting ? "Saving…" : locked ? "Go Back" : "Save & Exit")}
+          {!isMobile && (exiting ? "Leaving…" : readOnly ? "Go Back" : "Save & Exit")}
         </button>
 
         {/* Formatting toolbar — only shown on story content tab, desktop only */}
@@ -550,12 +574,14 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", minHeight: isMobile ? "4rem" : "5.5rem" }}>
                 <input
                   placeholder="Type your headline"
+                  readOnly={readOnly}
                   style={{ fontFamily: FONT, fontSize: isMobile ? "1.5rem" : "2rem", fontWeight: 700, color: TEXT_DARK, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.2, padding: 0, margin: 0 }}
                   value={form.headline}
                   onChange={e => { const v = straightenQuotes(e.target.value); updateForm({ headline: v, ...(post.slug.startsWith("untitled-") ? { slug: slugify(v) || post.slug } : {}) }); }}
                 />
                 <input
                   placeholder="Type your subheadline"
+                  readOnly={readOnly}
                   style={{ fontFamily: FONT, fontSize: "1.1rem", fontWeight: 400, color: TEXT_MUTED, border: "none", outline: "none", width: "100%", background: "transparent", lineHeight: 1.4, padding: 0, margin: 0 }}
                   value={form.subheadline}
                   onChange={e => updateForm({ subheadline: straightenQuotes(e.target.value) })}
@@ -577,7 +603,7 @@ export default function EditorClient({ post, defaultByline = "" }: { post: Sanit
                   </div>
                 </div>
               )}
-              <RichBodyEditor initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} onToolbar={h => {
+              <RichBodyEditor editable={!readOnly} initialContent={form.body} onChange={doc => updateForm({ body: doc })} onEditor={setEditor} onToolbar={h => {
                 if (!h) { setToolbar(null); return; }
                 setToolbar({ ...h, openImage: () => { setBodySelectedAsset(null); setBodyUploadFile(null); setBodyUploadPreviewUrl(""); setBodyUploadAlt(""); setBodyImageTab("library"); setShowBodyImageModal(true); fetch("/api/media").then(r => r.json()).then(d => { if (Array.isArray(d)) setPhotoPickerAssets(d); }).catch(() => {}); } });
               }} />
