@@ -797,7 +797,7 @@ export default function NewsletterEditorClient({
       {/* Mobile: formatting toolbar as its own row below the top bar (Axios
           position). Desktop keeps it inside the top bar — unchanged. */}
       {isMobile && nlToolbarButtons && (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", padding: "0.25rem 0.75rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "fixed", top: 52, left: 0, right: 0, zIndex: 405, overflowX: "auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", padding: "0.25rem 0.75rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, position: "fixed", top: 52, left: 0, right: 0, zIndex: 405, overflowX: "auto", overflowY: "hidden", touchAction: "pan-x", overscrollBehavior: "contain" }}>
           {nlToolbarButtons}
         </div>
       )}

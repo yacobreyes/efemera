@@ -638,7 +638,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
         {/* Mobile: formatting toolbar row (matches newsletter editor) — only on
             the Story tab, scrolls horizontally on narrow screens */}
         {isMobile && editorTab === "content" && toolbarButtons && (
-          <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", padding: "0.25rem 0.75rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, overflowX: "auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", padding: "0.25rem 0.75rem", borderBottom: `1px solid ${BORDER}`, background: "white", flexShrink: 0, overflowX: "auto", overflowY: "hidden", touchAction: "pan-x", overscrollBehavior: "contain" }}>
             {toolbarButtons}
           </div>
         )}
