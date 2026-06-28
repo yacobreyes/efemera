@@ -1,22 +1,25 @@
 import AdminClient from "./AdminClient";
 import { getCurrentUser } from "@/lib/adminAuth";
-import { getAllNewslettersAdmin } from "@/lib/sanity";
+import { getAllNewslettersAdmin, getAllPostsAdmin } from "@/lib/sanity";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminFlatplanPage() {
   const me = await getCurrentUser();
   const authed = !!me;
-  // Posts are fetched client-side on mount (via /api/posts-admin) so navigation
-  // is instant. Newsletters are lightweight (no body) so we server-render them
-  // to avoid a flash of empty state on the dashboard.
+  // Server-render both lists so the dashboard paints fully populated. We pass
+  // withSearch=false to keep the payload light (no body text), which keeps the
+  // server render fast — the client refetches the searchable version after mount.
+  let posts: Awaited<ReturnType<typeof getAllPostsAdmin>> = [];
   let newsletters: Awaited<ReturnType<typeof getAllNewslettersAdmin>> = [];
   if (authed) {
-    try { newsletters = await getAllNewslettersAdmin(); } catch {}
+    try {
+      [posts, newsletters] = await Promise.all([getAllPostsAdmin(false), getAllNewslettersAdmin()]);
+    } catch {}
   }
   return (
     <AdminClient
-      posts={[]}
+      posts={posts}
       initialNewsletters={newsletters}
       initialAuth={authed}
       initialPanel="dashboard"
