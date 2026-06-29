@@ -61,7 +61,7 @@ export default function SubscribeButton({
             style={{
               position: "relative",
               boxSizing: "border-box",
-              width: "100%", maxWidth: 440,
+              width: "100%", maxWidth: 440, minWidth: 0,
               background: "#490000",
               color: "#ffffff",
               borderRadius: 4,
@@ -69,9 +69,11 @@ export default function SubscribeButton({
               textAlign: "center",
               // The modal is rendered inside the nav, whose group sets
               // `white-space: nowrap`; that inherits in and stops the heading/
-              // subtitle from wrapping, so they overflow the box. Reset it here.
+              // subtitle from wrapping, so they overflow the box. Reset it here
+              // (also forced per-element below) and clip as a final guard.
               whiteSpace: "normal",
               overflowWrap: "break-word",
+              overflow: "hidden",
               boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
               animation: "subUp .28s ease",
             }}
@@ -85,10 +87,10 @@ export default function SubscribeButton({
               }}
             >×</button>
 
-            <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
+            <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(26px, 7vw, 36px)", lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px", whiteSpace: "normal", overflowWrap: "break-word", wordBreak: "break-word" }}>
               Subscribe to Gangrey.
             </h2>
-            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: "clamp(15px, 4.2vw, 19px)", fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px", whiteSpace: "normal", overflowWrap: "break-word", wordBreak: "break-word" }}>
               Get our latest issue delivered to your inbox.
             </p>
 
