@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const postUrl = `${siteUrl}/stories/${slug}`;
   const ogImage = imageUrl
     ? { url: imageUrl, width: 1200, height: 630, alt: post.headline }
-    : { url: "/og-image.png", width: 1200, height: 630, alt: "Gangrey" };
+    : { url: "/open-graph.png", width: 1200, height: 630, alt: "Gangrey" };
 
   return {
     title: `Gangrey | ${seoTitle}`,

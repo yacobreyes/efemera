@@ -16,13 +16,13 @@ export const metadata: Metadata = {
     title: "Gangrey | A Literary Magazine",
     description: "Gangrey is a literary magazine that publishes true stories for the time you have, from reported narratives and essays to micro-memoirs and craft talks.",
     url: siteUrl,
-    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Gangrey Magazine" }],
+    images: [{ url: "/open-graph.png", width: 1200, height: 630, alt: "Gangrey Magazine" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Gangrey | A Literary Magazine",
     description: "Gangrey is a literary magazine that publishes true stories for the time you have, from reported narratives and essays to micro-memoirs and craft talks.",
-    images: ["/og-image.png"],
+    images: ["/open-graph.png"],
   },
 };
 
