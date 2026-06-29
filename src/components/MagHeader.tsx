@@ -270,12 +270,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       {onLogoClick ? (
         <button className="mag-logo" onClick={onLogoClick} aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="mag-logo-img" src="/Wordmark.png?v=6" alt="Gangrey" />
+          <img className="mag-logo-img" src="/Wordmark.png?v=7" alt="Gangrey" />
         </button>
       ) : (
         <Link href="/" className="mag-logo" aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="mag-logo-img" src="/Wordmark.png?v=6" alt="Gangrey" />
+          <img className="mag-logo-img" src="/Wordmark.png?v=7" alt="Gangrey" />
         </Link>
       )}
 
