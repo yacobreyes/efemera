@@ -1,6 +1,7 @@
 import AdminClient from "./AdminClient";
 import { getCurrentUser } from "@/lib/adminAuth";
 import { getAllNewslettersAdmin, getAllPostsAdmin } from "@/lib/sanity";
+import { listAllUsers } from "@/lib/users";
 
 export const dynamic = "force-dynamic";
 
@@ -14,15 +15,21 @@ export default async function AdminFlatplanPage({ searchParams }: { searchParams
   // server render fast — the client refetches the searchable version after mount.
   let posts: Awaited<ReturnType<typeof getAllPostsAdmin>> = [];
   let newsletters: Awaited<ReturnType<typeof getAllNewslettersAdmin>> = [];
+  let users: Awaited<ReturnType<typeof listAllUsers>> = [];
   if (authed) {
     try {
-      [posts, newsletters] = await Promise.all([getAllPostsAdmin(false, true), getAllNewslettersAdmin()]);
+      [posts, newsletters, users] = await Promise.all([
+        getAllPostsAdmin(false, true),
+        getAllNewslettersAdmin(),
+        me?.role === "admin" ? listAllUsers() : Promise.resolve([]),
+      ]);
     } catch {}
   }
   return (
     <AdminClient
       posts={posts}
       initialNewsletters={newsletters}
+      initialUsers={users}
       initialAuth={authed}
       initialPanel="dashboard"
       initialPostTab={initialPostTab}
