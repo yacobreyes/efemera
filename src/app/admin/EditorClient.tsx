@@ -445,6 +445,10 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
       })()}
       <style>{`
         body { background: white !important; }
+        /* Desktop: pin to the viewport so the document never scrolls — the editor
+           canvas is the scroller, so its scrollbar floats over the content instead
+           of reserving a gray strip down the whole right edge. */
+        @media (min-width: 701px) { html, body { height: 100%; overflow: hidden; } }
         .tb-btn { position: relative; }
         .tb-btn::after {
           content: attr(data-tooltip);

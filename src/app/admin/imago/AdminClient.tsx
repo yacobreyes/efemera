@@ -402,6 +402,15 @@ export default function AdminClient({ posts: initialPosts, initialNewsletters = 
       <style>{`
         body { background: #f5f8fa !important; }
         .admin-layout { display: flex; min-height: 100vh; }
+        /* Desktop: pin the shell to the viewport so the document itself never
+           scrolls. Only .admin-main scrolls, so its scrollbar sits over the
+           content below the top bar instead of carving a notch down the whole
+           right edge — letting the top bar reach the edge. (Mobile keeps native
+           document scrolling for the sticky-header layout.) */
+        @media (min-width: 701px) {
+          html, body { height: 100%; overflow: hidden; }
+          .admin-layout { height: 100vh; min-height: 0; }
+        }
         .admin-sidebar {
           width: ${sidebarOpen ? "220px" : "60px"};
           min-width: ${sidebarOpen ? "220px" : "60px"};
