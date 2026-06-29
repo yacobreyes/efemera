@@ -54,7 +54,7 @@ export default async function GangreyPage() {
       `}</style>
       <MagHeader />
       <main className="gr-wrap">
-        <ListingHeader title="The Archive" sub="Writing once featured on the original Gangrey." bordered={false} marginBottom={48}>
+        <ListingHeader title="The Archive" sub="Writing once featured on the original Gangrey blog." bordered={false} marginBottom={48}>
           {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
         </ListingHeader>
         {deduped.length === 0
