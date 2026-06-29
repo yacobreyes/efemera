@@ -146,6 +146,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         @media (max-width: 1100px) {
           .mag-nav {
             height: auto;
+            min-height: 72px;
             padding: 0 20px;
             display: flex;
             flex-wrap: wrap;
@@ -157,11 +158,13 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-toggle {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             gap: 5px;
+            height: 72px;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 8px 8px 8px 0;
+            padding: 0 8px 0 0;
             order: 1;
           }
           .mag-toggle span {
@@ -171,29 +174,40 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             background: #000000;
             transition: all .2s;
           }
+          /* Pin the wordmark to the true center of the bar, independent of the
+             differing widths of the menu toggle (left) and Subscribe button
+             (right). Absolutely positioned, so the row height comes from the
+             nav's min-height above; toggle and Subscribe stay in flow at the
+             edges. */
           .mag-logo {
-            flex: 1;
-            min-width: 0;
-            text-align: center;
-            padding: 16px 0;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            height: 72px;
+            display: flex;
+            align-items: center;
             order: 2;
+            padding: 0;
+            text-align: center;
             justify-self: unset;
           }
-          /* Scale to fit the row and never wrap to a second line — keeps the
-             wordmark inline between the menu toggle and the subscribe button
-             instead of stacking on its own row on narrow screens. */
-          .mag-logo-img { height: clamp(30px, 9vw, 46px); margin: 0 auto; }
+          .mag-logo-img { height: clamp(30px, 9vw, 46px); margin: 0; }
           .mag-mob-sub {
             display: block;
             order: 3;
+            /* Logo is absolutely centered, so push Subscribe to the right edge.
+               Shrunk to leave clearance for the centered wordmark on narrow
+               screens. */
+            margin-left: auto;
             font-family: var(--font-subhead);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: .12em;
+            letter-spacing: .1em;
             text-transform: uppercase;
             color: #fff;
             background: #490000;
-            padding: 7px 12px;
+            padding: 6px 10px;
             border-radius: 2px;
             border: none;
             cursor: pointer;
