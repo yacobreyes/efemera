@@ -58,17 +58,11 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
         .mag-nav-group a:hover { color: #490000; }
         .mag-nav-group.right { justify-content: flex-end; gap: clamp(16px, 1.8vw, 28px); }
-        .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; }
-        .mag-logo-text {
-          font-family: "amador", Georgia, serif;
-          font-size: clamp(26px, 3.2vw, 46px);
-          padding: 0 18px;
-          font-weight: 400;
-          color: #000000;
-          letter-spacing: 0;
-          line-height: 1;
+        .mag-logo { display: block; justify-self: center; background: none; border: none; padding: 0; cursor: pointer; text-decoration: none; line-height: 0; }
+        .mag-logo-img {
+          height: clamp(34px, 4vw, 58px);
+          width: auto;
           display: block;
-          white-space: nowrap;
         }
         .mag-nav-cta {
           background: #490000;
@@ -188,7 +182,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           /* Scale to fit the row and never wrap to a second line — keeps the
              wordmark inline between the menu toggle and the subscribe button
              instead of stacking on its own row on narrow screens. */
-          .mag-logo-text { font-size: clamp(26px, 7vw, 36px); white-space: nowrap; }
+          .mag-logo-img { height: clamp(30px, 9vw, 46px); margin: 0 auto; }
           .mag-mob-sub {
             display: block;
             order: 3;
@@ -276,12 +270,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       {onLogoClick ? (
         <button className="mag-logo" onClick={onLogoClick} aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <span className="mag-logo-text">Gangrey Magazine</span>
+          <img className="mag-logo-img" src="/Wordmark.png?v=6" alt="Gangrey" />
         </button>
       ) : (
         <Link href="/" className="mag-logo" aria-label="Home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <span className="mag-logo-text">Gangrey Magazine</span>
+          <img className="mag-logo-img" src="/Wordmark.png?v=6" alt="Gangrey" />
         </Link>
       )}
 

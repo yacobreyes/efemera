@@ -824,7 +824,7 @@ export default function NewsletterEditorClient({
 
           {/* Masthead */}
           <div style={{ background: "#ffffff", padding: "1.5rem 0", textAlign: "center", borderBottom: `1px solid #b8b8ba` }}>
-            <img src="/Wordmark.png" alt="Gangrey" width={380} height={66} style={{ width: 380, height: 66, maxWidth: "100%", display: "block", margin: "0 auto" }} />
+            <img src="/Wordmark.png?v=6" alt="Gangrey" width={240} height={88} style={{ width: 240, height: 88, maxWidth: "100%", display: "block", margin: "0 auto" }} />
           </div>
           {/* Dateline strip — white, ruled top and bottom */}
           {/* Dateline + intro in one crimson band */}
