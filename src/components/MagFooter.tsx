@@ -44,7 +44,7 @@ export default function MagFooter() {
         <a href="mailto:yacob@gangrey.org">Submit</a>
         <SubscribeButton>Subscribe</SubscribeButton>
       </nav>
-      <p className="mag-footer-copy">© 2026 Gangrey | A Literary Magazine.</p>
+      <p className="mag-footer-copy">© 2026 Gangrey | A Literary Magazine. All Rights Reserved.</p>
     </footer>
   );
 }
