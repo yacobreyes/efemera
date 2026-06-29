@@ -646,7 +646,7 @@ export default function EditorClient({ post, defaultByline = "", isNew = false }
         <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
         {/* Left section nav — desktop only */}
         {!isMobile && (
-          <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, background: "#f8f9fa", display: "flex", flexDirection: "column", overflowY: "auto" }}>
+          <div style={{ width: 180, flexShrink: 0, borderRight: `1px solid ${BORDER}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
             <div style={{ padding: "1.25rem 0 0.5rem" }}>
               <p style={{ fontFamily: FONT, fontSize: "0.65rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: TEXT_MUTED, margin: "0 0 0.4rem 1rem", opacity: 0.7 }}>Required</p>
               {(["content", "metadata", "seo"] as const).map(tab => (
