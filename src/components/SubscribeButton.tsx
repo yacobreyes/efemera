@@ -68,6 +68,9 @@ export default function SubscribeButton({
               textAlign: "center",
               boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
               animation: "subUp .28s ease",
+              boxSizing: "border-box",
+              whiteSpace: "normal",
+              overflow: "hidden",
             }}
           >
             <button
@@ -79,10 +82,10 @@ export default function SubscribeButton({
               }}
             >×</button>
 
-            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 36, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px", textTransform: "none" }}>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 32, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px", textTransform: "none", whiteSpace: "normal", wordBreak: "break-word" }}>
               Subscribe to Gangrey.
             </p>
-            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px", textTransform: "none" }}>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px", textTransform: "none", whiteSpace: "normal" }}>
               Get our latest issue delivered to your inbox.
             </p>
 
