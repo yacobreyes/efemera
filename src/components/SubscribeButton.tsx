@@ -79,10 +79,10 @@ export default function SubscribeButton({
               }}
             >×</button>
 
-            <h2 style={{ fontFamily: 'var(--font-headline)', fontSize: 36, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px" }}>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 36, fontWeight: 700, lineHeight: 1.05, letterSpacing: "-.02em", margin: "0 0 16px", textTransform: "none" }}>
               Subscribe to Gangrey.
-            </h2>
-            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px" }}>
+            </p>
+            <p style={{ fontFamily: 'var(--font-headline)', fontSize: 19, fontStyle: "italic", lineHeight: 1.5, opacity: .9, margin: "0 0 28px", textTransform: "none" }}>
               Get our latest issue delivered to your inbox.
             </p>
 
