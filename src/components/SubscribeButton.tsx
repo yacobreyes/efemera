@@ -60,12 +60,18 @@ export default function SubscribeButton({
             onClick={e => e.stopPropagation()}
             style={{
               position: "relative",
+              boxSizing: "border-box",
               width: "100%", maxWidth: 440,
               background: "#490000",
               color: "#ffffff",
               borderRadius: 4,
               padding: "44px 36px 38px",
               textAlign: "center",
+              // The modal is rendered inside the nav, whose group sets
+              // `white-space: nowrap`; that inherits in and stops the heading/
+              // subtitle from wrapping, so they overflow the box. Reset it here.
+              whiteSpace: "normal",
+              overflowWrap: "break-word",
               boxShadow: "0 24px 70px rgba(0,0,0,0.45)",
               animation: "subUp .28s ease",
             }}
