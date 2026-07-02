@@ -92,10 +92,11 @@ export default function StorePage() {
         }
         @media (max-width: 900px) {
           .store-main { padding: 40px 20px 48px; }
-          .store-band { padding: 18px 20px; gap: 12px 20px; margin-bottom: 32px; }
-          .store-band-title { font-size: 20px; margin-bottom: 5px; }
-          .store-band-desc { font-size: 13px; }
-          .store-join { font-size: 11px; }
+          .store-band { padding: 16px 18px; gap: 14px; margin-bottom: 32px; flex-wrap: nowrap; align-items: center; }
+          .store-band > div { flex: 1; min-width: 0; }
+          .store-band-title { font-size: 17px; margin-bottom: 4px; }
+          .store-band-desc { font-size: 12px; }
+          .store-join { font-size: 10.5px; gap: 0; flex-shrink: 0; }
           .store-grid { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
           .product-img { max-width: 160px; }
           .product-name { font-size: 18px; }

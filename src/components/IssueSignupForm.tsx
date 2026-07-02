@@ -77,8 +77,9 @@ export default function IssueSignupForm() {
           opacity: .9;
         }
         @media (max-width: 900px) {
-          .issue-signup input { min-width: 0; flex: 1; }
-          .issue-signup form { width: 100%; }
+          .issue-signup form { width: 100%; gap: 10px; }
+          .issue-signup input { min-width: 0; flex: 1; font-size: 12px; height: 36px; }
+          .issue-signup button { font-size: 10px; letter-spacing: .1em; flex-shrink: 0; }
         }
       `}</style>
       {status === "done" ? (
