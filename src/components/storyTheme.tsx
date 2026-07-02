@@ -31,8 +31,8 @@ export const storyStyles = `
   .story-h1 {
     font-family: var(--font-headline);
     font-weight: 800;
-    font-size: clamp(36px, 4.6vw, 56px);
-    line-height: 1.02;
+    font-size: clamp(28px, 3.6vw, 40px);
+    line-height: 1.05;
     letter-spacing: -.03em;
     margin: 0;
   }
