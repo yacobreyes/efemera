@@ -182,20 +182,19 @@ export default function Feed({
         /* LIFE IN BRIEF */
         .hm-brief {
           display: grid; grid-template-columns: 1fr auto auto; align-items: center;
-          gap: 48px; max-width: 1180px; margin: 0 auto; padding: 54px 44px;
+          gap: 48px; padding: 38px 76px;
           background: #490000; color: #ffffff;
         }
         .hm-brief-left { width: fit-content; }
         .hm-brief-title {
           font-family: var(--font-headline);
           font-size: 34px; font-weight: 800; line-height: 1.06; letter-spacing: -.02em;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
         }
-        .hm-brief-rule { width: 100%; height: 2px; background: #ffffff; border: 0; margin: 0 0 14px; }
         .hm-brief-sub { margin: 0; font-size: 18px; font-style: italic; }
         .hm-circles { display: flex; gap: 20px; }
         .hm-circle {
-          width: 92px; height: 92px; border-radius: 50%; border: 1.5px solid #ffffff;
+          width: 78px; height: 78px; border-radius: 50%; border: 1.5px solid #ffffff;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           color: #ffffff; cursor: pointer;
           background: transparent;
@@ -206,7 +205,7 @@ export default function Feed({
         }
         .hm-circle strong {
           font-family: var(--font-subhead);
-          font-size: 34px; font-weight: 800; line-height: 1;
+          font-size: 28px; font-weight: 800; line-height: 1;
         }
         .hm-circle span {
           font-family: var(--font-subhead);
@@ -336,7 +335,6 @@ export default function Feed({
         <section className="hm-brief">
           <div className="hm-brief-left">
             <div className="hm-brief-title">Life, in Brief.</div>
-            <hr className="hm-brief-rule" />
             <p className="hm-brief-sub">Short on time? We've got you.</p>
           </div>
           <div className="hm-circles">

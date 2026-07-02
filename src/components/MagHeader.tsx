@@ -147,53 +147,39 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
         .mag-search-btn:hover { color: #490000; }
 
-        /* Desktop search overlay */
-        .mag-search-bar {
-          display: none;
-          position: absolute;
-          inset: 0;
-          background: #ffffff;
-          align-items: center;
-          padding: 0 76px;
-          gap: 20px;
-          z-index: 1;
-        }
-        .mag-nav.search-open .mag-search-bar { display: flex; }
-        .mag-header.search-open .mag-search-bar { display: flex; }
-        .mag-search-form {
-          flex: 1;
+        /* Inline search — expands in place of the search icon, next to the
+           rest of the nav, instead of covering the whole bar. */
+        .mag-search-inline {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 8px;
           border: 1px solid #b8b8ba;
-          border-radius: 30px;
-          padding: 10px 20px;
+          border-radius: 20px;
+          padding: 5px 12px;
           background: #fff;
-          max-width: 460px;
-          margin: 0 auto;
+          flex: 0 1 220px;
+          min-width: 0;
         }
-        .mag-search-form input {
+        .mag-search-inline input {
           flex: 1;
+          min-width: 0;
           border: none;
           outline: none;
           background: transparent;
           font-family: var(--font-subhead);
-          font-size: 15px;
+          font-size: 12px;
           color: #000000;
         }
-        .mag-search-form input::placeholder { color: #b8b8ba; }
+        .mag-search-inline input::placeholder { color: #b8b8ba; }
         .mag-search-cancel {
           background: none;
           border: none;
           cursor: pointer;
-          font-family: var(--font-subhead);
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: .08em;
-          text-transform: uppercase;
-          color: #000000;
+          font-size: 16px;
+          line-height: 1;
+          color: #8a8a8c;
           flex-shrink: 0;
-          padding: 4px 0;
+          padding: 0;
           transition: color .15s;
         }
         .mag-search-cancel:hover { color: #490000; }
@@ -242,7 +228,11 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             display: flex;
             align-items: center;
             gap: 16px;
+            flex: 1;
+            justify-content: flex-end;
+            min-width: 0;
           }
+          .mag-nav-right-mobile .mag-search-inline { flex: 1 1 auto; }
           .mag-mob-sub {
             display: block;
             font-family: var(--font-subhead);
@@ -273,26 +263,6 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             display: block;
             text-decoration: none;
           }
-          .mag-drawer-search {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px solid #b8b8ba;
-            margin-bottom: 4px;
-            padding: 12px 4px;
-          }
-          .mag-drawer-search input {
-            flex: 1;
-            border: none;
-            outline: none;
-            background: transparent;
-            font-family: var(--font-subhead);
-            font-size: 14px;
-            font-weight: 600;
-            color: #000000;
-          }
-          .mag-drawer-search input::placeholder { color: #b8b8ba; font-weight: 500; }
-          .mag-drawer-search svg { flex-shrink: 0; color: #000000; }
           .mag-header.open .mag-drawer { display: flex; }
           .mag-header.open .mag-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
           .mag-header.open .mag-toggle span:nth-child(2) { opacity: 0; }
@@ -319,24 +289,6 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       </div>
 
       <div className="mag-nav">
-        {/* Desktop search overlay — sits on top of the normal nav */}
-        <div className="mag-search-bar">
-          <form className="mag-search-form" onSubmit={submitSearch}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b8b8ba" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input
-              ref={searchInputRef}
-              type="search"
-              placeholder={`Try "Gangrey"`}
-              value={searchQ}
-              onChange={e => setSearchQ(e.target.value)}
-              autoComplete="off"
-            />
-          </form>
-          <button className="mag-search-cancel" type="button" onClick={closeSearch}>Cancel</button>
-        </div>
-
         <nav className="mag-nav-group">
           <Link href="/about">About</Link>
           <Link href="/latest">The Latest</Link>
@@ -346,11 +298,28 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         </nav>
 
         <nav className="mag-nav-group right">
-          <button className="mag-search-btn" aria-label="Search" onClick={openSearch}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </button>
+          {searchOpen ? (
+            <form className="mag-search-inline" onSubmit={submitSearch}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a8a8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                ref={searchInputRef}
+                type="search"
+                placeholder={`Try "Gangrey"`}
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                autoComplete="off"
+              />
+              <button type="button" className="mag-search-cancel" onClick={closeSearch} aria-label="Cancel search">×</button>
+            </form>
+          ) : (
+            <button className="mag-search-btn" aria-label="Search" onClick={openSearch}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </button>
+          )}
           <Link href="/subscribe" className="mag-nav-cta">Subscribe</Link>
         </nav>
 
@@ -359,21 +328,32 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           <span /><span /><span />
         </button>
         <div className="mag-nav-right-mobile">
-          <Link href="/subscribe" className="mag-mob-sub">Subscribe</Link>
+          {searchOpen ? (
+            <form className="mag-search-inline" onSubmit={submitSearch}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8a8a8c" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input
+                type="search"
+                placeholder={`Try "Gangrey"`}
+                value={searchQ}
+                onChange={e => setSearchQ(e.target.value)}
+                autoComplete="off"
+              />
+              <button type="button" className="mag-search-cancel" onClick={closeSearch} aria-label="Cancel search">×</button>
+            </form>
+          ) : (
+            <>
+              <button className="mag-search-btn" aria-label="Search" onClick={openSearch}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+              </button>
+              <Link href="/subscribe" className="mag-mob-sub">Subscribe</Link>
+            </>
+          )}
         </div>
         <div className="mag-drawer">
-          <form
-            className="mag-drawer-search"
-            onSubmit={e => {
-              e.preventDefault();
-              if (searchQ.trim()) { router.push(`/?q=${encodeURIComponent(searchQ.trim())}`); setMenuOpen(false); setSearchQ(""); }
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input type="search" placeholder="Search stories…" value={searchQ} onChange={e => setSearchQ(e.target.value)} autoComplete="off" />
-          </form>
           <Link href="/about" onClick={() => setMenuOpen(false)}>About</Link>
           <Link href="/latest" onClick={() => setMenuOpen(false)}>The Latest</Link>
           <Link href="/archive" onClick={() => setMenuOpen(false)}>The Archive</Link>
