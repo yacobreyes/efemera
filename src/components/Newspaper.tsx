@@ -163,11 +163,7 @@ export default function Feed({
           font-family: var(--font-headline);
           font-size: 28px; line-height: 1.02; letter-spacing: -.02em; font-weight: 800;
         }
-        .hm-byline { font-size: 18px; font-style: italic; margin-bottom: 12px; }
-        .hm-excerpt {
-          margin: 0; font-size: 17px; line-height: 1.45; color: #392a22;
-          display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
-        }
+        .hm-byline { font-size: 18px; font-style: italic; margin-bottom: 0; }
         .hm-time {
           margin-top: 18px;
           font-family: var(--font-subhead);
@@ -313,7 +309,6 @@ export default function Feed({
                       <div className="hm-label">{sectionLabel(post.section)}</div>
                       <h3>{post.headline}</h3>
                       <div className="hm-byline">{post.byline}</div>
-                      {post.subheadline && <p className="hm-excerpt">{post.subheadline}</p>}
                       <div className="hm-time">{postReadingTime(post)} Min Read</div>
                     </article>
                   </Link>

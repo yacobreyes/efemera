@@ -14,16 +14,20 @@ export const metadata: Metadata = {
   description: "Short reads, sized to your window. One-, three-, and five-minute stories from Gangrey.",
 };
 
-const MINUTES = [1, 3, 5] as const;
+const BUCKETS = [
+  { read: 1, label: "One-Minute Reads", match: (t: number) => t <= 1 },
+  { read: 3, label: "Three-Minute Reads", match: (t: number) => t >= 2 && t <= 3 },
+  { read: 5, label: "Five-Minute Reads", match: (t: number) => t >= 4 },
+] as const;
 
 // Pre-render the three valid buckets as static paths.
 export function generateStaticParams() {
-  return MINUTES.map(m => ({ read: String(m) }));
+  return BUCKETS.map(b => ({ read: String(b.read) }));
 }
 
 export default async function BriefReadPage({ params }: { params: Promise<{ read: string }> }) {
   const { read } = await params;
-  const activeMin = MINUTES.find(m => String(m) === read) ?? MINUTES[0];
+  const active = BUCKETS.find(b => String(b.read) === read) ?? BUCKETS[0];
 
   let posts = [] as Awaited<ReturnType<typeof getAllPosts>>;
   try { posts = await getAllPosts(); } catch {}
@@ -32,7 +36,7 @@ export default async function BriefReadPage({ params }: { params: Promise<{ read
     (p.status === "scheduled" && p.scheduledAt && new Date(p.scheduledAt) <= new Date())) &&
     p.section !== "Archive"
   );
-  const matches = published.filter(p => postReadingTime(p) <= activeMin);
+  const matches = published.filter(p => active.match(postReadingTime(p)));
 
   return (
     <div className="listing-page">
@@ -54,25 +58,25 @@ export default async function BriefReadPage({ params }: { params: Promise<{ read
       <MagHeader />
       <main className="listing-main">
         <ListingHeader
-          title="Life, in Brief."
-          sub="Short on time? We've got you. Stories that fit your window."
+          kicker="Life, in Brief"
+          title={active.label}
           borderWidth={3}
           marginBottom={34}
         />
         <div className="brief-tabs">
-          {MINUTES.map(m => (
+          {BUCKETS.map(b => (
             <Link
-              key={m}
-              href={`/brief/${m}`}
-              className={`brief-tab${m === activeMin ? " active" : ""}`}
+              key={b.read}
+              href={`/brief/${b.read}`}
+              className={`brief-tab${b.read === active.read ? " active" : ""}`}
             >
-              {m} Min
+              {b.read} Min
             </Link>
           ))}
         </div>
         {matches.length > 0
           ? <StoryRowList posts={matches} />
-          : <p className="listing-empty">No stories in this window yet — check back soon.</p>}
+          : <p className="listing-empty">No {active.label.toLowerCase()} yet — check back soon.</p>}
       </main>
       <MagFooter />
     </div>

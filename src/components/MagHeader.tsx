@@ -9,18 +9,18 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
-  const [dateStr, setDateStr] = useState("");
+  // Lazy-initialized (not via useEffect) so the masthead doesn't blank out
+  // and re-populate every time this component remounts on page navigation —
+  // a page-to-page date "blink." Computed once per mount, client-side, so it
+  // always shows "today" rather than a stale server-render-time snapshot.
+  const [dateStr] = useState(() =>
+    new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+  );
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
-
-  // Computed client-side so the masthead always shows "today," not a
-  // server-render-time snapshot that could go stale under caching.
-  useEffect(() => {
-    setDateStr(new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }));
-  }, []);
 
   function openSearch() { setSearchOpen(true); }
   function closeSearch() { setSearchOpen(false); setSearchQ(""); }
@@ -287,7 +287,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       <div className="mag-masthead">
         <div className="mag-eyebrow">
           <span className="left">A Literary Magazine</span>
-          <span className="center">{dateStr}</span>
+          <span className="center" suppressHydrationWarning>{dateStr}</span>
           <span className="right">gangrey.org</span>
         </div>
         {onLogoClick ? (
