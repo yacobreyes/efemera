@@ -235,11 +235,12 @@ export default function Feed({
           /* Compact row layout on mobile — small square thumbnail left,
              headline right, thin divider between rows (matches the site's
              other mobile list pages instead of large stacked photo cards). */
-          .hm-card article { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: center; padding: 16px 0; }
+          .hm-card article { display: grid; grid-template-columns: 96px 1fr; gap: 14px; align-items: start; padding: 16px 0; }
           .hm-thumb { max-width: none; aspect-ratio: 1 / 1; margin-bottom: 0; }
-          .hm-label { font-size: 9px; margin-bottom: 6px; }
-          .hm-card h3 { font-size: 18px; line-height: 1.15; margin: 0; }
-          .hm-byline, .hm-time { display: none; }
+          .hm-label { font-size: 9px; margin-bottom: 4px; }
+          .hm-card h3 { font-size: 17px; line-height: 1.15; margin: 0 0 4px; }
+          .hm-byline { font-size: 12px; margin-bottom: 4px; }
+          .hm-time { font-size: 8.5px; margin-top: 0; }
 
           .hm-brief-wrap { padding: 0 20px; }
           .hm-brief { grid-template-columns: 1fr; gap: 28px; padding: 32px 20px; justify-items: start; }
