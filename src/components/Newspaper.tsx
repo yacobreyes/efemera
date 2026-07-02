@@ -53,7 +53,9 @@ export default function Feed({
     : [];
 
   const hero = nonGangrey[0];
-  const cards = nonGangrey.slice(1, 4);
+  const cards = nonGangrey.slice(1, 3);
+  const archiveFeature = published.find(p => p.slug === "starting-somewhere" && isGangrey(p)) ?? null;
+  const latestCards = [...cards, ...(archiveFeature ? [archiveFeature] : [])];
 
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1600).height(900).fit("crop").auto("format").url()
@@ -291,7 +293,7 @@ export default function Feed({
             <Link href="/latest">View all stories →</Link>
           </div>
           <div className="hm-grid">
-            {cards.map((post, i) => {
+            {latestCards.map((post, i) => {
               const imgSrc = post.image?.asset
                 ? urlFor(post.image.asset).width(720).height(405).fit("crop").auto("format").url()
                 : null;
