@@ -193,7 +193,8 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-eyebrow .left, .mag-eyebrow .right, .mag-eyebrow .center { min-width: 0; }
           .mag-wordmark-link { margin: 8px auto 6px; }
           .mag-wordmark-img { height: 38px; }
-          .mag-volno { font-size: 9px; letter-spacing: .12em; gap: 10px; padding: 5px 0; }
+          .mag-volno { flex-wrap: nowrap; font-size: 6.5px; letter-spacing: .04em; gap: 5px; padding: 5px 0; }
+          .mag-volno .tag { white-space: nowrap; }
 
           .mag-nav {
             height: auto;
@@ -246,17 +247,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-drawer {
             flex-direction: column;
             width: 100%;
-            border-top: 1px solid #b8b8ba;
-            padding: 12px 0 24px;
+            padding: 6px 0 20px;
           }
           .mag-drawer a {
             font-family: var(--font-subhead);
-            font-size: 15px;
+            font-size: 12px;
             font-weight: 700;
-            letter-spacing: .14em;
+            letter-spacing: .12em;
             text-transform: uppercase;
             color: #000000;
-            padding: 16px 4px;
+            padding: 12px 4px;
             display: block;
             text-decoration: none;
           }
