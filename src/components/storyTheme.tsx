@@ -151,7 +151,7 @@ export const storyStyles = `
     width: 100%;
     max-width: 680px;
     margin: 0 auto;
-    padding: 22px 40px 40px;
+    padding: 18px 40px 28px;
     box-sizing: border-box;
   }
   .story-foot-rule {

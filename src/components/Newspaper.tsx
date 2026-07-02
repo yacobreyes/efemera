@@ -74,7 +74,7 @@ export default function Feed({
         a { color: inherit; text-decoration: none; }
 
         /* HERO */
-        .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 32px 44px 0; }
+        .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 44px 0; }
         .hm-hero {
           position: relative;
           display: block;
@@ -136,7 +136,7 @@ export default function Feed({
         .hm-hero-meta .hm-dot { opacity: .6; }
 
         /* LATEST */
-        .hm-latest { max-width: 1180px; margin: 0 auto; padding: 52px 44px 60px; background: #ffffff; }
+        .hm-latest { max-width: 1180px; margin: 0 auto; padding: 36px 44px 40px; background: #ffffff; }
         .hm-latest-head {
           display: flex; align-items: baseline; justify-content: space-between;
           margin-bottom: 30px;
@@ -180,9 +180,10 @@ export default function Feed({
         }
 
         /* LIFE IN BRIEF */
+        .hm-brief-wrap { padding: 0 76px; }
         .hm-brief {
           display: grid; grid-template-columns: 1fr auto auto; align-items: center;
-          gap: 48px; padding: 38px 76px;
+          gap: 48px; padding: 38px 44px;
           background: #490000; color: #ffffff;
         }
         .hm-brief-left { width: fit-content; }
@@ -234,7 +235,8 @@ export default function Feed({
           .hm-divider { border-left: 0; border-top: 1px dotted #8a8a8c; margin: 28px 0; }
           .hm-card h3 { font-size: 26px; }
 
-          .hm-brief { grid-template-columns: 1fr; gap: 28px; padding: 40px 20px; justify-items: start; }
+          .hm-brief-wrap { padding: 0 20px; }
+          .hm-brief { grid-template-columns: 1fr; gap: 28px; padding: 32px 20px; justify-items: start; }
           .hm-circles { gap: 14px; }
           .hm-circle { width: 78px; height: 78px; }
           .hm-circle strong { font-size: 28px; }
@@ -332,6 +334,7 @@ export default function Feed({
 
       {/* LIFE, IN BRIEF */}
       {!q && (
+        <div className="hm-brief-wrap">
         <section className="hm-brief">
           <div className="hm-brief-left">
             <div className="hm-brief-title">Life, in Brief.</div>
@@ -350,6 +353,7 @@ export default function Feed({
             <span>Stories that fit<br />your window.</span>
           </Link>
         </section>
+        </div>
       )}
 
       <MagFooter />

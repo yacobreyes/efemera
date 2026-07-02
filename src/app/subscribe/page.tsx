@@ -35,8 +35,8 @@ export default function SubscribePage() {
     <div className="subscribe-page">
       <style>{`
         .subscribe-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
-        .subscribe-main { flex: 1; width: 100%; padding: 52px 76px 64px; box-sizing: border-box; }
-        .subscribe-header { border-bottom: 3px solid #000000; padding-bottom: 18px; margin-bottom: 48px; }
+        .subscribe-main { flex: 1; width: 100%; padding: 36px 76px 42px; box-sizing: border-box; }
+        .subscribe-header { border-bottom: 3px solid #000000; padding-bottom: 16px; margin-bottom: 32px; }
         .subscribe-h1 {
           margin: 0;
           font-family: var(--font-headline);

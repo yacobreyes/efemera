@@ -46,7 +46,7 @@ export default async function GangreyPage() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#000000" }}>
       <style>{`
-        .gr-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
+        .gr-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 44px 44px 60px; box-sizing: border-box; flex: 1; }
         @media (max-width: 900px) {
           .gr-wrap { padding: 40px 24px 64px; }
         }
