@@ -2,16 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
+import CheckoutButton from "@/components/CheckoutButton";
+import type { MerchItem } from "@/lib/checkoutCatalog";
 
 export const metadata: Metadata = {
   title: "Gangrey | Shop",
   description: "Merchandise and memberships from Gangrey, a literary magazine.",
 };
 
-const PRODUCTS = [
-  { kicker: "Canvas", name: "Gangrey Tote", price: "$30" },
-  { kicker: "Apparel", name: "Gangrey Tee", price: "$25" },
-  { kicker: "Apparel", name: "Gangrey Sweatshirt", price: "$35" },
+const PRODUCTS: { key: MerchItem; kicker: string; name: string; price: string }[] = [
+  { key: "tote", kicker: "Canvas", name: "Gangrey Tote", price: "$30" },
+  { key: "tee", kicker: "Apparel", name: "Gangrey Tee", price: "$25" },
+  { key: "sweatshirt", kicker: "Apparel", name: "Gangrey Sweatshirt", price: "$35" },
 ];
 
 export default function StorePage() {
@@ -124,7 +126,7 @@ export default function StorePage() {
               <h3 className="product-name">{p.name}</h3>
               <div className="product-foot">
                 <span className="product-price">{p.price}</span>
-                <a href="#" className="product-cart" aria-disabled="true">Add to Cart →</a>
+                <CheckoutButton kind="merch" item={p.key} className="product-cart">Buy Now →</CheckoutButton>
               </div>
             </div>
           ))}

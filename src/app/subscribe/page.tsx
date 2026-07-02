@@ -3,26 +3,31 @@ import type { Metadata } from "next";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
 import SubscribeButton from "@/components/SubscribeButton";
+import CheckoutButton from "@/components/CheckoutButton";
+import type { SubscriptionItem } from "@/lib/checkoutCatalog";
 
 export const metadata: Metadata = {
   title: "Gangrey | Subscribe",
   description: "Become a free or paid member of Gangrey, a literary magazine.",
 };
 
-const PAID_TIERS = [
+const PAID_TIERS: { key: SubscriptionItem; name: string; price: string; per: string; desc: string }[] = [
   {
+    key: "monthly",
     name: "Monthly Member",
     price: "$8",
     per: "/mo",
     desc: "Get three issues a year, full access to the archive while subscribed, and discounted tickets to workshops with guest editors and contributors.",
   },
   {
+    key: "annual",
     name: "Annual Member",
     price: "$80",
     per: "/yr",
     desc: "Get three issues a year, full access to the archive, a limited-edition bookmark, and discounted tickets to workshops with guest editors and contributors. Annual members save $16.",
   },
   {
+    key: "founding",
     name: "Founding Member",
     price: "$100",
     per: "/yr",
@@ -129,7 +134,7 @@ export default function SubscribePage() {
                 <h2 className="tier-name">{tier.name}</h2>
                 <div className="tier-price">{tier.price}<span className="per">{tier.per}</span></div>
                 <p className="tier-desc">{tier.desc}</p>
-                <a className="tier-join" href="mailto:subscriptions@gangrey.org">Join →</a>
+                <CheckoutButton kind="subscription" item={tier.key} className="tier-join">Join →</CheckoutButton>
               </div>
             </Fragment>
           ))}
