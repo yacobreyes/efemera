@@ -101,7 +101,7 @@ export default function Feed({
         .hm-hero-credit {
           position: absolute; top: 16px; right: 22px;
           font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-          color: #490000;
+          color: #ffffff;
         }
         .hm-hero-content {
           position: absolute; left: 0; right: 0; bottom: 0;
@@ -182,7 +182,7 @@ export default function Feed({
         /* LIFE IN BRIEF */
         .hm-brief {
           display: grid; grid-template-columns: 1fr auto auto; align-items: center;
-          gap: 48px; padding: 54px 76px;
+          gap: 48px; max-width: 1180px; margin: 0 auto; padding: 54px 44px;
           background: #490000; color: #ffffff;
         }
         .hm-brief-left { width: fit-content; }

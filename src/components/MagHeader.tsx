@@ -4,19 +4,33 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function computeDateStr() {
+  return new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+}
+
+// Module-level (not component state) so it survives across MagHeader
+// remounts during client-side page navigation within the same tab — the
+// value is set once real browser local time is known and reused instantly
+// on every subsequent page, avoiding a blank-then-populate "blink." It
+// starts empty so the very first server-rendered paint matches hydration
+// exactly (no SSR/client mismatch, since the server's clock/timezone can
+// legitimately differ from the visitor's — e.g. showing "tomorrow" hours
+// before the visitor's real local midnight).
+let cachedDateStr = "";
+
 export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void }) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQ, setSearchQ] = useState("");
-  // Lazy-initialized (not via useEffect) so the masthead doesn't blank out
-  // and re-populate every time this component remounts on page navigation —
-  // a page-to-page date "blink." Computed once per mount, client-side, so it
-  // always shows "today" rather than a stale server-render-time snapshot.
-  const [dateStr] = useState(() =>
-    new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
-  );
+  const [dateStr, setDateStr] = useState(cachedDateStr);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const d = computeDateStr();
+    cachedDateStr = d;
+    setDateStr(d);
+  }, []);
 
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
@@ -56,8 +70,8 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           align-items: center;
           font-family: var(--font-subhead);
           font-weight: 700;
-          font-size: 10.5px;
-          letter-spacing: .2em;
+          font-size: 9px;
+          letter-spacing: .18em;
           text-transform: uppercase;
           color: #490000;
         }
@@ -67,16 +81,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-wordmark-img { display: block; height: 54px; width: auto; margin: 0 auto; }
         .mag-volno {
           border-top: 1px solid #000000;
-          border-bottom: 3px solid #490000;
-          padding: 6px 0;
+          border-bottom: 2px solid #490000;
+          padding: 5px 0;
           display: flex;
           justify-content: space-between;
           align-items: center;
           gap: 16px;
           font-family: var(--font-subhead);
           font-weight: 700;
-          font-size: 10.5px;
-          letter-spacing: .18em;
+          font-size: 9px;
+          letter-spacing: .16em;
           text-transform: uppercase;
           color: #000000;
           white-space: nowrap;
@@ -86,7 +100,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         /* ---- Nav row ---- */
         .mag-nav {
-          height: 50px;
+          height: 42px;
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: center;
@@ -96,28 +110,28 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
         .mag-nav-group {
           display: flex;
-          gap: clamp(20px, 2.4vw, 34px);
+          gap: clamp(16px, 2vw, 28px);
           align-items: center;
           font-family: var(--font-subhead);
-          font-size: 11.5px;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: .17em;
+          letter-spacing: .15em;
           text-transform: uppercase;
           color: #000000;
           white-space: nowrap;
         }
         .mag-nav-group a { color: inherit; text-decoration: none; transition: color .15s; }
         .mag-nav-group a:hover { color: #490000; }
-        .mag-nav-group.right { justify-content: flex-end; gap: clamp(16px, 1.8vw, 24px); }
+        .mag-nav-group.right { justify-content: flex-end; gap: clamp(14px, 1.5vw, 20px); }
         .mag-nav-cta {
           color: #490000 !important;
           background: none;
           border: none;
           padding: 0;
           font-family: var(--font-subhead);
-          font-size: 11px;
+          font-size: 9.5px;
           font-weight: 700;
-          letter-spacing: .16em;
+          letter-spacing: .14em;
           text-transform: uppercase;
           cursor: pointer;
         }
@@ -211,15 +225,15 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-toggle {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 8px 8px 8px 0;
+            padding: 6px 8px 6px 0;
           }
           .mag-toggle span {
             display: block;
-            width: 22px;
+            width: 18px;
             height: 1.5px;
             background: #000000;
             transition: all .2s;
@@ -232,14 +246,13 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-mob-sub {
             display: block;
             font-family: var(--font-subhead);
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
-            letter-spacing: .12em;
+            letter-spacing: .14em;
             text-transform: uppercase;
-            color: #fff;
-            background: #490000;
-            padding: 7px 12px;
-            border-radius: 2px;
+            color: #490000;
+            background: none;
+            padding: 0;
             border: none;
             cursor: pointer;
           }
@@ -290,7 +303,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
       <div className="mag-masthead">
         <div className="mag-eyebrow">
           <span className="left">A Literary Magazine</span>
-          <span className="center" suppressHydrationWarning>{dateStr}</span>
+          <span className="center">{dateStr}</span>
           <span className="right">gangrey.org</span>
         </div>
         {onLogoClick ? (
@@ -334,7 +347,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         <nav className="mag-nav-group right">
           <button className="mag-search-btn" aria-label="Search" onClick={openSearch}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </button>

@@ -13,7 +13,7 @@ export const storyStyles = `
     width: 100%;
     max-width: 760px;
     margin: 0 auto;
-    padding: 60px 40px 34px;
+    padding: 44px 40px 26px;
     box-sizing: border-box;
     text-align: center;
   }
@@ -26,27 +26,27 @@ export const storyStyles = `
     letter-spacing: .26em;
     text-transform: uppercase;
     color: #490000;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
   }
   .story-h1 {
     font-family: var(--font-headline);
     font-weight: 800;
-    font-size: clamp(48px, 5.6vw, 72px);
-    line-height: .98;
+    font-size: clamp(36px, 4.6vw, 56px);
+    line-height: 1.02;
     letter-spacing: -.03em;
     margin: 0;
   }
   .story-dek {
     font-family: var(--font-body);
     font-style: italic;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 1.4;
     color: #392a22;
-    margin: 24px auto 0;
+    margin: 18px auto 0;
     max-width: 560px;
   }
   .story-meta {
-    margin-top: 26px;
+    margin-top: 20px;
     font-family: var(--font-subhead);
     font-size: 11.5px;
     font-weight: 700;
@@ -103,12 +103,12 @@ export const storyStyles = `
     font-family: var(--font-subhead);
     font-size: 12px;
     letter-spacing: .04em;
-    color: #392a22;
+    color: #490000;
     font-style: italic;
     padding: 10px 0 0;
     line-height: 1.5;
   }
-  .story-cutline strong { font-style: normal; color: #392a22; }
+  .story-cutline strong { font-style: normal; color: #490000; }
   .story-article {
     width: 100%;
     max-width: 680px;
@@ -183,7 +183,7 @@ export const storyStyles = `
     box-sizing: border-box;
   }
   @media (max-width: 900px) {
-    .story-head { padding: 40px 22px 28px; }
+    .story-head { padding: 30px 22px 20px; }
     .story-hero-wrap { padding: 0 20px; }
     .story-cutline-wrap { padding: 0 20px; }
     .story-article { padding: 30px 22px 16px; }
