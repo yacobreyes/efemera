@@ -155,7 +155,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           border-radius: 30px;
           padding: 10px 20px;
           background: #fff;
-          max-width: 680px;
+          max-width: 460px;
           margin: 0 auto;
         }
         .mag-search-form input {
@@ -190,8 +190,10 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         @media (max-width: 1100px) {
           .mag-masthead { padding: 16px 20px 0; }
-          .mag-eyebrow { font-size: 9px; }
-          .mag-eyebrow .center { display: none; }
+          .mag-eyebrow { font-size: 8px; letter-spacing: .1em; gap: 6px; }
+          .mag-eyebrow .left, .mag-eyebrow .right, .mag-eyebrow .center {
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+          }
           .mag-wordmark-img { height: 50px; }
           .mag-volno { font-size: 9px; letter-spacing: .12em; gap: 10px; }
 
@@ -343,11 +345,6 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           <span /><span /><span />
         </button>
         <div className="mag-nav-right-mobile">
-          <button className="mag-search-btn" aria-label="Search" onClick={openSearch} style={{ display: menuOpen ? "none" : undefined }}>
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-          </button>
           <Link href="/subscribe" className="mag-mob-sub">Subscribe</Link>
         </div>
         <div className="mag-drawer">
