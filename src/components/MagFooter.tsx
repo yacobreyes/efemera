@@ -6,12 +6,13 @@ export default function MagFooter() {
     <footer className="mag-footer">
       <style>{`
         .mag-footer {
-          padding: 46px 7vw 34px;
-          background: #b8b8ba;
+          padding: 38px 76px 42px;
+          background: #ffffff;
           border-top: 1px solid #b8b8ba;
           display: flex;
           flex-direction: column;
           align-items: center;
+          gap: 18px;
           text-align: center;
         }
         .mag-footer-links {
@@ -29,13 +30,12 @@ export default function MagFooter() {
         .mag-footer-links a { color: inherit; text-decoration: none; }
         .mag-footer-links button { font: inherit; letter-spacing: inherit; text-transform: inherit; background: none; border: none; padding: 0; color: inherit; cursor: pointer; }
         .mag-footer-copy {
-          margin-top: 26px;
           font-family: var(--font-headline);
-          font-size: 16px;
+          font-size: 15px;
           color: #000000;
         }
         @media (max-width: 900px) {
-          .mag-footer { padding: 36px 24px 28px; }
+          .mag-footer { padding: 32px 20px 26px; }
           .mag-footer-links { gap: 24px; }
         }
       `}</style>
