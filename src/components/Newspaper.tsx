@@ -100,8 +100,8 @@ export default function Feed({
         }
         .hm-hero-credit {
           position: absolute; top: 16px; right: 22px;
-          font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
-          color: rgba(255,255,255,.65);
+          font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+          color: #490000;
         }
         .hm-hero-content {
           position: absolute; left: 0; right: 0; bottom: 0;
