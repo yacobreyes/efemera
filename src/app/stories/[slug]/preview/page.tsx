@@ -78,7 +78,6 @@ export default async function PreviewPage({ params }: { params: Promise<{ slug: 
                 src={urlFor(post.image.asset).width(1600).height(900).fit("crop").auto("format").url()}
                 alt={post.image.alt ?? post.image.caption ?? ""}
               />
-              <div className="story-grain" />
             </div>
           </div>
           {caption && (

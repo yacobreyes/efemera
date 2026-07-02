@@ -126,7 +126,6 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
                 src={urlFor(post.image.asset).width(1600).height(900).fit("crop").auto("format").url()}
                 alt={post.image.alt ?? post.image.caption ?? ""}
               />
-              <div className="story-grain" />
             </div>
           </div>
           {caption && (

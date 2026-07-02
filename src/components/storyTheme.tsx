@@ -84,14 +84,6 @@ export const storyStyles = `
     object-fit: cover;
     display: block;
   }
-  .story-grain {
-    position: absolute;
-    inset: 0;
-    opacity: .16;
-    background-image: radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.4px);
-    background-size: 6px 6px;
-    pointer-events: none;
-  }
   .story-cutline-wrap {
     width: 100%;
     max-width: 1100px;

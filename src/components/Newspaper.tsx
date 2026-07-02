@@ -112,12 +112,6 @@ export default function Feed({
           position: absolute; inset: 0; width: 100%; height: 100%;
           object-fit: cover; display: block;
         }
-        .hm-hero-grain {
-          position: absolute; inset: 0; opacity: .16;
-          background-image: radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.4px);
-          background-size: 6px 6px;
-          pointer-events: none;
-        }
         .hm-hero-scrim {
           position: absolute; inset: 0;
           background: linear-gradient(to top, rgba(15,11,8,.92) 0%, rgba(15,11,8,.5) 42%, rgba(15,11,8,.1) 100%);
@@ -188,14 +182,6 @@ export default function Feed({
         }
         .hm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
         .hm-thumb:hover img { transform: scale(1.03); }
-        /* Same dot-grain texture as the hero, applied to every photo on the
-           site so the treatment is consistent, not just the lead image. */
-        .hm-thumb::after {
-          content: ""; position: absolute; inset: 0; opacity: .14;
-          background-image: radial-gradient(rgba(255,255,255,.9) 0.6px, transparent 1px);
-          background-size: 4px 4px;
-          pointer-events: none;
-        }
         .hm-label {
           font-family: var(--font-subhead);
           font-weight: 800; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
@@ -265,10 +251,6 @@ export default function Feed({
             color: rgba(255,255,255,.85);
             text-shadow: 0 1px 3px rgba(0,0,0,.7);
           }
-          /* Grain tile is absolute px, so on the smaller mobile hero the 6px
-             dots read much larger relative to the image — shrink to match the
-             fine texture seen on the big desktop hero. */
-          .hm-hero-grain { background-size: 3px 3px; background-image: radial-gradient(rgba(255,255,255,.9) 0.5px, transparent 0.9px); }
           /* Mobile hero: plain photo (no text/scrim overlay) with the kicker
              sitting on the image, headline/dek/byline below it as normal
              black-on-white text — the desktop overlay content is hidden. */
@@ -376,7 +358,6 @@ export default function Feed({
               // eslint-disable-next-line @next/next/no-img-element
               <img className="hm-hero-img" src={heroImg} alt={hero.image?.alt ?? hero.headline} />
             )}
-            <div className="hm-hero-grain" />
             <div className="hm-hero-scrim" />
             {hero.image?.caption && <div className="hm-hero-credit">{hero.image.caption}</div>}
             {/* On-image kicker: the only hero text that stays over the photo on
