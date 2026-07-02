@@ -306,6 +306,7 @@ export default function Feed({
             grid-template-columns: none;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
+            scroll-padding-left: 20px;
             -webkit-overflow-scrolling: touch;
             gap: 22px;
             padding: 0 20px 6px;
