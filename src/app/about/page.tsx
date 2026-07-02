@@ -20,7 +20,7 @@ export default async function AboutPage() {
     <div className="about-page">
       <style>{`
         .about-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
-        .about-main { flex: 1; width: 100%; max-width: 820px; margin: 0 auto; padding: 48px 40px 42px; box-sizing: border-box; }
+        .about-main { flex: 1; width: 100%; max-width: 820px; margin: 0 auto; padding: 44px 40px 42px; box-sizing: border-box; }
         .about-h1 {
           margin: 0; text-align: center;
           font-family: var(--font-headline);

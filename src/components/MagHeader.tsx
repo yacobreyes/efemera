@@ -153,10 +153,10 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           align-items: center;
           gap: 8px;
           border: 1px solid #b8b8ba;
-          border-radius: 20px;
-          padding: 5px 12px;
+          border-radius: 16px;
+          padding: 3px 12px;
           background: #fff;
-          flex: 0 1 150px;
+          flex: 0 1 260px;
           min-width: 0;
         }
         .mag-search-inline input {
@@ -174,7 +174,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           background: none;
           border: none;
           cursor: pointer;
-          font-size: 16px;
+          font-size: 14px;
           line-height: 1;
           color: #8a8a8c;
           flex-shrink: 0;
