@@ -208,19 +208,13 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           .mag-search-bar { padding: 0 20px; }
           .mag-toggle {
             display: flex;
-            flex-direction: column;
-            gap: 4px;
+            align-items: center;
+            justify-content: center;
             background: none;
             border: none;
             cursor: pointer;
+            color: #000000;
             padding: 6px 8px 6px 0;
-          }
-          .mag-toggle span {
-            display: block;
-            width: 18px;
-            height: 1.5px;
-            background: #000000;
-            transition: all .2s;
           }
           .mag-nav-right-mobile {
             display: flex;
@@ -261,9 +255,6 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
             text-decoration: none;
           }
           .mag-header.open .mag-drawer { display: flex; }
-          .mag-header.open .mag-toggle span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-          .mag-header.open .mag-toggle span:nth-child(2) { opacity: 0; }
-          .mag-header.open .mag-toggle span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
         }
       `}</style>
 
@@ -321,8 +312,16 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         </nav>
 
         {/* Mobile */}
-        <button className="mag-toggle" aria-label="Menu" onClick={() => setMenuOpen(o => !o)}>
-          <span /><span /><span />
+        <button className="mag-toggle" aria-label={menuOpen ? "Close menu" : "Menu"} onClick={() => setMenuOpen(o => !o)}>
+          {menuOpen ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          )}
         </button>
         <div className="mag-nav-right-mobile">
           {searchOpen ? (
