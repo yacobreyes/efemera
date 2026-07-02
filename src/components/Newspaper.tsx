@@ -74,7 +74,7 @@ export default function Feed({
         a { color: inherit; text-decoration: none; }
 
         /* HERO */
-        .hm-hero-wrap { padding: 32px 76px 0; }
+        .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 32px 44px 0; }
         .hm-hero {
           position: relative;
           display: block;
@@ -136,7 +136,7 @@ export default function Feed({
         .hm-hero-meta .hm-dot { opacity: .6; }
 
         /* LATEST */
-        .hm-latest { padding: 52px 76px 60px; background: #ffffff; }
+        .hm-latest { max-width: 1180px; margin: 0 auto; padding: 52px 44px 60px; background: #ffffff; }
         .hm-latest-head {
           display: flex; align-items: baseline; justify-content: space-between;
           margin-bottom: 30px;
@@ -229,7 +229,7 @@ export default function Feed({
           .hm-dek { font-size: 19px; }
           .hm-hero-meta { flex-wrap: wrap; white-space: normal; gap: 10px; font-size: 11px; }
 
-          .hm-latest { padding: 40px 20px 48px; }
+          .hm-latest { padding: 40px 24px 48px; }
           .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 22px; }
           .hm-grid { grid-template-columns: 1fr; column-gap: 0; }
           .hm-divider { border-left: 0; border-top: 1px dotted #8a8a8c; margin: 28px 0; }
