@@ -112,19 +112,19 @@ export default function Feed({
           display: inline-block; white-space: nowrap;
           background: #490000; color: #ffffff;
           font-family: var(--font-subhead);
-          font-weight: 800; font-size: 11px; letter-spacing: .24em; text-transform: uppercase;
-          padding: 7px 13px; margin-bottom: 24px;
+          font-weight: 800; font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+          padding: 6px 11px; margin-bottom: 18px;
         }
         .hm-h1 {
-          margin: 0; max-width: 900px;
+          margin: 0; max-width: 780px;
           font-family: var(--font-headline);
-          font-size: clamp(56px, 6vw, 82px);
-          line-height: .93; letter-spacing: -.03em; font-weight: 800;
+          font-size: clamp(38px, 4.4vw, 58px);
+          line-height: .98; letter-spacing: -.03em; font-weight: 800;
           text-shadow: 0 2px 24px rgba(0,0,0,.55);
         }
         .hm-dek {
-          margin: 22px 0 0; max-width: 600px;
-          font-size: 24px; line-height: 1.38; font-style: italic;
+          margin: 16px 0 0; max-width: 540px;
+          font-size: 19px; line-height: 1.4; font-style: italic;
           text-shadow: 0 1px 12px rgba(0,0,0,.5);
         }
         .hm-hero-meta {
@@ -225,8 +225,8 @@ export default function Feed({
           .hm-hero { aspect-ratio: auto; min-height: 460px; }
           .hm-hero-content { padding: 120px 20px 40px; position: relative; }
           .hm-hero-credit { right: 14px; }
-          .hm-h1 { font-size: clamp(40px, 11vw, 58px); }
-          .hm-dek { font-size: 19px; }
+          .hm-h1 { font-size: clamp(32px, 8vw, 44px); }
+          .hm-dek { font-size: 16px; }
           .hm-hero-meta { flex-wrap: wrap; white-space: normal; gap: 10px; font-size: 11px; }
 
           .hm-latest { padding: 40px 24px 48px; }
