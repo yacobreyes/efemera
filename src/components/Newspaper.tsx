@@ -53,7 +53,7 @@ export default function Feed({
     : [];
 
   const hero = nonGangrey[0];
-  const cards = nonGangrey.slice(1, 3);
+  const cards = nonGangrey.slice(1, 4);
   const archiveFeature = published.find(p =>
     isGangrey(p) && (
       p.slug === "starting-somewhere" ||
@@ -151,7 +151,7 @@ export default function Feed({
         }
         .hm-grid {
           display: grid;
-          grid-template-columns: 1fr 1px 1fr 1px 1fr;
+          grid-template-columns: 1fr 1px 1fr 1px 1fr 1px 1fr;
           column-gap: 34px;
         }
         .hm-divider { border-left: 1px dotted #8a8a8c; }
