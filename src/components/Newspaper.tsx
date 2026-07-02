@@ -193,6 +193,11 @@ export default function Feed({
           width: 92px; height: 92px; border-radius: 50%; border: 1.5px solid #ffffff;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           color: #ffffff; cursor: pointer;
+          background: transparent;
+          transition: background .15s, color .15s;
+        }
+        .hm-circle:hover, .hm-circle:focus-visible {
+          background: #ffffff; color: #490000;
         }
         .hm-circle strong {
           font-family: var(--font-subhead);

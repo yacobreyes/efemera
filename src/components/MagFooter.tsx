@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SubscribeButton from "@/components/SubscribeButton";
 
 export default function MagFooter() {
   return (
@@ -42,7 +41,7 @@ export default function MagFooter() {
       <nav className="mag-footer-links">
         <Link href="/authors">Authors</Link>
         <a href="mailto:yacob@gangrey.org">Submit</a>
-        <SubscribeButton>Subscribe</SubscribeButton>
+        <Link href="/subscribe">Subscribe</Link>
       </nav>
       <p className="mag-footer-copy">© 2026 Gangrey | A Literary Magazine. All Rights Reserved.</p>
     </footer>

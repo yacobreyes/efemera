@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import SubscribeButton from "@/components/SubscribeButton";
 
 export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void }) {
   const router = useRouter();
@@ -187,6 +186,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         .mag-toggle { display: none; }
         .mag-drawer { display: none; }
+        .mag-nav-right-mobile { display: none; }
 
         @media (max-width: 1100px) {
           .mag-masthead { padding: 16px 20px 0; }
@@ -335,7 +335,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </button>
-          <SubscribeButton className="mag-nav-cta">Subscribe</SubscribeButton>
+          <Link href="/subscribe" className="mag-nav-cta">Subscribe</Link>
         </nav>
 
         {/* Mobile */}
@@ -348,7 +348,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </button>
-          <SubscribeButton className="mag-mob-sub">Subscribe</SubscribeButton>
+          <Link href="/subscribe" className="mag-mob-sub">Subscribe</Link>
         </div>
         <div className="mag-drawer">
           <form
