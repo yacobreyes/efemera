@@ -228,19 +228,29 @@ export default function Feed({
           .hm-dek { font-size: 16px; }
           .hm-hero-meta { flex-wrap: wrap; white-space: normal; gap: 10px; font-size: 11px; }
 
-          .hm-latest { padding: 40px 24px 48px; }
-          .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 22px; }
-          .hm-grid { grid-template-columns: 1fr; column-gap: 0; }
-          .hm-divider { border-left: 0; border-top: 1px solid #e5e5e5; margin: 0; }
-          /* Compact row layout on mobile — small square thumbnail left,
-             headline right, thin divider between rows (matches the site's
-             other mobile list pages instead of large stacked photo cards). */
-          .hm-card article { display: grid; grid-template-columns: 140px 1fr; gap: 16px; align-items: start; padding: 18px 0; }
-          .hm-thumb { max-width: none; aspect-ratio: 1 / 1; margin-bottom: 0; }
-          .hm-label { font-size: 9px; margin-bottom: 4px; }
-          .hm-card h3 { font-size: 19px; line-height: 1.15; margin: 0 0 4px; }
-          .hm-byline { font-size: 13px; margin-bottom: 4px; }
-          .hm-time { font-size: 9px; margin-top: 0; }
+          .hm-latest { padding: 36px 0 44px; }
+          .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px; padding: 0 20px; }
+          /* Horizontally-scrolling carousel on mobile, using the same card
+             format as desktop (image on top, kicker/headline/byline/time
+             below) rather than a stacked list — swipe through cards like
+             the desktop grid's columns, just one at a time. */
+          .hm-grid {
+            display: flex;
+            grid-template-columns: none;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            gap: 18px;
+            padding: 0 20px 6px;
+            column-gap: 0;
+          }
+          .hm-divider { display: none; }
+          .hm-card { flex: 0 0 76vw; max-width: 320px; scroll-snap-align: start; }
+          .hm-thumb { margin-bottom: 14px; }
+          .hm-label { font-size: 10px; margin-bottom: 8px; }
+          .hm-card h3 { font-size: 21px; line-height: 1.08; margin: 0 0 8px; }
+          .hm-byline { font-size: 15px; }
+          .hm-time { font-size: 9.5px; margin-top: 14px; }
 
           .hm-brief-wrap { padding: 0 20px; }
           .hm-brief { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 16px; padding: 22px 20px; }
