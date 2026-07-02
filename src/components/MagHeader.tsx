@@ -156,7 +156,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           border-radius: 20px;
           padding: 5px 12px;
           background: #fff;
-          flex: 0 1 220px;
+          flex: 0 1 150px;
           min-width: 0;
         }
         .mag-search-inline input {
