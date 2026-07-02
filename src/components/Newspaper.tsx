@@ -54,7 +54,12 @@ export default function Feed({
 
   const hero = nonGangrey[0];
   const cards = nonGangrey.slice(1, 3);
-  const archiveFeature = published.find(p => p.slug === "starting-somewhere" && isGangrey(p)) ?? null;
+  const archiveFeature = published.find(p =>
+    isGangrey(p) && (
+      p.slug === "starting-somewhere" ||
+      p.headline?.toLowerCase().includes("starting somewhere")
+    )
+  ) ?? null;
   const latestCards = [...cards, ...(archiveFeature ? [archiveFeature] : [])];
 
   const heroImg = hero?.image?.asset
