@@ -49,7 +49,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
 
         /* ---- Masthead: eyebrow / wordmark / vol-no bar ---- */
-        .mag-masthead { padding: 20px 76px 0; }
+        .mag-masthead { padding: 12px 76px 0; }
         .mag-eyebrow {
           display: grid;
           grid-template-columns: 1fr auto 1fr;
@@ -63,12 +63,12 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         }
         .mag-eyebrow .center { color: #000000; letter-spacing: .16em; text-align: center; white-space: nowrap; }
         .mag-eyebrow .right { text-align: right; }
-        .mag-wordmark-link { display: block; width: fit-content; margin: 16px auto 12px; line-height: 0; background: none; border: none; padding: 0; cursor: pointer; }
-        .mag-wordmark-img { display: block; height: 72px; width: auto; margin: 0 auto; }
+        .mag-wordmark-link { display: block; width: fit-content; margin: 10px auto 8px; line-height: 0; background: none; border: none; padding: 0; cursor: pointer; }
+        .mag-wordmark-img { display: block; height: 54px; width: auto; margin: 0 auto; }
         .mag-volno {
           border-top: 1px solid #000000;
           border-bottom: 3px solid #490000;
-          padding: 8px 0;
+          padding: 6px 0;
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -86,7 +86,7 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         /* ---- Nav row ---- */
         .mag-nav {
-          height: 64px;
+          height: 50px;
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: center;
@@ -189,17 +189,18 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
         .mag-nav-right-mobile { display: none; }
 
         @media (max-width: 1100px) {
-          .mag-masthead { padding: 16px 20px 0; }
+          .mag-masthead { padding: 10px 20px 0; }
           .mag-eyebrow { font-size: 8px; letter-spacing: .1em; gap: 6px; }
           .mag-eyebrow .left, .mag-eyebrow .right, .mag-eyebrow .center {
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
           }
-          .mag-wordmark-img { height: 50px; }
-          .mag-volno { font-size: 9px; letter-spacing: .12em; gap: 10px; }
+          .mag-wordmark-link { margin: 8px auto 6px; }
+          .mag-wordmark-img { height: 38px; }
+          .mag-volno { font-size: 9px; letter-spacing: .12em; gap: 10px; padding: 5px 0; }
 
           .mag-nav {
             height: auto;
-            padding: 10px 20px;
+            padding: 8px 20px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
