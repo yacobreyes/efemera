@@ -119,13 +119,15 @@ export default async function StoryPage({ params }: { params: Promise<{ slug: st
 
       {post.image?.asset && (
         <>
-          <div className="story-hero">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={urlFor(post.image.asset).width(1600).height(900).fit("crop").auto("format").url()}
-              alt={post.image.alt ?? post.image.caption ?? ""}
-            />
-            <div className="story-grain" />
+          <div className="story-hero-wrap">
+            <div className="story-hero">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={urlFor(post.image.asset).width(1600).height(900).fit("crop").auto("format").url()}
+                alt={post.image.alt ?? post.image.caption ?? ""}
+              />
+              <div className="story-grain" />
+            </div>
           </div>
           {caption && (
             <div className="story-cutline-wrap">

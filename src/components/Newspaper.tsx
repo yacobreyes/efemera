@@ -69,6 +69,7 @@ export default function Feed({
         a { color: inherit; text-decoration: none; }
 
         /* HERO */
+        .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 32px 76px 0; }
         .hm-hero {
           position: relative;
           display: block;
@@ -99,7 +100,7 @@ export default function Feed({
         }
         .hm-hero-content {
           position: absolute; left: 0; right: 0; bottom: 0;
-          padding: 0 76px 58px;
+          padding: 0 40px 44px;
           color: #ffffff;
         }
         .hm-kicker {
@@ -214,6 +215,7 @@ export default function Feed({
 
         /* MOBILE */
         @media (max-width: 900px) {
+          .hm-hero-wrap { padding: 20px 20px 0; }
           .hm-hero { aspect-ratio: auto; min-height: 460px; }
           .hm-hero-content { padding: 120px 20px 40px; position: relative; }
           .hm-hero-credit { right: 14px; }
@@ -263,6 +265,7 @@ export default function Feed({
 
       {/* HERO */}
       {!q && hero && (
+        <div className="hm-hero-wrap">
         <Link href={`/stories/${hero.slug}`} className="hm-hero">
           {heroImg && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -282,6 +285,7 @@ export default function Feed({
             </div>
           </div>
         </Link>
+        </div>
       )}
 
       {/* LATEST FROM THE MAGAZINE */}

@@ -61,6 +61,13 @@ export const storyStyles = `
   }
   .story-meta .dot { color: #b8b8ba; }
   .story-meta .rt { color: #490000; }
+  .story-hero-wrap {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+    box-sizing: border-box;
+  }
   .story-hero {
     position: relative;
     width: 100%;
@@ -87,7 +94,7 @@ export const storyStyles = `
   }
   .story-cutline-wrap {
     width: 100%;
-    max-width: 760px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 0 40px;
     box-sizing: border-box;
@@ -177,6 +184,7 @@ export const storyStyles = `
   }
   @media (max-width: 900px) {
     .story-head { padding: 40px 22px 28px; }
+    .story-hero-wrap { padding: 0 22px; }
     .story-cutline-wrap { padding: 0 22px; }
     .story-article { padding: 30px 22px 16px; }
     .story-foot { padding: 20px 22px 32px; }
