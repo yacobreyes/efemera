@@ -1,8 +1,8 @@
 import { Fragment } from "react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
-import SubscribeButton from "@/components/SubscribeButton";
 import CheckoutButton from "@/components/CheckoutButton";
 import type { SubscriptionItem } from "@/lib/checkoutCatalog";
 
@@ -77,8 +77,7 @@ export default function SubscribePage() {
           font-family: var(--font-body);
           font-size: 15.5px; line-height: 1.55; color: #392a22;
         }
-        .tier-join,
-        .tier .tier-join-btn {
+        .tier-join {
           margin-top: auto;
           align-self: flex-start;
           background: none; border: 0; padding: 0; cursor: pointer;
@@ -106,8 +105,15 @@ export default function SubscribePage() {
         }
         @media (max-width: 900px) {
           .subscribe-main { padding: 40px 20px 48px; }
-          .tiers-grid { grid-template-columns: 1fr 1fr; gap: 36px 28px; }
+          .tiers-grid { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
           .tier-divider { display: none; }
+          .tier-name { font-size: 18px; margin-bottom: 4px; }
+          .tier-price { font-size: 21px; margin-bottom: 12px; }
+          .tier-desc { font-size: 13px; margin-bottom: 16px; }
+          .tier-join { font-size: 10px; }
+          .founding { margin-top: 40px; padding-top: 18px; }
+          .founding h2 { font-size: 20px; margin-bottom: 16px; }
+          .founding-placeholder { font-size: 14px; }
         }
         @media (max-width: 520px) {
           .tiers-grid { grid-template-columns: 1fr; }
@@ -125,7 +131,7 @@ export default function SubscribePage() {
             <h2 className="tier-name">Free Reader</h2>
             <div className="tier-price">$0</div>
             <p className="tier-desc">Get announcements, select posts, calls for submissions, and our monthly Gangrey Classics newsletter.</p>
-            <SubscribeButton className="tier-join-btn">Join →</SubscribeButton>
+            <Link href="/issues" className="tier-join">Join →</Link>
           </div>
           {PAID_TIERS.map(tier => (
             <Fragment key={tier.name}>

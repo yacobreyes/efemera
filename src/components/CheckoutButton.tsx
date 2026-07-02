@@ -41,7 +41,7 @@ export default function CheckoutButton({
 
   return (
     <>
-      <button type="button" className={className} onClick={handleClick} disabled={loading} style={{ background: "none", border: "none", cursor: loading ? "default" : "pointer", padding: 0, font: "inherit", color: "inherit", opacity: loading ? 0.6 : 1 }}>
+      <button type="button" className={className} onClick={handleClick} disabled={loading} style={{ background: "none", border: "none", cursor: loading ? "default" : "pointer", padding: 0, opacity: loading ? 0.6 : 1 }}>
         {loading ? "Loading…" : children}
       </button>
       {error && <p style={{ fontFamily: "var(--font-subhead)", fontSize: 12, color: "#490000", margin: "6px 0 0" }}>{error}</p>}
