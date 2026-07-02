@@ -69,6 +69,8 @@ export default function StorePage() {
           font-family: var(--font-subhead);
           font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
           color: #8a8a8c;
+          text-align: center;
+          padding: 0 16px;
         }
         .product-kicker {
           margin-top: 14px;
