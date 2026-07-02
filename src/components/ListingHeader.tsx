@@ -11,12 +11,12 @@ const KICKER: CSSProperties = {
   textTransform: "uppercase", color: "#490000", marginBottom: 14,
 };
 const TITLE: CSSProperties = {
-  fontFamily: HEADLINE, fontSize: "clamp(44px, 7vw, 64px)", lineHeight: 0.98,
+  fontFamily: HEADLINE, fontSize: "clamp(30px, 4.2vw, 40px)", lineHeight: 1.02,
   letterSpacing: "-.03em", margin: 0, color: "#000000", fontWeight: 800,
 };
 const SUB: CSSProperties = {
-  fontFamily: SUBHEAD, fontSize: "clamp(18px, 2.4vw, 22px)", color: "#000000",
-  lineHeight: 1.4, margin: "14px 0 0",
+  fontFamily: SUBHEAD, fontSize: "clamp(16px, 2vw, 19px)", color: "#000000",
+  lineHeight: 1.4, margin: "12px 0 0",
 };
 
 export default function ListingHeader({

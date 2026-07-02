@@ -19,12 +19,12 @@ export default function StorePage() {
     <div className="store-page">
       <style>{`
         .store-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
-        .store-main { flex: 1; width: 100%; padding: 36px 76px 42px; box-sizing: border-box; }
-        .store-header { border-bottom: 3px solid #000000; padding-bottom: 18px; margin-bottom: 34px; }
+        .store-main { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 36px 44px 42px; box-sizing: border-box; }
+        .store-header { border-bottom: 1px solid #000000; padding-bottom: 18px; margin-bottom: 34px; }
         .store-h1 {
           margin: 0;
           font-family: var(--font-headline);
-          font-size: clamp(40px, 6vw, 44px);
+          font-size: clamp(30px, 4vw, 36px);
           line-height: 1; letter-spacing: -.03em; font-weight: 800;
         }
         .store-band {
@@ -59,7 +59,7 @@ export default function StorePage() {
         }
         .product-img {
           display: flex; align-items: center; justify-content: center;
-          width: 100%; aspect-ratio: 1 / 1;
+          width: 100%; max-width: 240px; aspect-ratio: 1 / 1;
           background: #f4f4f5;
           box-sizing: border-box;
         }
@@ -93,7 +93,9 @@ export default function StorePage() {
         @media (max-width: 900px) {
           .store-main { padding: 40px 20px 48px; }
           .store-band { padding: 26px 24px; }
-          .store-grid { grid-template-columns: 1fr; }
+          .store-grid { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
+          .product-img { max-width: 160px; }
+          .product-name { font-size: 18px; }
         }
       `}</style>
       <MagHeader />

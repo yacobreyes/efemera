@@ -36,12 +36,12 @@ export default function SubscribePage() {
       <style>{`
         .subscribe-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
         .subscribe-main { flex: 1; width: 100%; padding: 36px 76px 42px; box-sizing: border-box; }
-        .subscribe-header { border-bottom: 3px solid #000000; padding-bottom: 16px; margin-bottom: 32px; }
+        .subscribe-header { border-bottom: 1px solid #000000; padding-bottom: 16px; margin-bottom: 32px; }
         .subscribe-h1 {
           margin: 0;
           font-family: var(--font-headline);
-          font-size: clamp(44px, 7vw, 64px);
-          line-height: .98; letter-spacing: -.03em; font-weight: 800;
+          font-size: clamp(30px, 4.2vw, 40px);
+          line-height: 1.02; letter-spacing: -.03em; font-weight: 800;
         }
         .subscribe-dek {
           margin: 14px 0 0;

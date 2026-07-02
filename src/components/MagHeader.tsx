@@ -84,19 +84,18 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
           border-bottom: 2px solid #490000;
           padding: 5px 0;
           display: flex;
+          flex-wrap: wrap;
           justify-content: space-between;
           align-items: center;
-          gap: 16px;
+          gap: 6px 16px;
           font-family: var(--font-subhead);
           font-weight: 700;
           font-size: 9px;
           letter-spacing: .16em;
           text-transform: uppercase;
           color: #000000;
-          white-space: nowrap;
-          overflow: hidden;
         }
-        .mag-volno .tag { color: #490000; overflow: hidden; text-overflow: ellipsis; }
+        .mag-volno .tag { color: #490000; text-align: center; flex: 1 1 auto; }
 
         /* ---- Nav row ---- */
         .mag-nav {
@@ -190,10 +189,8 @@ export default function MagHeader({ onLogoClick }: { onLogoClick?: () => void })
 
         @media (max-width: 1100px) {
           .mag-masthead { padding: 10px 20px 0; }
-          .mag-eyebrow { font-size: 8px; letter-spacing: .1em; gap: 6px; }
-          .mag-eyebrow .left, .mag-eyebrow .right, .mag-eyebrow .center {
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
-          }
+          .mag-eyebrow { font-size: 8px; letter-spacing: .1em; gap: 4px 6px; row-gap: 4px; }
+          .mag-eyebrow .left, .mag-eyebrow .right, .mag-eyebrow .center { min-width: 0; }
           .mag-wordmark-link { margin: 8px auto 6px; }
           .mag-wordmark-img { height: 38px; }
           .mag-volno { font-size: 9px; letter-spacing: .12em; gap: 10px; padding: 5px 0; }

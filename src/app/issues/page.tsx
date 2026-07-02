@@ -25,12 +25,12 @@ export default async function IssuesPage() {
     <div className="issues-page">
       <style>{`
         .issues-page { min-height: 100vh; display: flex; flex-direction: column; background: #ffffff; color: #000000; }
-        .issues-main { flex: 1; width: 100%; padding: 36px 76px 42px; box-sizing: border-box; }
-        .issues-header { border-bottom: 3px solid #000000; padding-bottom: 18px; margin-bottom: 34px; }
+        .issues-main { flex: 1; width: 100%; max-width: 1180px; margin: 0 auto; padding: 36px 44px 42px; box-sizing: border-box; }
+        .issues-header { border-bottom: 1px solid #000000; padding-bottom: 18px; margin-bottom: 34px; }
         .issues-h1 {
           margin: 0;
           font-family: var(--font-headline);
-          font-size: clamp(40px, 6vw, 44px);
+          font-size: clamp(30px, 4vw, 36px);
           line-height: 1; letter-spacing: -.03em; font-weight: 800;
         }
         .issues-band {
@@ -100,7 +100,7 @@ export default async function IssuesPage() {
         </div>
 
         <div className="issues-band">
-          <div><div className="issues-band-title">Get it in your inbox.</div></div>
+          <div><div className="issues-band-title">Read it in your inbox.</div></div>
           <IssueSignupForm />
         </div>
 
