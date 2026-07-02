@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { SanityPost, SanityLately, SanityWelcome } from "@/lib/sanity";
 import { urlFor } from "@/lib/sanityImage";
@@ -62,6 +63,27 @@ export default function Feed({
   ) ?? null;
   const latestCards = [...cards, ...(archiveFeature ? [archiveFeature] : [])];
 
+  // Dot pagination for the mobile carousel — tracks which card is currently
+  // snapped into view so the active dot can highlight, New Yorker-style.
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [activeCard, setActiveCard] = useState(0);
+  function onCarouselScroll() {
+    const el = carouselRef.current;
+    if (!el) return;
+    const cardEls = el.querySelectorAll<HTMLElement>(".hm-card");
+    if (cardEls.length === 0) return;
+    const cardWidth = cardEls[0].getBoundingClientRect().width;
+    const gap = 18;
+    const i = Math.round(el.scrollLeft / (cardWidth + gap));
+    setActiveCard(Math.max(0, Math.min(latestCards.length - 1, i)));
+  }
+  function scrollToCard(i: number) {
+    const el = carouselRef.current;
+    if (!el) return;
+    const card = el.querySelectorAll<HTMLElement>(".hm-card")[i];
+    if (card) el.scrollTo({ left: card.offsetLeft - el.offsetLeft, behavior: "smooth" });
+  }
+
   const heroImg = hero?.image?.asset
     ? urlFor(hero.image.asset).width(1600).height(900).fit("crop").auto("format").url()
     : null;
@@ -75,6 +97,7 @@ export default function Feed({
 
         /* HERO */
         .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 20px 44px 0; }
+        .hm-hero-link { display: block; color: inherit; }
         .hm-hero {
           position: relative;
           display: block;
@@ -83,6 +106,8 @@ export default function Feed({
           color: #ffffff;
           background: linear-gradient(135deg, #4a3527 0%, #241a13 60%, #0f0b08 100%);
         }
+        .hm-kicker-onimage { display: none; }
+        .hm-hero-below { display: none; }
         .hm-hero-img {
           position: absolute; inset: 0; width: 100%; height: 100%;
           object-fit: cover; display: block;
@@ -173,6 +198,8 @@ export default function Feed({
           font-size: 28px; line-height: 1.02; letter-spacing: -.02em; font-weight: 800;
         }
         .hm-byline { font-size: 18px; font-style: italic; margin-bottom: 0; }
+        .hm-excerpt { display: none; }
+        .hm-carousel-dots { display: none; }
         .hm-time {
           margin-top: 18px;
           font-family: var(--font-subhead);
@@ -222,18 +249,38 @@ export default function Feed({
         /* MOBILE */
         @media (max-width: 900px) {
           .hm-hero-wrap { padding: 20px 20px 0; }
-          .hm-hero-content { padding: 0 20px 24px; }
           .hm-hero-credit { right: 14px; }
-          .hm-h1 { font-size: clamp(32px, 8vw, 44px); }
-          .hm-dek { font-size: 16px; }
-          .hm-hero-meta { flex-wrap: wrap; white-space: normal; gap: 10px; font-size: 11px; }
+          /* Mobile hero: plain photo (no text/scrim overlay) with the kicker
+             sitting on the image, headline/dek/byline below it as normal
+             black-on-white text — the desktop overlay content is hidden. */
+          .hm-hero-scrim { display: none; }
+          .hm-hero-content { display: none; }
+          .hm-kicker-onimage {
+            display: inline-block; position: absolute; top: 14px; left: 14px;
+            margin-bottom: 0;
+          }
+          .hm-hero-below { display: block; padding: 18px 4px 0; color: #000000; }
+          .hm-h1-mobile {
+            margin: 0; font-family: var(--font-headline);
+            font-size: clamp(26px, 7vw, 34px); line-height: 1.05;
+            letter-spacing: -.02em; font-weight: 800; color: #000000;
+          }
+          .hm-dek-mobile {
+            margin: 10px 0 0; font-family: var(--font-body); font-style: italic;
+            font-size: 15px; line-height: 1.4; color: #392a22;
+          }
+          .hm-hero-meta-mobile {
+            margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+            font-family: var(--font-subhead); font-weight: 700; font-size: 10.5px;
+            letter-spacing: .14em; text-transform: uppercase; color: #000000;
+          }
+          .hm-hero-meta-mobile .hm-dot { color: #490000; }
 
           .hm-latest { padding: 36px 0 44px; }
           .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px; padding: 0 20px; }
-          /* Horizontally-scrolling carousel on mobile, using the same card
-             format as desktop (image on top, kicker/headline/byline/time
-             below) rather than a stacked list — swipe through cards like
-             the desktop grid's columns, just one at a time. */
+          /* Horizontally-scrolling carousel on mobile — image, headline,
+             excerpt, bold byline; thin divider peeking at the next card and
+             dot pagination below, matching a magazine "Today's Mix" rail. */
           .hm-grid {
             display: flex;
             grid-template-columns: none;
@@ -244,13 +291,20 @@ export default function Feed({
             padding: 0 20px 6px;
             column-gap: 0;
           }
-          .hm-divider { display: none; }
-          .hm-card { flex: 0 0 76vw; max-width: 320px; scroll-snap-align: start; }
-          .hm-thumb { margin-bottom: 14px; }
+          .hm-divider { display: block; border-left: 1px solid #e5e5e5; align-self: stretch; flex-shrink: 0; margin: 0; }
+          .hm-card { flex: 0 0 82vw; max-width: 340px; scroll-snap-align: start; }
+          .hm-thumb { aspect-ratio: 4 / 3; margin-bottom: 14px; }
           .hm-label { font-size: 10px; margin-bottom: 8px; }
-          .hm-card h3 { font-size: 21px; line-height: 1.08; margin: 0 0 8px; }
-          .hm-byline { font-size: 15px; }
-          .hm-time { font-size: 9.5px; margin-top: 14px; }
+          .hm-card h3 { font-size: 21px; line-height: 1.1; margin: 0 0 6px; }
+          .hm-excerpt { display: block; font-family: var(--font-body); font-size: 14px; line-height: 1.4; color: #392a22; margin: 0 0 8px; }
+          .hm-byline { font-size: 12.5px; font-style: normal; font-weight: 700; letter-spacing: .04em; }
+          .hm-time { font-size: 9.5px; margin-top: 8px; }
+          .hm-carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
+          .hm-carousel-dot {
+            width: 6px; height: 6px; border-radius: 50%; padding: 0;
+            border: none; background: #d8d8d8; cursor: pointer;
+          }
+          .hm-carousel-dot.active { background: #490000; }
 
           .hm-brief-wrap { padding: 0 20px; }
           .hm-brief { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 16px; padding: 22px 20px; }
@@ -295,19 +349,35 @@ export default function Feed({
       {/* HERO */}
       {!q && hero && (
         <div className="hm-hero-wrap">
-        <Link href={`/stories/${hero.slug}`} className="hm-hero">
-          {heroImg && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img className="hm-hero-img" src={heroImg} alt={hero.image?.alt ?? hero.headline} />
-          )}
-          <div className="hm-hero-grain" />
-          <div className="hm-hero-scrim" />
-          {hero.image?.caption && <div className="hm-hero-credit">{hero.image.caption}</div>}
-          <div className="hm-hero-content">
-            <span className="hm-kicker">Worth Your Time</span>
-            <h1 className="hm-h1">{hero.headline}</h1>
-            {hero.subheadline && <p className="hm-dek">{hero.subheadline}</p>}
-            <div className="hm-hero-meta">
+        <Link href={`/stories/${hero.slug}`} className="hm-hero-link">
+          <div className="hm-hero">
+            {heroImg && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img className="hm-hero-img" src={heroImg} alt={hero.image?.alt ?? hero.headline} />
+            )}
+            <div className="hm-hero-grain" />
+            <div className="hm-hero-scrim" />
+            {hero.image?.caption && <div className="hm-hero-credit">{hero.image.caption}</div>}
+            {/* On-image kicker: the only hero text that stays over the photo on
+                mobile — headline/dek/meta move below the image there instead
+                (matches a plain-photo mobile front page rather than a text
+                overlay). Desktop keeps the full bottom-left overlay. */}
+            <span className="hm-kicker hm-kicker-onimage">Worth Your Time</span>
+            <div className="hm-hero-content">
+              <span className="hm-kicker">Worth Your Time</span>
+              <h1 className="hm-h1">{hero.headline}</h1>
+              {hero.subheadline && <p className="hm-dek">{hero.subheadline}</p>}
+              <div className="hm-hero-meta">
+                <span>By {hero.byline}</span>
+                <span className="hm-dot">·</span>
+                <span>{postReadingTime(hero)} Min Read</span>
+              </div>
+            </div>
+          </div>
+          <div className="hm-hero-below">
+            <h2 className="hm-h1-mobile">{hero.headline}</h2>
+            {hero.subheadline && <p className="hm-dek-mobile">{hero.subheadline}</p>}
+            <div className="hm-hero-meta-mobile">
               <span>By {hero.byline}</span>
               <span className="hm-dot">·</span>
               <span>{postReadingTime(hero)} Min Read</span>
@@ -324,10 +394,10 @@ export default function Feed({
             <h2>Latest from the Magazine</h2>
             <Link href="/latest">View all stories →</Link>
           </div>
-          <div className="hm-grid">
+          <div className="hm-grid" ref={carouselRef} onScroll={onCarouselScroll}>
             {latestCards.map((post, i) => {
               const imgSrc = post.image?.asset
-                ? urlFor(post.image.asset).width(720).height(405).fit("crop").auto("format").url()
+                ? urlFor(post.image.asset).width(720).height(540).fit("crop").auto("format").url()
                 : null;
               return (
                 <div key={post._id} style={{ display: "contents" }}>
@@ -343,7 +413,8 @@ export default function Feed({
                       </span>
                       <div className="hm-label">{sectionLabel(post.section)}</div>
                       <h3>{post.headline}</h3>
-                      <div className="hm-byline">{post.byline}</div>
+                      {post.subheadline && <p className="hm-excerpt">{post.subheadline}</p>}
+                      <div className="hm-byline">By {post.byline}</div>
                       <div className="hm-time">{postReadingTime(post)} Min Read</div>
                     </article>
                   </Link>
@@ -351,6 +422,18 @@ export default function Feed({
               );
             })}
           </div>
+          {latestCards.length > 1 && (
+            <div className="hm-carousel-dots">
+              {latestCards.map((post, i) => (
+                <button
+                  key={post._id}
+                  className={`hm-carousel-dot${i === activeCard ? " active" : ""}`}
+                  aria-label={`Go to card ${i + 1}`}
+                  onClick={() => scrollToCard(i)}
+                />
+              ))}
+            </div>
+          )}
         </section>
       )}
 
