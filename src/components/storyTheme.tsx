@@ -103,12 +103,13 @@ export const storyStyles = `
     font-family: var(--font-subhead);
     font-size: 12px;
     letter-spacing: .04em;
-    color: #490000;
+    color: #8a8a8c;
     font-style: italic;
+    font-weight: 400;
     padding: 10px 0 0;
     line-height: 1.5;
   }
-  .story-cutline strong { font-style: normal; color: #490000; }
+  .story-cutline strong { font-style: normal; font-weight: 400; color: #8a8a8c; }
   .story-article {
     width: 100%;
     max-width: 680px;
