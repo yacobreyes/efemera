@@ -191,9 +191,9 @@ export default function Feed({
         /* Same dot-grain texture as the hero, applied to every photo on the
            site so the treatment is consistent, not just the lead image. */
         .hm-thumb::after {
-          content: ""; position: absolute; inset: 0; opacity: .16;
-          background-image: radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.4px);
-          background-size: 6px 6px;
+          content: ""; position: absolute; inset: 0; opacity: .14;
+          background-image: radial-gradient(rgba(255,255,255,.9) 0.6px, transparent 1px);
+          background-size: 4px 4px;
           pointer-events: none;
         }
         .hm-label {
