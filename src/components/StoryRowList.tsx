@@ -21,6 +21,7 @@ export default function StoryRowList({ posts }: { posts: SanityPost[] }) {
         }
         .srl-row:last-child { border-bottom: none; }
         .srl-thumb {
+          position: relative;
           display: block;
           width: 100%;
           aspect-ratio: 16 / 9;
@@ -29,6 +30,14 @@ export default function StoryRowList({ posts }: { posts: SanityPost[] }) {
         }
         .srl-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
         .srl-row:hover .srl-thumb img { transform: scale(1.03); }
+        /* Same dot-grain texture as the home page hero/cards, so every
+           photo on the site gets the same treatment. */
+        .srl-thumb::after {
+          content: ""; position: absolute; inset: 0; opacity: .16;
+          background-image: radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.4px);
+          background-size: 6px 6px;
+          pointer-events: none;
+        }
         .srl-kicker {
           font-family: var(--font-subhead);
           font-weight: 800;

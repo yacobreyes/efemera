@@ -182,11 +182,20 @@ export default function Feed({
         .hm-divider { border-left: 1px dotted #8a8a8c; }
         .hm-card { display: block; }
         .hm-thumb {
+          position: relative;
           display: block; width: 100%; aspect-ratio: 1.35 / 1;
           margin-bottom: 18px; background: #b8b8ba; overflow: hidden;
         }
         .hm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
         .hm-thumb:hover img { transform: scale(1.03); }
+        /* Same dot-grain texture as the hero, applied to every photo on the
+           site so the treatment is consistent, not just the lead image. */
+        .hm-thumb::after {
+          content: ""; position: absolute; inset: 0; opacity: .16;
+          background-image: radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.4px);
+          background-size: 6px 6px;
+          pointer-events: none;
+        }
         .hm-label {
           font-family: var(--font-subhead);
           font-weight: 800; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
@@ -198,7 +207,6 @@ export default function Feed({
           font-size: 28px; line-height: 1.02; letter-spacing: -.02em; font-weight: 800;
         }
         .hm-byline { font-size: 18px; font-style: italic; margin-bottom: 0; }
-        .hm-excerpt { display: none; }
         .hm-carousel-dots { display: none; }
         .hm-time {
           margin-top: 18px;
@@ -278,9 +286,10 @@ export default function Feed({
 
           .hm-latest { padding: 36px 0 44px; }
           .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 20px; padding: 0 20px; }
-          /* Horizontally-scrolling carousel on mobile — image, headline,
-             excerpt, bold byline; thin divider peeking at the next card and
-             dot pagination below, matching a magazine "Today's Mix" rail. */
+          /* Horizontally-scrolling carousel on mobile — same visual card as
+             desktop (image, kicker, bold headline, italic byline, read time,
+             no excerpt), just swipeable one at a time with a thin divider
+             peeking at the next card and dot pagination below. */
           .hm-grid {
             display: flex;
             grid-template-columns: none;
@@ -293,12 +302,11 @@ export default function Feed({
           }
           .hm-divider { display: block; border-left: 1px solid #e5e5e5; align-self: stretch; flex-shrink: 0; margin: 0; }
           .hm-card { flex: 0 0 82vw; max-width: 340px; scroll-snap-align: start; }
-          .hm-thumb { aspect-ratio: 4 / 3; margin-bottom: 14px; }
+          .hm-thumb { aspect-ratio: 1.35 / 1; margin-bottom: 16px; }
           .hm-label { font-size: 10px; margin-bottom: 8px; }
-          .hm-card h3 { font-size: 21px; line-height: 1.1; margin: 0 0 6px; }
-          .hm-excerpt { display: block; font-family: var(--font-body); font-size: 14px; line-height: 1.4; color: #392a22; margin: 0 0 8px; }
-          .hm-byline { font-size: 12.5px; font-style: normal; font-weight: 700; letter-spacing: .04em; }
-          .hm-time { font-size: 9.5px; margin-top: 8px; }
+          .hm-card h3 { font-size: 22px; line-height: 1.05; margin: 0 0 8px; }
+          .hm-byline { font-size: 15px; }
+          .hm-time { font-size: 9.5px; margin-top: 14px; }
           .hm-carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 18px; }
           .hm-carousel-dot {
             width: 6px; height: 6px; border-radius: 50%; padding: 0;
@@ -413,7 +421,6 @@ export default function Feed({
                       </span>
                       <div className="hm-label">{sectionLabel(post.section)}</div>
                       <h3>{post.headline}</h3>
-                      {post.subheadline && <p className="hm-excerpt">{post.subheadline}</p>}
                       <div className="hm-byline">By {post.byline}</div>
                       <div className="hm-time">{postReadingTime(post)} Min Read</div>
                     </article>
