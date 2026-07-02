@@ -222,8 +222,7 @@ export default function Feed({
         /* MOBILE */
         @media (max-width: 900px) {
           .hm-hero-wrap { padding: 20px 20px 0; }
-          .hm-hero { aspect-ratio: auto; min-height: 460px; }
-          .hm-hero-content { padding: 120px 20px 40px; position: relative; }
+          .hm-hero-content { padding: 0 20px 24px; }
           .hm-hero-credit { right: 14px; }
           .hm-h1 { font-size: clamp(32px, 8vw, 44px); }
           .hm-dek { font-size: 16px; }
@@ -233,7 +232,8 @@ export default function Feed({
           .hm-latest-head { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 22px; }
           .hm-grid { grid-template-columns: 1fr; column-gap: 0; }
           .hm-divider { border-left: 0; border-top: 1px dotted #8a8a8c; margin: 28px 0; }
-          .hm-card h3 { font-size: 26px; }
+          .hm-thumb { max-width: 220px; aspect-ratio: 16 / 10; }
+          .hm-card h3 { font-size: 24px; }
 
           .hm-brief-wrap { padding: 0 20px; }
           .hm-brief { grid-template-columns: 1fr; gap: 28px; padding: 32px 20px; justify-items: start; }
