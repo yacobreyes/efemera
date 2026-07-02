@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getPostsLight } from "@/lib/sanity";
 import MagHeader from "@/components/MagHeader";
 import MagFooter from "@/components/MagFooter";
-import StoryCardGrid from "@/components/StoryCardGrid";
+import StoryRowList from "@/components/StoryRowList";
 import ListingHeader from "@/components/ListingHeader";
 
 export const revalidate = 60;
@@ -31,9 +31,9 @@ export default async function LatestPage() {
       `}</style>
       <MagHeader />
       <main className="listing-main">
-        <ListingHeader title="The Latest" sub="The newest voices and stories from Gangrey." />
+        <ListingHeader title="The Latest" sub="The newest voices and stories from Gangrey." marginBottom={36} />
         {published.length > 0
-          ? <StoryCardGrid posts={published} />
+          ? <StoryRowList posts={published} />
           : <p className="listing-empty">No stories yet.</p>}
       </main>
       <MagFooter />

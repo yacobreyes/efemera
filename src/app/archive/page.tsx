@@ -47,16 +47,13 @@ export default async function GangreyPage() {
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "#ffffff", color: "#000000" }}>
       <style>{`
         .gr-wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 64px 44px 88px; box-sizing: border-box; flex: 1; }
-        .gr-stats { font-family: var(--font-subhead); font-size: 12px; color: #392a22; letter-spacing: .08em; margin-top: 20px; }
         @media (max-width: 900px) {
           .gr-wrap { padding: 40px 24px 64px; }
         }
       `}</style>
       <MagHeader />
       <main className="gr-wrap">
-        <ListingHeader title="The Archive" sub="Writing once featured on the original Gangrey blog." bordered={false} marginBottom={48}>
-          {deduped.length > 0 && <div className="gr-stats">{deduped.length} stories · 2005 – 2016</div>}
-        </ListingHeader>
+        <ListingHeader title="The Archive" sub="Writing once featured on the original Gangrey blog." marginBottom={28} />
         {deduped.length === 0
           ? <p style={{ fontFamily: "var(--font-headline)", fontSize: 22, fontStyle: "italic", color: "#000000" }}>No stories yet.</p>
           : <GangreyArchive posts={deduped} />

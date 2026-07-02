@@ -11,11 +11,11 @@ const KICKER: CSSProperties = {
   textTransform: "uppercase", color: "#490000", marginBottom: 14,
 };
 const TITLE: CSSProperties = {
-  fontFamily: HEADLINE, fontSize: "clamp(44px, 7vw, 72px)", lineHeight: 0.98,
-  letterSpacing: "-.03em", margin: 0, color: "#000000",
+  fontFamily: HEADLINE, fontSize: "clamp(44px, 7vw, 64px)", lineHeight: 0.98,
+  letterSpacing: "-.03em", margin: 0, color: "#000000", fontWeight: 800,
 };
 const SUB: CSSProperties = {
-  fontFamily: SUBHEAD, fontSize: "clamp(20px, 3vw, 28px)", color: "#000000",
+  fontFamily: SUBHEAD, fontSize: "clamp(18px, 2.4vw, 22px)", color: "#000000",
   lineHeight: 1.4, margin: "14px 0 0",
 };
 
@@ -26,6 +26,7 @@ export default function ListingHeader({
   children,
   align = "left",
   bordered = true,
+  borderWidth = 1,
   marginBottom = 40,
 }: {
   title: string;
@@ -34,6 +35,7 @@ export default function ListingHeader({
   children?: ReactNode;
   align?: "left" | "center";
   bordered?: boolean;
+  borderWidth?: number;
   marginBottom?: number;
 }) {
   const centered = align === "center";
@@ -42,7 +44,7 @@ export default function ListingHeader({
       style={{
         marginBottom,
         textAlign: align,
-        ...(bordered ? { borderBottom: "1px solid #000000", paddingBottom: 24 } : {}),
+        ...(bordered ? { borderBottom: `${borderWidth}px solid #000000`, paddingBottom: borderWidth > 1 ? 18 : 24 } : {}),
       }}
     >
       {kicker && <div style={KICKER}>{kicker}</div>}
