@@ -108,6 +108,7 @@ export default function Feed({
         }
         .hm-kicker-onimage { display: none; }
         .hm-hero-below { display: none; }
+        .hm-hero-credit-mobile { display: none; }
         .hm-hero-img {
           position: absolute; inset: 0; width: 100%; height: 100%;
           object-fit: cover; display: block;
@@ -243,35 +244,33 @@ export default function Feed({
         /* MOBILE */
         @media (max-width: 900px) {
           .hm-hero-wrap { padding: 20px 20px 0; }
-          /* Move the photo credit to the bottom-right on mobile so it can't
-             collide with the "Worth Your Time" badge in the top-left. */
-          .hm-hero-credit {
-            top: auto; bottom: 10px; right: 12px;
-            font-size: 8px; letter-spacing: .06em;
-            color: rgba(255,255,255,.85);
-            text-shadow: 0 1px 3px rgba(0,0,0,.7);
-          }
-          /* Mobile hero: plain photo (no text/scrim overlay) with the kicker
-             sitting on the image, headline/dek/byline below it as normal
-             black-on-white text — the desktop overlay content is hidden. */
+          /* Mobile hero, magazine-cover style: a big square photo with a
+             plain caption underneath, then a centered headline/dek/byline
+             stack below — no text/badge overlaid on the photo itself. */
+          .hm-hero { aspect-ratio: 1 / 1; }
           .hm-hero-scrim { display: none; }
           .hm-hero-content { display: none; }
-          .hm-kicker-onimage {
-            display: inline-block; position: absolute; top: 14px; left: 14px;
-            margin-bottom: 0;
+          .hm-kicker-onimage { display: none; }
+          .hm-hero-credit { display: none; }
+          .hm-hero-credit-mobile {
+            display: block;
+            margin-top: 8px;
+            font-family: var(--font-subhead);
+            font-size: 11px; letter-spacing: .03em; font-weight: 400;
+            color: #8a8a8c;
           }
-          .hm-hero-below { display: block; padding: 18px 4px 0; color: #000000; }
+          .hm-hero-below { display: block; padding: 22px 4px 0; color: #000000; text-align: center; }
           .hm-h1-mobile {
             margin: 0; font-family: var(--font-headline);
-            font-size: clamp(26px, 7vw, 34px); line-height: 1.05;
-            letter-spacing: -.02em; font-weight: 800; color: #000000;
+            font-size: clamp(28px, 8vw, 38px); line-height: 1.08;
+            letter-spacing: -.01em; font-weight: 800; color: #000000;
           }
           .hm-dek-mobile {
-            margin: 10px 0 0; font-family: var(--font-body); font-style: italic;
-            font-size: 15px; line-height: 1.4; color: #392a22;
+            margin: 12px auto 0; font-family: var(--font-body); font-style: normal;
+            font-size: 16px; line-height: 1.4; color: #000000; max-width: 340px;
           }
           .hm-hero-meta-mobile {
-            margin-top: 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+            margin-top: 14px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px;
             font-family: var(--font-subhead); font-weight: 700; font-size: 10.5px;
             letter-spacing: .14em; text-transform: uppercase; color: #000000;
           }
@@ -376,6 +375,7 @@ export default function Feed({
               </div>
             </div>
           </div>
+          {hero.image?.caption && <div className="hm-hero-credit-mobile">{hero.image.caption}</div>}
           <div className="hm-hero-below">
             <h2 className="hm-h1-mobile">{hero.headline}</h2>
             {hero.subheadline && <p className="hm-dek-mobile">{hero.subheadline}</p>}
