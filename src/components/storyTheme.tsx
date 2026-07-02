@@ -65,6 +65,7 @@ export const storyStyles = `
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
+    max-height: 56vh;
     overflow: hidden;
     background: linear-gradient(135deg, #4a3527, #181109);
     margin-bottom: 6px;

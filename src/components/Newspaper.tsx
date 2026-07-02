@@ -71,6 +71,7 @@ export default function Feed({
           position: relative;
           display: block;
           aspect-ratio: 16 / 9;
+          max-height: 62vh;
           overflow: hidden;
           color: #ffffff;
           background: linear-gradient(135deg, #4a3527 0%, #241a13 60%, #0f0b08 100%);
