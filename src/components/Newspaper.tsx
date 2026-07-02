@@ -74,7 +74,7 @@ export default function Feed({
         a { color: inherit; text-decoration: none; }
 
         /* HERO */
-        .hm-hero-wrap { max-width: 1180px; margin: 0 auto; padding: 32px 76px 0; }
+        .hm-hero-wrap { padding: 32px 76px 0; }
         .hm-hero {
           position: relative;
           display: block;
@@ -157,10 +157,11 @@ export default function Feed({
         .hm-divider { border-left: 1px dotted #8a8a8c; }
         .hm-card { display: block; }
         .hm-thumb {
-          display: block; width: 100%; aspect-ratio: 16 / 9;
+          display: block; width: 100%; aspect-ratio: 1.35 / 1;
           margin-bottom: 18px; background: #b8b8ba; overflow: hidden;
         }
-        .hm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .hm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s; }
+        .hm-thumb:hover img { transform: scale(1.03); }
         .hm-label {
           font-family: var(--font-subhead);
           font-weight: 800; font-size: 11px; letter-spacing: .2em; text-transform: uppercase;

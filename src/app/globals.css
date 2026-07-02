@@ -21,7 +21,7 @@
 * { box-sizing: border-box; }
 html, body { overflow-x: hidden; max-width: 100vw; }
 html { scrollbar-gutter: stable; }
-html, body { background: #b8b8ba; }
+html, body { background: #ffffff; }
 
 /* Astoria's glyph for U+0027/U+0022 looks curly. Intercept just those
    codepoints with a system font that draws them straight. */

@@ -63,9 +63,7 @@ export const storyStyles = `
   .story-meta .rt { color: #490000; }
   .story-hero-wrap {
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 40px;
+    padding: 0 76px;
     box-sizing: border-box;
   }
   .story-hero {
@@ -94,9 +92,7 @@ export const storyStyles = `
   }
   .story-cutline-wrap {
     width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 40px;
+    padding: 0 76px;
     box-sizing: border-box;
   }
   .story-cutline {
@@ -184,8 +180,8 @@ export const storyStyles = `
   }
   @media (max-width: 900px) {
     .story-head { padding: 40px 22px 28px; }
-    .story-hero-wrap { padding: 0 22px; }
-    .story-cutline-wrap { padding: 0 22px; }
+    .story-hero-wrap { padding: 0 20px; }
+    .story-cutline-wrap { padding: 0 20px; }
     .story-article { padding: 30px 22px 16px; }
     .story-foot { padding: 20px 22px 32px; }
     .story-comments { padding: 8px 22px 48px; }
