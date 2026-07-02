@@ -265,6 +265,10 @@ export default function Feed({
             color: rgba(255,255,255,.85);
             text-shadow: 0 1px 3px rgba(0,0,0,.7);
           }
+          /* Grain tile is absolute px, so on the smaller mobile hero the 6px
+             dots read much larger relative to the image — shrink to match the
+             fine texture seen on the big desktop hero. */
+          .hm-hero-grain { background-size: 3px 3px; background-image: radial-gradient(rgba(255,255,255,.9) 0.5px, transparent 0.9px); }
           /* Mobile hero: plain photo (no text/scrim overlay) with the kicker
              sitting on the image, headline/dek/byline below it as normal
              black-on-white text — the desktop overlay content is hidden. */
