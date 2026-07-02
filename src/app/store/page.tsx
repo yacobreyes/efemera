@@ -92,7 +92,10 @@ export default function StorePage() {
         }
         @media (max-width: 900px) {
           .store-main { padding: 40px 20px 48px; }
-          .store-band { padding: 26px 24px; }
+          .store-band { padding: 18px 20px; gap: 12px 20px; margin-bottom: 32px; }
+          .store-band-title { font-size: 20px; margin-bottom: 5px; }
+          .store-band-desc { font-size: 13px; }
+          .store-join { font-size: 11px; }
           .store-grid { grid-template-columns: repeat(2, 1fr); gap: 28px 20px; }
           .product-img { max-width: 160px; }
           .product-name { font-size: 18px; }

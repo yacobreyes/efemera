@@ -88,7 +88,8 @@ export default async function IssuesPage() {
         }
         @media (max-width: 900px) {
           .issues-main { padding: 40px 20px 48px; }
-          .issues-band { padding: 26px 24px; }
+          .issues-band { padding: 18px 20px; gap: 12px 20px; margin-bottom: 34px; }
+          .issues-band-title { font-size: 20px; }
           .issue-row { grid-template-columns: 1fr auto; gap: 6px 20px; }
           .issue-no { grid-column: 1 / -1; padding-top: 0; }
         }

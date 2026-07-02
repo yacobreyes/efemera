@@ -257,7 +257,14 @@ export default function Feed({
         /* MOBILE */
         @media (max-width: 900px) {
           .hm-hero-wrap { padding: 20px 20px 0; }
-          .hm-hero-credit { right: 14px; }
+          /* Move the photo credit to the bottom-right on mobile so it can't
+             collide with the "Worth Your Time" badge in the top-left. */
+          .hm-hero-credit {
+            top: auto; bottom: 10px; right: 12px;
+            font-size: 8px; letter-spacing: .06em;
+            color: rgba(255,255,255,.85);
+            text-shadow: 0 1px 3px rgba(0,0,0,.7);
+          }
           /* Mobile hero: plain photo (no text/scrim overlay) with the kicker
              sitting on the image, headline/dek/byline below it as normal
              black-on-white text — the desktop overlay content is hidden. */
@@ -315,16 +322,16 @@ export default function Feed({
           .hm-carousel-dot.active { background: #490000; }
 
           .hm-brief-wrap { padding: 0 20px; }
-          .hm-brief { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 16px; padding: 22px 20px; }
+          .hm-brief { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 16px 18px; }
           .hm-brief-left { flex: 1 1 100%; width: 100%; }
-          .hm-brief-title { font-size: 21px; margin-bottom: 6px; }
-          .hm-brief-sub { font-size: 12.5px; }
+          .hm-brief-title { font-size: 17px; margin-bottom: 3px; }
+          .hm-brief-sub { font-size: 11px; }
           .hm-circles { gap: 8px; }
-          .hm-circle { width: 54px; height: 54px; border-width: 1px; }
-          .hm-circle strong { font-size: 17px; }
-          .hm-circle span { font-size: 7px; letter-spacing: .1em; }
-          .hm-brief-caption { justify-content: flex-start; text-align: left; font-size: 11px; gap: 6px; }
-          .hm-brief-caption .hm-arrow { font-size: 16px; }
+          .hm-circle { width: 46px; height: 46px; border-width: 1px; }
+          .hm-circle strong { font-size: 15px; }
+          .hm-circle span { font-size: 6.5px; letter-spacing: .1em; }
+          .hm-brief-caption { justify-content: flex-start; text-align: left; font-size: 10.5px; gap: 5px; }
+          .hm-brief-caption .hm-arrow { font-size: 14px; }
         }
       `}</style>
 
