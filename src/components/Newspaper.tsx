@@ -303,11 +303,10 @@ export default function Feed({
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             -webkit-overflow-scrolling: touch;
-            gap: 18px;
+            gap: 22px;
             padding: 0 20px 6px;
-            column-gap: 0;
           }
-          .hm-divider { display: block; border-left: 1px solid #e5e5e5; align-self: stretch; flex-shrink: 0; margin: 0; }
+          .hm-divider { display: block; border-left: 1px solid #e5e5e5; align-self: stretch; flex-shrink: 0; width: 0; margin: 0; }
           .hm-card { flex: 0 0 82vw; max-width: 340px; scroll-snap-align: start; }
           .hm-thumb { aspect-ratio: 1.35 / 1; margin-bottom: 16px; }
           .hm-label { font-size: 10px; margin-bottom: 8px; }
@@ -322,16 +321,18 @@ export default function Feed({
           .hm-carousel-dot.active { background: #490000; }
 
           .hm-brief-wrap { padding: 0 20px; }
-          .hm-brief { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 16px 18px; }
-          .hm-brief-left { flex: 1 1 100%; width: 100%; }
+          /* Single horizontal row: title/sub on the left, the 1/3/5 circles on
+             the right — not stacked. The "stories that fit your window" caption
+             is dropped on mobile (it's redundant with the circles). */
+          .hm-brief { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; }
+          .hm-brief-left { flex: 0 1 auto; width: auto; min-width: 0; }
           .hm-brief-title { font-size: 17px; margin-bottom: 3px; }
-          .hm-brief-sub { font-size: 11px; }
-          .hm-circles { gap: 8px; }
+          .hm-brief-sub { font-size: 10.5px; }
+          .hm-circles { gap: 7px; flex-shrink: 0; }
           .hm-circle { width: 46px; height: 46px; border-width: 1px; }
           .hm-circle strong { font-size: 15px; }
           .hm-circle span { font-size: 6.5px; letter-spacing: .1em; }
-          .hm-brief-caption { justify-content: flex-start; text-align: left; font-size: 10.5px; gap: 5px; }
-          .hm-brief-caption .hm-arrow { font-size: 14px; }
+          .hm-brief-caption { display: none; }
         }
       `}</style>
 
